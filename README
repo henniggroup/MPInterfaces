@@ -1,0 +1,19 @@
+https://github.com/materialsproject
+
+pymatgen/io/vaspio_set.py :
+
+    sample classes for creating the vasp input set . examples:- MIT..
+        uses the Incar, Kpoints, etc classes from the pymatgen/io/vaspio
+
+custodian/vasp/jobs.py :
+
+    defines  class vaspjob that uses the vaspinput set generation calss as defines above to create the necessary input files and set the ‘run’ method. it also deines the post_process method
+
+custodian/vasp/handlers.py:
+
+    defines error handlers, derives from the base class Errorhandler and implements the methods check and correct
+
+custodian/custodian.py:
+
+    defines the class Custodian that takes a list of jobs(collection of oblects os vaspjob class or any other derivative of Job class that implements run method) and the error handlers(objects of ).
+        goes through the list of jobs and runs it and checks for errors provided in the list

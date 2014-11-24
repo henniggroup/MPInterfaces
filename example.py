@@ -11,18 +11,16 @@ import numpy as np
 from pymatgen import Composition, Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum
+from pymatgen.io.smartio import read_structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio_set import DictVaspInputSet #MPGGAVaspInputSet
 
 #from custodian.vasp.handlers import VaspErrorHandler, FrozenJobErrorHandler, MeshSymmetryErrorHandler, NonConvergingErrorHandler
-from custodian.custodian import Custodian, Job
+from custodian.custodian import Custodian, Job, gzip_dir
 from custodian.vasp.jobs import VaspJob
-
 from custodian.ansible.actions import FileActions, DictActions
-from custodian.custodian import Job, gzip_dir
 from custodian.vasp.interpreter import VaspModder
 
-from pymatgen.io.smartio import read_structure
 
 VASP_INPUT_FILES = {"INCAR", "POSCAR", "POTCAR", "KPOINTS"}
 
@@ -31,14 +29,12 @@ VASP_OUTPUT_FILES = ['DOSCAR', 'INCAR', 'KPOINTS', 'POSCAR', 'PROCAR',
                      'WAVECAR', 'CONTCAR', 'IBZKPT', 'OUTCAR']
 
 
-
 #---------------------------------------------------------------------------------------------------
 
 
 #subcalss DictVaspInputSet and customize write_input method
 #myVIS.yaml should be in the MODULE_DIR
-#use user_incar_settings to override the defulats in myVIS.yaml
-
+#use user_incar_settings to override the defaults in myVIS.yaml
 class myVaspInputSet(DictVaspInputSet):
     
     def __init__(self, name, config_dict, user_incar_settings=None, **kwargs):
@@ -66,6 +62,7 @@ class myVaspInputSet(DictVaspInputSet):
 
 #---------------------------------------------------------------------------------------------------
 
+#customize the VASPJob class: setup, run and postprocess functions overridden
 class myVaspJob(VaspJob):
     def __init__(self, vasp_cmd, output_file="vasp.out", job_dir='.', suffix="",
                  final=True, gzipped=False, backup=True,
@@ -270,4 +267,4 @@ if __name__ == '__main__':
     
 #---------------------------------------------------------------------------------------------------
 
-#note: write the default yaml to the directory where the jobs are run. This is useful for comparing different job runs in that direcctory
+#note: write the default yaml to the directory where the jobs are run. This is useful later on for comparing different job runs in that direcctory

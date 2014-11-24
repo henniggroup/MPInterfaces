@@ -1,4 +1,5 @@
-https://github.com/materialsproject
+MaterialsProject repo:
+		 https://github.com/materialsproject
 
 pymatgen/io/vaspio_set.py :
 
@@ -7,7 +8,8 @@ pymatgen/io/vaspio_set.py :
 
 custodian/vasp/jobs.py :
 
-    defines  class vaspjob that uses the vaspinput set generation calss as defines above to create the necessary input files and set the ‘run’ method. it also deines the post_process method
+    defines  the class vaspjob that uses the vaspinput set generation class as defined above to create the necessary input files and set the ‘run’ method. 
+    it also defines the post_process method
 
 custodian/vasp/handlers.py:
 
@@ -15,7 +17,5 @@ custodian/vasp/handlers.py:
 
 custodian/custodian.py:
 
-    defines the class Custodian that takes a list of jobs(collection of oblects os vaspjob class or any other derivative of Job class that implements run method) and the error handlers(objects of ).
+    defines the class Custodian that takes a list of jobs(collection of objects of vaspjob class or any other derivative of Job class that implements run method) and the error handlers(objects of ).
         goes through the list of jobs and runs it and checks for errors provided in the list
-
-test

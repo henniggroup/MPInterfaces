@@ -1,3 +1,9 @@
+"""
+The instrument module
+
+"""
+
+
 import sys
 import os, shutil
 import shlex, subprocess
@@ -36,11 +42,13 @@ class myVaspInputSet(DictVaspInputSet):
     use user_incar_settings to override the defaults in myVIS.yaml
     
     """
-    def __init__(self, incar, poscar, potcar, kpoints,**kwargs ):#config_dict, user_incar_settings=None, **kwargs):
+    def __init__(self, name, incar, poscar, potcar, kpoints,**kwargs ):#config_dict, user_incar_settings=None, **kwargs):
         """
         default INCAR from config_dict
         
         """
+        self.name = name
+        
         self.incar = Incar.from_dict(incar.as_dict())#copy.deepcopy(incar)
         self.poscar = Poscar.from_dict(poscar.as_dict())
         self.potcar = Potcar.from_dict(potcar.as_dict())
@@ -48,21 +56,20 @@ class myVaspInputSet(DictVaspInputSet):
         
         config_dict = {}
         config_dict['INCAR'] = self.incar.as_dict()
-        config_dict['POTCAR'] = dict(zip(self.potcar.as_dict()['symbols'], self.potcar.as_dict()['symbols']))
+        config_dict['POTCAR'] = dict(zip(self.potcar.as_dict()['symbols'], self.potcar.as_dict()['symbols'])) #caution the key and the value are not always the same
         config_dict['KPOINTS'] = self.kpoints #kpoints.as_dict()
-        self.user_incar_settings = self.incar.as_dict()        
+        #self.user_incar_settings = self.incar.as_dict()        
         
-        DictVaspInputSet.__init__(self, 'noname', config_dict, user_incar_settings=self.user_incar_settings, ediff_per_atom=False, **kwargs)
+        DictVaspInputSet.__init__(self, name, config_dict, ediff_per_atom=False, **kwargs)
 
-    def write_input(self, output_dir, make_dir_if_not_present=True, write_cif=False):
+    def write_input(self, job_dir, make_dir_if_not_present=True, write_cif=False):
         """
-        default output_dir is the current directory, directory for each vasp input set can be set here
-        in this example self.name is used to name the directories
+        the input files are written to the job_dir
         process(if needed) and write the input files in each directory
         structures read from the poscar files in the directory
         
         """
-        d = './'+output_dir #self.name        
+        d = './'+job_dir #self.name        
         if make_dir_if_not_present and not os.path.exists(d):
             os.makedirs(d)
         self.incar.write_file(os.path.join(d, 'INCAR'))
@@ -70,8 +77,6 @@ class myVaspInputSet(DictVaspInputSet):
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
         self.poscar.write_file(os.path.join(d, 'POSCAR'))
         #print os.getcwd()
-        #os.chdir('../')
-        #sys.exit()
 
     def as_dict(self):
         d = super(myVaspInputSet, self).as_dict()
@@ -82,8 +87,11 @@ class myVaspInputSet(DictVaspInputSet):
 class myVaspJob(Job):
     """
     customize the VASPJob class: setup, run and postprocess functions overridden
-    setup_dir : directory that has the setup files for creating the rest of the vasp inputs
-    job_dir : the directory where wach job will be done
+    
+    Args:
+       vasp_cmd : the command to be issued in wach job_dir
+       setup_dir : directory that has the setup files for creating the rest of the vasp inputs
+       job_dir : the directory from which the jobs will be launched
     
     """
     def __init__(self, vasp_cmd, output_file="vasp.out", setup_dir='.', job_dir='untitled', suffix="",
@@ -161,6 +169,7 @@ class myVaspJob(Job):
         return p
 
     def postprocess(self):
+        ## major clean up
         for f in VASP_OUTPUT_FILES + [self.output_file]:
             if os.path.exists(f):
                 if self.final and self.suffix != "":
@@ -186,7 +195,7 @@ class myVaspJob(Job):
     
 
 
-class CalibrateMolecule(object):
+class Calibrate(object):
     """
     create a work flow
     create ENCUT convergence workflow
@@ -218,8 +227,8 @@ class CalibrateMolecule(object):
             print 'ENCUT = ', encut
             self.job_dir = self.parent_job_dir + str(encut)
             self.incar['ENCUT'] = encut
-            vis = myVaspInputSet(self.incar, self.poscar, self.potcar, self.kpoints)
-            job = myVaspJob(["pwd"], final = True, setup_dir=self.setup_dir, job_dir=self.job_dir, backup=False, vis=vis, auto_npar=False, auto_gamma=False)
+            vis = myVaspInputSet('encut_'+str(encut), self.incar, self.poscar, self.potcar, self.kpoints)
+            job = myVaspJob(["pwd"], final = True, setup_dir=self.setup_dir, job_dir=self.job_dir, vis=vis, auto_npar=False, auto_gamma=False)
             self.jobs.append(job)
 
     def kpnt_cnvg(self):
@@ -235,6 +244,30 @@ class CalibrateMolecule(object):
         c = Custodian(self.handlers, self.jobs, max_errors=5)
         c.run()
 
+
+class CalibrateMolecule(Calibrate):
+    def __init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./'):
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./')
+                
+
+class CalibrateBulk(Calibrate):
+    pass
+
+class CalibrateSurface(Calibrate):
+    pass       
+
+class Knobs(object):
+    """
+    Fetch the optimum param values
+    """
+    pass
+
+class Experiment(object):
+    """
+   Run the actual experiment using the optimum knob settings
+   example: slab+ligand calculations
+    """
+    pass
 
 #test
 if __name__ == '__main__':

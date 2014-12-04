@@ -9,63 +9,56 @@ LONG TERM: testing to create a new molecule from existing molecules, can be take
 	# DESIRED USER INPUTS: Bridge atom index, rotation and translation to original molecule on the copy
 """
 import sys
+import copy
 from pymatgen.core.structure import Structure, Molecule, Lattice
 import numpy as np
 from pymatgen.core.operations import SymmOp
 
 ## IGNORE CAN BE WORKED ON LATER , skip to do : work with reflection , converting to rotation and translate for now - ATTEMPT TO USE REFLECTION 
-##ref_site_mol1 = mol1.cart_coords[i]
-##origin_mirror = ref_site_mol1 + mirror_shift
+##ref_site_mol0 = mol0.cart_coords[i]
+##origin_mirror = ref_site_mol0 + mirror_shift
 ##normal_vec = origin_mirror - ref_site_mol1
 ##reflect_shift = SymmOp.reflection(normal_vec, origin_mirror)
 ##translate_vec = np.array([0, -7, 0])#np.array([shift[0], shift[1], shift[2]])
 ##print translate_vec
-
-def combine_mols(mol1, mol2, shift, angle_rot):
-    array_shift =  np.random.rand(1,3) + 1.0 #np.array(shift)
-    #re-center on bridge and rotate about bridge atom
-    #first translation to recenter at bridge index
-    Ox = angle_rot[0]
-    Oy = angle_rot[1]
-    Oz = angle_rot[2]
-
-    distances = [mol1.get_distance(0,i) for i in range(len(mol1.cart_coords))]
+#link={'0':[], '1':[], '2':[[6,2]]}
+def combine_mols(mol0, mol1, mol2, angle, link={}, remove=[]):
+    array_shift =  np.random.rand(1,3) + 1.0 
+    distances = [mol0.get_distance(0,i) for i in range(len(mol0.cart_coords))]
     farthest = np.argmax(distances)
     #print 'farthest from 0', farthest
-    #vector pointing from 0th index atom to the farthest atom of mol1
-    vec = mol1.cart_coords[farthest] - mol1.cart_coords[0]
-    #rotation
-    #rotation_x = trans_and_rot.from_axis_angle_and_translation((1, 0, 0), Ox)
-    #rotation_y = trans_and_rot.from_axis_angle_and_translation((0, 1, 0), Oy)
-    #rotation_z = trans_and_rot.from_axis_angle_and_translation((0, 0, 1), Oz)
-    #mol2.apply_operation(rotation_x)
-    #mol2.apply_operation(rotation_y)
-    #mol2.apply_operation(rotation_z)
-    #print "\n After rotation coordinates: \n", mol.cart_coords
-    op = SymmOp.from_origin_axis_angle(mol2.cart_coords[0], axis=[-vec[0], vec[1], vec[2]], angle=90)
-    mol2.apply_operation(op)
-    new_coords = mol1.cart_coords + array_shift #- mol2.cart_coords[0]
-    #for i, coord in enumerate(mol1.cart_coords):
-    #    if i == 0:
-    #        coord = coord + array_shift
-    #    new_coords.append(coord)
-    mol1 =  mol1.__class__(mol1.species_and_occu, new_coords,
-                          charge=mol1._charge,
-                          spin_multiplicity=mol1._spin_multiplicity,
-                          site_properties=mol1.site_properties)
-    ## CAN BE IGNORED, ATTEMPT TO USE REFLECTION - continued 
-    ##mol2.apply_operation(reflect_shift)
-    #final shift translation
-    #length = len(mol2.cart_coords)
-    #index = [] #for index input needed for translate sites
-    #for x in xrange(length):
-    #    index.append(x) 
-    #mol2.translate_sites(index, array_shift)
-    #print mol2
-    #remove sites from molecule , removing hydrogens located at site (8-1 = 7)
-    mol2.remove_sites([7])
-    mol1.remove_sites([7])
-    combine_mol_sites = mol1.sites + mol2.sites
+    #vector pointing from 0th index atom to the farthest atom of mol0
+    vec = mol0.cart_coords[farthest] - mol0.cart_coords[0]
+    op = SymmOp.from_origin_axis_angle(mol1.cart_coords[0], axis=[-vec[0], vec[1], vec[2]], angle=angle)
+    mol1.apply_operation(op)
+    #shift the coordiantes of mol0
+    new_coords = mol0.cart_coords + array_shift #- mol1.cart_coords[0]
+    mol0 =  mol0.__class__(mol0.species_and_occu, new_coords,
+                          charge=mol0._charge,
+                          spin_multiplicity=mol0._spin_multiplicity,
+                          site_properties=mol0.site_properties)
+    
+    new_coords = copy.deepcopy(mol2.cart_coords)
+    #connect mol2 to mol0 and mol1
+    if link:
+        for k, v in link.items():
+            if v:
+                for ind, conn in enumerate(v):
+                    print 'ind, conn', ind, conn
+                    coord = (mol0.cart_coords[conn[0]] + mol1.cart_coords[conn[1]] )/2
+                    new_coords[ind, 0] = coord[0]
+                    new_coords[ind, 1] = coord[1]
+                    new_coords[ind, 2] = coord[2]                                        
+                    
+
+    mol2 =  mol2.__class__(mol2.species_and_occu, new_coords,
+                          charge=mol2._charge,
+                          spin_multiplicity=mol2._spin_multiplicity,
+                          site_properties=mol2.site_properties)
+        
+    mol1.remove_sites(remove)
+    mol0.remove_sites(remove)
+    combine_mol_sites = mol0.sites + mol1.sites + mol2.sites
     #combine molecule units
     combine_mol = Molecule.from_sites(combine_mol_sites, validate_proximity=True) 
 
@@ -74,13 +67,16 @@ def combine_mols(mol1, mol2, shift, angle_rot):
 
 if __name__=='__main__':
     shift = [0.0, -5.0, 0.0]
-    angle_rot =[180, 0, 0]    
+    angle = 90 #[180, 0, 0]    
+    mol0 = Molecule.from_file("acetic_acid.xyz")
     mol1 = Molecule.from_file("acetic_acid.xyz")
-    mol2 = Molecule.from_file("acetic_acid.xyz")
-    #print mol1
+    mol2 = Molecule(["Pb"], [[0,0,0]])
+    remove = [7]
     #print mol2
+    #print mol0
+    #print mol1
 
-    combine_mol = combine_mols(mol1, mol2, shift, angle_rot)
+    combine_mol = combine_mols(mol0, mol1, mol2, angle, link={'0':[], '1':[], '2':[[6,2]]}, remove=remove)
     combine_mol.to('xyz', 'combo.xyz')
     print combine_mol
 
@@ -89,7 +85,7 @@ if __name__=='__main__':
     print combine_mol_struct
 
     #TEST SITE FOR Pb atom , not final 
-    combine_mol_struct.append('Pb', [0.417020, 0.2, 0.5]) 
+    #combine_mol_struct.append('Pb', [0.417020, 0.2, 0.5]) 
     combine_mol_struct.to(fmt= "poscar", filename= "POSCAR_diacetate_boxed.vasp")
 
   

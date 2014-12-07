@@ -4,7 +4,7 @@ import shutil as shu
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.core.structure import Structure
 import subprocess as sp
-from instrument import CalibrateMolecule
+from mpinterfaces.instrument import CalibrateMolecule
 
 #dictionary of defaults for molecule ENCUT convergence
 default_incar = {'SYMPREC': 1e-06, 

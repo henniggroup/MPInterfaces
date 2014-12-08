@@ -196,18 +196,11 @@ class myVaspJob(Job):
 
 
 class Calibrate(object):
+    
     """
-    create a work flow
-    create ENCUT convergence workflow
-    set up the custodian that we want to run : just a single run
-    just one vasp job that uses the above defined input set
-    first param in VaspJob = vasp_cmd eg:- ["mpirun", "pvasp.5.2.11"]
-    create multiple vaspjob object, each with differnt dictvaspinputset object
-    consider subclassing VaspJob and overriding the post_process method
-    create a custodian task using the jobs and error handlers
-    conside subclassing Custodian and overriding _run_job method to modify when _do_check method is called
-     it must be called when the calcualtion is done for example: check the OUTCAR and check for
-     'writing wavefunctions' or maybe not
+        
+    The base class for creating vasp work flows for calibrating the input parameters for different systems
+    
     
     """
 
@@ -223,6 +216,9 @@ class Calibrate(object):
         self.handlers = [ ] #example:- handlers = [VaspErrorHandler(), FrozenJobErrorHandler(), MeshSymmetryErrorHandler(), NonConvergingErrorHandler()]
 
     def encut_cnvg(self, encut_list):
+        """
+        create ENCUT convergence workflow
+        """
         for encut in encut_list:
             print 'ENCUT = ', encut
             self.job_dir = self.parent_job_dir + str(encut)
@@ -231,63 +227,26 @@ class Calibrate(object):
             job = myVaspJob(["pwd"], final = True, setup_dir=self.setup_dir, job_dir=self.job_dir, vis=vis, auto_npar=False, auto_gamma=False)
             self.jobs.append(job)
 
-    def Kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((7, 7, 7), (10, 10, 10)), conv_step = 1, if_slab = False, if_molecule=False):
-        "If molecule constructs single kpoint file with MP 1x1x1. Calls Kpoints constructors according to Grid_type: Monkhorst Pack Automatic is default, G for Gamma centered automatic; ONLY MP method implemented now others can be added "
-        "if_slab flag is for the application of constraint to z-axis for slab, kpoints_list describes the start and end of kpoints set"
-        " eg: user can pass ((6, 6, 6), ((10, 10, 10))) and conv_step for a convergence to be done for 6x6x6 to 10x10x10, if_slab can be switched to True constraints z to default to 1, that is 6x6x1 to 10x10x1" 
-        "first defines the list of kpoints according to the user input, user needs to give only the start and end kpoint, whether it is for a slab, molecule or simple bulk"
-        if (if_molecule):
-            print "at mol"
-	    kpoint = (1, 1, 1)
-	    self.kpoints = self.kpoints.monkhorst_automatic(kpts=kpoint)
-            K = list(kpoint)
-            print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-            self.job_dir = self.parent_job_dir + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-            vis = myVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]), self.incar, self.poscar, self.potcar, self.kpoints)
-            job = myVaspJob(["pwd"], final = True, setup_dir=self.setup_dir, job_dir=self.job_dir, vis=vis, auto_npar=False, auto_gamma=False)
-            self.jobs.append(job)
-            return "kpoints constructed for simple molecule"
-        elif Grid_type == 'M':
-            print "at Grid"
-	    conv_list = list(kpoints_tuple) #local list convergence_list , convert from tuple because constructor takes tuple as argument
-            start = list(conv_list[0])
-            end = list(conv_list[1])
-            if (if_slab):
-		print "at if_slab"
-                if start[2] != 1 or end[2] != 1:
-                    return "Kpoints not for slab input!"
-                elif (conv_step):
-		    print "at conv_step if_slab"
-                    for x in range(1+start[0], end[0], conv_step):
-                        conv_list.append([x, x, 1])
-		    for kpoint in conv_list:
-                        self.kpoints = self.kpoints.monkhorst_automatic(kpts = kpoint)
-                        K = list(kpoint)
-                        print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-                        self.job_dir = self.parent_job_dir + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-                        vis = myVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]), self.incar, self.poscar, self.potcar, self.kpoints)
-                        job = myVaspJob(["pwd"], final = True, setup_dir=self.setup_dir, job_dir=self.job_dir, vis=vis, auto_npar=False, auto_gamma=False)
-                        self.jobs.append(job)
-
-            elif (conv_step):
-                for x in range(1+start[0], end[0], conv_step):
-                    conv_list.append([x, x, x])                
-            	for kpoint in conv_list:
-                    self.kpoints = self.kpoints.monkhorst_automatic(kpts = kpoint)
-                    K = list(kpoint)
-                    print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-                    self.job_dir = self.parent_job_dir + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-                    vis = myVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]), self.incar, self.poscar, self.potcar, self.kpoints)
-                    job = myVaspJob(["pwd"], final = True, setup_dir=self.setup_dir, job_dir=self.job_dir, vis=vis, auto_npar=False, auto_gamma=False)
-                    self.jobs.append(job)
-	    
-
-    def kpnt_cnvg(self):
+    def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((7, 7, 7), (10, 10, 10)), conv_step = 1):
+        """
+        must be implemented in the deriving class
+        """
         pass
 
+        
     def run(self):
         """
         run the vasp jobs through custodian
+        set up the custodian that we want to run : just a single run
+        just one vasp job that uses the above defined input set
+        first param in VaspJob = vasp_cmd eg:- ["mpirun", "pvasp.5.2.11"]
+        create multiple vaspjob object, each with differnt dictvaspinputset object
+        consider subclassing VaspJob and overriding the post_process method
+        create a custodian task using the jobs and error handlers
+        consider subclassing Custodian and overriding _run_job method to modify when _do_check method is called
+        it must be called when the calcualtion is done for example: check the OUTCAR and check for
+        'writing wavefunctions' or maybe not
+
         disable error handlers on the job and the postprocess since the 'job' here just submitting the job to the queue 
 
         """
@@ -296,35 +255,142 @@ class Calibrate(object):
         c.run()
 
 
+        
 class CalibrateMolecule(Calibrate):
+    
+    """
+    
+    Calibrate paramters for Molecule calculations
+    
+    """
+    
     def __init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./'):
         Calibrate.__init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./')
+
+    def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((7, 7, 7), (10, 10, 10)), conv_step = 1):
+        """
+        If molecule constructs single kpoint file with MP 1x1x1.
+        Calls Kpoints constructors according to Grid_type: Monkhorst Pack Automatic is default,
+        G for Gamma centered automatic; ONLY MP method implemented now others can be added 
+        if_slab flag is for the application of constraint to z-axis for slab,
+        kpoints_list describes the start and end of kpoints set
+        eg: user can pass ((6, 6, 6), ((10, 10, 10))) and conv_step for a convergence to be done for 6x6x6 to 10x10x10,
+        if_slab can be switched to True constraints z to default to 1, that is 6x6x1 to 10x10x1
+        first defines the list of kpoints according to the user input,
+        user needs to give only the start and end kpoint, whether it is for a slab, molecule or simple bulk
+        """
+        kpoint = (1, 1, 1)
+        self.kpoints = self.kpoints.monkhorst_automatic(kpts=kpoint)
+        K = list(kpoint)
+        print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
+        self.job_dir = self.parent_job_dir + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
+        vis = myVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]), self.incar, self.poscar, self.potcar, self.kpoints)
+        job = myVaspJob(["pwd"], final = True, setup_dir=self.setup_dir, job_dir=self.job_dir, vis=vis, auto_npar=False, auto_gamma=False)
+        self.jobs.append(job)
+        #return "kpoints constructed for simple molecule"
+        
                 
 
 class CalibrateBulk(Calibrate):
+    
+    """
+    
+    Calibrate paramters for Bulk calculations
+    
+    """
+    
     def __init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./'):
         Calibrate.__init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./')
 
-class CalibrateSurface(Calibrate):
-    def __init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./'):
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./')       
+        
+    def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((7, 7, 7), (10, 10, 10)), conv_step = 1):
+        if Grid_type == 'M':
+            print "at Grid"
+            conv_list = list(kpoints_tuple) #local list convergence_list , convert from tuple because constructor takes tuple as argument
+            start = list(conv_list[0])
+            end = list(conv_list[1])
+            if (conv_step):
+                for x in range(1+start[0], end[0], conv_step):
+                    conv_list.append([x, x, x])                
+                for kpoint in conv_list:
+                    self.kpoints = self.kpoints.monkhorst_automatic(kpts = kpoint)
+                    K = list(kpoint)
+                    print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
+                    self.job_dir = self.parent_job_dir + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
+                    vis = myVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]), self.incar, self.poscar, self.potcar, self.kpoints)
+                    job = myVaspJob(["pwd"], final = True, setup_dir=self.setup_dir, job_dir=self.job_dir, vis=vis, auto_npar=False, auto_gamma=False)
+                    self.jobs.append(job)
+        
 
+                    
+class CalibrateSlab(Calibrate):
+    
+    """
+    
+    Calibrate paramters for Slab calculations
+    
+    """
+    
+    def __init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./'):
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./')
+
+        
+    def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((7, 7, 7), (10, 10, 10)), conv_step = 1):
+        if Grid_type == 'M':
+            conv_list = list(kpoints_tuple) #local list convergence_list , convert from tuple because constructor takes tuple as argument
+            start = list(conv_list[0])
+            end = list(conv_list[1])
+            if start[2] != 1 or end[2] != 1:
+                return "Kpoints not for slab input!"
+            elif (conv_step):
+                for x in range(1+start[0], end[0], conv_step):
+                    conv_list.append([x, x, 1])
+                for kpoint in conv_list:
+                    self.kpoints = self.kpoints.monkhorst_automatic(kpts = kpoint)
+                    K = list(kpoint)
+                    print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
+                    self.job_dir = self.parent_job_dir + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
+                    vis = myVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]), self.incar, self.poscar, self.potcar, self.kpoints)
+                    job = myVaspJob(["pwd"], final = True, setup_dir=self.setup_dir, job_dir=self.job_dir, vis=vis, auto_npar=False, auto_gamma=False)
+                    self.jobs.append(job)
+	            
+
+                    
 class CalibrateInterface(Calibrate):
+    
+    """
+    
+    Calibrate paramters for Interface(= Slab+ligand+solvent) calculations
+    
+    """    
+    
     def __init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./'):
         Calibrate.__init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./')
+
+
 
 class Knobs(object):
+    
     """
+    
     Fetch the optimum param values
+    
     """
     pass
 
+
+
 class Experiment(object):
+    
     """
-   Run the actual experiment using the optimum knob settings
-   example: slab+ligand calculations
+    
+    Run the actual experiment using the optimum knob settings
+    example: slab+ligand calculations
+    
     """
     pass
+
+
 
 #test
 if __name__ == '__main__':
@@ -348,10 +414,11 @@ if __name__ == '__main__':
     potcar = Potcar(symbols=atoms, functional='PBE', sym_potcar_map=None)
     kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16), shift=(0, 0, 0))#{'grid_density': 1000} #
 
-    calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
-    calmol.encut_cnvg(range(400,800,100))
-    calmol.Kpoints_cnvg(kpoints_tuple = ((7, 7, 7), (11, 11, 11))) #for bulk
-    calmol.run()
+#    calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
+    calbulk = CalibrateBulk(incar, poscar, potcar, kpoints)    
+    calbulk.encut_cnvg(range(400,800,100))
+    calbulk.kpoints_cnvg(kpoints_tuple = ((7, 7, 7), (11, 11, 11))) #for bulk
+    calbulk.run()
 
 
 

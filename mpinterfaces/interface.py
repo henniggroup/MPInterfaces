@@ -9,8 +9,8 @@ class Interface(Slab):
     """
     Interface = slab + ligand + environment(solvent)
     """
-    def __init__(self, strt, hkl=[1,1,1], min_thick=10, min_vac=10, supercell=[1,1,1],
-                 ligand=None, displacement=1.0, sface_cvrg=None, solvent=None, start_from_slab=False,
+    def __init__(self, strt, hkl=[1,1,1], min_thick=10, min_vac=10, supercell=[1,1,1], adsorb_on_species=None,
+                 ligand=None, displacement=1.0, surface_coverage=None, solvent=None, start_from_slab=False,
                  validate_proximity=False, to_unit_cell=False, coords_are_cartesian=False):
         self.strt = strt
         self.hkl = hkl
@@ -21,8 +21,8 @@ class Interface(Slab):
         self.displacement = displacement
         self.solvent = solvent
         self.start_from_slab = start_from_slab
-        self.sface_cvrg = sface_cvrg
-        
+        self.surface_coverage = surface_coverage
+        self.adsorb_on_species = adsorb_on_species
         Slab.__init__(self, self.strt.lattice, self.strt.species_and_occu, self.strt.frac_coords, miller_index=self.hkl, oriented_unit_cell=None, shift=None, scale_factor=None, validate_proximity=validate_proximity,
                            to_unit_cell=to_unit_cell, coords_are_cartesian=coords_are_cartesian,
                            site_properties=self.strt.site_properties, energy=None )
@@ -39,34 +39,32 @@ class Interface(Slab):
             if j not in self.top_atoms:
                 [self.top_atoms.append(i) for i in range(n_atoms) if np.abs(max_dist - self.strt.distance_matrix[j,i]) < 1e-6]
         self.top_atoms = np.unique(self.top_atoms)
+        if self.adsorb_on_species:
+            self.top_atoms = np.array([i for i in self.top_atoms if self.strt[i].species_string == self.adsorb_on_species])
 
     def enforce_surface_cvrg(self):
+        n_top_atoms =  len(self.top_atoms)
+        max_coverage = n_top_atoms/self.strt.surface_area 
         m = self.strt.lattice.matrix
-        surface_area = np.linalg.norm(np.cross(m[0], m[1]))
-        #n_top_atoms =  len(self.top_atoms)
-        #print 'number of top atoms ', n_top_atoms
-        if self.sface_cvrg:
-           for i in range(1, 10):
-                for j in range(1, 10):
-                    #for nlig in range(1, i*j*n_top_atoms):
-                        
-                        surface_area = np.linalg.norm(np.cross(i*m[0], j*m[1]))
-                        if (int(surface_area * self.sface_cvrg) == 1):
-                                print 'supercell = ', i, j
-                                print 'feasible covergae = ', 1./surface_area, ' requested = ', self.sface_cvrg
+        print 'max_coverage = ', max_coverage
+        if self.surface_coverage:
+            if self.surface_coverage > max_coverage:
+                print 'requested surface coverage exceeds the max possible coverage'
+            else:
+                for nlig in range(1, n_top_atoms+1):
+                    for i in range(1, 10):
+                        for j in range(1, 10):
+                            surface_area = np.linalg.norm(np.cross(i*m[0], j*m[1]))
+                            if (int(surface_area * self.surface_coverage) == nlig):
+                                print 'supercell = ', i, j, 1
+                                print 'number of ligands = ', nlig
+                                print 'feasible covergae = ', 1./surface_area, ' requested = ', self.surface_coverage
                                 self.strt.make_supercell([i,j,1])
-                                return
+                                return nlig
 
 
     def adsorb_on(self, site_indices):
         mov_vec = self.strt.normal * self.displacement
-#        for i in range(len(self.strt.cart_coords)):
-#            if np.linalg.norm(self.strt.cart_coords[i] - mov_vec) <= 3.0:
-#                mov_vec = -mov_vec
-#                break
-        #print self.strt.cart_coords[site_indices[0]]
-        #sys.exit()
-        
         adsorbed_ligands_coords = np.array([self.ligand.cart_coords - self.strt.cart_coords[sindex] + mov_vec for sindex in site_indices ]) #3d numpy array
         #extend the slab structure with the adsorbant atoms
         num_atoms = len(self.ligand.species_and_occu)
@@ -78,24 +76,21 @@ class Interface(Slab):
         if not self.start_from_slab:
             self.strt = SlabGenerator(self.strt, self.hkl, self.min_thick, self.min_vac).get_slab()
         self.strt.to(fmt='poscar', filename='POSCAR_primitive_slab.vasp')
-        #self.strt.to(fmt='poscar', filename='POSCAR_slab_supercell.vasp')
-        #self.set_top_atoms()
-        #self.adsorb_sites = self.top_atoms
-        print self.strt
-        self.enforce_surface_cvrg()
-        print self.strt
+        #set the top atoms
         self.set_top_atoms()
         self.adsorb_sites = self.top_atoms
-        print self.adsorb_sites
+        #make sure the supercell of the slab is big enough to satisfy the surface coverage requirement
+        #return the number of ligands required to satusfy the requirement
+        nligands = self.enforce_surface_cvrg()
+        #reset the top atoms
+        self.set_top_atoms()
+        self.adsorb_sites = [self.top_atoms[i] for i in range(nligands)]
+        print 'ligands will be adsorbed on these sites ', self.adsorb_sites
+        #print self.strt[8].species_string
+        #print self.strt[8].coords
         sys.exit()
-        #adsorb one ligand on one of the top atoms
-        self.adsorb_on([self.adsorb_sites[0]])        
-        #sys.exit()
-        #print 'surface coverage ', 1./self.strt.surface_area
-
-
-        #create supercell of the slab to enforce the given surface coverage
-        self.enforce_surface_cvrg()
+        #adsorb the ligands 
+        self.adsorb_on(self.adsorb_sites)        
 
 
     @staticmethod
@@ -344,7 +339,7 @@ if __name__=='__main__':
     #adsorb a molecule(shifted by shift from the slab top surface) on
     #NOTE: the molecule is adsorbed on all atoms of the top surface of the slab
     #TODO: add surface coverage(ligands per nm^2)
-    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=min_vac, supercell=supercell, ligand=h2o, displacement=displacement, sface_cvrg=0.1) # 1 lig/nm^2 = 0.01 lig/ang^2
+    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=min_vac, supercell=supercell, ligand=h2o, displacement=displacement, surface_coverage=0.1) # 1 lig/nm^2 = 0.01 lig/ang^2
     iface.create_interface()
     iface.write_to_file('poscar', 'POSCAR_interface.vasp')
 

@@ -3,7 +3,7 @@ About:
 
 Python package that uses the materialsproject_ tools to automate vasp calculations for molecules, surfaces and interfaces(=surface+ligand+solvent)
 
-.. _materialsproject: https://www.materialsproject.org/
+.. _materialsproject: https://github.com/materialsproject
 
 Packages:
 ==========

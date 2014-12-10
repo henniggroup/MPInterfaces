@@ -50,7 +50,8 @@ Status:
 
 	Alpha testing phase. Requires more thorough testing
 
-:Authors:
+Authors
+=======================
    
 	Kiran Mathew
 	

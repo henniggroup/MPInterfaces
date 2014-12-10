@@ -21,7 +21,23 @@ class Interface(Slab):
                  surface_coverage=None, solvent=None, start_from_slab=False,
                  validate_proximity=False, to_unit_cell=False,
                  coords_are_cartesian=False):
-        self.strt = strt
+        #if starting from the bulk structure, create slab
+        if isinstance(strt, Structure):
+            strt = SlabGenerator(strt, hkl, min_thick, min_vac, center_slab=True).get_slab()
+        else:
+            print 'strt must be an object of either Structure or Slab'
+            sys.exit()
+
+        Slab.__init__(self, strt.lattice, strt.species_and_occu,
+                           strt.frac_coords, miller_index=strt.miller_index,
+                           oriented_unit_cell=strt.oriented_unit_cell,
+                           shift=strt.shift, scale_factor=strt.scale_factor,
+                           validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
+                           coords_are_cartesian=coords_are_cartesian,
+                           site_properties=strt.site_properties,
+                           energy=strt.energy )
+            
+        #self.strt = strt
         self.hkl = hkl
         self.min_thick = min_thick
         self.min_vac = min_vac
@@ -29,29 +45,29 @@ class Interface(Slab):
         self.ligand = ligand
         self.displacement = displacement
         self.solvent = solvent
-        self.start_from_slab = start_from_slab
         self.surface_coverage = surface_coverage
         self.adsorb_on_species = adsorb_on_species
         self.adatom_on_lig = adatom_on_lig
-        Slab.__init__(self, self.strt.lattice, self.strt.species_and_occu, self.strt.frac_coords,
-                      miller_index=self.hkl, oriented_unit_cell=None, shift=None, scale_factor=None,
-                      validate_proximity=validate_proximity, to_unit_cell=to_unit_cell, coords_are_cartesian=coords_are_cartesian,
-                      site_properties=self.strt.site_properties, energy=None )
+
+    def test(self):
+        print 'test'
+        print self.oriented_unit_cell
+        print self.frac_coords
 
 
     def set_top_atoms(self):
-            n_atoms = len(self.strt)
-            a, b, c = self.strt.oriented_unit_cell.lattice.matrix
-            h = abs(np.dot(self.strt.normal, c))
+            n_atoms = len(self.frac_coords[:,0])
+            a, b, c = self.oriented_unit_cell.lattice.matrix
+            h = abs(np.dot(self.normal, c))
             nlayers_slab = int(math.ceil(self.min_thick / h))
             nlayers_vac = int(math.ceil(self.min_vac / h))
             nlayers = nlayers_slab + nlayers_vac
             self.top_atoms = []
             self.bottom_atoms = []            
             for i in range(n_atoms):
-                    if np.abs(self.strt.frac_coords[i][2] - max(self.strt.frac_coords[:,2])) < 1e-6:
+                    if np.abs(self.frac_coords[i][2] - max(self.frac_coords[:,2])) < 1e-6:
                             self.top_atoms.append(i)
-                    elif np.abs(self.strt.frac_coords[i][2] - min(self.strt.frac_coords[:,2])) < 1e-6:
+                    elif np.abs(self.frac_coords[i][2] - min(self.frac_coords[:,2])) < 1e-6:
                             self.bottom_atoms.append(i)
 
 
@@ -62,8 +78,8 @@ class Interface(Slab):
         returns the number of ligands that need to be adsorbed 
         """
         n_top_atoms =  len(self.top_atoms)
-        max_coverage = n_top_atoms/self.strt.surface_area 
-        m = self.strt.lattice.matrix
+        max_coverage = n_top_atoms/self.surface_area 
+        m = self.lattice.matrix
         print 'maximum possible coverage = ', max_coverage
         num_ligands = {}
         k = 0
@@ -83,7 +99,7 @@ class Interface(Slab):
                                 print 'supercell = ', i, j, 1
                                 print 'number of ligands = ', nlig
                                 print 'feasible coverage = ', nlig/surface_area, ' requested = ', self.surface_coverage
-                                #self.strt.make_supercell([i,j,1])
+                                #self.make_supercell([i,j,1])
                                 k = k+1
                                 num_ligands[str(k)] = [nlig,i,j,1]
                 if not num_ligands:
@@ -99,7 +115,7 @@ class Interface(Slab):
                                     print 'supercell = ', i, j, 1
                                     print 'number of ligands = ', nlig
                                     print 'feasible coverage = ', nlig/surface_area, ' requested = ', self.surface_coverage
-                                    #self.strt.make_supercell([i,j,1])
+                                    #self.make_supercell([i,j,1])
                                     k = k+1
                                     num_ligands[str(k)] = [nlig,i,j,1]
         return num_ligands  
@@ -112,19 +128,19 @@ class Interface(Slab):
         puts the ligand molecule on the given list of site indices
         """
         num_atoms = len(self.ligand)
-        normal = self.strt.normal
+        normal = self.normal
         #get a vector that points from one atome in the botton plane to one atom on
         #the top plane. This is required to make sure that the surface normal
         #points outwards from the surface on to which we want to adsorb the ligand
-        vec_vac = self.strt.cart_coords[self.top_atoms[0]] - self.strt.cart_coords[self.bottom_atoms[0]]
+        vec_vac = self.cart_coords[self.top_atoms[0]] - self.cart_coords[self.bottom_atoms[0]]
         #mov_vec = the vector along which the ligand will be displaced
         mov_vec = normal * self.displacement
-        angle = get_angle(vec_vac, self.strt.normal)
+        angle = get_angle(vec_vac, self.normal)
         #flip the orientation of normal if it is not pointing in the right direction.
         if ( angle > 90 ):
-            normal_frac =  self.strt.lattice.get_fractional_coords(normal)
+            normal_frac =  self.lattice.get_fractional_coords(normal)
             normal_frac[2] = -normal_frac[2]
-            normal = self.strt.lattice.get_cartesian_coords(normal_frac)
+            normal = self.lattice.get_cartesian_coords(normal_frac)
             mov_vec = normal * self.displacement
         #get the index corresponding to the given atomic species in the ligand that
         #will bond with the surface on which the ligand will be adsorbed
@@ -133,7 +149,7 @@ class Interface(Slab):
         #set the ligand coordinates for each adsorption site on the surface
         for sindex in site_indices:
             #align the ligand wrt the site on the surface to which it will be adsorbed
-            origin = self.strt.cart_coords[sindex]
+            origin = self.cart_coords[sindex]
             self.ligand.translate_sites(list(range(num_atoms)), origin - self.ligand[adatom_index].coords )
             #displace the ligand by the given amount in the direction normal to surface
             self.ligand.translate_sites(list(range(num_atoms)), mov_vec)
@@ -161,7 +177,7 @@ class Interface(Slab):
         #extend the slab structure with the adsorbant atoms
         adsorbed_ligands_coords = np.array(adsorbed_ligands_coords)
         for j in range(len(site_indices)):
-            [self.strt.append(self.ligand.species_and_occu[i], adsorbed_ligands_coords[j,i,:], coords_are_cartesian=True) for i in range(num_atoms)]
+            [self.append(self.ligand.species_and_occu[i], adsorbed_ligands_coords[j,i,:], coords_are_cartesian=True) for i in range(num_atoms)]
 
         
     def get_index(self, species_string):
@@ -179,13 +195,10 @@ class Interface(Slab):
         and it ensures that the cell is big enough and
         have enough ligands to satify the surface coverage criterion
         """
-        #if starting from the bulk structure, create slab
-        if not self.start_from_slab:
-            self.strt = SlabGenerator(self.strt, self.hkl, self.min_thick, self.min_vac, center_slab=True).get_slab()
-        self.strt.to(fmt='poscar', filename='POSCAR_primitive_slab.vasp')
+        self.to(fmt='poscar', filename='POSCAR_primitive_slab.vasp')
         #get the bottom to top distance: to get he top atom indices
-        n_atoms = len(self.strt)
-        self.top_bot_dist = np.max(self.strt.distance_matrix.reshape(n_atoms*n_atoms, 1))
+        n_atoms = len(self.frac_coords[:,0])
+        self.top_bot_dist = np.max(self.distance_matrix.reshape(n_atoms*n_atoms, 1))
         #set the top atoms
         self.set_top_atoms()
         #make sure the supercell of the slab is big enough to satisfy
@@ -199,7 +212,7 @@ class Interface(Slab):
             scells = []
             nnligands = []
             surf_cvgs = []
-            s_area = self.strt.surface_area
+            s_area = self.surface_area
             for k, v in nligands.items():
                 areas.append(v[1]*v[2])
                 scells.append(v[1:])
@@ -208,26 +221,16 @@ class Interface(Slab):
             diff_cvg = np.abs(np.array(surf_cvgs) - self.surface_coverage)
             print 'using ...', nnligands[np.argmin(diff_cvg)], ' ligands on a ', scells[np.argmin(diff_cvg)], ' supercell'
             #create the supercell and reset the top atoms
-            self.strt.make_supercell(scells[np.argmin(diff_cvg)])
+            self.make_supercell(scells[np.argmin(diff_cvg)])
             self.set_top_atoms()
             self.adsorb_sites = [self.top_atoms[i] for i in range(nnligands[np.argmin(areas)])]
             print 'ligands will be adsorbed on these sites on the slab ', self.adsorb_sites
             #adsorb the ligands
-            #Slab.add_adsorbate_atom(self.strt,[0],'O',2)
+            #Slab.add_adsorbate_atom([0],'O',2)
             self.adsorb_on(self.adsorb_sites)
         else:
             print 'no ligands'
             sys.exit()
-
-
-    @staticmethod
-    def from_file(fname):
-        pass
-
-    
-    def write_to_file(self,fmt,fname):
-        self.strt.sort()
-        self.strt.to(fmt=fmt, filename=fname)
 
 
         
@@ -376,11 +379,14 @@ class Ligand(Molecule):
         self._sites = combine_mol_sites
 
 
+        
+
 #test
 if __name__=='__main__':
-    ##########################
-    #lead acetate ligand
-    ##########################
+    ########################################
+    #create lead acetate ligand
+    #from 3 molecules: 2 acetic acid + 1 Pb
+    ########################################
     mol0 = Molecule.from_file("acetic_acid.xyz")
     mol1 = Molecule.from_file("acetic_acid.xyz")
     mol2 = Molecule(["Pb"], [[0,0,0]])
@@ -428,17 +434,6 @@ if __name__=='__main__':
     boxed_lead_acetate = lead_acetate.get_boxed_structure(13, 13, 13)  
     boxed_lead_acetate.to(fmt= "poscar", filename= "POSCAR_diacetate_boxed.vasp")
 
-    ######################################
-    # create a slab corresponding to an
-    #  interface with h2o lignads
-    # attached to Cu 111 surface    
-    # Cu bulk latt const from materialsproject
-    #####################################
-    a0 = 3.62
-    latt = Lattice.cubic(a0)
-    species = ["Cu", "Cu", "Cu", "Cu"]
-    positions = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]]
-
     ########################################
     # H2O ligand
     ########################################        
@@ -454,21 +449,55 @@ if __name__=='__main__':
     h2o = Ligand([mol])
 
     ########################################
-    # Interface = Slab + ligand + solvent
+    # Interface = Slab + ligand + solvent(to do)
+    # Cu surface with H2O as ligands
     #######################################
-    hkl = [1,1,1]
-    min_thick = 9 #Ang
-    min_vac = 12 #Ang    
-    strt = Structure(latt, species, positions)
-    supercell = [2,2,1]
-    #ligand displacement from the slab surface along the surface normal
-    displacement = 2.0 
 
-    #create a slab supercell of miller index hkl, minimum thickness min_thick and a
-    #minimum vacuum space of min_vac
-    #adsorb a molecule(shifted by shift from the slab top surface)
-    # surface covergae in the units of lig/ang^2
-    #note: 1 lig/nm^2 = 0.01 lig/ang^2
+    a0 = 3.62 #from materials project
+    latt = Lattice.cubic(a0)
+    species = ["Cu", "Cu", "Cu", "Cu"]
+    positions = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]]
+    
+    #initial structure, must be either a bulk structure or a slab
+    strt = Structure(latt, species, positions)
+    
+    #intital supercell, this wont be the final supercell if surface coverage is specified
+    supercell = [1,1,1]
+
+    #miller index
+    hkl = [1,1,1]
+    
+    #minimum slab thickness in Angstroms
+    min_thick = 9
+    
+    #minimum vacuum thickness in Angstroms
+    #mind: the ligand will be placed in this vacuum, so the
+    #final effective vacuum space will be smaller than this
+    min_vac = 12
+    
+    # surface coverage in the units of lig/ang^2
+    #mind: exact coverage as provided cannot be guaranteed, the slab will be constructed
+    #with a coverage value thats close to the requested one
+    #note: maximum supercell size possible is 10 x 10
+    #note: 1 lig/nm^2 = 0.01 lig/ang^2    
+    surface_coverage = 0.01
+    
+    #atom on the slab surface on which the ligand will be attached,
+    #no need to specify if the slab is made of only a single species
+    #adsorb_on_species = 'Cu'
+    
+    #atom on ligand that will be attached to the slab surface
+    adatom_on_lig='O'
+    
+    #ligand displacement from the slab surface along the surface normal
+    #i.e adatom_on_lig will be displced by this amount from the adsorb_on_species atom
+    #on the slab
+    #in Angstrom
+    displacement = 2.0
+
+    #
+    #here we create the interface
+    #
     iface = Interface(strt, hkl=[1,1,1], min_thick=min_thick, min_vac=min_vac,
                       supercell=supercell, surface_coverage=0.01,
                       ligand=h2o, displacement=displacement, adatom_on_lig='O')
@@ -476,4 +505,5 @@ if __name__=='__main__':
 #                      supercell=supercell, surface_coverage=0.01,
 #                      ligand=lead_acetate, displacement=displacement, adatom_on_lig='Pb')
     iface.create_interface()
-    iface.write_to_file('poscar', 'POSCAR_interface.vasp')
+    iface.sort()
+    iface.to('poscar', 'POSCAR_interface.vasp')

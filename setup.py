@@ -9,17 +9,17 @@ def read(fname):
 
 setup(
     name = "mpinterfaces",
-    version = "0.0.0",
+    version = "0.1",
     author = "Kiran Mathew, Joshua Gabriel",
     author_email = "km468@cornell.edu",
     description = ("Automate vasp calculations for interfaces"),
     license = "GPL",
     url = "https://matk86@bitbucket.org/matk86/vasp_automation.git",
     packages=find_packages(),
-    long_description=read('README'),
+    long_description=read('README.rst'),
     classifiers=[
         "Programming Language :: Python :: 2.7",
-        "Development Status :: 3 - Alpha",
+        "Development Status :: Alpha",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GPL License",
         "Operating System :: OS Independent",
@@ -28,5 +28,5 @@ setup(
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
+#    scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )

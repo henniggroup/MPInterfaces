@@ -21,6 +21,13 @@ def get_struct_from_mp(formula):
     function returns the first one of those structures
     """
     with MPRester(MAPI_KEY) as m:
+        #criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
+        #props = ['pretty_formula', 'energy']
+        #data = m.query(criteria=criteria, properties=props)
+        #data = m.get_exp_thermo_data("Fe2O3")
+        #structs = m.get_structures("Mn3O4")
+        #ntries = m.get_entries("TiO2")
+        #entry = m.get_exp_entry("Fe2O3")
         data = m.get_data(formula)
         print "\nnumber of structures matching the chemical formula "+formula+" = ", len(data)
         #srtrs = {}

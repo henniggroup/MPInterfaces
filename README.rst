@@ -24,17 +24,18 @@ Requirements:
 
 Install Instructions:
 
-	if starting from scratch:
+- fetch the package from bitbucket
+  if starting from scratch:
 	
-		git clone https://username@bitbucket.org/matk86/vasp_automation.git
+  * git clone https://username@bitbucket.org/matk86/vasp_automation.git
 
-	else:
+  else:
 
-		git pull
+  * git pull
 	
-	cd vasp_automation
+- cd vasp_automation
 	
-	python setup.py install (assuming that you are in the virtual environement containing pymatgen and other material project packages)
+- python setup.py install (no sudo privilege required if installing in a virtual environment)
 
 Note:
 

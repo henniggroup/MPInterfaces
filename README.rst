@@ -1,3 +1,6 @@
+About:
+========
+
 Python package that uses the materialsproject tools to automate vasp calculations for molecules, surfaces and interfaces(=surface+ligand+solvent)
 
 Packages:
@@ -5,7 +8,7 @@ Packages:
 
 - mpinterfaces
 
-scripts:
+Scripts:
 ==========
 
 - some utility scripts that make use of the modules in the package
@@ -23,7 +26,7 @@ Requirements:
 
 ..
 
-	It is highly recommended that you install this package and all the required packages in a virtual environment
+	It is highly recommended that you install this package and all the required packages in a virtual environment( http://virtualenv.readthedocs.org/en/latest/virtualenv.html)
 
 Install Instructions:
 =======================
@@ -48,6 +51,8 @@ Status:
 	Alpha testing phase. Requires more thorough testing
 
 :Authors:
+   
 	Kiran Mathew
+	
 	Joshua Gabriel
 	

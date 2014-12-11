@@ -15,5 +15,6 @@ class Measurement(object):
     """
 
     def __init__(self, cal_mol, cal_slab, interface):
+        
         pass
 

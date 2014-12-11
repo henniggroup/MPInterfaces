@@ -1,3 +1,9 @@
+"""
+This script demonstrates the usage of the module mpinterfaces/instrument.py
+
+Creates a sample workflow for ENCUT convergence study
+"""
+
 import os
 import sys
 import shutil as shu
@@ -30,25 +36,3 @@ kpoints = Kpoints()
 calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
 calmol.encut_cnvg(range(400,800,100))
 calmol.run()
-
-
-#create INCAR loop according to ENCUT
-#assign ENCUT value
-#for E in range(400,850,50):
-#	sp.check_call("rm -rf "+str(E), shell = True)	
-#	os.mkdir(str(E))
-#	os.chdir(str(E))
-#	incar['ENCUT'] = E
-#	incar.write_file("INCAR")
-#	poscar.write_file("POSCAR")
-#	potcar.write_file("POTCAR")
-#	kpoints.write_file("KPOINTS")
-#        shu.copy("../submit_job",".")
-#	ret_val = sp.check_call("qsub submit_job", shell=True)
-#        if ret_val != 0:
-#                sys.exit()
-#	os.chdir('..')
-
-
-
-

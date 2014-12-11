@@ -1,7 +1,8 @@
 """
-This script demonstartes how to fetch data from the materialsproject database using their API
-and to create an interface with ligands attached to it
-Note: Before using the script, make sure that you do have a valid api key obtained from the materialsproject website
+This script demonstrates the usage of the module mpinterfaces/interface.py
+
+Also, demonstrates how to fetch data from the materialsproject database using their API
+Note: Before using the script, make sure that you do have a valid api key obtained from the materialsproject website. Use that to set the MAPI_KEY variable below
 """
 
 import sys

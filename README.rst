@@ -34,13 +34,15 @@ Requirements:
 Install Instructions:
 =======================
 
-- fetch the package from bitbucket
+- get the latest version from bitbucket
   
   if starting from scratch:
 	
   * git clone https://username@bitbucket.org/matk86/vasp_automation.git
 
   else:
+
+  * cd vasp_automation
 
   * git pull
 	

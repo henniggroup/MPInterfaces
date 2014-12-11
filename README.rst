@@ -53,7 +53,7 @@ Install Instructions:
 Status:
 =======================
 
-	Alpha testing phase. Requires more thorough testing
+	Alpha testing phase. Requires more thorough tests
 
 Authors
 =======================

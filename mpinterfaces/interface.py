@@ -16,7 +16,7 @@ class Interface(Slab):
     """
     
     def __init__(self, strt, hkl=[1,1,1], min_thick=10, min_vac=10,
-                 supercell=[1,1,1], adsorb_on_species=None, adatom_on_lig=None,
+                 supercell=[1,1,1], name=None, adsorb_on_species=None, adatom_on_lig=None,
                  ligand=None, displacement=1.0,
                  surface_coverage=None, solvent=None, start_from_slab=False,
                  validate_proximity=False, to_unit_cell=False,
@@ -38,6 +38,7 @@ class Interface(Slab):
                            energy=strt.energy )
             
         #self.strt = strt
+        self.name = name
         self.hkl = hkl
         self.min_thick = min_thick
         self.min_vac = min_vac
@@ -48,11 +49,6 @@ class Interface(Slab):
         self.surface_coverage = surface_coverage
         self.adsorb_on_species = adsorb_on_species
         self.adatom_on_lig = adatom_on_lig
-
-    def test(self):
-        print 'test'
-        print self.oriented_unit_cell
-        print self.frac_coords
 
 
     def set_top_atoms(self):
@@ -231,7 +227,6 @@ class Interface(Slab):
         else:
             print 'no ligands'
             sys.exit()
-
 
         
 class Ligand(Molecule):

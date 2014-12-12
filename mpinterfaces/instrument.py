@@ -122,7 +122,7 @@ class MPINTVaspJob(Job):
         self.vis.write_input(self.job_dir)
         if self.backup:
             os.chdir(os.path.abspath(self.job_dir))
-            for f in VASP_INPUT_FILES:
+            for f in os.listdir('.'):
                 shutil.copy(f, "{}.orig".format(f))
             os.chdir(self.parent_job_dir)                
 

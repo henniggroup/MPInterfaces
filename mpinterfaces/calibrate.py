@@ -71,12 +71,52 @@ class Calibrate(object):
 
 
             
-    def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((7, 7, 7), (10, 10, 10)),
-                     conv_step = 1):
+    def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((1, 1, 1), ),
+                     conv_step = 1, is_slab=False):
         """
-        must be implemented in the deriving class
+        set the jobs for kpoint convergence
+        
+        Calls Kpoints constructors according to Grid_type:
+        Monkhorst Pack Automatic is default,
+        
+        G for Gamma centered automatic; ONLY MP method implemented now others can be added 
+        
+        kpoints_list describes the start and end of kpoints set
+        eg: user can pass ((6, 6, 6), ((10, 10, 10))) and conv_step for a
+        convergence to be done for 6x6x6 to 10x10x10,
+        
+        is_slab can be switched to True constraints z to default to 1,
+        that is 6x6x1 to 10x10x1
+        
+        first defines the list of kpoints according to the user input,
+        user needs to give only the start and end kpoint,
+        whether it is for a slab or simple bulk
         """
-        pass
+        if Grid_type == 'M':
+            #local list convergence_list , convert from tuple
+            #because constructor takes tuple as argument            
+            conv_list = list(kpoints_tuple) 
+            start = list(conv_list[0])
+            end = list(conv_list[1])
+            if (conv_step):
+                for x in range(1+start[0], end[0], conv_step):
+                    if not is_slab:
+                        conv_list.append([x, x, x])
+                    else:
+                        conv_list.append([x, x, 1])                         
+                for kpoint in conv_list:
+                    self.kpoints = self.kpoints.monkhorst_automatic(kpts = kpoint)
+                    K = list(kpoint)
+                    print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
+                    job_dir = self.job_dir +os.sep+ 'KPOINTS' + os.sep + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
+                    vis = MPINTVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]),
+                                            self.incar, self.poscar, self.potcar,
+                                            self.kpoints)
+                    job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
+                               parent_job_dir=self.parent_job_dir, job_dir=job_dir,
+                               vis=vis, auto_npar=False, auto_gamma=False)
+                    
+                    self.jobs.append(job)
 
 
     
@@ -110,14 +150,6 @@ class Calibrate(object):
 
 
         
-    def knob_settings(self):
-       """
-       go through the run directories and get the optimal values for the input paramters
-       """
-       pass
-
-
-        
 class CalibrateMolecule(Calibrate):
     
     """
@@ -137,36 +169,9 @@ class CalibrateMolecule(Calibrate):
         
     def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((7, 7, 7), (10, 10, 10)),
                      conv_step = 1):
-        """
-        If molecule constructs single kpoint file with MP 1x1x1.
-        Calls Kpoints constructors according to Grid_type: Monkhorst Pack Automatic is default,
-        G for Gamma centered automatic; ONLY MP method implemented now others can be added 
-        if_slab flag is for the application of constraint to z-axis for slab,
-        kpoints_list describes the start and end of kpoints set
-        eg: user can pass ((6, 6, 6), ((10, 10, 10))) and conv_step for a
-        convergence to be done for 6x6x6 to 10x10x10,
-        if_slab can be switched to True constraints z to default to 1,
-        that is 6x6x1 to 10x10x1
-        first defines the list of kpoints according to the user input,
-        user needs to give only the start and end kpoint,
-        whether it is for a slab, molecule or simple bulk
-        """
-        kpoint = (1, 1, 1)
-        self.kpoints = self.kpoints.monkhorst_automatic(kpts=kpoint)
-        K = list(kpoint)
-        print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-        job_dir = self.job_dir + os.sep + 'KPOINTS' + os.sep + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-        vis = MPINTVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]),
-                                self.incar, self.poscar, self.potcar, self.kpoints)
-        job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
-                               parent_job_dir=self.parent_job_dir, job_dir=job_dir,
-                               vis=vis, auto_npar=False, auto_gamma=False)
-        
-        job = MPINTVaspJob(["pwd"], final = True,
-                           setup_dir=self.setup_dir,
-                           job_dir=os.path.abspath(job_dir), vis=vis,
-                           auto_npar=False, auto_gamma=False)
-        self.jobs.append(job)
+        print "Its a molecule ! no need for kpoint convergence"
+        return
+
         
                 
 
@@ -186,32 +191,6 @@ class CalibrateBulk(Calibrate):
                              job_dir=job_dir)
 
         
-    def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((7, 7, 7), (10, 10, 10)),
-                      conv_step = 1):
-        if Grid_type == 'M':
-            print "at Grid"
-            #local list convergence_list , convert from tuple
-            #because constructor takes tuple as argument            
-            conv_list = list(kpoints_tuple) 
-            start = list(conv_list[0])
-            end = list(conv_list[1])
-            if (conv_step):
-                for x in range(1+start[0], end[0], conv_step):
-                    conv_list.append([x, x, x])                
-                for kpoint in conv_list:
-                    self.kpoints = self.kpoints.monkhorst_automatic(kpts = kpoint)
-                    K = list(kpoint)
-                    print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-                    job_dir = self.job_dir +os.sep+ 'KPOINTS' + os.sep + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-                    vis = MPINTVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]),
-                                            self.incar, self.poscar, self.potcar,
-                                            self.kpoints)
-                    job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
-                               parent_job_dir=self.parent_job_dir, job_dir=job_dir,
-                               vis=vis, auto_npar=False, auto_gamma=False)
-                    
-                    self.jobs.append(job)
-        
 
                     
 class CalibrateSlab(Calibrate):
@@ -228,32 +207,6 @@ class CalibrateSlab(Calibrate):
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
                             setup_dir=setup_dir, parent_job_dir=parent_job_dir,
                             job_dir=job_dir)
-
-        
-    def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((7, 7, 7), (10, 10, 10)),
-                      conv_step = 1):
-        if Grid_type == 'M':
-            conv_list = list(kpoints_tuple) 
-            start = list(conv_list[0])
-            end = list(conv_list[1])
-            if start[2] != 1 or end[2] != 1:
-                print "Kpoints not for slab input!"
-            elif (conv_step):
-                for x in range(1+start[0], end[0], conv_step):
-                    conv_list.append([x, x, 1])
-                for kpoint in conv_list:
-                    self.kpoints = self.kpoints.monkhorst_automatic(kpts = kpoint)
-                    K = list(kpoint)
-                    print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-                    job_dir = self.job_dir +os.sep+ 'KPOINTS' + os.sep + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-                    vis = MPINTVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]),
-                                            self.incar, self.poscar, self.potcar,
-                                            self.kpoints)
-                    job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
-                               parent_job_dir=self.parent_job_dir, job_dir=job_dir,
-                               vis=vis, auto_npar=False, auto_gamma=False)
-
-                    self.jobs.append(job)
 	            
 
 

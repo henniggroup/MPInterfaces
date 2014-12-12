@@ -5,7 +5,9 @@ combines instrument, calibrate and interfaces to perform the calibration and run
 """
 
 import os
+import operator
 import glob
+from collections import Counter
 import numpy as np
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
@@ -28,14 +30,15 @@ class MPINTComputedEntry(ComputedEntry):
     
     """
 
-    def __init__(self, structure, kpoints, energy, correction=0.0,
+    def __init__(self, structure, kpoints, incar, energy, correction=0.0,
                   parameters=None, data=None, entry_id=None):
         ComputedEntry.__init__(self, structure.composition, energy,
                                correction=correction, parameters=parameters,
                                data=data, entry_id=entry_id)
         self.structure = structure
         self.kpoints = kpoints
-        self.data = {"style": kpoints.style, 'kpoints':kpoints.kpts}
+        self.incar = incar
+        #self.data = {"style": self.kpoints.style, 'kpoints': self.kpoints.kpts, 'incar':self.incar.as_dict()}
         
 
     def __repr__(self):
@@ -57,13 +60,14 @@ class MPINTComputedEntry(ComputedEntry):
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["structure"] = self.structure.as_dict()
-        d["kpoints"] = self.kpoints.as_dict()        
+        d["kpoints"] = self.kpoints.as_dict()
+        d["incar"] = self.incar.as_dict()                
         return d
 
     @classmethod
     def from_dict(cls, d):
         dec = MontyDecoder()
-        return cls(dec.process_decoded(d["structure"],d["kpoints"]),
+        return cls(dec.process_decoded(d["structure"],d["kpoints"],d["incar"]),
                    d["energy"], d["correction"],
                    dec.process_decoded(d.get("parameters", {})),
                    dec.process_decoded(d.get("data", self.data)),
@@ -89,7 +93,7 @@ class MPINTVasprun(Vasprun):
                  parse_eigen=parse_eigen, parse_projected_eigen=parse_projected_eigen)
             
 
-    def get_computed_entry(self, inc_structure=False, inc_kpoints=False,
+    def get_computed_entry(self, inc_structure=False, inc_incar_n_kpoints=False,
                            parameters=None, data=None):
         """
         Returns a ComputedEntry from the vasprun.
@@ -98,8 +102,8 @@ class MPINTVasprun(Vasprun):
             inc_structure (bool): Set to True if you want
                 ComputedStructureEntries to be returned instead of
                 ComputedEntries.
-            inc_kpoints (bool): along with inc_structure set to True if you want
-                MPINTComputedEntries to be returned 
+            inc_incar_n_kpoints (bool): along with inc_structure set to True if you want
+                MPINTComputedEntries to be returned : returns incar and kpoints objects 
                 
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the Vasprun object. If
@@ -119,8 +123,8 @@ class MPINTVasprun(Vasprun):
         data = {p: getattr(self, p) for p in data} if data is not None else {}
 
 
-        if inc_structure and inc_kpoints:
-            return MPINTComputedEntry(self.final_structure, self.kpoints,
+        if inc_structure and inc_incar_n_kpoints:
+            return MPINTComputedEntry(self.final_structure, self.kpoints, self.incar, 
                                         self.final_energy, parameters=params,
                                           data=data)
         
@@ -143,10 +147,10 @@ class MPINTVaspDrone(VaspToComputedEntryDrone):
         
     """
 
-    def __init__(self, inc_structure=False,  inc_kpoints=False, parameters=None, data=None):
+    def __init__(self, inc_structure=False,  inc_incar_n_kpoints=False, parameters=None, data=None):
         VaspToComputedEntryDrone.__init__(self, inc_structure=inc_structure, parameters=parameters, data=data)
         self._inc_structure = inc_structure
-        self._inc_kpoints = inc_kpoints        
+        self._inc_incar_n_kpoints = inc_incar_n_kpoints        
         self._parameters = parameters
         self._data = data
 
@@ -180,7 +184,7 @@ class MPINTVaspDrone(VaspToComputedEntryDrone):
             #logger.debug("error in {}: {}".format(filepath, ex))
             return None
 
-        entry = vasprun.get_computed_entry(self._inc_structure, self._inc_kpoints,
+        entry = vasprun.get_computed_entry(self._inc_structure, self._inc_incar_n_kpoints,
                                            parameters=self._parameters,
                                            data=self._data)
         entry.parameters["history"] = _get_transformation_history(path)
@@ -192,7 +196,7 @@ class MPINTVaspDrone(VaspToComputedEntryDrone):
 
     def as_dict(self):
         return {"init_args": {"inc_structure": self._inc_structure,
-                              "inc_kpoints": self._inc_kpoints,
+                              "inc_incar_n_kpoints": self._inc_incar_n_kpoints,
                               "parameters": self._parameters,
                               "data": self._data},
                 "version": __version__,
@@ -242,10 +246,63 @@ class Measurement(Calibrate):
         
         
         """
-        drone = MPINTVaspDrone(inc_structure=True, inc_kpoints=True) #VaspToComputedEntryDrone()#
+        encut = []
+        kpts = []
+        drone = MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True) #VaspToComputedEntryDrone()#
         bg =  BorgQueen(drone)
         bg.serial_assimilate(rootpath)
-        return bg.get_data()
+        alldata =  bg.get_data()
+        enkp=[]
+        c = Counter()
+        for d in alldata:
+            if d:
+                enkp.append(str(d.incar['ENCUT']))
+                enkp.append(str(d.kpoints.kpts))
+                c[str(d.incar['ENCUT'])] += 1
+                #encut.append( [ str(d.incar['ENCUT']), d.energy] )
+                #kpts.append( [ str(d.kpoints.kpts),  d.energy] )
+        enkp_mc =  Counter(enkp).most_common(2)
+        kp_mc = None
+        en_mc = None
+        if '[[' in enkp_mc[0][0]:
+            kp_mc = enkp_mc[0][0]
+            en_mc = enkp_mc[1][0]
+        else:
+            kp_mc = enkp_mc[1][0]
+            en_mc = enkp_mc[0][0]
+        energy_kpt={}
+        energy_encut = {}
+        for d in alldata:
+            if d:
+                if str(d.incar['ENCUT']) == en_mc:
+                    energy_kpt[str(d.kpoints.kpts)] = d.energy
+                if str(str(d.kpoints.kpts)) == kp_mc:
+                    energy_encut[str(d.incar['ENCUT'])] = d.energy
+        print energy_encut
+        print energy_kpt
+        #from large to small
+        sorted_encut = sorted(energy_encut.items(), key=operator.itemgetter(1), reverse=True)
+        sorted_kpt = sorted(energy_kpt.items(), key=operator.itemgetter(1), reverse=True)
+        print 'sorted'
+        print sorted_encut
+        print sorted_kpt
+        delta_e = 0.01
+        possible_encuts = []
+        for i, e in enumerate(sorted_encut):
+            print i, e
+            if i < len(sorted_encut)-1:
+                if np.abs(sorted_encut[i+1][1] - e[1]) < 0.01:
+                    possible_encuts.append(sorted_encut[i+1][0])
+        if possible_encuts:
+            print possible_encuts
+        else:
+            print 'convergence not reached'
+
+
+                    
+        
+       
+
 
 
     #def get_
@@ -310,8 +367,19 @@ if __name__=='__main__':
 
     measure = Measurement(incar, poscar, potcar, kpoints)
     #get all data in all the directories in the provided rootfolder, here 1/
-    alldata = measure.knob_settings('1')
-    print alldata
+    measure.knob_settings('1')
+
+
+    
+    #print type(alldata)
+    #for d in  alldata:
+    #    if d:
+    #        print 'final energy with out entropy ', d.energy
+    #        #print 'kpoints : ', d.data['kpoints']
+    #        #print 'incar : ', d.incar
+    #        print 'kpoints = ', d.kpoints.kpts            
+    #        print 'ENCUT = ', d.incar['ENCUT']                        
+       
     
     
 #    interfaces = Interface objects    

@@ -7,6 +7,7 @@ combines instrument, calibrate and interfaces to perform the calibration and run
 import os
 import operator
 import glob
+import re
 from collections import Counter
 import numpy as np
 from pymatgen import Lattice
@@ -233,7 +234,77 @@ class Measurement(Calibrate):
         self.jobs = []
         self.handlers = []
 
+    def enforce_cutoff(self, input_list, delta_e=0.01):
+        """
+        energy difference of 10meV
+        """
+        matching_list = []
+        for i, e in enumerate(input_list):
+            print i, e
+            if i < len(input_list)-1:
+                if np.abs(input_list[i+1][1] - e[1]) < 0.01:
+                    matching_list.append(input_list[i+1][0])
+        if matching_list:
+            print matching_list
+            matching_kpt_list = []
+            if '[[' in matching_list[0]:
+                for ml in matching_list:
+                    if '[[' in ml:
+                        m = re.search(r"\[\[(\d+)\,(\d+)\,(\d+)\]\]", ml)
+                        matching_kpt_list.append( [m.group(1), m.group(2), m.group(3)])
+                return matching_kpt_list
+            else:
+                return matching_list
+        else:
+            print 'none of the entries satisfy the convergence criterion'
+        
 
+            
+    def optimum_params(self, allentries, en_mc, kp_mc):
+        """
+        input: all enetires, values of encut and kpoints used for kpoints and encut studies rexpectively
+        sets the dictionaries of kpoints and energies and  encut and energies
+        returns: optimum kpoints and encut
+        """
+        #dict of kpoints and energies
+        kpt={}
+        #dict of encut and energies
+        encut = {}
+        for e in allentries:
+            if e:
+                if str(e.incar['ENCUT']) == en_mc:
+                    kpt[str(e.kpoints.kpts)] = e.energy
+                if str(str(e.kpoints.kpts)) == kp_mc:
+                    encut[str(e.incar['ENCUT'])] = e.energy
+        #order from large to small
+        sorted_encut = sorted(encut.items(), key=operator.itemgetter(1), reverse=True)
+        sorted_kpt = sorted(kpt.items(), key=operator.itemgetter(1), reverse=True)
+        print encut
+        print kpt
+        print sorted_encut
+        print sorted_kpt
+        matching_encut = self.enforce_cutoff(sorted_encut)
+        matching_kpt = self.enforce_cutoff(sorted_kpt)
+        opt_encut = None        
+        opt_kpt = None
+        if matching_encut:
+            opt_encut = np.min(np.array(matching_encut))
+        else:
+            print 'no ENCUT met the convergence criterion'
+        if matching_kpt:
+            nkpt = matching_kpt[0][0] * matching_kpt[0][1] * matching_kpt[0][2]
+            for i, val in enumerate(matching_kpt):
+                if i < len(matching_kpt)-1:
+                    nkpt1 = val[i+1][0] * val[i+1][1] * val[i+1][2]
+                    if nkpt1<nktp:
+                        opt_kpt = val
+        else:
+            print 'no KPOINTS met the convergence criterion'
+                        
+        return opt_encut, opt_kpt
+                                
+
+        
     def knob_settings(self, rootpath):
         """
         go through the parent dir and get all encut, kpoints and energies
@@ -246,66 +317,30 @@ class Measurement(Calibrate):
         
         
         """
-        encut = []
-        kpts = []
         drone = MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True) #VaspToComputedEntryDrone()#
         bg =  BorgQueen(drone)
+        #bg.parallel_assimilate(rootpath)        
         bg.serial_assimilate(rootpath)
-        alldata =  bg.get_data()
-        enkp=[]
-        c = Counter()
-        for d in alldata:
-            if d:
-                enkp.append(str(d.incar['ENCUT']))
-                enkp.append(str(d.kpoints.kpts))
-                c[str(d.incar['ENCUT'])] += 1
-                #encut.append( [ str(d.incar['ENCUT']), d.energy] )
-                #kpts.append( [ str(d.kpoints.kpts),  d.energy] )
-        enkp_mc =  Counter(enkp).most_common(2)
+        allentries =  bg.get_data()
+        alldata = []
+        for e in allentries:
+            if e:
+                alldata.append(str(e.incar['ENCUT']))
+                alldata.append(str(e.kpoints.kpts))
+        #get the 2 most common items in alldata
+        enkp_mc =  Counter(alldata).most_common(2)
         kp_mc = None
         en_mc = None
+        #if the most common item is kpoints then for the encut convergence study, that value of kpoint was used
+        #else the other way around
         if '[[' in enkp_mc[0][0]:
             kp_mc = enkp_mc[0][0]
             en_mc = enkp_mc[1][0]
         else:
             kp_mc = enkp_mc[1][0]
             en_mc = enkp_mc[0][0]
-        energy_kpt={}
-        energy_encut = {}
-        for d in alldata:
-            if d:
-                if str(d.incar['ENCUT']) == en_mc:
-                    energy_kpt[str(d.kpoints.kpts)] = d.energy
-                if str(str(d.kpoints.kpts)) == kp_mc:
-                    energy_encut[str(d.incar['ENCUT'])] = d.energy
-        print energy_encut
-        print energy_kpt
-        #from large to small
-        sorted_encut = sorted(energy_encut.items(), key=operator.itemgetter(1), reverse=True)
-        sorted_kpt = sorted(energy_kpt.items(), key=operator.itemgetter(1), reverse=True)
-        print 'sorted'
-        print sorted_encut
-        print sorted_kpt
-        delta_e = 0.01
-        possible_encuts = []
-        for i, e in enumerate(sorted_encut):
-            print i, e
-            if i < len(sorted_encut)-1:
-                if np.abs(sorted_encut[i+1][1] - e[1]) < 0.01:
-                    possible_encuts.append(sorted_encut[i+1][0])
-        if possible_encuts:
-            print possible_encuts
-        else:
-            print 'convergence not reached'
+        opt_encut, opt_kpt = self.optimum_params(allentries, en_mc, kp_mc)
 
-
-                    
-        
-       
-
-
-
-    #def get_
 
 
     def setup(self, interfaces):
@@ -328,16 +363,12 @@ class Measurement(Calibrate):
         To calculate binding energy of interface.
         Needs to get relaxed molecule energy, relaxed slab energy and relaxed interface energies
         Get the molecule and slab energies from a relaxation run
-        of optimum paramter set for Molecule and Slab (when is
-        that relaxation run done? NOTE: static done with
-        as of Calibration, do before this call)
-        Use Vasprun() to get energies, same method as knob_settings in Measurement.
-
-        Goes to the required directories for Molecule and Slab and uses Vasprun to parse through the vasprun.xml and gets the energy, similar for 
+        of optimum paramter set for Molecule and Slab.
+        Goes to the required directories for Molecule and Slab and uses Vasprun to parse through the vasprun.xml and gets the energy,
+        and compute the required quantities
         """
         
         pass
-        
 
 
 

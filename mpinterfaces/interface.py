@@ -62,9 +62,11 @@ class Interface(Slab):
             self.bottom_atoms = []            
             for i in range(n_atoms):
                     if np.abs(self.frac_coords[i][2] - max(self.frac_coords[:,2])) < 1e-6:
-                            self.top_atoms.append(i)
+                                if  self[i].species_string == self.adsorb_on_species:
+                                    self.top_atoms.append(i)
                     elif np.abs(self.frac_coords[i][2] - min(self.frac_coords[:,2])) < 1e-6:
-                            self.bottom_atoms.append(i)
+                                if  self[i].species_string == self.adsorb_on_species:
+                                    self.bottom_atoms.append(i)
 
 
     def enforce_surface_cvrg(self):
@@ -394,13 +396,13 @@ if __name__=='__main__':
     # in a direction that is perpendicular to the first moving direction and the
     #molecule vector of one of the molecules
     # for n molecules the size of cm_dist must be n-1
-    cm_dist = [4, 2]
+    cm_dist = [3, 2]
 
     #optional parmater
     #example: angle={'0':{}, '1':{'0':90}, '2':{} }
     #rotate mol1 with respect to mol0 by 90 degreeen around and axis that is normal
     # to the plane containing the molecule vectors of mol0 and mol1
-    angle={'0':{}, '1':{'0':90}, '2':{} }
+    angle={'0':{}, '1':{'0':45}, '2':{} }
     
     #optional paramter
     #a dictionary describing the connection between the molecules, used if the
@@ -454,16 +456,18 @@ if __name__=='__main__':
     positions = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]]
     
     #initial structure, must be either a bulk structure or a slab
-    strt = Structure(latt, species, positions)
+    strt_cu = Structure(latt, species, positions)
+
+    strt_pbs = Structure.from_file('POSCAR.mp-21276_PbS')
     
     #intital supercell, this wont be the final supercell if surface coverage is specified
     supercell = [1,1,1]
 
     #miller index
-    hkl = [1,1,1]
+    hkl = [1,0,0]
     
     #minimum slab thickness in Angstroms
-    min_thick = 9
+    min_thick = 15
     
     #minimum vacuum thickness in Angstroms
     #mind: the ligand will be placed in this vacuum, so the
@@ -479,7 +483,7 @@ if __name__=='__main__':
     
     #atom on the slab surface on which the ligand will be attached,
     #no need to specify if the slab is made of only a single species
-    #adsorb_on_species = 'Cu'
+    adsorb_on_species = 'Pb'
     
     #atom on ligand that will be attached to the slab surface
     adatom_on_lig='O'
@@ -493,9 +497,9 @@ if __name__=='__main__':
     #
     #here we create the interface
     #
-    iface = Interface(strt, hkl=[1,1,1], min_thick=min_thick, min_vac=min_vac,
-                      supercell=supercell, surface_coverage=0.01,
-                      ligand=h2o, displacement=displacement, adatom_on_lig='O')
+    iface = Interface(strt_pbs, hkl=hkl, min_thick=min_thick, min_vac=min_vac,
+                      supercell=supercell, surface_coverage=surface_coverage,
+                      ligand=h2o, displacement=displacement, adsorb_on_species = adsorb_on_species, adatom_on_lig=adatom_on_lig)
 #    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=20,
 #                      supercell=supercell, surface_coverage=0.01,
 #                      ligand=lead_acetate, displacement=displacement, adatom_on_lig='Pb')

@@ -240,9 +240,10 @@ class Measurement(Calibrate):
         """
         matching_list = []
         for i, e in enumerate(input_list):
-            print i, e
             if i < len(input_list)-1:
-                if np.abs(input_list[i+1][1] - e[1]) < 0.01:
+                print i, input_list[i+1], e
+                print np.abs(input_list[i+1][1] - e[1])
+                if np.abs(input_list[i+1][1] - e[1]) <= 0.01:
                     matching_list.append(input_list[i+1][0])
         if matching_list:
             print matching_list
@@ -251,10 +252,10 @@ class Measurement(Calibrate):
                 for ml in matching_list:
                     if '[[' in ml:
                         m = re.search(r"\[\[(\d+)\,(\d+)\,(\d+)\]\]", ml)
-                        matching_kpt_list.append( [m.group(1), m.group(2), m.group(3)])
+                        matching_kpt_list.append( [ int(m.group(1)), int(m.group(2)), int(m.group(3))])
                 return matching_kpt_list
             else:
-                return matching_list
+                return [float(encut) for encut in matching_list]
         else:
             print 'none of the entries satisfy the convergence criterion'
         
@@ -276,17 +277,20 @@ class Measurement(Calibrate):
                     kpt[str(e.kpoints.kpts)] = e.energy
                 if str(str(e.kpoints.kpts)) == kp_mc:
                     encut[str(e.incar['ENCUT'])] = e.energy
-        #order from large to small
+        #order the keys(encut or kpoint)from large value of the energy  to small value
         sorted_encut = sorted(encut.items(), key=operator.itemgetter(1), reverse=True)
         sorted_kpt = sorted(kpt.items(), key=operator.itemgetter(1), reverse=True)
-        print encut
-        print kpt
-        print sorted_encut
-        print sorted_kpt
+        print encut,'\n', sorted_encut
+        print kpt, '\n', sorted_kpt
+        #get the list of encut and kpoints that satisfy the delate criterion
+        #mind: default deltae = 0.01eV
         matching_encut = self.enforce_cutoff(sorted_encut)
         matching_kpt = self.enforce_cutoff(sorted_kpt)
         opt_encut = None        
         opt_kpt = None
+        #of the possible encuts and kpoints, pick the optimum one
+        #i.e for encut, the lowest value and for kpoints the one that corresponds
+        #to the lowest number of kpoints
         if matching_encut:
             opt_encut = np.min(np.array(matching_encut))
         else:
@@ -300,7 +304,8 @@ class Measurement(Calibrate):
                         opt_kpt = val
         else:
             print 'no KPOINTS met the convergence criterion'
-                        
+        #opt_encut: list of floats
+        #opt_kpt: list of list of integers
         return opt_encut, opt_kpt
                                 
 
@@ -339,6 +344,8 @@ class Measurement(Calibrate):
         else:
             kp_mc = enkp_mc[1][0]
             en_mc = enkp_mc[0][0]
+        #opt_encut: list of floats
+        #opt_kpt: list of list of integers
         opt_encut, opt_kpt = self.optimum_params(allentries, en_mc, kp_mc)
 
 
@@ -399,6 +406,9 @@ if __name__=='__main__':
     measure = Measurement(incar, poscar, potcar, kpoints)
     #get all data in all the directories in the provided rootfolder, here 1/
     measure.knob_settings('1')
+    #test enforce_cutoff
+    inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9], ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888], ['[[2,2,8]]', 9.879],]
+    print measure.enforce_cutoff(inp_list, delta_e=0.01)
 
 
     

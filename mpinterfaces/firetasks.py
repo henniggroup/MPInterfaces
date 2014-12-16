@@ -2,6 +2,7 @@
 
 #- calibration: fwaction return list of dirs
 #- get knob settings: fwaction returns the dict of incar, poscar, potcar, kpoints objects
+
 #- run experiments: fwaction returns list of run dirs
 #- to database: make the measurements(binding enrgy ect) and put it in the database
 from fireworks.core.firework import FireTaskBase, FWAction
@@ -11,9 +12,24 @@ from fireworks.utilities.fw_serializers import FWSerializable
 from matgendb.creator import VaspToDbTaskDrone
 
 
-class VaspToDBTask_k(FireTaskBase, FWSerializable):
+class MPINTCalibrateTask(FireTaskBase, FWSerializable):
+    pass
 
-    _fw_name = "Vasp to Database Task k"
+
+
+class MPINTMeasurementRunTask(FireTaskBase, FWSerializable):
+    pass
+
+
+
+class MPINTMeasurementTask(FireTaskBase, FWSerializable):
+    pass
+
+
+
+class MPINTVaspToDBTask(FireTaskBase, FWSerializable):
+
+    _fw_name = "MPINT Vasp to Database Task"
 
 
     def run_task(self, fw_spec):

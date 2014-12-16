@@ -1,39 +1,78 @@
-#4 fireworks: 1 firetask each
-
-#- calibration: fwaction return list of dirs
-#- get knob settings: fwaction returns the dict of incar, poscar, potcar, kpoints objects
-
-#- run experiments: fwaction returns list of run dirs
-#- to database: make the measurements(binding enrgy ect) and put it in the database
+"""
+Defines various firetasks
+"""
+import re
+from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
+from mpinterfaces.calibrate import CalibrateMolecule
 from fireworks.core.firework import FireTaskBase, FWAction
 from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable
-
+from fireworks.utilities.fw_utilities import explicit_serialize
 from matgendb.creator import VaspToDbTaskDrone
 
-
+@explicit_serialize
 class MPINTCalibrateTask(FireTaskBase, FWSerializable):
-    pass
+    """
+    incar: Incar object.to_dict
+    similarly for poscar
+    encut_list : example:- ['400', '800', '100'] --> range specification
+    kpoint_list: example:- ['[7,7,7]', '[11,11,11]' ]
+    """
+    
+    required_params = ["incar", "poscar", "encut_list", "kpoint_list"]
+#    _fw_name = 'MPINTCalibrateTask'
+
+    def run_task(self, fw_spec):
+        """
+        launch jobs to the queue
+        """
+        incar = Incar.from_dict(self["incar"])
+        poscar = Poscar.from_dict(self["poscar"])
+        range_specs = [ int(encut) for encut in self["encut_list"] ]
+        encut_list = range(range_specs[0], range_specs[1], range_specs[2])
+        kpoint_list = [ self.to_int_list(kpt) for kpt in self["kpoint_list"]]
+        symbols = poscar.site_symbols #symbol_set
+        potcar = Potcar(symbols)
+        kpoints = Kpoints()
+
+        calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
+        calmol.encut_cnvg(range(400,800,100))
+        calmol.run()
+        
+    @staticmethod
+    def to_int_list(str_list):
+        m = re.search(r"\[(\d+)\,(\d+)\,(\d+)\]", str_list)
+        return [int(m.group(i)) for i in range(1,4)]       
+        
 
 
-
-class MPINTMeasurementRunTask(FireTaskBase, FWSerializable):
-    pass
-
-
-
+@explicit_serialize
 class MPINTMeasurementTask(FireTaskBase, FWSerializable):
-    pass
+    
+    required_params = ["calib_dirs"]
+#    _fw_name = 'MPINTMeasurementTask'
+
+    def run_task(self, fw_spec):
+        """
+        go through the calibration directiories and get the optimu knob_settings
+        and launch the actual measurement jobs to the queue
+        """
+        pass    
+    
 
 
+@explicit_serialize
+class MPINTPostProcessTask(FireTaskBase, FWSerializable):
 
-class MPINTVaspToDBTask(FireTaskBase, FWSerializable):
-
-    _fw_name = "MPINT Vasp to Database Task"
+    required_params = ["measure_dirs"]    
+#    _fw_name = "MPINTPostProcessTask"
 
 
     def run_task(self, fw_spec):
-        prev_dir = fw_spec['prev_vasp_dir']
+        """
+        go through the measurement job dirs and compute quatities of interst
+        also put the measurement jobs in the datbase
+        """
 
         # get the db credentials                                                                                            
         db_dir = os.environ['DB_LOC']

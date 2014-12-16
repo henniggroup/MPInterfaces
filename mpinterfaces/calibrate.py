@@ -71,7 +71,7 @@ class Calibrate(object):
 
 
             
-    def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = ((1, 1, 1), ),
+    def kpoints_cnvg(self, Grid_type = 'M', kpoints_list = None,
                      conv_step = 1, is_slab=False):
         """
         set the jobs for kpoint convergence
@@ -82,7 +82,7 @@ class Calibrate(object):
         G for Gamma centered automatic; ONLY MP method implemented now others can be added 
         
         kpoints_list describes the start and end of kpoints set
-        eg: user can pass ((6, 6, 6), ((10, 10, 10))) and conv_step for a
+        eg: user can pass [[6, 6, 6], [10, 10, 10]] and conv_step for a
         convergence to be done for 6x6x6 to 10x10x10,
         
         is_slab can be switched to True constraints z to default to 1,
@@ -94,29 +94,31 @@ class Calibrate(object):
         """
         if Grid_type == 'M':
             #local list convergence_list , convert from tuple
-            #because constructor takes tuple as argument            
-            conv_list = list(kpoints_tuple) 
-            start = list(conv_list[0])
-            end = list(conv_list[1])
-            if (conv_step):
-                for x in range(1+start[0], end[0], conv_step):
-                    if not is_slab:
-                        conv_list.append([x, x, x])
-                    else:
-                        conv_list.append([x, x, 1])                         
-                for kpoint in conv_list:
-                    self.kpoints = self.kpoints.monkhorst_automatic(kpts = kpoint)
-                    K = list(kpoint)
-                    print 'KPOINTmesh = ', str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-                    job_dir = self.job_dir +os.sep+ 'KPOINTS' + os.sep + str(K[0])+'x'+str(K[1])+'x'+str(K[2])
-                    vis = MPINTVaspInputSet('kpoint_'+str(K[0])+'x'+str(K[1])+'x'+str(K[2]),
-                                            self.incar, self.poscar, self.potcar,
-                                            self.kpoints)
-                    job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
-                               parent_job_dir=self.parent_job_dir, job_dir=job_dir,
-                               vis=vis, auto_npar=False, auto_gamma=False)
-                    
-                    self.jobs.append(job)
+            #because constructor takes tuple as argument
+            if kpoints_list:
+                conv_list = kpoints_list 
+                start = conv_list[0]
+                end = conv_list[1]
+                if (conv_step):
+                    for x in range(1+start[0], end[0], conv_step):
+                        if not is_slab:
+                            conv_list.append([x, x, x])
+                        else:
+                            conv_list.append([x, x, 1])                         
+                    for kpoint in conv_list:
+                        self.kpoints = Kpoints.monkhorst_automatic(kpts = kpoint)
+                        name = str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' + str(kpoint[2])
+                        print 'KPOINTmesh = ', name
+                        job_dir = self.job_dir +os.sep+ 'KPOINTS' + os.sep + name
+                        vis = MPINTVaspInputSet(name, self.incar, self.poscar, self.potcar,
+                                                self.kpoints)
+                        job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
+                                parent_job_dir=self.parent_job_dir, job_dir=job_dir,
+                                vis=vis, auto_npar=False, auto_gamma=False)
+                        
+                        self.jobs.append(job)
+            else:
+                print 'kpoints_list not provided'
 
 
     
@@ -239,8 +241,8 @@ if __name__ == '__main__':
 
 #    calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
     calbulk = CalibrateBulk(incar, poscar, potcar, kpoints)    
-    calbulk.encut_cnvg(range(400,800,100))
-    calbulk.kpoints_cnvg(kpoints_tuple = ((7, 7, 7), (11, 11, 11))) 
+    calbulk.encut_cnvg( range(400,800,100) )
+    calbulk.kpoints_cnvg( kpoints_list = [ [7, 7, 7], [11, 11, 11] ] ) 
     #the job_cmd can passed to the run
     #['qsub','job_script']
     calbulk.run(['ls','-lt'])

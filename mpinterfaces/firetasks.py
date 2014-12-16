@@ -1,6 +1,7 @@
 """
 Defines various firetasks
 """
+
 import re
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from mpinterfaces.calibrate import CalibrateMolecule
@@ -9,6 +10,7 @@ from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import explicit_serialize
 from matgendb.creator import VaspToDbTaskDrone
+
 
 @explicit_serialize
 class MPINTCalibrateTask(FireTaskBase, FWSerializable):

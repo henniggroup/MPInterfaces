@@ -1,3 +1,13 @@
+"""
+Create a workflow and submit it to the 'fireworks' database on hydrogen
+
+Note 1:
+      use own account to run the script. contact me(km468@cornell.edu) to create a database account
+Note 2:
+        forward port number 27017 from your local machine to port 27017 on hydrogen:
+        ssh -N -f -L 27017:10.1.255.101:27017 username@hermes.mse.ufl.edu
+"""
+
 import numpy as np
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
@@ -10,12 +20,6 @@ from mpinterfaces.firetasks import MPINTCalibrateTask
 # set up the LaunchPad
 launchpad = LaunchPad(host='localhost', port=27017, name='fireworks',
                        username="km468", password="km468")
-#reset launchpad
-# Create a new FireWorks database. This will overwrite the existing FireWorks database!
-#To safeguard against accidentally erasing an existing database, a password must
-#be entered.
-#
-#launchpad.reset('', require_password=False)
 
 # create the individual FireWorks and Workflow
 system = 'Pt bulk'
@@ -55,7 +59,7 @@ wf = Workflow([fw1], name="mpint workflow")
 #wf = Workflow([fw1, fw2, fw3], name="mpint workflow")
 
 # add workflow
+print 'fireworks in the database before adding the workflow: \n', launchpad.get_fw_ids()
 launchpad.add_wf(wf)
-#launch_rocket(launchpad)#, fworker=None, fw_id=None, strm_lvl='INFO')
-print launchpad.get_fw_ids()
-#rapidfire(launchpad)
+print 'fireworks in the database: \n', launchpad.get_fw_ids()
+

@@ -1,17 +1,16 @@
+"""
+fetch a single firework from the database and run it on the machine where this script
+is invoked
+"""
+
 from fireworks import LaunchPad
 from fireworks.core.rocket_launcher import launch_rocket #rapidfire
 
 
-# set up the LaunchPad
 launchpad = LaunchPad(host='localhost', port=27017, name='fireworks',
                        username="km468", password="km468")
-#reset launchpad
-# Create a new FireWorks database. This will overwrite the existing FireWorks database!
-#To safeguard against accidentally erasing an existing database, a password must
-#be entered.
-#
-#launchpad.reset('', require_password=False)
 
+print 'fireworks in the database before adding the workflow: \n', launchpad.get_fw_ids()
 launch_rocket(launchpad)#, fworker=None, fw_id=None, strm_lvl='INFO')
-print launchpad.get_fw_ids()
+print 'fireworks in the database: \n', launchpad.get_fw_ids()
 #rapidfire(launchpad)

@@ -57,6 +57,7 @@ class Measurement(object):
             #the job command can be overrridden in the run method
         #job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir, job_dir=job_dir, vis=vis, auto_npar=False, auto_gamma=False)
         #self.jobs.append(job)
+        pass
 
     def run(self, job_cmd=None):
         #override the job_cmd if provided

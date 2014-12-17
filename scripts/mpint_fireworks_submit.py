@@ -19,7 +19,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from fireworks import Firework, Workflow, LaunchPad
 from fireworks.core.rocket_launcher import launch_rocket #rapidfire
-from mpinterfaces.firetasks import MPINTCalibrateTask
+from mpinterfaces.firetasks import MPINTCalibrateTask, MPINTMeasurementTask
 
 #---------------------------------------------------------
 # set up the LaunchPad i.e connect to the database
@@ -56,42 +56,51 @@ poscar = Poscar(structure, comment=system,
 # define firetasks
 #-----------------------------------------
 #set the paramters for the calibrate task
-calparams = {}
+calparams1 = {}
 #required params: incar, poscar, list of encut and kpoints and the calibrate object
 #potcar created from poscar
-calparams['incar'] = incar.as_dict()
-calparams['poscar'] = poscar.as_dict()
+calparams1['incar'] = incar.as_dict()
+calparams1['poscar'] = poscar.as_dict()
 #range specification for encut and kpoints
-calparams['encut_list'] = ['400', '800', '100']
-calparams['kpoint_list'] = ['[7,7,7]', '[11,11,11]' ]
+calparams1['encut_list'] = ['400', '800', '100']
+calparams1['kpoint_list'] = ['[7,7,7]', '[11,11,11]' ]
 #type of calibration to be done: basically the name of calibrate calss to
 #be used. available options: CalibrateMolecule, CalibrateSlab, CalibrateBulk
-calparams['calibrate'] = 'CalibrateMolecule'
+calparams1['calibrate'] = 'CalibrateMolecule'
 #optional param: job_dir is the name of the directory within which
 #the encut and kpoints jobs will be run
-calparams['cal_construct_params'] = {'job_dir':'Molecule_1'}
+calparams1['cal_construct_params'] = {'job_dir':'Molecule_1'}
 
 #-------------------------------------------------
 #create a calibrate task: calibrate molecule
 #------------------------------------------------
-caltask1 = MPINTCalibrateTask(calparams)
+caltask1 = MPINTCalibrateTask(calparams1)
 
 #---------------------------------------------------
 #create a calibrate task: calibrate bulk calculation
 #---------------------------------------------------
-calparams['calibrate'] = 'CalibrateSlab'
+calparams2 = {}
+calparams2 = {k:calparams1[k] for k in calparams1.keys()}
+calparams2['calibrate'] = 'CalibrateSlab'
 #optional param: job_dir is the name of the directory within which
 #the encut and kpoints jobs will be run
-calparams['cal_construct_params'] = {'job_dir':'Slab_1'}
+calparams2['cal_construct_params'] = {'job_dir':'Slab_1'}
 
-caltask2 = MPINTCalibrateTask(calparams)
+caltask2 = MPINTCalibrateTask(calparams2)
+
+msrparams1 = {}
+msrparams1['cal_objs'] = [calparams1, calparams2]
+msrparams1['msr_construct_params'] = {'job_dir':'Measurement_1'}
+msrtask1 = MPINTMeasurementTask(msrparams1)
+
 
 #--------------------------------------------------
 #create the fireworks and add it to the workflow
 #--------------------------------------------------
 fw1 = Firework([caltask1, caltask2], name="calibrate")
-wf = Workflow([fw1], name="mpint workflow")
-#fw2 = Firework(measuretask, name="measurement", parents=[fw1])
+fw2 = Firework([msrtask1], name="measurement", parents=[fw1])
+wf = Workflow([fw1, fw2], name="mpint workflow")
+
 #fw3 = Firework(pptask, name="post_process", parents=[fw1, fw2])
 #wf = Workflow([fw1, fw2, fw3], name="mpint workflow")
 

@@ -5,6 +5,7 @@ Defines various firetasks
 import re
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from mpinterfaces.calibrate import CalibrateMolecule
+from mpinterfaces.measurement import Measurement
 from fireworks.core.firework import FireTaskBase, FWAction
 from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable
@@ -15,6 +16,23 @@ from matgendb.creator import VaspToDbTaskDrone
 def load_class(mod, name):
     mod = __import__(mod, globals(), locals(), [name], 0)
     return getattr(mod, name)
+
+
+def to_int_list(str_list):
+    m = re.search(r"\[(\d+)\,(\d+)\,(\d+)\]", str_list)
+    return [int(m.group(i)) for i in range(1,4)]       
+
+
+def get_cal_obj(d):
+    incar = Incar.from_dict(d["incar"])
+    poscar = Poscar.from_dict(d["poscar"])
+    symbols = poscar.site_symbols #symbol_set
+    potcar = Potcar(symbols)
+    kpoints = Kpoints()
+    cal =  load_class("mpinterfaces.calibrate", d["calibrate"])(incar, poscar, potcar, kpoints,**d.get("cal_construct_params", {}))
+    return cal
+           
+    
 
 
 @explicit_serialize
@@ -34,32 +52,20 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         """
         launch jobs to the queue
         """
-        incar = Incar.from_dict(self["incar"])
-        poscar = Poscar.from_dict(self["poscar"])
+        cal = get_cal_obj(self)
         range_specs = [ int(encut) for encut in self["encut_list"] ]
         encut_list = range(range_specs[0], range_specs[1], range_specs[2])
-        kpoint_list = [ self.to_int_list(kpt) for kpt in self["kpoint_list"]]
-        symbols = poscar.site_symbols #symbol_set
-        potcar = Potcar(symbols)
-        kpoints = Kpoints()
-
-        cal = load_class("mpinterfaces.calibrate", self["calibrate"])(incar, poscar, potcar, kpoints,**self.get("cal_construct_params", {}))
-        #calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
+        kpoint_list = [ to_int_list(kpt) for kpt in self["kpoint_list"]]
         cal.encut_cnvg(encut_list)
         cal.kpoints_cnvg(kpoints_list=kpoint_list)        
         cal.run()
         
-    @staticmethod
-    def to_int_list(str_list):
-        m = re.search(r"\[(\d+)\,(\d+)\,(\d+)\]", str_list)
-        return [int(m.group(i)) for i in range(1,4)]       
-        
-
 
 @explicit_serialize
 class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     
-    required_params = ["calib_dirs"]
+    required_params = ["cal_objs"]
+    optional_params = ["msr_construct_params"]    
 #    _fw_name = 'MPINTMeasurementTask'
 
     def run_task(self, fw_spec):
@@ -67,8 +73,13 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         go through the calibration directiories and get the optimu knob_settings
         and launch the actual measurement jobs to the queue
         """
-        pass    
-    
+        cal_objs_list = []
+        for calparams in self['cal_objs']:
+            cal = get_cal_obj(calparams)
+            cal_objs_list.append(cal)
+        measure = Measurement(cal_objs_list, **self.get("msr_construct_params", {}))
+        #test
+        measure.calmol.knob_settings('1')
 
 
 @explicit_serialize
@@ -84,19 +95,12 @@ class MPINTPostProcessTask(FireTaskBase, FWSerializable):
         also put the measurement jobs in the datbase
         """
 
-        # get the db credentials                                                                                            
-        db_dir = os.environ['DB_LOC']
-        db_path = os.path.join(db_dir, 'tasks_db.json')
-
-        # use MPDrone to put it in the database                                                                             
-        with open(db_path) as f:
-            db_creds = json.load(f)
-            drone = VaspToDbTaskDrone(
-                host=db_creds['host'], port=db_creds['port'],
-                database=db_creds['database'], user=db_creds['admin_user'],
-                password=db_creds['admin_password'],
-                collection=db_creds['collection'])
-            t_id = drone.assimilate('Measurement')
+        drone = VaspToDbTaskDrone(
+                host='localhost', port='27017',
+                database='vasp_test', user='km468',
+                password='km468',
+                collection='test_collection')
+        t_id = drone.assimilate('Measurement')
 
         if t_id:
             print 'ENTERED task id:', t_id
@@ -105,3 +109,19 @@ class MPINTPostProcessTask(FireTaskBase, FWSerializable):
             return FWAction(stored_data=stored_data, update_spec=update_spec)
         else:
             raise ValueError("Could not parse entry for database insertion!")
+
+
+#        # get the db credentials                                                             
+#        db_dir = os.environ['DB_LOC']
+#        db_path = os.path.join(db_dir, 'tasks_db.json')
+#
+#        # use MPDrone to put it in the database                                              #                               
+#        with open(db_path) as f:
+#            db_creds = json.load(f)
+#            drone = VaspToDbTaskDrone(
+#                host=db_creds['host'], port=db_creds['port'],
+#                database=db_creds['database'], user=db_creds['admin_user'],
+#                password=db_creds['admin_password'],
+#                collection=db_creds['collection'])
+#            t_id = drone.assimilate('Measurement')
+        

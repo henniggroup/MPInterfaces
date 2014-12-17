@@ -76,8 +76,7 @@ class Calibrate(object):
 
 
             
-    def kpoints_cnvg(self, Grid_type = 'M', kpoints_list = None,
-                     conv_step = 1, is_slab=False):
+    def kpoints_cnvg(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
         """
         set the jobs for kpoint convergence
         
@@ -106,10 +105,7 @@ class Calibrate(object):
                 end = conv_list[1]
                 if (conv_step):
                     for x in range(1+start[0], end[0], conv_step):
-                        if not is_slab:
-                            conv_list.append([x, x, x])
-                        else:
-                            conv_list.append([x, x, 1])                         
+                        conv_list.append([x, x, x])
                     for kpoint in conv_list:
                         self.kpoints = Kpoints.monkhorst_automatic(kpts = kpoint)
                         name = str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' + str(kpoint[2])
@@ -332,6 +328,33 @@ class CalibrateSlab(Calibrate):
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
                             setup_dir=setup_dir, parent_job_dir=parent_job_dir,
                             job_dir=job_dir)
+
+    def kpoints_cnvg(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
+        if Grid_type == 'M':
+            #local list convergence_list , convert from tuple
+            #because constructor takes tuple as argument
+            if kpoints_list:
+                conv_list = kpoints_list 
+                start = conv_list[0]
+                end = conv_list[1]
+                if (conv_step):
+                    for x in range(1+start[0], end[0], conv_step):
+                        conv_list.append([x, x, 1])                         
+                    for kpoint in conv_list:
+                        self.kpoints = Kpoints.monkhorst_automatic(kpts = kpoint)
+                        name = str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' + str(kpoint[2])
+                        print 'KPOINTmesh = ', name
+                        job_dir = self.job_dir +os.sep+ 'KPOINTS' + os.sep + name
+                        vis = MPINTVaspInputSet(name, self.incar, self.poscar, self.potcar,
+                                                self.kpoints)
+                        job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
+                                parent_job_dir=self.parent_job_dir, job_dir=job_dir,
+                                vis=vis, auto_npar=False, auto_gamma=False)
+                        
+                        self.jobs.append(job)
+            else:
+                print 'kpoints_list not provided'
+        
 	            
 
 

@@ -6,6 +6,9 @@ Calibration module
 import sys
 import os, shutil
 import shlex, subprocess
+import operator
+from collections import Counter
+import re
 import time
 import datetime
 from pprint import pprint
@@ -17,7 +20,9 @@ from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 #from custodian.vasp.handlers import VaspErrorHandler, FrozenJobErrorHandler, MeshSymmetryErrorHandler, NonConvergingErrorHandler
 from custodian.custodian import Custodian, gzip_dir
 from custodian.vasp.interpreter import VaspModder
+from pymatgen.apps.borg.queen import BorgQueen
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
+from mpinterfaces.data_processor import MPINTVaspDrone
 
 
 class Calibrate(object):
@@ -151,6 +156,124 @@ class Calibrate(object):
         c.run()
 
 
+    def enforce_cutoff(self, input_list, delta_e=0.01):
+        """
+        energy difference of 10meV
+        """
+        matching_list = []
+        for i, e in enumerate(input_list):
+            if i < len(input_list)-1:
+                print i, input_list[i+1], e
+                print np.abs(input_list[i+1][1] - e[1])
+                if np.abs(input_list[i+1][1] - e[1]) <= 0.01:
+                    matching_list.append(input_list[i+1][0])
+        if matching_list:
+            print matching_list
+            matching_kpt_list = []
+            if '[[' in matching_list[0]:
+                for ml in matching_list:
+                    if '[[' in ml:
+                        m = re.search(r"\[\[(\d+)\,(\d+)\,(\d+)\]\]", ml)
+                        matching_kpt_list.append( [ int(m.group(1)), int(m.group(2)), int(m.group(3))])
+                return matching_kpt_list
+            else:
+                return [float(encut) for encut in matching_list]
+        else:
+            print 'none of the entries satisfy the convergence criterion'
+        
+
+            
+    def optimum_params(self, allentries, en_mc, kp_mc):
+        """
+        input: all enetires, values of encut and kpoints used for kpoints and encut studies rexpectively
+        sets the dictionaries of kpoints and energies and  encut and energies
+        returns: optimum kpoints and encut
+        """
+        #dict of kpoints and energies
+        kpt={}
+        #dict of encut and energies
+        encut = {}
+        for e in allentries:
+            if e:
+                if str(e.incar['ENCUT']) == en_mc:
+                    kpt[str(e.kpoints.kpts)] = e.energy
+                if str(str(e.kpoints.kpts)) == kp_mc:
+                    encut[str(e.incar['ENCUT'])] = e.energy
+        #order the keys(encut or kpoint)from large value of the energy  to small value
+        sorted_encut = sorted(encut.items(), key=operator.itemgetter(1), reverse=True)
+        sorted_kpt = sorted(kpt.items(), key=operator.itemgetter(1), reverse=True)
+        print encut,'\n', sorted_encut
+        print kpt, '\n', sorted_kpt
+        #get the list of encut and kpoints that satisfy the delate criterion
+        #mind: default deltae = 0.01eV
+        matching_encut = self.enforce_cutoff(sorted_encut)
+        matching_kpt = self.enforce_cutoff(sorted_kpt)
+        opt_encut = None        
+        opt_kpt = None
+        #of the possible encuts and kpoints, pick the optimum one
+        #i.e for encut, the lowest value and for kpoints the one that corresponds
+        #to the lowest number of kpoints
+        if matching_encut:
+            opt_encut = np.min(np.array(matching_encut))
+        else:
+            print 'no ENCUT met the convergence criterion'
+        if matching_kpt:
+            nkpt = matching_kpt[0][0] * matching_kpt[0][1] * matching_kpt[0][2]
+            for i, val in enumerate(matching_kpt):
+                if i < len(matching_kpt)-1:
+                    nkpt1 = val[i+1][0] * val[i+1][1] * val[i+1][2]
+                    if nkpt1<nktp:
+                        opt_kpt = val
+        else:
+            print 'no KPOINTS met the convergence criterion'
+        #opt_encut: list of floats
+        #opt_kpt: list of list of integers
+        return opt_encut, opt_kpt
+                                
+
+        
+    def knob_settings(self, rootpath=None):
+        """
+        go through the parent dir and get all encut, kpoints and energies
+        also vac spacing and slab thinckness for slab calulations
+        these values willl be used to do the actual interface measurements
+        use Vasprun class to get the afore mentioned values from the xml files
+        should not proceed if the calculations are not done
+        should update the incar, poscar, potcar, kpoints objects according to
+        the knob_settings
+        
+        
+        """
+        if rootpath is None:
+            rootpath = self.job_dir
+        drone = MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True) #VaspToComputedEntryDrone()#
+        bg =  BorgQueen(drone)
+        #bg.parallel_assimilate(rootpath)        
+        bg.serial_assimilate(rootpath)
+        allentries =  bg.get_data()
+        alldata = []
+        for e in allentries:
+            if e:
+                alldata.append(str(e.incar['ENCUT']))
+                alldata.append(str(e.kpoints.kpts))
+        #get the 2 most common items in alldata
+        enkp_mc =  Counter(alldata).most_common(2)
+        kp_mc = None
+        en_mc = None
+        #if the most common item is kpoints then for the encut convergence study, that value of kpoint was used
+        #else the other way around
+        if '[[' in enkp_mc[0][0]:
+            kp_mc = enkp_mc[0][0]
+            en_mc = enkp_mc[1][0]
+        else:
+            kp_mc = enkp_mc[1][0]
+            en_mc = enkp_mc[0][0]
+        #opt_encut: list of floats
+        #opt_kpt: list of list of integers
+        opt_encut, opt_kpt = self.optimum_params(allentries, en_mc, kp_mc)
+        
+
+
         
 class CalibrateMolecule(Calibrate):
     
@@ -246,6 +369,13 @@ if __name__ == '__main__':
     #the job_cmd can passed to the run
     #['qsub','job_script']
     calbulk.run(['ls','-lt'])
+    
+    #get all data in all the directories in the provided rootfolder, here 1/
+    calbulk.knob_settings('1')
+    #test enforce_cutoff
+    inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9], ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888], ['[[2,2,8]]', 9.879],]
+    print calbulk.enforce_cutoff(inp_list, delta_e=0.01)
+
 
 
 

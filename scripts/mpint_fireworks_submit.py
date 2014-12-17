@@ -45,22 +45,39 @@ poscar = Poscar(structure, comment=system,
 
 #set the paramters for the calibrate task
 calparams = {}
+#required params: incar, poscar, list of encut and kpoints and the calibrate object
 calparams['incar'] = incar.as_dict()
 calparams['poscar'] = poscar.as_dict()
 #range specification for encut and kpoints
 calparams['encut_list'] = ['400', '800', '100']
 calparams['kpoint_list'] = ['[7,7,7]', '[11,11,11]' ]
+#type of calibration to be done: basically the name of calibrate calss to
+#be used. available options: CalibrateMolecule, CalibrateSlab, CalibrateBulk
 calparams['calibrate'] = 'CalibrateMolecule'
+#optional param: job_dir is the name of the directory within which
+#the encut and kpoints jobs will be run
 calparams['cal_construct_params'] = {'job_dir':'Molecule_1'}
 
-caltask = MPINTCalibrateTask(calparams)
-fw1 = Firework(caltask, name="calibrate")
+#create a calibrate task 
+caltask1 = MPINTCalibrateTask(calparams)
+
+calparams['calibrate'] = 'CalibrateSlab'
+#optional param: job_dir is the name of the directory within which
+#the encut and kpoints jobs will be run
+calparams['cal_construct_params'] = {'job_dir':'Slab_1'}
+
+#create a calibrate task 
+caltask2 = MPINTCalibrateTask(calparams)
+
+
+
+fw1 = Firework([caltask1, caltask2], name="calibrate")
 wf = Workflow([fw1], name="mpint workflow")
 #fw2 = Firework(measuretask, name="measurement", parents=[fw1])
 #fw3 = Firework(pptask, name="post_process", parents=[fw1, fw2])
 #wf = Workflow([fw1, fw2, fw3], name="mpint workflow")
 
-# add workflow
+# add workflow to the database
 print 'fireworks in the database before adding the workflow: \n', launchpad.get_fw_ids()
 launchpad.add_wf(wf)
 print 'fireworks in the database: \n', launchpad.get_fw_ids()

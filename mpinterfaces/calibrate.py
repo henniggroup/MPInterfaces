@@ -288,8 +288,7 @@ class CalibrateMolecule(Calibrate):
 
 
         
-    def kpoints_cnvg(self, Grid_type = 'M', kpoints_tuple = None,
-                     conv_step = 1):
+    def kpoints_cnvg(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
         print "Its a molecule ! no need for kpoint convergence"
         return
 

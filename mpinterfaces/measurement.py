@@ -224,8 +224,9 @@ class Measurement(Calibrate):
     
     """
 
-    def __init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='./Measurement'):
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints, setup_dir=setup_dir, parent_job_dir=parent_job_dir)
+    def __init__(self, incar, poscar, potcar, kpoints, setup_dir='.', parent_job_dir='.', job_dir='./Measurement', calib_dir='.'):
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints,
+                        setup_dir=setup_dir, parent_job_dir=parent_job_dir, job_dir=job_dir)
         #self.interface = interface
         self.encut = None
         self.kpoints = None
@@ -233,6 +234,7 @@ class Measurement(Calibrate):
         self.slab_thickness = None
         self.jobs = []
         self.handlers = []
+        self.calib_dir = calib_dir
 
     def enforce_cutoff(self, input_list, delta_e=0.01):
         """
@@ -310,7 +312,7 @@ class Measurement(Calibrate):
                                 
 
         
-    def knob_settings(self, rootpath):
+    def knob_settings(self, rootpath=None):
         """
         go through the parent dir and get all encut, kpoints and energies
         also vac spacing and slab thinckness for slab calulations
@@ -322,6 +324,8 @@ class Measurement(Calibrate):
         
         
         """
+        if rootpath is None:
+            rootpath = self.calib_dir
         drone = MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True) #VaspToComputedEntryDrone()#
         bg =  BorgQueen(drone)
         #bg.parallel_assimilate(rootpath)        

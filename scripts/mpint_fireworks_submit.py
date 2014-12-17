@@ -50,6 +50,8 @@ calparams['poscar'] = poscar.as_dict()
 #range specification for encut and kpoints
 calparams['encut_list'] = ['400', '800', '100']
 calparams['kpoint_list'] = ['[7,7,7]', '[11,11,11]' ]
+calparams['calibrate'] = 'CalibrateMolecule'
+calparams['cal_construct_params'] = {'job_dir':'Molecule_1'}
 
 caltask = MPINTCalibrateTask(calparams)
 fw1 = Firework(caltask, name="calibrate")

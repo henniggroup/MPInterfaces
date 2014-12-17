@@ -12,6 +12,11 @@ from fireworks.utilities.fw_utilities import explicit_serialize
 from matgendb.creator import VaspToDbTaskDrone
 
 
+def load_class(mod, name):
+    mod = __import__(mod, globals(), locals(), [name], 0)
+    return getattr(mod, name)
+
+
 @explicit_serialize
 class MPINTCalibrateTask(FireTaskBase, FWSerializable):
     """
@@ -21,7 +26,8 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
     kpoint_list: example:- ['[7,7,7]', '[11,11,11]' ]
     """
     
-    required_params = ["incar", "poscar", "encut_list", "kpoint_list"]
+    required_params = ["incar", "poscar", "encut_list", "kpoint_list", "calibrate"]
+    optional_params = ["cal_construct_params"]
 #    _fw_name = 'MPINTCalibrateTask'
 
     def run_task(self, fw_spec):
@@ -37,9 +43,10 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         potcar = Potcar(symbols)
         kpoints = Kpoints()
 
-        calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
-        calmol.encut_cnvg(range(400,800,100))
-        calmol.run()
+        cal = load_class("mpinterfaces.calibrate", self["calibrate"])(incar, poscar, potcar, kpoints,**self.get("cal_construct_params", {}))
+        #calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
+        cal.encut_cnvg(encut_list)
+        cal.run()
         
     @staticmethod
     def to_int_list(str_list):

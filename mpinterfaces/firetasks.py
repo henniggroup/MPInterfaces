@@ -46,7 +46,7 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         cal = load_class("mpinterfaces.calibrate", self["calibrate"])(incar, poscar, potcar, kpoints,**self.get("cal_construct_params", {}))
         #calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
         cal.encut_cnvg(encut_list)
-        cal.kpoint_cnvg(kpoint_list)        
+        cal.kpoints_cnvg(kpoint_list)        
         cal.run()
         
     @staticmethod

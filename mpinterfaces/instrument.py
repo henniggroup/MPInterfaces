@@ -137,7 +137,7 @@ class MPINTVaspJob(Job):
         if self.vis.qadapter is not None:
             submit_cmd = self.vis.qadapter.supported_q_types[self.vis.qadapter.q_type]
             #print os.path.exists(self.vis.script_name)
-            cmd = ['cat', self.vis.script_name]
+            cmd = [submit_cmd, self.vis.script_name]
             with open(self.output_file, 'w') as f:            
                 p = subprocess.Popen(cmd, stdout=f, stderr=f)#stdout=subprocess.PIPE, stderr=subprocess.PIPE)  
             #reservation_id = self.vis.qadapter.submit_to_queue(self.vis.script_name)

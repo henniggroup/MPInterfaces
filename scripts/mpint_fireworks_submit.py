@@ -63,7 +63,7 @@ kpoints = Kpoints()
 
 #-------------------------------------------------
 #first firetask
-#create a calibrate task: calibrate molecule
+#create a calibrate task: calibrate bulk
 #------------------------------------------------
 
 #set the paramters for the calibrate task
@@ -79,7 +79,7 @@ calparams1['que'] = {
                      'params':
                      {
                      'nnodes': '1',
-                     'ppnode': '32',
+                     'ppnode': '8',
                      'walltime': '24:00:00',
                      'job_name': 'test_job',
                      'rocket_launch': 'mpirun vasp'
@@ -90,7 +90,7 @@ calparams1['encut_list'] = ['400', '800', '100']
 calparams1['kpoint_list'] = ['[7,7,7]', '[11,11,11]' ]
 #type of calibration to be done: basically the name of calibrate calss to
 #be used. available options: CalibrateMolecule, CalibrateSlab, CalibrateBulk
-calparams1['calibrate'] = 'CalibrateMolecule'
+calparams1['calibrate'] = 'CalibrateBulk'
 #optional param: job_dir is the name of the directory within which
 #the encut and kpoints jobs will be run
 calparams1['cal_construct_params'] = {'job_dir':'Molecule_1'}
@@ -120,7 +120,8 @@ msrtask1 = MPINTMeasurementTask(msrparams1)
 #--------------------------------------------------
 #create the fireworks from the firetasks 
 #--------------------------------------------------
-fw1 = Firework([caltask1, caltask2], name="calibrate")
+#fw1 = Firework([caltask1, caltask2], name="calibrate")
+fw1 = Firework([caltask1], name="calibrate")
 fw2 = Firework([msrtask1], name="measurement", parents=[fw1])
 #fw3 = Firework(pptask, name="post_process", parents=[fw1, fw2])
 

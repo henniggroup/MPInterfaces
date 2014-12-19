@@ -91,7 +91,17 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         measure = Measurement(cal_objs_list, **self.get("msr_construct_params", {}))
         #test
         #measure.setup()
-        measure.calmol.knob_settings('1')
+        if measure.calmol:
+            for obj in measure.calmol:
+                obj.knob_settings()
+        if measure.calslab:
+            for obj in measure.calslab:
+                obj.knob_settings()
+        if measure.calbulk:
+            for obj in measure.calbulk:
+                obj.knob_settings()
+                
+                
 
 
 @explicit_serialize

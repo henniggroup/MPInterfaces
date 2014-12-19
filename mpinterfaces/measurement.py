@@ -33,13 +33,16 @@ class Measurement(object):
         self.slab_thickness = None
         self.jobs = []
         self.handlers = []
-        self.calmol = None
-        self.calslab = None        
+        self.calmol = []
+        self.calslab = []
+        self.calbulk = []                
         for obj in cal_objs:
             if isinstance(obj, CalibrateMolecule):
-                self.calmol = obj
+                self.calmol.append(obj)
             elif isinstance(obj, CalibrateSlab):
-                self.calslab = obj                
+                self.calslab.append(obj)
+            elif isinstance(obj, CalibrateBulk):
+                self.calbulk.append(obj)                
             
 
 

@@ -219,6 +219,7 @@ class Calibrate(object):
         """
         if rootpath is None:
             rootpath = self.job_dir
+        print 'xx', self.job_dir
         drone = MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True) #VaspToComputedEntryDrone()#
         bg =  BorgQueen(drone)
         #bg.parallel_assimilate(rootpath)        

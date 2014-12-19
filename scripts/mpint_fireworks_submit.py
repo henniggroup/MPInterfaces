@@ -55,7 +55,7 @@ poscar = Poscar(structure, comment=system,
 #---------------------------------
 # KPOINTS
 #----------------------------------
-kpoints = Kpoints()
+kpoints = Kpoints(kpts=((8, 8, 8),))
 
 #------------------------------------------
 # define firetasks
@@ -106,14 +106,14 @@ calparams2 = {k:calparams1[k] for k in calparams1.keys()}
 calparams2['calibrate'] = 'CalibrateSlab'
 calparams2['cal_construct_params'] = {'job_dir':'Slab_1'}
 
-#caltask2 = MPINTCalibrateTask(calparams2)
+caltask2 = MPINTCalibrateTask(calparams2)
 
 #---------------------------------------------------
 #third firetask
 #create a Measurement task
 #---------------------------------------------------
 msrparams1 = {}
-msrparams1['cal_objs'] = [calparams1, calparams2]
+msrparams1['cal_objs'] = [calparams1]#, calparams2]
 msrparams1['msr_construct_params'] = {'job_dir':'Measurement_1'}
 msrtask1 = MPINTMeasurementTask(msrparams1)
 

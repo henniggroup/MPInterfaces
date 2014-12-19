@@ -82,7 +82,7 @@ calparams1['que'] = {
                      'ppnode': '8',
                      'walltime': '24:00:00',
                      'job_name': 'test_job',
-                     'rocket_launch': 'mpirun vasp'
+                     'rocket_launch': 'mpirun ~/Software/vasp.5.3.5/vasp'
                      }
                      }
 #range specification for encut and kpoints
@@ -93,7 +93,7 @@ calparams1['kpoint_list'] = ['[7,7,7]', '[11,11,11]' ]
 calparams1['calibrate'] = 'CalibrateBulk'
 #optional param: job_dir is the name of the directory within which
 #the encut and kpoints jobs will be run
-calparams1['cal_construct_params'] = {'job_dir':'Molecule_1'}
+calparams1['cal_construct_params'] = {'job_dir':'Bulk_test'}
 
 caltask1 = MPINTCalibrateTask(calparams1)
 
@@ -106,7 +106,7 @@ calparams2 = {k:calparams1[k] for k in calparams1.keys()}
 calparams2['calibrate'] = 'CalibrateSlab'
 calparams2['cal_construct_params'] = {'job_dir':'Slab_1'}
 
-caltask2 = MPINTCalibrateTask(calparams2)
+#caltask2 = MPINTCalibrateTask(calparams2)
 
 #---------------------------------------------------
 #third firetask

@@ -121,15 +121,15 @@ msrtask1 = MPINTMeasurementTask(msrparams1)
 #create the fireworks from the firetasks 
 #--------------------------------------------------
 #fw1 = Firework([caltask1, caltask2], name="calibrate")
-fw1 = Firework([msrtask1], name="calibrate")
-#fw2 = Firework([msrtask1], name="measurement", parents=[fw1])
+fw1 = Firework([caltask1], name="calibrate")
+fw2 = Firework([msrtask1], name="measurement", parents=[fw1])
 #fw3 = Firework(pptask, name="post_process", parents=[fw1, fw2])
 
 #-----------------------------------------------------
 #create workflow from the fireworks
 #-----------------------------------------------------
-wf = Workflow([fw1], name="mpint workflow")
-#wf = Workflow([fw1, fw2], name="mpint workflow")
+#wf = Workflow([fw1], name="mpint workflow")
+wf = Workflow([fw1, fw2], name="mpint workflow")
 #wf = Workflow([fw1, fw2, fw3], name="mpint workflow")
 
 print 'fireworks in the database before adding the workflow: \n', launchpad.get_fw_ids()

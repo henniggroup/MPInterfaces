@@ -8,7 +8,7 @@ import numpy as np
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
-from mpinterfaces.calibrate import Calibrate, CalibrateMolecule, CalibrateSlab
+from mpinterfaces.calibrate import Calibrate, CalibrateMolecule, CalibrateSlab, CalibrateBulk
 from mpinterfaces.interface import Interface
         
 

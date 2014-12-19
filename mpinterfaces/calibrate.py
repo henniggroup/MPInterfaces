@@ -36,10 +36,10 @@ class Calibrate(object):
     """
 
     def __init__(self, incar, poscar, potcar, kpoints,
-                 setup_dir='.', parent_job_dir='.',job_dir='.'):
+                 setup_dir='.', parent_job_dir='.',job_dir='./Job',
+                 qadapter=None, job_cmd='qsub'):
         """
         setup_dir = directory from where the setup files are copied from
-        eg:- the submit script for the queue system
         parent_job_dir = the directory from which the script is run
         job_dir = name of the job directory relative to the parent directory
         """
@@ -50,12 +50,24 @@ class Calibrate(object):
         self.poscar = poscar
         self.potcar =potcar
         self.kpoints = kpoints
+        self.qadapter = qadapter
         self.vis = []
         self.jobs = []
         #example:- handlers = [VaspErrorHandler(), FrozenJobErrorHandler(),
         #MeshSymmetryErrorHandler(), NonConvergingErrorHandler()]        
-        self.handlers = [ ] 
+        self.handlers = [ ]
+        self.job_cmd = job_cmd
+        self.n_atoms = 0
 
+        
+    def add_job(self, name='noname', job_dir='.'):
+        vis = MPINTVaspInputSet(name, self.incar, self.poscar,
+                                self.potcar, self.kpoints, self.qadapter)
+        #the job command can be overrridden in the run method
+        job = MPINTVaspJob(self.job_cmd.split(), final = True, setup_dir=self.setup_dir,
+                               parent_job_dir=self.parent_job_dir, job_dir=job_dir,
+                               vis=vis, auto_npar=False, auto_gamma=False)
+        self.jobs.append(job)
 
         
     def encut_cnvg(self, encut_list):
@@ -66,35 +78,13 @@ class Calibrate(object):
             print 'ENCUT = ', encut
             job_dir  = self.job_dir+ os.sep + 'ENCUT' + os.sep + str(encut)
             self.incar['ENCUT'] = encut
-            vis = MPINTVaspInputSet('encut_'+str(encut), self.incar,
-                                    self.poscar, self.potcar, self.kpoints)
-            #the job command can be overrridden in the run method
-            job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
-                               parent_job_dir=self.parent_job_dir, job_dir=job_dir,
-                               vis=vis, auto_npar=False, auto_gamma=False)
-            self.jobs.append(job)
-
+            self.add_job(name='encut_'+str(encut), job_dir=job_dir)
 
             
     def kpoints_cnvg(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
         """
         set the jobs for kpoint convergence
         
-        Calls Kpoints constructors according to Grid_type:
-        Monkhorst Pack Automatic is default,
-        
-        G for Gamma centered automatic; ONLY MP method implemented now others can be added 
-        
-        kpoints_list describes the start and end of kpoints set
-        eg: user can pass [[6, 6, 6], [10, 10, 10]] and conv_step for a
-        convergence to be done for 6x6x6 to 10x10x10,
-        
-        is_slab can be switched to True constraints z to default to 1,
-        that is 6x6x1 to 10x10x1
-        
-        first defines the list of kpoints according to the user input,
-        user needs to give only the start and end kpoint,
-        whether it is for a slab or simple bulk
         """
         if Grid_type == 'M':
             #local list convergence_list , convert from tuple
@@ -109,15 +99,9 @@ class Calibrate(object):
                     for kpoint in conv_list:
                         self.kpoints = Kpoints.monkhorst_automatic(kpts = kpoint)
                         name = str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' + str(kpoint[2])
-                        print 'KPOINTmesh = ', name
+                        print 'KPOINTS = ', name
                         job_dir = self.job_dir +os.sep+ 'KPOINTS' + os.sep + name
-                        vis = MPINTVaspInputSet(name, self.incar, self.poscar, self.potcar,
-                                                self.kpoints)
-                        job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
-                                parent_job_dir=self.parent_job_dir, job_dir=job_dir,
-                                vis=vis, auto_npar=False, auto_gamma=False)
-                        
-                        self.jobs.append(job)
+                        self.add_job(name=name, job_dir=job_dir) 
             else:
                 print 'kpoints_list not provided'
 
@@ -126,42 +110,35 @@ class Calibrate(object):
     def run(self, job_cmd=None):
         """
         run the vasp jobs through custodian
-        set up the custodian that we want to run : just a single run
-        just one vasp job that uses the above defined input set
-        first param in VaspJob = job_cmd eg:- ["mpirun", "pvasp.5.2.11"]
-        create multiple vaspjob object, each with differnt dictvaspinputset object
-        consider subclassing VaspJob and overriding the post_process method
-        create a custodian task using the jobs and error handlers
-        consider subclassing Custodian and overriding _run_job method to modify
-         when _do_check method is called
-        it must be called when the calcualtion is done
-        for example: check the OUTCAR and check for
-        'writing wavefunctions' or maybe not
-
-        disable error handlers on the job and the postprocess since
-        the 'job' here just submitting the job to the queue 
 
         """
+        #if the job list is empty, run a single job with the provided input set
+        if not self.jobs :
+            self.add_job(name='single job', job_dir=self.job_dir)             
+        
         #override the job_cmd if provided
-        if job_cmd :
-            for j in self.jobs:
+        for j in self.jobs:
+            if job_cmd is not None:            
                 j.job_cmd = job_cmd
-                
-        c_params = {'jobs': [j.as_dict() for j in self.jobs], 'handlers': [h.as_dict() for h in self.handlers], 'max_errors': 5}
+            else:
+                j.job_cmd = self.job_cmd
+
+        c_params = {'jobs': [j.as_dict() for j in self.jobs],
+                'handlers': [h.as_dict() for h in self.handlers], 'max_errors': 5}
         c = Custodian(self.handlers, self.jobs, max_errors=5)
         c.run()
 
 
-    def enforce_cutoff(self, input_list, delta_e=0.01):
+    def enforce_cutoff(self, input_list, delta_e_peratom=0.001):
         """
-        energy difference of 10meV
+        energy difference of 1meV per atom
         """
         matching_list = []
         for i, e in enumerate(input_list):
             if i < len(input_list)-1:
                 print i, input_list[i+1], e
                 print np.abs(input_list[i+1][1] - e[1])
-                if np.abs(input_list[i+1][1] - e[1]) <= 0.01:
+                if np.abs(input_list[i+1][1] - e[1])/self.n_atoms <= delta_e_peratom:
                     matching_list.append(input_list[i+1][0])
         if matching_list:
             print matching_list
@@ -250,6 +227,7 @@ class Calibrate(object):
         alldata = []
         for e in allentries:
             if e:
+                self.n_atoms = len(e.structure)
                 alldata.append(str(e.incar['ENCUT']))
                 alldata.append(str(e.kpoints.kpts))
         #get the 2 most common items in alldata
@@ -280,11 +258,12 @@ class CalibrateMolecule(Calibrate):
     """
 
     def __init__(self, incar, poscar, potcar, kpoints,
-                 setup_dir='.', parent_job_dir='.', job_dir='./Molecule'):
+                 setup_dir='.', parent_job_dir='.', job_dir='./Molecule',
+                qadapter=None, job_cmd='qsub'):
         
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
                            setup_dir=setup_dir, parent_job_dir=parent_job_dir,
-                           job_dir=job_dir)
+                           job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd)
 
 
         
@@ -304,11 +283,12 @@ class CalibrateBulk(Calibrate):
     """
     
     def __init__(self, incar, poscar, potcar, kpoints,
-                  setup_dir='.', parent_job_dir='.', job_dir='./Bulk'):
+                  setup_dir='.', parent_job_dir='.', job_dir='./Bulk',
+                qadapter=None, job_cmd='qsub'):                  
             
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
                             setup_dir=setup_dir, parent_job_dir=parent_job_dir,
-                             job_dir=job_dir)
+                             job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd)
 
         
 
@@ -322,11 +302,12 @@ class CalibrateSlab(Calibrate):
     """
     
     def __init__(self, incar, poscar, potcar, kpoints,
-                 setup_dir='.', parent_job_dir='.', job_dir='./Slab'):
+                 setup_dir='.', parent_job_dir='.', job_dir='./Slab',
+                qadapter=None, job_cmd='qsub'):                 
         
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
                             setup_dir=setup_dir, parent_job_dir=parent_job_dir,
-                            job_dir=job_dir)
+                            job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd)
 
     def kpoints_cnvg(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
         if Grid_type == 'M':
@@ -342,15 +323,9 @@ class CalibrateSlab(Calibrate):
                     for kpoint in conv_list:
                         self.kpoints = Kpoints.monkhorst_automatic(kpts = kpoint)
                         name = str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' + str(kpoint[2])
-                        print 'KPOINTmesh = ', name
+                        print 'KPOINTS = ', name
                         job_dir = self.job_dir +os.sep+ 'KPOINTS' + os.sep + name
-                        vis = MPINTVaspInputSet(name, self.incar, self.poscar, self.potcar,
-                                                self.kpoints)
-                        job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
-                                parent_job_dir=self.parent_job_dir, job_dir=job_dir,
-                                vis=vis, auto_npar=False, auto_gamma=False)
-                        
-                        self.jobs.append(job)
+                        self.add_job(name=name, job_dir=job_dir)
             else:
                 print 'kpoints_list not provided'
         

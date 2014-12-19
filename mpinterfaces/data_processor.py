@@ -67,7 +67,6 @@ class MPINTComputedEntry(ComputedEntry):
 
 
 
-
 class MPINTVasprun(Vasprun):
         
     """

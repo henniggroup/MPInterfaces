@@ -11,6 +11,7 @@ from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import explicit_serialize
 from matgendb.creator import VaspToDbTaskDrone
+from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 
 def load_class(mod, name):
@@ -24,14 +25,22 @@ def to_int_list(str_list):
 
 
 def get_cal_obj(d):
+    qadapter = None
+    if d['que']:
+        qadapter = CommonAdapter(d['que']['type'], **d['que']['params'])
     incar = Incar.from_dict(d["incar"])
     poscar = Poscar.from_dict(d["poscar"])
     symbols = poscar.site_symbols #symbol_set
     potcar = Potcar(symbols)
-    kpoints = Kpoints()
-    cal =  load_class("mpinterfaces.calibrate", d["calibrate"])(incar, poscar, potcar, kpoints,**d.get("cal_construct_params", {}))
-    return cal
-           
+    kpoints = Kpoints.from_dict(d["kpoints"])
+    if qadapter is not None:
+        cal =  load_class("mpinterfaces.calibrate", d["calibrate"])(incar, poscar, potcar, kpoints, qadapter=qadapter, job_cmd='qsub', **d.get("cal_construct_params", {}))
+    elif d['job_cmd']:
+        cal =  load_class("mpinterfaces.calibrate", d["calibrate"])(incar, poscar, potcar, kpoints, job_cmd=d['job_cmd'], **d.get("cal_construct_params", {}))
+    #no qadapter and no job_cmd
+    else:
+        cal =  load_class("mpinterfaces.calibrate", d["calibrate"])(incar, poscar, potcar, kpoints, job_cmd='vasp', **d.get("cal_construct_params", {}))            
+    return cal           
     
 
 
@@ -44,8 +53,8 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
     kpoint_list: example:- ['[7,7,7]', '[11,11,11]' ]
     """
     
-    required_params = ["incar", "poscar", "encut_list", "kpoint_list", "calibrate"]
-    optional_params = ["cal_construct_params"]
+    required_params = ["incar", "poscar", "kpoints","calibrate", "que"]
+    optional_params = ["job_cmd", "encut_list", "kpoint_list", "cal_construct_params"]
 #    _fw_name = 'MPINTCalibrateTask'
 
     def run_task(self, fw_spec):
@@ -53,11 +62,13 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         launch jobs to the queue
         """
         cal = get_cal_obj(self)
-        range_specs = [ int(encut) for encut in self["encut_list"] ]
-        encut_list = range(range_specs[0], range_specs[1], range_specs[2])
-        kpoint_list = [ to_int_list(kpt) for kpt in self["kpoint_list"]]
-        cal.encut_cnvg(encut_list)
-        cal.kpoints_cnvg(kpoints_list=kpoint_list)        
+        if self["encut_list"]:
+            range_specs = [ int(encut) for encut in self["encut_list"] ]
+            encut_list = range(range_specs[0], range_specs[1], range_specs[2])
+            cal.encut_cnvg(encut_list)
+        if self["kpoint_list"]:
+            kpoint_list = [ to_int_list(kpt) for kpt in self["kpoint_list"]]
+            cal.kpoints_cnvg(kpoints_list=kpoint_list)        
         cal.run()
         
 
@@ -79,6 +90,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             cal_objs_list.append(cal)
         measure = Measurement(cal_objs_list, **self.get("msr_construct_params", {}))
         #test
+        #measure.setup()
         measure.calmol.knob_settings('1')
 
 

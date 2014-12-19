@@ -30,17 +30,18 @@ class MPINTVaspInputSet(DictVaspInputSet):
     use user_incar_settings to override the defaults in myVIS.yaml
     
     """
-    def __init__(self, name, incar, poscar, potcar, kpoints,**kwargs ):#config_dict, user_incar_settings=None, **kwargs):
+    def __init__(self, name, incar, poscar, potcar, kpoints, qadapter=None, **kwargs ):
+        #config_dict, user_incar_settings=None, **kwargs):
         """
         default INCAR from config_dict
         
         """
         self.name = name
-        
         self.incar = Incar.from_dict(incar.as_dict())
         self.poscar = Poscar.from_dict(poscar.as_dict())
         self.potcar = Potcar.from_dict(potcar.as_dict())
         self.kpoints = Kpoints.from_dict(kpoints.as_dict())
+        self.qadapter = qadapter.from_dict(qadapter.to_dict())
         
         config_dict = {}
         config_dict['INCAR'] = self.incar.as_dict()
@@ -49,7 +50,6 @@ class MPINTVaspInputSet(DictVaspInputSet):
         #self.user_incar_settings = self.incar.as_dict()        
         
         DictVaspInputSet.__init__(self, name, config_dict, ediff_per_atom=False, **kwargs)
-
 
         
     def write_input(self, job_dir, make_dir_if_not_present=True, write_cif=False):
@@ -66,9 +66,13 @@ class MPINTVaspInputSet(DictVaspInputSet):
         self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
         self.poscar.write_file(os.path.join(d, 'POSCAR'))
+        if self.qadapter is not None:
+            self.script_name = 'submit_script'
+            with open(os.path.join(d, self.script_name), 'w') as f:
+                queue_script = self.qadapter.get_script_str(job_dir)
+                f.write(queue_script)           
 
-
-        
+                
     def as_dict(self):
         d = super(MPINTVaspInputSet, self).as_dict()
         return d
@@ -93,9 +97,6 @@ class MPINTVaspJob(Job):
                  gamma_vasp_cmd=None, copy_magmom=False):
 
         self.job_cmd = job_cmd
-        self.launch_cmd = self.job_cmd[0]
-        if len(self.job_cmd) > 1:
-            self.launch_script = self.job_cmd[1]        
         self.output_file = output_file
         self.setup_dir = setup_dir
         self.parent_job_dir = parent_job_dir
@@ -112,7 +113,6 @@ class MPINTVaspJob(Job):
         self.copy_magmom = copy_magmom
 
 
-        
     def setup(self):
         """
         looks for the set up files(POSCAR, submit_job etc) in the setup_dir
@@ -126,28 +126,30 @@ class MPINTVaspJob(Job):
                 shutil.copy(f, "{}.orig".format(f))
             os.chdir(self.parent_job_dir)                
 
-
             
     def run(self):
         """
         move to the job_dir, launch the job and back to the parent job directory
         """
         os.chdir(os.path.abspath(self.job_dir))
+        p = None
         #if launching jobs via batch system
-        if self.launch_cmd == 'qsub':
-            script_file = '../'+self.launch_script
-            if os.path.isfile(script_file):
-                shutil.copy(script_file, '.')
-            else:
-                print 'the submit script doesnt exit'
-                sys.exit()
-        cmd = list(self.job_cmd)
-        logging.info("Running {}".format(" ".join(cmd)))
-        with open(self.output_file, 'w') as f:
-            p = subprocess.Popen(cmd, stdout=f)
-            os.chdir(self.parent_job_dir)
+        if self.vis.qadapter is not None:
+            submit_cmd = self.vis.qadapter.supported_q_types[self.vis.qadapter.q_type]
+            #print os.path.exists(self.vis.script_name)
+            cmd = ['cat', self.vis.script_name]
+            with open(self.output_file, 'w') as f:            
+                p = subprocess.Popen(cmd, stdout=f, stderr=f)#stdout=subprocess.PIPE, stderr=subprocess.PIPE)  
+            #reservation_id = self.vis.qadapter.submit_to_queue(self.vis.script_name)
+            #cmd = ['echo', str(reservation_id)]
+            #with open(self.output_file, 'w') as f:
+            #    p = subprocess.Popen(cmd, stdout=f)
+        else:
+            cmd = list(self.job_cmd)
+            with open(self.output_file, 'w') as f:
+                p = subprocess.Popen(cmd, stdout=f)
+        os.chdir(self.parent_job_dir)
         return p
-
 
     
     def postprocess(self):

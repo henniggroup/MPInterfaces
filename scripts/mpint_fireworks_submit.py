@@ -52,15 +52,39 @@ poscar = Poscar(structure, comment=system,
         selective_dynamics=None,
         true_names=True, velocities=None, predictor_corrector=None)
 
+#---------------------------------
+# KPOINTS
+#----------------------------------
+kpoints = Kpoints()
+
 #------------------------------------------
 # define firetasks
 #-----------------------------------------
+
+#-------------------------------------------------
+#first firetask
+#create a calibrate task: calibrate molecule
+#------------------------------------------------
+
 #set the paramters for the calibrate task
 calparams1 = {}
 #required params: incar, poscar, list of encut and kpoints and the calibrate object
 #potcar created from poscar
 calparams1['incar'] = incar.as_dict()
 calparams1['poscar'] = poscar.as_dict()
+calparams1['kpoints'] = kpoints.as_dict()
+#submit script settings
+calparams1['que'] = {
+                     'type':'PBS',
+                     'params':
+                     {
+                     'nnodes': '1',
+                     'ppnode': '32',
+                     'walltime': '24:00:00',
+                     'job_name': 'test_job',
+                     'rocket_launch': 'mpirun vasp'
+                     }
+                     }
 #range specification for encut and kpoints
 calparams1['encut_list'] = ['400', '800', '100']
 calparams1['kpoint_list'] = ['[7,7,7]', '[11,11,11]' ]
@@ -71,43 +95,46 @@ calparams1['calibrate'] = 'CalibrateMolecule'
 #the encut and kpoints jobs will be run
 calparams1['cal_construct_params'] = {'job_dir':'Molecule_1'}
 
-#-------------------------------------------------
-#create a calibrate task: calibrate molecule
-#------------------------------------------------
 caltask1 = MPINTCalibrateTask(calparams1)
 
 #---------------------------------------------------
+#second firetask
 #create a calibrate task: calibrate bulk calculation
 #---------------------------------------------------
 calparams2 = {}
 calparams2 = {k:calparams1[k] for k in calparams1.keys()}
 calparams2['calibrate'] = 'CalibrateSlab'
-#optional param: job_dir is the name of the directory within which
-#the encut and kpoints jobs will be run
 calparams2['cal_construct_params'] = {'job_dir':'Slab_1'}
 
 caltask2 = MPINTCalibrateTask(calparams2)
 
+#---------------------------------------------------
+#third firetask
+#create a Measurement task
+#---------------------------------------------------
 msrparams1 = {}
 msrparams1['cal_objs'] = [calparams1, calparams2]
 msrparams1['msr_construct_params'] = {'job_dir':'Measurement_1'}
 msrtask1 = MPINTMeasurementTask(msrparams1)
 
-
 #--------------------------------------------------
-#create the fireworks and add it to the workflow
+#create the fireworks from the firetasks 
 #--------------------------------------------------
 fw1 = Firework([caltask1, caltask2], name="calibrate")
 fw2 = Firework([msrtask1], name="measurement", parents=[fw1])
-wf = Workflow([fw1, fw2], name="mpint workflow")
-
 #fw3 = Firework(pptask, name="post_process", parents=[fw1, fw2])
+
+#-----------------------------------------------------
+#create workflow from the fireworks
+#-----------------------------------------------------
+wf = Workflow([fw1, fw2], name="mpint workflow")
 #wf = Workflow([fw1, fw2, fw3], name="mpint workflow")
 
+print 'fireworks in the database before adding the workflow: \n', launchpad.get_fw_ids()
 #-----------------------------------------
 # add workflow to the database
 #-----------------------------------------
-print 'fireworks in the database before adding the workflow: \n', launchpad.get_fw_ids()
 launchpad.add_wf(wf)
+
 print 'fireworks in the database: \n', launchpad.get_fw_ids()
 

@@ -96,10 +96,10 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
                 obj.knob_settings(rootpath=obj.job_dir)
         if measure.calslab:
             for obj in measure.calslab:
-                obj.knob_settings(rootpath=obj.job_dir))
+                obj.knob_settings(rootpath=obj.job_dir)
         if measure.calbulk:
             for obj in measure.calbulk:
-                obj.knob_settings(rootpath=obj.job_dir))
+                obj.knob_settings(rootpath=obj.job_dir)
                 
                 
 

@@ -230,6 +230,7 @@ class Calibrate(object):
                 self.n_atoms = len(e.structure)
                 alldata.append(str(e.incar['ENCUT']))
                 alldata.append(str(e.kpoints.kpts))
+        print alldata
         #get the 2 most common items in alldata
         enkp_mc =  Counter(alldata).most_common(2)
         kp_mc = None

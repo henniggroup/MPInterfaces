@@ -128,7 +128,8 @@ fw1 = Firework([msrtask1], name="calibrate")
 #-----------------------------------------------------
 #create workflow from the fireworks
 #-----------------------------------------------------
-wf = Workflow([fw1, fw2], name="mpint workflow")
+wf = Workflow([fw1], name="mpint workflow")
+#wf = Workflow([fw1, fw2], name="mpint workflow")
 #wf = Workflow([fw1, fw2, fw3], name="mpint workflow")
 
 print 'fireworks in the database before adding the workflow: \n', launchpad.get_fw_ids()

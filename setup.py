@@ -28,5 +28,5 @@ setup(
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-#    scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
+    scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )

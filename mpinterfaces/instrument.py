@@ -41,7 +41,8 @@ class MPINTVaspInputSet(DictVaspInputSet):
         self.poscar = Poscar.from_dict(poscar.as_dict())
         self.potcar = Potcar.from_dict(potcar.as_dict())
         self.kpoints = Kpoints.from_dict(kpoints.as_dict())
-        self.qadapter = qadapter.from_dict(qadapter.to_dict())
+        if qadapter is not None:
+            self.qadapter = qadapter.from_dict(qadapter.to_dict())
         
         config_dict = {}
         config_dict['INCAR'] = self.incar.as_dict()

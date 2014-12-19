@@ -37,7 +37,7 @@ class Calibrate(object):
 
     def __init__(self, incar, poscar, potcar, kpoints,
                  setup_dir='.', parent_job_dir='.',job_dir='./Job',
-                 qadapter=None, job_cmd='qsub'):
+                 qadapter=None, job_cmd='qsub', turn_knobs={'ENCUT':[],'KPOINTS':[]} ):
         """
         setup_dir = directory from where the setup files are copied from
         parent_job_dir = the directory from which the script is run
@@ -58,30 +58,30 @@ class Calibrate(object):
         self.handlers = [ ]
         self.job_cmd = job_cmd
         self.n_atoms = 0
-
-        
-    def add_job(self, name='noname', job_dir='.'):
-        vis = MPINTVaspInputSet(name, self.incar, self.poscar,
-                                self.potcar, self.kpoints, self.qadapter)
-        #the job command can be overrridden in the run method
-        job = MPINTVaspJob(self.job_cmd.split(), final = True, setup_dir=self.setup_dir,
-                               parent_job_dir=self.parent_job_dir, job_dir=job_dir,
-                               vis=vis, auto_npar=False, auto_gamma=False)
-        self.jobs.append(job)
-
-        
-    def encut_cnvg(self, encut_list):
-        """
-        create ENCUT convergence workflow
-        """
-        for encut in encut_list:
-            print 'ENCUT = ', encut
-            job_dir  = self.job_dir+ os.sep + 'ENCUT' + os.sep + str(encut)
-            self.incar['ENCUT'] = encut
-            self.add_job(name='encut_'+str(encut), job_dir=job_dir)
-
+        self.turn_knobs = turn_knobs
+        self.response_to_knobs = {}
+        for k, v in turn_knobs.items():
+            self.response_to_knobs[k] = {}
             
-    def kpoints_cnvg(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
+
+
+    def setup(self):
+        for k, v in self.turn_knobs.items():
+            if k == 'KPOINTS' and v:
+                self.setup_kpoints_jobs(kpoints_list = v)
+            elif v:
+                self.setup_incar_jobs(k, v)                
+                
+
+    def setup_incar_jobs(self, param, val_list):
+        for val in val_list:
+            print 'setting '+param+' = ', val
+            job_dir  = self.job_dir+ os.sep + param + os.sep + str(val)
+            self.incar[param] = val
+            self.add_job(name=param+str(val), job_dir=job_dir)
+                
+            
+    def setup_kpoints_jobs(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
         """
         set the jobs for kpoint convergence
         
@@ -106,6 +106,17 @@ class Calibrate(object):
                 print 'kpoints_list not provided'
 
 
+        
+    def add_job(self, name='noname', job_dir='.'):
+        vis = MPINTVaspInputSet(name, self.incar, self.poscar,
+                                self.potcar, self.kpoints, self.qadapter)
+        #the job command can be overrridden in the run method
+        job = MPINTVaspJob(self.job_cmd.split(), final = True, setup_dir=self.setup_dir,
+                               parent_job_dir=self.parent_job_dir, job_dir=job_dir,
+                               vis=vis, auto_npar=False, auto_gamma=False)
+        self.jobs.append(job)
+                
+
     
     def run(self, job_cmd=None):
         """
@@ -127,6 +138,26 @@ class Calibrate(object):
                 'handlers': [h.as_dict() for h in self.handlers], 'max_errors': 5}
         c = Custodian(self.handlers, self.jobs, max_errors=5)
         c.run()
+
+    def get_knob_responses(self):
+        drone = MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True) 
+        bg =  BorgQueen(drone)
+        for k, v in self.response_to_knobs.items():
+            rootpath = self.job_dir+ os.sep + k
+            print 'rootpath', rootpath
+            #bg.parallel_assimilate(rootpath)        
+            bg.serial_assimilate(rootpath)
+            allentries =  bg.get_data()
+            print allentries
+            for e in allentries:
+                if e:
+                    self.n_atoms = len(e.structure)
+                    print 'n_atoms', self.n_atoms
+                    if k == 'KPOINTS':
+                        self.response_to_knobs[k][str(e.kpoints.kpts)] = e.energy
+                    else:
+                        self.response_to_knobs[k][str(e.incar[k])] = e.energy
+        
 
 
     def enforce_cutoff(self, input_list, delta_e_peratom=0.001):
@@ -152,7 +183,7 @@ class Calibrate(object):
             else:
                 return [float(encut) for encut in matching_list]
         else:
-            print 'none of the entries satisfy the convergence criterion'
+            return []
         
 
             
@@ -231,7 +262,6 @@ class Calibrate(object):
                 self.n_atoms = len(e.structure)
                 alldata.append(str(e.incar['ENCUT']))
                 alldata.append(str(e.kpoints.kpts))
-        print alldata
         #get the 2 most common items in alldata
         enkp_mc =  Counter(alldata).most_common(2)
         kp_mc = None
@@ -261,15 +291,16 @@ class CalibrateMolecule(Calibrate):
 
     def __init__(self, incar, poscar, potcar, kpoints,
                  setup_dir='.', parent_job_dir='.', job_dir='./Molecule',
-                qadapter=None, job_cmd='qsub'):
+                qadapter=None, job_cmd='qsub', turn_knobs={'ENCUT':[],'KPOINTS':[]} ):
         
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
                            setup_dir=setup_dir, parent_job_dir=parent_job_dir,
-                           job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd)
+                           job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd,
+                           turn_knobs = turn_knobs)
 
 
         
-    def kpoints_cnvg(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
+    def setup_kpoints_jobs(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
         print "Its a molecule ! no need for kpoint convergence"
         return
 
@@ -286,11 +317,12 @@ class CalibrateBulk(Calibrate):
     
     def __init__(self, incar, poscar, potcar, kpoints,
                   setup_dir='.', parent_job_dir='.', job_dir='./Bulk',
-                qadapter=None, job_cmd='qsub'):                  
+                qadapter=None, job_cmd='qsub', turn_knobs={'ENCUT':[],'KPOINTS':[]}): 
             
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
                             setup_dir=setup_dir, parent_job_dir=parent_job_dir,
-                             job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd)
+                             job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd,
+                             turn_knobs = turn_knobs )
 
         
 
@@ -305,13 +337,14 @@ class CalibrateSlab(Calibrate):
     
     def __init__(self, incar, poscar, potcar, kpoints,
                  setup_dir='.', parent_job_dir='.', job_dir='./Slab',
-                qadapter=None, job_cmd='qsub'):                 
+                qadapter=None, job_cmd='qsub', turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
                             setup_dir=setup_dir, parent_job_dir=parent_job_dir,
-                            job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd)
+                            job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd,
+                            turn_knobs = turn_knobs)
 
-    def kpoints_cnvg(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
+    def setup_kpoints_jobs(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
         if Grid_type == 'M':
             #local list convergence_list , convert from tuple
             #because constructor takes tuple as argument
@@ -362,18 +395,20 @@ if __name__ == '__main__':
     kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16), shift=(0, 0, 0))#{'grid_density': 1000} #
 
 #    calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
-    calbulk = CalibrateBulk(incar, poscar, potcar, kpoints)    
-    calbulk.encut_cnvg( range(400,800,100) )
-    calbulk.kpoints_cnvg( kpoints_list = [ [7, 7, 7], [11, 11, 11] ] ) 
+    calbulk = CalibrateBulk(incar, poscar, potcar, kpoints, job_dir='./Bulk_test',
+                            turn_knobs = {'ENCUT':range(400,800,100),
+                                          'KPOINTS':[ [7, 7, 7], [11, 11, 11] ] } )    
+    calbulk.setup()
     #the job_cmd can passed to the run
     #['qsub','job_script']
-    calbulk.run(['ls','-lt'])
+    #calbulk.run(['ls','-lt'])
     
     #get all data in all the directories in the provided rootfolder, here 1/
-    calbulk.knob_settings('1')
+    calbulk.get_knob_responses()
+    print calbulk.response_to_knobs
     #test enforce_cutoff
-    inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9], ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888], ['[[2,2,8]]', 9.879],]
-    print calbulk.enforce_cutoff(inp_list, delta_e=0.01)
+    #inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9], ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888], ['[[2,2,8]]', 9.879],]
+    #print calbulk.enforce_cutoff(inp_list, delta_e=0.01)
 
 
 

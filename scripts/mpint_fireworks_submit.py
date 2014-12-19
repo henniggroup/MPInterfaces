@@ -121,8 +121,8 @@ msrtask1 = MPINTMeasurementTask(msrparams1)
 #create the fireworks from the firetasks 
 #--------------------------------------------------
 #fw1 = Firework([caltask1, caltask2], name="calibrate")
-fw1 = Firework([caltask1], name="calibrate")
-fw2 = Firework([msrtask1], name="measurement", parents=[fw1])
+fw1 = Firework([msrtask1], name="calibrate")
+#fw2 = Firework([msrtask1], name="measurement", parents=[fw1])
 #fw3 = Firework(pptask, name="post_process", parents=[fw1, fw2])
 
 #-----------------------------------------------------

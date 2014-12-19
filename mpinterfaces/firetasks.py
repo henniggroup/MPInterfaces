@@ -4,7 +4,7 @@ Defines various firetasks
 
 import re
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
-from mpinterfaces.calibrate import CalibrateMolecule
+from mpinterfaces.calibrate import CalibrateMolecule, CalibrateSlab, CalibrateBulk
 from mpinterfaces.measurement import Measurement
 from fireworks.core.firework import FireTaskBase, FWAction
 from fireworks.core.launchpad import LaunchPad

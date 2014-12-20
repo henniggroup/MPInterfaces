@@ -44,7 +44,6 @@ def get_cal_obj(d):
         turn_knobs[k] = copy.copy(in_list)
     if d['que']:
         qadapter = CommonAdapter(d['que']['type'], **d['que']['params'])
-    qadapter = None
     if qadapter is not None:
         cal =  load_class("mpinterfaces.calibrate",
                           d["calibrate"])(incar, poscar, potcar, kpoints,

@@ -63,7 +63,7 @@ class Interface(Slab):
             self.top_atoms = []
             self.bottom_atoms = []            
             for i in range(n_atoms):
-                    if np.abs(self.frac_coords[i][2] - \ max(self.frac_coords[:,2])) < 1e-6:
+                    if np.abs(self.frac_coords[i][2] - max(self.frac_coords[:,2])) < 1e-6:
                                 if  self[i].species_string == self.adsorb_on_species:
                                     self.top_atoms.append(i)
                     elif np.abs(self.frac_coords[i][2] - min(self.frac_coords[:,2])) < 1e-6:

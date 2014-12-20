@@ -3,6 +3,7 @@ Defines various firetasks
 """
 
 import re
+import copy
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from mpinterfaces.calibrate import CalibrateMolecule, CalibrateSlab, CalibrateBulk
 from mpinterfaces.measurement import Measurement
@@ -20,26 +21,49 @@ def load_class(mod, name):
 
 
 def to_int_list(str_list):
-    m = re.search(r"\[(\d+)\,(\d+)\,(\d+)\]", str_list)
+    m = re.search(r"\[(\d+)\,\s*(\d+)\,\s*(\d+)\]", str_list)
     return [int(m.group(i)) for i in range(1,4)]       
 
 
 def get_cal_obj(d):
     qadapter = None
-    if d['que']:
-        qadapter = CommonAdapter(d['que']['type'], **d['que']['params'])
+    turn_knobs = {}
     incar = Incar.from_dict(d["incar"])
     poscar = Poscar.from_dict(d["poscar"])
     symbols = poscar.site_symbols #symbol_set
     potcar = Potcar(symbols)
     kpoints = Kpoints.from_dict(d["kpoints"])
+    for k, v in d["turn_knobs"].items():
+        in_list = []
+        if k == 'ENCUT':
+            in_list = [ int(encut) for encut in v ]
+        elif k == 'KPOINTS':
+            in_list = [ to_int_list(kpt) for kpt in v]
+        else:
+            in_list = v
+        turn_knobs[k] = copy.copy(in_list)
+    if d['que']:
+        qadapter = CommonAdapter(d['que']['type'], **d['que']['params'])
+    qadapter = None
     if qadapter is not None:
-        cal =  load_class("mpinterfaces.calibrate", d["calibrate"])(incar, poscar, potcar, kpoints, qadapter=qadapter, job_cmd='qsub', **d.get("cal_construct_params", {}))
-    elif d['job_cmd']:
-        cal =  load_class("mpinterfaces.calibrate", d["calibrate"])(incar, poscar, potcar, kpoints, job_cmd=d['job_cmd'], **d.get("cal_construct_params", {}))
+        cal =  load_class("mpinterfaces.calibrate",
+                          d["calibrate"])(incar, poscar, potcar, kpoints,
+                                          qadapter=qadapter, job_cmd='qsub',
+                                          turn_knobs=turn_knobs,
+                                          **d.get("cal_construct_params", {}))
+    elif d.get('job_cmd') is not None:
+        cal =  load_class("mpinterfaces.calibrate",
+                          d["calibrate"])(incar, poscar, potcar, kpoints,
+                                          job_cmd=d['job_cmd'],
+                                          turn_knobs=turn_knobs,
+                                          **d.get("cal_construct_params", {}))
     #no qadapter and no job_cmd
     else:
-        cal =  load_class("mpinterfaces.calibrate", d["calibrate"])(incar, poscar, potcar, kpoints, job_cmd='vasp', **d.get("cal_construct_params", {}))            
+        cal =  load_class("mpinterfaces.calibrate",
+                          d["calibrate"])(incar, poscar, potcar, kpoints,
+                                          job_cmd=['ls', '-lt'],
+                                          turn_knobs=turn_knobs,
+                                          **d.get("cal_construct_params", {}))            
     return cal           
     
 
@@ -47,14 +71,11 @@ def get_cal_obj(d):
 @explicit_serialize
 class MPINTCalibrateTask(FireTaskBase, FWSerializable):
     """
-    incar: Incar object.to_dict
-    similarly for poscar
-    encut_list : example:- ['400', '800', '100'] --> range specification
-    kpoint_list: example:- ['[7,7,7]', '[11,11,11]' ]
+    Calibration Task
     """
     
-    required_params = ["incar", "poscar", "kpoints","calibrate", "que"]
-    optional_params = ["job_cmd", "encut_list", "kpoint_list", "cal_construct_params"]
+    required_params = ["incar", "poscar", "kpoints", "calibrate", "que", "turn_knobs"]
+    optional_params = ["job_cmd", "cal_construct_params"]
 #    _fw_name = 'MPINTCalibrateTask'
 
     def run_task(self, fw_spec):
@@ -62,13 +83,7 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         launch jobs to the queue
         """
         cal = get_cal_obj(self)
-        if self["encut_list"]:
-            range_specs = [ int(encut) for encut in self["encut_list"] ]
-            encut_list = range(range_specs[0], range_specs[1], range_specs[2])
-            cal.encut_cnvg(encut_list)
-        if self["kpoint_list"]:
-            kpoint_list = [ to_int_list(kpt) for kpt in self["kpoint_list"]]
-            cal.kpoints_cnvg(kpoints_list=kpoint_list)        
+        cal.setup()
         cal.run()
         
 
@@ -91,15 +106,14 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         measure = Measurement(cal_objs_list, **self.get("msr_construct_params", {}))
         #test
         #measure.setup()
-        if measure.calmol:
-            for obj in measure.calmol:
-                obj.knob_settings()
-        if measure.calslab:
-            for obj in measure.calslab:
-                obj.knob_settings()
         if measure.calbulk:
-            for obj in measure.calbulk:
-                obj.knob_settings()
+            for obj in measure.calmol:
+                obj.set_knob_responses()
+                obj.set_sorted_optimum_params()
+                print obj.sorted_response_to_knobs
+#        if measure.calslab:
+#        if measure.calmol:
+
                 
                 
 

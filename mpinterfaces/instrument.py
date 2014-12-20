@@ -43,6 +43,8 @@ class MPINTVaspInputSet(DictVaspInputSet):
         self.kpoints = Kpoints.from_dict(kpoints.as_dict())
         if qadapter is not None:
             self.qadapter = qadapter.from_dict(qadapter.to_dict())
+        else:
+            self.qadapter = None
         
         config_dict = {}
         config_dict['INCAR'] = self.incar.as_dict()

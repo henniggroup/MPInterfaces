@@ -2,31 +2,34 @@
 Calibration module
 
 """
-
 import sys
-import os, shutil
-import shlex, subprocess
+import os
+import shutil
+import shlex
+import subprocess
 import operator
-from collections import Counter
+from collections import Counter, OrderedDict
 import re
 import time
 import datetime
 from pprint import pprint
 import logging
+
 import numpy as np
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
-#from custodian.vasp.handlers import VaspErrorHandler, FrozenJobErrorHandler, MeshSymmetryErrorHandler, NonConvergingErrorHandler
+#from custodian.vasp.handlers import VaspErrorHandler, FrozenJobErrorHandler
+#from custodian.vasp.handlers import MeshSymmetryErrorHandler, NonConvergingErrorHandler
 from custodian.custodian import Custodian, gzip_dir
 from custodian.vasp.interpreter import VaspModder
 from pymatgen.apps.borg.queen import BorgQueen
+
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
 
 
-class Calibrate(object):
-    
+class Calibrate(object):    
     """
         
     The base class for creating vasp work flows for
@@ -34,10 +37,10 @@ class Calibrate(object):
     
     
     """
-
     def __init__(self, incar, poscar, potcar, kpoints,
                  setup_dir='.', parent_job_dir='.',job_dir='./Job',
-                 qadapter=None, job_cmd='qsub', turn_knobs={'ENCUT':[],'KPOINTS':[]} ):
+                 qadapter=None, job_cmd='qsub',
+                 turn_knobs={'ENCUT':[],'KPOINTS':[]} ):
         """
         setup_dir = directory from where the setup files are copied from
         parent_job_dir = the directory from which the script is run
@@ -60,26 +63,24 @@ class Calibrate(object):
         self.n_atoms = 0
         self.turn_knobs = turn_knobs
         self.response_to_knobs = {}
+        self.sorted_response_to_knobs = {}        
         for k, v in turn_knobs.items():
             self.response_to_knobs[k] = {}
-            
-
+            self.sorted_response_to_knobs[k] = {}            
 
     def setup(self):
         for k, v in self.turn_knobs.items():
             if k == 'KPOINTS' and v:
                 self.setup_kpoints_jobs(kpoints_list = v)
             elif v:
-                self.setup_incar_jobs(k, v)                
+                self.setup_incar_jobs(k, v)
                 
-
     def setup_incar_jobs(self, param, val_list):
         for val in val_list:
-            print 'setting '+param+' = ', val
+            print 'setting INCAR parameter '+param+' = ', val
             job_dir  = self.job_dir+ os.sep + param + os.sep + str(val)
             self.incar[param] = val
             self.add_job(name=param+str(val), job_dir=job_dir)
-                
             
     def setup_kpoints_jobs(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
         """
@@ -105,17 +106,15 @@ class Calibrate(object):
             else:
                 print 'kpoints_list not provided'
 
-
         
     def add_job(self, name='noname', job_dir='.'):
         vis = MPINTVaspInputSet(name, self.incar, self.poscar,
                                 self.potcar, self.kpoints, self.qadapter)
         #the job command can be overrridden in the run method
-        job = MPINTVaspJob(self.job_cmd.split(), final = True, setup_dir=self.setup_dir,
+        job = MPINTVaspJob(self.job_cmd, final = True, setup_dir=self.setup_dir,
                                parent_job_dir=self.parent_job_dir, job_dir=job_dir,
                                vis=vis, auto_npar=False, auto_gamma=False)
         self.jobs.append(job)
-                
 
     
     def run(self, job_cmd=None):
@@ -138,28 +137,49 @@ class Calibrate(object):
                 'handlers': [h.as_dict() for h in self.handlers], 'max_errors': 5}
         c = Custodian(self.handlers, self.jobs, max_errors=5)
         c.run()
-
-    def get_knob_responses(self):
+        
+    def set_knob_responses(self):
         drone = MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True) 
         bg =  BorgQueen(drone)
         for k, v in self.response_to_knobs.items():
             rootpath = self.job_dir+ os.sep + k
-            print 'rootpath', rootpath
+            print 'rootpath = ', rootpath
             #bg.parallel_assimilate(rootpath)        
             bg.serial_assimilate(rootpath)
             allentries =  bg.get_data()
-            print allentries
             for e in allentries:
                 if e:
                     self.n_atoms = len(e.structure)
-                    print 'n_atoms', self.n_atoms
+                    #print 'n_atoms', self.n_atoms
                     if k == 'KPOINTS':
                         self.response_to_knobs[k][str(e.kpoints.kpts)] = e.energy
                     else:
                         self.response_to_knobs[k][str(e.incar[k])] = e.energy
-        
 
-
+    def set_sorted_optimum_params(self):
+        matching_knob_responses = []
+        sorted_knob_responses = []                
+        self.optimum_knob_responses = {}
+        #order the keys(encut or kpoint)from large value of the energy  to small value
+        for k, v in self.response_to_knobs.items():
+            sorted_knob_responses = sorted(v.items(), key=operator.itemgetter(1), reverse=True)
+            #print 'sorted_knob_responses ', sorted_knob_responses
+            #get the list of encut and kpoints that satisfy the delate criterion
+            #mind: default deltae = 0.001eV per atom
+            matching_knob_responses = self.enforce_cutoff(sorted_knob_responses)
+            self.sorted_response_to_knobs[k] = OrderedDict(sorted_knob_responses)
+            #print 'matching_knob_response ', matching_knob_responses
+            if matching_knob_responses:
+                if k == "KPOINTS":
+                    nkpt = matching_knob_responses[0][0] * matching_knob_responses[0][1] * matching_knob_responses[0][2]
+                    for i, val in enumerate(matching_knob_responses):
+                        if i < len(matching_kpt)-1:
+                            nkpt1 = val[i+1][0] * val[i+1][1] * val[i+1][2]
+                            if nkpt1<nktp:
+                                self.optimum_knob_responses[k] = val
+                else:
+                    self.optimum_knob_responses[k] = min(matching_knob_responses)
+                        
     def enforce_cutoff(self, input_list, delta_e_peratom=0.001):
         """
         energy difference of 1meV per atom
@@ -167,12 +187,12 @@ class Calibrate(object):
         matching_list = []
         for i, e in enumerate(input_list):
             if i < len(input_list)-1:
-                print i, input_list[i+1], e
-                print np.abs(input_list[i+1][1] - e[1])
+                #print i, input_list[i+1], e
+                #print np.abs(input_list[i+1][1] - e[1])
                 if np.abs(input_list[i+1][1] - e[1])/self.n_atoms <= delta_e_peratom:
                     matching_list.append(input_list[i+1][0])
         if matching_list:
-            print matching_list
+            #print matching_list
             matching_kpt_list = []
             if '[[' in matching_list[0]:
                 for ml in matching_list:
@@ -184,111 +204,14 @@ class Calibrate(object):
                 return [float(encut) for encut in matching_list]
         else:
             return []
-        
-
-            
-    def optimum_params(self, allentries, en_mc, kp_mc):
-        """
-        input: all enetires, values of encut and kpoints used for kpoints and encut studies rexpectively
-        sets the dictionaries of kpoints and energies and  encut and energies
-        returns: optimum kpoints and encut
-        """
-        #dict of kpoints and energies
-        kpt={}
-        #dict of encut and energies
-        encut = {}
-        for e in allentries:
-            if e:
-                if str(e.incar['ENCUT']) == en_mc:
-                    kpt[str(e.kpoints.kpts)] = e.energy
-                if str(str(e.kpoints.kpts)) == kp_mc:
-                    encut[str(e.incar['ENCUT'])] = e.energy
-        #order the keys(encut or kpoint)from large value of the energy  to small value
-        sorted_encut = sorted(encut.items(), key=operator.itemgetter(1), reverse=True)
-        sorted_kpt = sorted(kpt.items(), key=operator.itemgetter(1), reverse=True)
-        print encut,'\n', sorted_encut
-        print kpt, '\n', sorted_kpt
-        #get the list of encut and kpoints that satisfy the delate criterion
-        #mind: default deltae = 0.01eV
-        matching_encut = self.enforce_cutoff(sorted_encut)
-        matching_kpt = self.enforce_cutoff(sorted_kpt)
-        opt_encut = None        
-        opt_kpt = None
-        #of the possible encuts and kpoints, pick the optimum one
-        #i.e for encut, the lowest value and for kpoints the one that corresponds
-        #to the lowest number of kpoints
-        if matching_encut:
-            opt_encut = np.min(np.array(matching_encut))
-        else:
-            print 'no ENCUT met the convergence criterion'
-        if matching_kpt:
-            nkpt = matching_kpt[0][0] * matching_kpt[0][1] * matching_kpt[0][2]
-            for i, val in enumerate(matching_kpt):
-                if i < len(matching_kpt)-1:
-                    nkpt1 = val[i+1][0] * val[i+1][1] * val[i+1][2]
-                    if nkpt1<nktp:
-                        opt_kpt = val
-        else:
-            print 'no KPOINTS met the convergence criterion'
-        #opt_encut: list of floats
-        #opt_kpt: list of list of integers
-        return opt_encut, opt_kpt
-                                
-
-        
-    def knob_settings(self, rootpath=None):
-        """
-        go through the parent dir and get all encut, kpoints and energies
-        also vac spacing and slab thinckness for slab calulations
-        these values willl be used to do the actual interface measurements
-        use Vasprun class to get the afore mentioned values from the xml files
-        should not proceed if the calculations are not done
-        should update the incar, poscar, potcar, kpoints objects according to
-        the knob_settings
-        
-        
-        """
-        if rootpath is None:
-            rootpath = self.job_dir
-        print 'xx', self.job_dir
-        drone = MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True) #VaspToComputedEntryDrone()#
-        bg =  BorgQueen(drone)
-        #bg.parallel_assimilate(rootpath)        
-        bg.serial_assimilate(rootpath)
-        allentries =  bg.get_data()
-        alldata = []
-        for e in allentries:
-            if e:
-                self.n_atoms = len(e.structure)
-                alldata.append(str(e.incar['ENCUT']))
-                alldata.append(str(e.kpoints.kpts))
-        #get the 2 most common items in alldata
-        enkp_mc =  Counter(alldata).most_common(2)
-        kp_mc = None
-        en_mc = None
-        #if the most common item is kpoints then for the encut convergence study, that value of kpoint was used
-        #else the other way around
-        if '[[' in enkp_mc[0][0]:
-            kp_mc = enkp_mc[0][0]
-            en_mc = enkp_mc[1][0]
-        else:
-            kp_mc = enkp_mc[1][0]
-            en_mc = enkp_mc[0][0]
-        #opt_encut: list of floats
-        #opt_kpt: list of list of integers
-        opt_encut, opt_kpt = self.optimum_params(allentries, en_mc, kp_mc)
-        
-
-
+                    
         
 class CalibrateMolecule(Calibrate):
-    
     """
     
     Calibrate paramters for Molecule calculations
     
     """
-
     def __init__(self, incar, poscar, potcar, kpoints,
                  setup_dir='.', parent_job_dir='.', job_dir='./Molecule',
                 qadapter=None, job_cmd='qsub', turn_knobs={'ENCUT':[],'KPOINTS':[]} ):
@@ -297,24 +220,19 @@ class CalibrateMolecule(Calibrate):
                            setup_dir=setup_dir, parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd,
                            turn_knobs = turn_knobs)
-
-
         
     def setup_kpoints_jobs(self, Grid_type = 'M', kpoints_list = None, conv_step = 1):
         print "Its a molecule ! no need for kpoint convergence"
+        self.kpoints = Kpoints.monkhorst_automatic(kpts = [1,1,1])
         return
 
-        
-                
-
-class CalibrateBulk(Calibrate):
     
+class CalibrateBulk(Calibrate):
     """
     
     Calibrate paramters for Bulk calculations
     
     """
-    
     def __init__(self, incar, poscar, potcar, kpoints,
                   setup_dir='.', parent_job_dir='.', job_dir='./Bulk',
                 qadapter=None, job_cmd='qsub', turn_knobs={'ENCUT':[],'KPOINTS':[]}): 
@@ -323,18 +241,14 @@ class CalibrateBulk(Calibrate):
                             setup_dir=setup_dir, parent_job_dir=parent_job_dir,
                              job_dir=job_dir, qadapter=qadapter, job_cmd=job_cmd,
                              turn_knobs = turn_knobs )
-
         
 
-                    
 class CalibrateSlab(Calibrate):
-    
     """
     
     Calibrate paramters for Slab calculations
     
     """
-    
     def __init__(self, incar, poscar, potcar, kpoints,
                  setup_dir='.', parent_job_dir='.', job_dir='./Slab',
                 qadapter=None, job_cmd='qsub', turn_knobs={'ENCUT':[],'KPOINTS':[]}):
@@ -363,13 +277,10 @@ class CalibrateSlab(Calibrate):
                         self.add_job(name=name, job_dir=job_dir)
             else:
                 print 'kpoints_list not provided'
-        
-	            
 
 
 #test
 if __name__ == '__main__':
-
     system = 'Pt bulk'
     atoms = ['Pt']
     
@@ -389,28 +300,32 @@ if __name__ == '__main__':
     incar = Incar(params=incarparams)
     poscar = Poscar(structure, comment=system,
                     selective_dynamics=None,
-                    true_names=True, velocities=None, predictor_corrector=None)
+                    true_names=True, velocities=None,
+                    predictor_corrector=None)
     atoms = poscar.site_symbols
     potcar = Potcar(symbols=atoms, functional='PBE', sym_potcar_map=None)
-    kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16), shift=(0, 0, 0))#{'grid_density': 1000} #
+    kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16), shift=(0, 0, 0))
 
-#    calmol = CalibrateMolecule(incar, poscar, potcar, kpoints)
-    calbulk = CalibrateBulk(incar, poscar, potcar, kpoints, job_dir='./Bulk_test',
+    calbulk = CalibrateBulk(incar, poscar, potcar, kpoints,
+                            job_dir='./Bulk',
                             turn_knobs = {'ENCUT':range(400,800,100),
                                           'KPOINTS':[ [7, 7, 7], [11, 11, 11] ] } )    
     calbulk.setup()
-    #the job_cmd can passed to the run
-    #['qsub','job_script']
     #calbulk.run(['ls','-lt'])
-    
-    #get all data in all the directories in the provided rootfolder, here 1/
-    calbulk.get_knob_responses()
+    #get the knob responses
+    calbulk.set_knob_responses()
     print calbulk.response_to_knobs
+    #optimu knob responses
+    calbulk.set_sorted_optimum_params()
+    print calbulk.sorted_response_to_knobs['ENCUT']['600.0']    
+    print calbulk.optimum_knob_responses
     #test enforce_cutoff
-    #inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9], ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888], ['[[2,2,8]]', 9.879],]
+    #inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9],
+    #           ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888], ['[[2,2,8]]', 9.879],]
     #print calbulk.enforce_cutoff(inp_list, delta_e=0.01)
 
 
 
 
-#note: write the default yaml to the directory where the jobs are run. This is useful later on for comparing different job runs in that direcctory
+#note: write the default yaml to the directory where the jobs are run.
+#    This is useful later on for comparing different job runs in that direcctory

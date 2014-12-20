@@ -4,8 +4,10 @@ Defines various firetasks
 
 import re
 import copy
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
-from mpinterfaces.calibrate import CalibrateMolecule, CalibrateSlab, CalibrateBulk
+from pymatgen.io.vaspio.vasp_input import Incar, Poscar, \
+     Potcar, Kpoints
+from mpinterfaces.calibrate import CalibrateMolecule, \
+     CalibrateSlab, CalibrateBulk
 from mpinterfaces.measurement import Measurement
 from fireworks.core.firework import FireTaskBase, FWAction
 from fireworks.core.launchpad import LaunchPad
@@ -73,9 +75,9 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
     Calibration Task
     """
     
-    required_params = ["incar", "poscar", "kpoints", "calibrate", "que", "turn_knobs"]
+    required_params = ["incar", "poscar", "kpoints", "calibrate",
+                       "que", "turn_knobs"]
     optional_params = ["job_cmd", "cal_construct_params"]
-#    _fw_name = 'MPINTCalibrateTask'
 
     def run_task(self, fw_spec):
         """
@@ -91,7 +93,6 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     
     required_params = ["cal_objs"]
     optional_params = ["msr_construct_params"]    
-#    _fw_name = 'MPINTMeasurementTask'
 
     def run_task(self, fw_spec):
         """
@@ -102,19 +103,18 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         for calparams in self['cal_objs']:
             cal = get_cal_obj(calparams)
             cal_objs_list.append(cal)
-        measure = Measurement(cal_objs_list, **self.get("msr_construct_params", {}))
+        measure = Measurement(cal_objs_list,
+                               **self.get("msr_construct_params", {}))
         #test
         #measure.setup()
         if measure.calbulk:
             for obj in measure.calbulk:
                 obj.set_knob_responses()
                 obj.set_sorted_optimum_params()
-                print 'sorted_response_to_knobs : \n', obj.sorted_response_to_knobs
+                print 'sorted_response_to_knobs : \n', \
+                  obj.sorted_response_to_knobs
 #        if measure.calslab:
 #        if measure.calmol:
-
-                
-                
 
 
 @explicit_serialize
@@ -123,13 +123,11 @@ class MPINTPostProcessTask(FireTaskBase, FWSerializable):
     required_params = ["measure_dirs"]    
 #    _fw_name = "MPINTPostProcessTask"
 
-
     def run_task(self, fw_spec):
         """
         go through the measurement job dirs and compute quatities of interst
         also put the measurement jobs in the datbase
         """
-
         drone = VaspToDbTaskDrone(
                 host='localhost', port='27017',
                 database='vasp_test', user='km468',
@@ -140,17 +138,18 @@ class MPINTPostProcessTask(FireTaskBase, FWSerializable):
         if t_id:
             print 'ENTERED task id:', t_id
             stored_data = {'task_id': t_id}
-            update_spec = {'prev_vasp_dir': prev_dir, 'prev_task_type': fw_spec['prev_task_type']}
+            update_spec = {'prev_vasp_dir': prev_dir,
+                           'prev_task_type': fw_spec['prev_task_type']}
             return FWAction(stored_data=stored_data, update_spec=update_spec)
         else:
             raise ValueError("Could not parse entry for database insertion!")
 
 
-#        # get the db credentials                                                             
+#        # get the db credentials
 #        db_dir = os.environ['DB_LOC']
 #        db_path = os.path.join(db_dir, 'tasks_db.json')
 #
-#        # use MPDrone to put it in the database                                              #                               
+#        # use MPDrone to put it in the database
 #        with open(db_path) as f:
 #            db_creds = json.load(f)
 #            drone = VaspToDbTaskDrone(

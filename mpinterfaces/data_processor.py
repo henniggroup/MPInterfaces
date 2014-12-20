@@ -10,18 +10,17 @@ import re
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from monty.json import MontyEncoder, MontyDecoder
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.apps.borg.hive import VaspToComputedEntryDrone, SimpleVaspToComputedEntryDrone, _get_transformation_history
-#pymatgen.entries.computed_entries
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
+     _get_transformation_history
 
 
-class MPINTComputedEntry(ComputedEntry):
-        
+class MPINTComputedEntry(ComputedEntry):        
     """
         
     extend ComputedEntry to include structure as well as kpoints
     
     """
-
     def __init__(self, structure, kpoints, incar, energy, correction=0.0,
                   parameters=None, data=None, entry_id=None):
         ComputedEntry.__init__(self, structure.composition, energy,
@@ -30,9 +29,9 @@ class MPINTComputedEntry(ComputedEntry):
         self.structure = structure
         self.kpoints = kpoints
         self.incar = incar
-        #self.data = {"style": self.kpoints.style, 'kpoints': self.kpoints.kpts, 'incar':self.incar.as_dict()}
+        #self.data = {"style": self.kpoints.style,
+        #'kpoints': self.kpoints.kpts, 'incar':self.incar.as_dict()}
         
-
     def __repr__(self):
         output = ["MPINTComputedEntry {}".format(self.composition.formula),
                   "Energy = {:.4f}".format(self.uncorrected_energy),
@@ -66,15 +65,12 @@ class MPINTComputedEntry(ComputedEntry):
                    entry_id=d.get("entry_id", None))
 
 
-
-class MPINTVasprun(Vasprun):
-        
+class MPINTVasprun(Vasprun):        
     """
         
     Extend Vasprun to use custom ComputedEntry: MPINTComputedEntry
     
     """
-        
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False):
@@ -83,7 +79,6 @@ class MPINTVasprun(Vasprun):
                  ionic_step_offset=ionic_step_offset, parse_dos=parse_dos,
                  parse_eigen=parse_eigen, parse_projected_eigen=parse_projected_eigen)
             
-
     def get_computed_entry(self, inc_structure=False, inc_incar_n_kpoints=False,
                            parameters=None, data=None):
         """
@@ -93,8 +88,9 @@ class MPINTVasprun(Vasprun):
             inc_structure (bool): Set to True if you want
                 ComputedStructureEntries to be returned instead of
                 ComputedEntries.
-            inc_incar_n_kpoints (bool): along with inc_structure set to True if you want
-                MPINTComputedEntries to be returned : returns incar and kpoints objects 
+            inc_incar_n_kpoints (bool): along with inc_structure set
+            to True if you want MPINTComputedEntries to be returned :
+            returns incar and kpoints objects 
                 
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the Vasprun object. If
@@ -115,9 +111,10 @@ class MPINTVasprun(Vasprun):
 
 
         if inc_structure and inc_incar_n_kpoints:
-            return MPINTComputedEntry(self.final_structure, self.kpoints, self.incar, 
-                                        self.final_energy, parameters=params,
-                                          data=data)
+            return MPINTComputedEntry(self.final_structure,
+                                      self.kpoints, self.incar,
+                                      self.final_energy,
+                                      parameters=params, data=data)
         
         elif inc_structure:
             return ComputedStructureEntry(self.final_structure,
@@ -128,23 +125,22 @@ class MPINTVasprun(Vasprun):
                                  self.final_energy, parameters=params,
                                  data=data)
 
-
-
-class MPINTVaspDrone(VaspToComputedEntryDrone):
-        
+class MPINTVaspDrone(VaspToComputedEntryDrone):        
     """
     
     extend VaspToComputedEntryDrone to use the custom Vasprun: MPINTVasprun
         
     """
-
-    def __init__(self, inc_structure=False,  inc_incar_n_kpoints=False, parameters=None, data=None):
-        VaspToComputedEntryDrone.__init__(self, inc_structure=inc_structure, parameters=parameters, data=data)
+    def __init__(self, inc_structure=False,  inc_incar_n_kpoints=False,
+                 parameters=None, data=None):
+        VaspToComputedEntryDrone.__init__(self,
+                                          inc_structure=inc_structure,
+                                           parameters=parameters,
+                                           data=data)
         self._inc_structure = inc_structure
         self._inc_incar_n_kpoints = inc_incar_n_kpoints        
         self._parameters = parameters
         self._data = data
-
 
     def assimilate(self, path):
         files = os.listdir(path)
@@ -175,7 +171,8 @@ class MPINTVaspDrone(VaspToComputedEntryDrone):
             #logger.debug("error in {}: {}".format(filepath, ex))
             return None
 
-        entry = vasprun.get_computed_entry(self._inc_structure, self._inc_incar_n_kpoints,
+        entry = vasprun.get_computed_entry(self._inc_structure,
+                                            self._inc_incar_n_kpoints,
                                            parameters=self._parameters,
                                            data=self._data)
         entry.parameters["history"] = _get_transformation_history(path)

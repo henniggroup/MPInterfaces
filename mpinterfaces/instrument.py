@@ -30,7 +30,8 @@ class MPINTVaspInputSet(DictVaspInputSet):
     use user_incar_settings to override the defaults in myVIS.yaml
     
     """
-    def __init__(self, name, incar, poscar, potcar, kpoints, qadapter=None, **kwargs ):
+    def __init__(self, name, incar, poscar, potcar, kpoints,
+                 qadapter=None, **kwargs ):
         #config_dict, user_incar_settings=None, **kwargs):
         """
         default INCAR from config_dict
@@ -48,14 +49,18 @@ class MPINTVaspInputSet(DictVaspInputSet):
         
         config_dict = {}
         config_dict['INCAR'] = self.incar.as_dict()
-        config_dict['POTCAR'] = dict(zip(self.potcar.as_dict()['symbols'], self.potcar.as_dict()['symbols'])) #caution the key and the value are not always the same
+         #caution the key and the value are not always the same        
+        config_dict['POTCAR'] = dict(zip(self.potcar.as_dict()['symbols'],
+                                         self.potcar.as_dict()['symbols']))
         config_dict['KPOINTS'] = self.kpoints #kpoints.as_dict()
         #self.user_incar_settings = self.incar.as_dict()        
         
-        DictVaspInputSet.__init__(self, name, config_dict, ediff_per_atom=False, **kwargs)
+        DictVaspInputSet.__init__(self, name, config_dict,
+                                   ediff_per_atom=False, **kwargs)
 
         
-    def write_input(self, job_dir, make_dir_if_not_present=True, write_cif=False):
+    def write_input(self, job_dir, make_dir_if_not_present=True,
+                     write_cif=False):
         """
         the input files are written to the job_dir
         process(if needed) and write the input files in each directory
@@ -87,8 +92,10 @@ class MPINTVaspJob(Job):
     defines a vasp job i.e setup the required input files and lanuch the job
     
     Args:
-       job_cmd : a list, the command to be issued in each job_dir eg: ['qsub', 'submit_job']
-       setup_dir : directory that has the setup files for creating the rest of the vasp inputs
+       job_cmd : a list, the command to be issued in each job_dir
+       eg: ['qsub', 'submit_job']
+       setup_dir : directory that has the setup files for creating the
+        rest of the vasp inputs
        job_dir : the directory from which the jobs will be launched
     
     """
@@ -132,7 +139,8 @@ class MPINTVaspJob(Job):
             
     def run(self):
         """
-        move to the job_dir, launch the job and back to the parent job directory
+        move to the job_dir, launch the job and back to the
+         parent job directory
         """
         os.chdir(os.path.abspath(self.job_dir))
         p = None
@@ -142,8 +150,9 @@ class MPINTVaspJob(Job):
             #print os.path.exists(self.vis.script_name)
             cmd = [submit_cmd, self.vis.script_name]
             with open(self.output_file, 'w') as f:            
-                p = subprocess.Popen(cmd, stdout=f, stderr=f)#stdout=subprocess.PIPE, stderr=subprocess.PIPE)  
-            #reservation_id = self.vis.qadapter.submit_to_queue(self.vis.script_name)
+                p = subprocess.Popen(cmd, stdout=f, stderr=f)
+            #reservation_id = self.vis.qadapter.\
+            #submit_to_queue(self.vis.script_name)
             #cmd = ['echo', str(reservation_id)]
             #with open(self.output_file, 'w') as f:
             #    p = subprocess.Popen(cmd, stdout=f)

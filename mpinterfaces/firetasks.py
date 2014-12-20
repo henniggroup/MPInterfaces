@@ -107,10 +107,10 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         #test
         #measure.setup()
         if measure.calbulk:
-            for obj in measure.calmol:
+            for obj in measure.calbulk:
                 obj.set_knob_responses()
                 obj.set_sorted_optimum_params()
-                print obj.sorted_response_to_knobs
+                print 'sorted_response_to_knobs : \n', obj.sorted_response_to_knobs
 #        if measure.calslab:
 #        if measure.calmol:
 

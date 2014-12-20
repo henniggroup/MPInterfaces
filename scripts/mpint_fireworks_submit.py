@@ -14,11 +14,13 @@ Note 2:
 """
 
 import numpy as np
+
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from fireworks import Firework, Workflow, LaunchPad
 from fireworks.core.rocket_launcher import launch_rocket #rapidfire
+
 from mpinterfaces.firetasks import MPINTCalibrateTask, MPINTMeasurementTask
 
 #---------------------------------------------------------
@@ -91,10 +93,12 @@ kpoints_list = [str([7,7,7]) , str([11,11,11])]
 #type of calibration to be done: basically the name of calibrate calss to
 #be used. available options: CalibrateMolecule, CalibrateSlab, CalibrateBulk
 calparams1['calibrate'] = 'CalibrateBulk'
+#for other incar paramters, creat a list of values for the paramter and add it
+# to the dictonary with the paramater name as the key
 calparams1['turn_knobs'] = { 'ENCUT' : encut_list,
                              'KPOINTS': kpoints_list }
 #optional param: job_dir is the name of the directory within which
-#the encut and kpoints jobs will be run
+#the calibration jobs will be run
 calparams1['cal_construct_params'] = { 'job_dir':'Bulk_test'}
 
 caltask1 = MPINTCalibrateTask(calparams1)
@@ -130,8 +134,8 @@ fw2 = Firework([msrtask1], name="measurement", parents=[fw1])
 #-----------------------------------------------------
 #create workflow from the fireworks
 #-----------------------------------------------------
-wf = Workflow([fw1], name="mpint workflow")
-#wf = Workflow([fw1, fw2], name="mpint workflow")
+#wf = Workflow([fw1], name="mpint workflow")
+wf = Workflow([fw1, fw2], name="mpint workflow")
 #wf = Workflow([fw1, fw2, fw3], name="mpint workflow")
 
 print 'fireworks in the database before adding the workflow: \n', launchpad.get_fw_ids()

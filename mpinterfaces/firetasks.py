@@ -1,20 +1,22 @@
 """
 Defines various firetasks
 """
-
 import re
+import socket
 import copy
+
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, \
      Potcar, Kpoints
-from mpinterfaces.calibrate import CalibrateMolecule, \
-     CalibrateSlab, CalibrateBulk
-from mpinterfaces.measurement import Measurement
 from fireworks.core.firework import FireTaskBase, FWAction
 from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import explicit_serialize
 from matgendb.creator import VaspToDbTaskDrone
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
+
+from mpinterfaces.calibrate import CalibrateMolecule, \
+     CalibrateSlab, CalibrateBulk
+from mpinterfaces.measurement import Measurement
 
 
 def load_class(mod, name):
@@ -46,16 +48,17 @@ def get_cal_obj(d):
         turn_knobs[k] = copy.copy(in_list)
     if d['que']:
         qadapter = CommonAdapter(d['que']['type'], **d['que']['params'])
-    if qadapter is not None:
+    if qadapter is not None and ('gator' in socket.gethostname()):
         cal =  load_class("mpinterfaces.calibrate",
                           d["calibrate"])(incar, poscar, potcar, kpoints,
                                           qadapter=qadapter, job_cmd='qsub',
                                           turn_knobs=turn_knobs,
                                           **d.get("cal_construct_params", {}))
-    elif d.get('job_cmd') is not None:
+    elif d.get('job_cmd') is not None and ('hydrogen' or 'helium' in
+                                           socket.gethostname()):
         cal =  load_class("mpinterfaces.calibrate",
                           d["calibrate"])(incar, poscar, potcar, kpoints,
-                                          job_cmd=d['job_cmd'],
+                                          job_cmd=['mpirun '],
                                           turn_knobs=turn_knobs,
                                           **d.get("cal_construct_params", {}))
     #no qadapter and no job_cmd

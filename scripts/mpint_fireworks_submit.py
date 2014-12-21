@@ -12,7 +12,6 @@ Note 2:
         is not possible. So tunell port number 27017 from your local machine to port 27017 on hydrogen via ssh:
         ssh -N -f -L 27017:10.1.255.101:27017 username@hermes.mse.ufl.edu
 """
-
 import numpy as np
 
 from pymatgen import Lattice
@@ -48,8 +47,11 @@ atoms = ['Pt']
 a0 = 3.965
 lvec = [ [0.5, 0.0, 0.5], [0.5, 0.5, 0.0], [0.0, 0.5, 0.5] ]
 lvec = np.array(lvec) * a0
-lattice = Lattice(lvec)#.from_parameters(3.866, 3.866, 3.866, 60, 60, 60)
-structure = Structure( lattice, atoms, [ [0.0, 0.0, 0.0] ],coords_are_cartesian=False)
+lattice = Lattice(lvec)
+structure = Structure( lattice,
+                        atoms,
+                        [ [0.0, 0.0, 0.0] ],
+                        coords_are_cartesian=False)
 poscar = Poscar(structure, comment=system,
         selective_dynamics=None,
         true_names=True, velocities=None, predictor_corrector=None)
@@ -75,7 +77,7 @@ calparams1 = {}
 calparams1['incar'] = incar.as_dict()
 calparams1['poscar'] = poscar.as_dict()
 calparams1['kpoints'] = kpoints.as_dict()
-#submit script settings
+#submit script settings for hipergator
 calparams1['que'] = {
                      'type':'PBS',
                      'params':

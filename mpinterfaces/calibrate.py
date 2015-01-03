@@ -74,13 +74,33 @@ class Calibrate(object):
             self.response_to_knobs[k] = {}
             self.sorted_response_to_knobs[k] = {}            
 
-    def setup(self):
-        for k, v in self.turn_knobs.items():
-            if k == 'KPOINTS' and v:
-                self.setup_kpoints_jobs(kpoints_list = v)
-            elif v:
-                self.setup_incar_jobs(k, v)
-                
+    def setup(self, conv_step = 1, matrix = False):
+        if matrix == True: 
+		for a, b in self.turn_knobs.items():
+			if a == 'KPOINTS' and b:
+				for c, d in self.turn_knobs.items():
+					if c == 'ENCUT' or c == 'SIGMA':
+						for e, f in self.turn_knobs.items():
+							if e == 'VOLUME' and f:
+								self.setup_poscar_jobs(scale_list = f)
+						self.setup_incar_jobs(c, d)
+		 
+		
+		
+	else:
+		for k, v in self.turn_knobs.items():
+            		if k == 'KPOINTS' and v:
+	                	self.setup_kpoints_jobs(kpoints_list = v, conv_step = conv_step)
+            		if k == 'ENCUT' or k == 'SIGMA':
+                		self.setup_incar_jobs(k, v)
+	    		if k == 'VOLUME' and v:
+				self.setup_poscar_jobs(scale_list = v)
+            
+    def setup_matrix_job(job_1_list, job_2_list):
+        #for doing  matrix convergence job implementing for 2 param matrix first
+        #for k, v in self.turn_knobs
+	pass
+
     def setup_incar_jobs(self, param, val_list):
         for val in val_list:
             print 'setting INCAR parameter '+param+' = ', val
@@ -89,35 +109,69 @@ class Calibrate(object):
             self.incar[param] = val
             self.add_job(name=param+str(val), job_dir=job_dir)
             
-    def setup_kpoints_jobs(self, Grid_type = 'M',
+    def setup_kpoints_jobs(self, Grid_type = 'A',
                            kpoints_list = None, conv_step = 1):
         """
         set the jobs for kpoint convergence
         
         """
         if Grid_type == 'M':
-            #local list convergence_list , convert from tuple
-            #because constructor takes tuple as argument
-            if kpoints_list:
-                conv_list = kpoints_list 
-                start = conv_list[0]
-                end = conv_list[1]
-                if (conv_step):
-                    for x in range(1+start[0], end[0], conv_step):
-                        conv_list.append([x, x, x])
-                    for kpoint in conv_list:
-                        self.kpoints = \
-                          Kpoints.monkhorst_automatic(kpts = kpoint)
-                        name = str(kpoint[0]) + 'x' + \
-                          str(kpoint[1]) + 'x' + str(kpoint[2])
-                        print 'KPOINTS = ', name
-                        job_dir = self.job_dir +os.sep+ 'KPOINTS' +\
-                           os.sep + name
-                        self.add_job(name=name, job_dir=job_dir) 
-            else:
-                print 'kpoints_list not provided'
+	#Monkhorst_pack method for bulk
+            	if kpoints_list:
+                	conv_list = kpoints_list 
+                	start = conv_list[0]
+                	end = conv_list[1]
+                	if (conv_step):
+                    		for x in range(conv_step+start[0], end[0], conv_step):
+                        		conv_list.append([x, x, x])
+                    		for kpoint in conv_list:
+                        		self.kpoints = \
+                          		Kpoints.monkhorst_automatic(kpts = kpoint)
+                        		name = str(kpoint[0]) + 'x' + \
+                          		str(kpoint[1]) + 'x' + str(kpoint[2])
+                        		print 'KPOINTS = ', name
+                        		job_dir = self.job_dir +os.sep+ 'KPOINTS' +\
+                           		os.sep + name
+                        		self.add_job(name=name, job_dir=job_dir) 
+            	else:
+                	print 'kpoints_list not provided'
+	if Grid_type == 'A':
+	#Autoomatic method default 
+		 if kpoints_list:
+            		conv_list = kpoints_list
+            		start = conv_list[0]
+            		end = conv_list[1]
+            	 	if (conv_step):
+                		for x in range(conv_step+start, end, conv_step):
+                    			conv_list.append(x)
+                		for kpoint in conv_list:
+                    			self.kpoints = Kpoints.automatic(subdivisions = kpoint)
+                    			name = str(kpoint)
+                    			print 'KPOINTS = ', name
+                    			job_dir = self.job_dir +os.sep+ 'KPOINTS' +\
+                    			os.sep + name
+                    			self.add_job(name=name, job_dir=job_dir)
+	    	 else:
+        		print 'kpoints_list not provided'
 
-        
+		
+	   
+    def setup_poscar_jobs(self, scale_list, Name = "volume_scale_") :
+	#for scaling the latice vectors of the original structure, scale_list is volume scaling factor list 
+	print "setting volume as given list "
+	Store_struct = self.poscar.structure
+	Store_struct.to(fmt = "poscar", filename= "POSCAR.orig")
+	for s in scale_list:
+    		Scale_struct = Structure.from_file("POSCAR.orig")
+    		Scale_struct.scale_lattice(s*Scale_struct.volume)
+    		#print Scale_struct
+    		Scale_struct.to(fmt="poscar", filename= "POSCAR")
+    		self.poscar = Poscar(Scale_struct)
+    		#print New_poscar
+		job_dir  = self.job_dir+ os.sep + 'VOLUME' +\
+              	  os.sep + str(s)
+            	self.add_job(name=Name+str(s), job_dir=job_dir)
+
     def add_job(self, name='noname', job_dir='.'):
         vis = MPINTVaspInputSet(name, self.incar, self.poscar,
                                 self.potcar, self.kpoints,
@@ -360,17 +414,17 @@ if __name__ == '__main__':
                             job_dir='./Bulk',
                             turn_knobs = {'ENCUT':range(400,800,100),
                                           'KPOINTS':[
-                                              [7, 7, 7], [11, 11, 11]
-                                              ] } )    
-    calbulk.setup()
-    #calbulk.run(['ls','-lt'])
+                                              20, 60
+                                              ], 'VOLUME':[0.6, 0.8, 1.0, 1.2, 1.4] } )    
+    calbulk.setup(conv_step = 1)
+    calbulk.run(['ls','-lt'])
     #get the knob responses
-    calbulk.set_knob_responses()
-    print calbulk.response_to_knobs
+    #calbulk.set_knob_responses()
+    #print calbulk.response_to_knobs
     #optimu knob responses
-    calbulk.set_sorted_optimum_params()
-    print calbulk.sorted_response_to_knobs['ENCUT']['600.0']    
-    print calbulk.optimum_knob_responses
+    #calbulk.set_sorted_optimum_params()
+    #print calbulk.sorted_response_to_knobs['ENCUT']['600.0']    
+    #print calbulk.optimum_knob_responses
     #test enforce_cutoff
     #inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9],
     #           ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888],

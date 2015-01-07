@@ -9,8 +9,14 @@ Note 1:
       
 Note 2:
         Since hydrogen is part of the hermes subnetwork, direct connection to the database
-        is not possible. So tunell port number 27017 from your local machine to port 27017 on hydrogen via ssh:
+        is not possible. So tunell port number 27017 from your local machine to port 27017
+        on hydrogen via ssh:
         ssh -N -f -L 27017:10.1.255.101:27017 username@hermes.mse.ufl.edu
+        if port 27017 on the machine that you are running is not available,
+        use another port number for tunneling. example:-
+        ssh -N -f -L 27030:10.1.255.101:27017 username@hermes.mse.ufl.edu
+        mind: if the tunneled port is changed, the port number in the
+        launchpad initialization should also be changed
 """
 import numpy as np
 
@@ -99,6 +105,7 @@ calparams1['calibrate'] = 'CalibrateBulk'
 # to the dictonary with the paramater name as the key
 calparams1['turn_knobs'] = { 'ENCUT' : encut_list,
                              'KPOINTS': kpoints_list }
+#specify other parmaters to the constructor here
 #optional param: job_dir is the name of the directory within which
 #the calibration jobs will be run
 calparams1['cal_construct_params'] = { 'job_dir':'Bulk_test'}

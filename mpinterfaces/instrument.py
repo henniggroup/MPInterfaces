@@ -70,6 +70,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         d = './'+job_dir
         if make_dir_if_not_present and not os.path.exists(d):
             os.makedirs(d)
+        print 'writing inputset to : ', d
         self.incar.write_file(os.path.join(d, 'INCAR'))
         self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
@@ -143,6 +144,7 @@ class MPINTVaspJob(Job):
          parent job directory
         """
         os.chdir(os.path.abspath(self.job_dir))
+        print 'running in : ', self.job_dir
         p = None
         #if launching jobs via batch system
         if self.vis.qadapter is not None:

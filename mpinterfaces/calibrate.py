@@ -142,6 +142,9 @@ class Calibrate(object):
                 self.recursive_jobs(n,keys,i+1)
 
     def key_to_name(self, key):
+        """
+        convenient string mapping for the keys in the turn_knobs dict
+        """
         if key == 'KPOINTS':
             return 'KPTS'
         elif key == 'POTCAR':
@@ -150,6 +153,14 @@ class Calibrate(object):
             return key
 
     def val_to_name(self, val):
+        """
+        convert a value to a string so that it can be used for naming
+        the job directory
+        the decimal points in floats are replaced with underscore character
+        if the value is of type list, kpoint_to_name method is used since
+        only kpoint values are expected to be of type list
+        if the values is of type dict then potcar_to_name method is invoked
+        """
         if type(val) == float:
             return re.sub('\.','_',str(val))
         elif type(val) == list:
@@ -160,31 +171,38 @@ class Calibrate(object):
             return str(val)
                 
     def kpoint_to_name(self, kpoint, grid_type):
+        """
+        get a string representation for the given kpoint
+        """
         if grid_type == 'M':
             return str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' + str(kpoint[2])
         elif grid_type == 'A':    
             return str(kpoint)
 
     def potcar_to_name(self, mapping):
+        """
+        convert a symbol mapping to a name that can be used for setting up
+        the potcar jobs
+        example:- if mapping = {'Pt':'Pt_pv', 'Si':'Si_GW'} then the
+        name will be Pt_pvSi_GW
+        """
         l = [v for k,v in mapping.items()]
         return ''.join(l)
         
 
     def set_incar(self, param, val):
         """
-        set the incar paramter param = val
+        set the incar paramter, param = val
         """
         self.incar[param] = val
 
     def set_poscar(self, scale):
         """
-        set the poscar: change the scale factor
+        set the poscar: volume scaled by the scale factor
         """
         structure = Poscar.from_dict(self.poscar_orig).structure
         volume = structure.volume
         structure.scale_lattice(scale *volume)
-        print volume
-        print structure.volume
         self.poscar = Poscar(structure)
 
     def set_potcar(self, mapping):
@@ -214,7 +232,7 @@ class Calibrate(object):
                                         
     def setup_incar_jobs(self, param, val_list):
         """
-        set up incar jobs (only if is_matrix is false)
+        set up incar jobs
         """
         for val in val_list:
             print 'setting INCAR parameter ' + param + ' = ', val
@@ -226,7 +244,7 @@ class Calibrate(object):
             
     def setup_kpoints_jobs(self, kpoints_list = []):
         """
-        set the jobs for kpoint (only if is_matrix is false)
+        setup the kpoint jobs
         
         """
         if kpoints_list:
@@ -250,6 +268,9 @@ class Calibrate(object):
                 self.add_job(name=str(scale), job_dir=job_dir)
 
     def setup_potcar_jobs(self, mappings):
+        """
+        take a list of symbol mappings and setup the potcar jobs
+        """
         for mapping in mappings:
                 self.set_potcar(mapping)
                 if not self.is_matrix:
@@ -276,8 +297,8 @@ class Calibrate(object):
     def run(self, job_cmd=None):
         """
         run the vasp jobs through custodian
-        #if the job list is empty,
-        #run a single job with the provided input set
+        if the job list is empty,
+        run a single job with the initial input set
         """
         if not self.jobs :
             self.add_job(name='single job', job_dir=self.job_dir)  
@@ -294,8 +315,8 @@ class Calibrate(object):
 
     def set_knob_responses(self):
         """
-        set up a dictionary that maps the turn knob keys and their values to the
-        energy
+        set up a dictionary that maps the turn knob keys and
+        their values to the calculated energy
         """
         drone = \
           MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True)
@@ -319,8 +340,8 @@ class Calibrate(object):
 
     def set_sorted_optimum_params(self):
         """
-        sort the dictionary od energy values and enforce the convergence criterion
-        finally, get the optimum parametr values from the set of values that satisfy 
+        sort the dictionary of energy values and enforce the convergence criterion.
+        Finally, get the optimum parameter values from the set of values that satisfy 
         the convergence criterion
         """
         matching_knob_responses = []
@@ -330,34 +351,30 @@ class Calibrate(object):
         # energy  to small value
         for k, v in self.response_to_knobs.items():
             sorted_knob_responses = \
-              sorted(v.items(), key=operator.itemgetter(1),
-                     reverse=True)
+              sorted(v.items(), key=operator.itemgetter(1), reverse=True)
             #print 'sorted_knob_responses ', sorted_knob_responses
             #get the list of encut and kpoints that
             #satisfy the delate criterion
             #mind: default deltae = 0.001eV per atom
-            matching_knob_responses = \
-              self.enforce_cutoff(sorted_knob_responses)
-            self.sorted_response_to_knobs[k] = \
-              OrderedDict(sorted_knob_responses)
+            matching_knob_responses = self.enforce_cutoff(sorted_knob_responses)
+            self.sorted_response_to_knobs[k] = OrderedDict(sorted_knob_responses)
             #print 'matching_knob_response ', matching_knob_responses
             if matching_knob_responses:
-                if k == "KPOINTS":
+                if k == "KPOINTS" and self.Grid_type == 'M':
                     nkpt = matching_knob_responses[0][0] * \
                       matching_knob_responses[0][1] * matching_knob_responses[0][2]
                     for i, val in enumerate(matching_knob_responses):
                         if i < len(matching_kpt)-1:
-                            nkpt1 = val[i+1][0] * val[i+1][1] * \
-                              val[i+1][2]
+                            nkpt1 = val[i+1][0] * val[i+1][1] * val[i+1][2]
                             if nkpt1<nktp:
                                 self.optimum_knob_responses[k] = val
                 else:
-                    self.optimum_knob_responses[k] = \
-                      min(matching_knob_responses)
+                    self.optimum_knob_responses[k] = min(matching_knob_responses)
                         
     def enforce_cutoff(self, input_list, delta_e_peratom=0.001):
         """
         enfore convergence criterion: energy difference of 1meV per atom
+        returns a list of the parameters that satisfy the criterion
         """
         matching_list = []
         for i, e in enumerate(input_list):
@@ -380,7 +397,7 @@ class Calibrate(object):
                                                      int(m.group(3))])
                 return matching_kpt_list
             else:
-                return [float(encut) for encut in matching_list]
+                return [float(val) for val in matching_list]
         else:
             return []
                     

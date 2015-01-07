@@ -1,5 +1,5 @@
 """
-process vasprun.xml file by waling through the enitre directory tree
+process vasprun.xml file by walking through the enitre directory tree
  in the parent directory
 """
 

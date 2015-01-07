@@ -255,8 +255,6 @@ class Calibrate(object):
                 if not self.is_matrix:
                     job_dir  = self.job_dir+ os.sep + self.key_to_name('POTCAR') +\
                         os.sep + self.potcar_to_name(mapping)
-                    print job_dir
-                    sys.exit()
                     self.add_job(name=self.potcar_to_name(mapping), job_dir=job_dir)
                 
 

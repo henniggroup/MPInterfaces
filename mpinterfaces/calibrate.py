@@ -56,6 +56,7 @@ class Calibrate(object):
         self.job_dir = job_dir
         self.incar = incar               
         self.poscar = poscar
+        self.poscar_orig = poscar.as_dict()
         self.potcar =potcar
         self.kpoints = kpoints
         self.qadapter = qadapter
@@ -91,6 +92,8 @@ class Calibrate(object):
     def _setup(self, turn_knobs=None):
         """
         invoke the set up methods corresponding to the dict keys
+        any key other than KPOINTS, VOLUME and POTCAR are treated
+        as INCAR parameters
         """
         if turn_knobs is None:
             turn_knobs = self.turn_knobs
@@ -99,6 +102,8 @@ class Calibrate(object):
                 self.setup_kpoints_jobs(kpoints_list = v)
             elif k == 'VOLUME' and v:
                 self.setup_poscar_jobs(scale_list = v)
+            elif k == 'POTCAR' and v:
+                self.setup_potcar_jobs(mappings = v)
             else:
                 self.setup_incar_jobs(k, v)                    
 
@@ -122,31 +127,48 @@ class Calibrate(object):
         """
         recursively setup the jobs: used by setup_matrix_job
         """
-        job_dir = self.job_dir + os.sep + key_to_name(keys[i])
+        job_dir = self.job_dir + os.sep + self.key_to_name(keys[i])
         if i == n-1 and i != 0:
             for val in self.turn_knobs[keys[i]]:
-                self.job_dir = job_dir + os.sep + re.sub('\.','_',str(val))
+                self.job_dir = job_dir + os.sep + self.val_to_name(val) #re.sub('\.','_',str(val))
                 print 'setting jobs in the directory: ', self.job_dir
                 self._setup(turn_knobs=dict([(keys[i], [val])]))            
                 self.add_job(job_dir=self.job_dir)
         else:
             for val in self.turn_knobs[keys[i]]:
-                self.job_dir = job_dir + os.sep + re.sub('\.','_',str(val))
+                self.job_dir = job_dir + os.sep + self.val_to_name(val) #re.sub('\.','_',str(val))
                 print 'setting jobs in the directory: ', self.job_dir
                 self._setup(turn_knobs=dict([(keys[i], [val])]))
                 self.recursive_jobs(n,keys,i+1)
 
     def key_to_name(self, key):
-        if keys == 'KPOINTS':
+        if key == 'KPOINTS':
             return 'KPTS'
+        elif key == 'POTCAR':
+            return 'POT'
         else:
             return key
+
+    def val_to_name(self, val):
+        if type(val) == float:
+            return re.sub('\.','_',str(val))
+        elif type(val) == list:
+            return self.kpoint_to_name(val, grid_type)
+        elif type(val) == dict:
+            return self.potcar_to_name(val)
+        else:
+            return str(val)
                 
     def kpoint_to_name(self, kpoint, grid_type):
         if grid_type == 'M':
             return str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' + str(kpoint[2])
         elif grid_type == 'A':    
             return str(kpoint)
+
+    def potcar_to_name(self, mapping):
+        l = [v for k,v in mapping.items()]
+        return ''.join(l)
+        
 
     def set_incar(self, param, val):
         """
@@ -158,13 +180,22 @@ class Calibrate(object):
         """
         set the poscar: change the scale factor
         """
-        structure = self.poscar.structure
-        self.poscar = Poscar(structure.scale_lattice(s * structure.volume))
+        structure = Poscar.from_dict(self.poscar_orig).structure
+        volume = structure.volume
+        structure.scale_lattice(scale *volume)
+        print volume
+        print structure.volume
+        self.poscar = Poscar(structure)
 
     def set_potcar(self, mapping):
         """
         set the potcar: symbol to potcar type mapping
         """
+        symbols = self.poscar.site_symbols
+        mapped_symbols = []
+        for sym in symbols:
+            mapped_symbols.append(mapping[sym])
+        self.potcar = Potcar(symbols=mapped_symbols)
         pass
 
     def set_kpoints(self, kpoint):
@@ -175,9 +206,10 @@ class Calibrate(object):
             self.kpoints = Kpoints.monkhorst_automatic(kpts = kpoint)
         elif self.Grid_type == 'A':
             self.kpoints = Kpoints.automatic(subdivisions = kpoint)
-        name = self.kpoint_to_name(kpoint, self.Grid_type):
+        name = self.kpoint_to_name(kpoint, self.Grid_type)
         print 'KPOINTS = ', name
-        job_dir = self.job_dir +os.sep+ 'KPTS' + os.sep + name
+        job_dir = self.job_dir +os.sep+ self.key_to_name('KPOINTS') \
+          + os.sep + name
         return job_dir
                                         
     def setup_incar_jobs(self, param, val_list):
@@ -189,18 +221,18 @@ class Calibrate(object):
             self.set_incar(param, val)
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + \
-                    param + os.sep +  re.sub('\.','_',str(val))                
+                    param + os.sep +  self.val_to_name(val) #re.sub('\.','_',str(val)) 
                 self.add_job(name=param+str(val), job_dir=job_dir)
             
-    def setup_kpoints_jobs(self, kpoints_list = None):
+    def setup_kpoints_jobs(self, kpoints_list = []):
         """
         set the jobs for kpoint (only if is_matrix is false)
         
         """
         if kpoints_list:
             for kpoint in kpoints_list:
-                if not self.is_matrix: 
-                    job_dir = self.set_kpoints(kpoint)               
+                job_dir = self.set_kpoints(kpoint)
+                if not self.is_matrix:                     
                     self.add_job(name=job_dir, job_dir=job_dir)
         else:
         	print 'kpoints_list not provided'		
@@ -212,13 +244,21 @@ class Calibrate(object):
         """
         for scale in scale_list:
             self.set_poscar(scale)
-            if not is_matrix:
+            if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + 'VOLUME' +\
                     os.sep + str(scale)
                 self.add_job(name=str(scale), job_dir=job_dir)
 
-    def setup_potcar_jobs(self,mapings):
-        pass
+    def setup_potcar_jobs(self, mappings):
+        for mapping in mappings:
+                self.set_potcar(mapping)
+                if not self.is_matrix:
+                    job_dir  = self.job_dir+ os.sep + self.key_to_name('POTCAR') +\
+                        os.sep + self.potcar_to_name(mapping)
+                    print job_dir
+                    sys.exit()
+                    self.add_job(name=self.potcar_to_name(mapping), job_dir=job_dir)
+                
 
     def add_job(self, name='noname', job_dir='.'):
         """
@@ -394,7 +434,7 @@ class CalibrateBulk(Calibrate):
                              parent_job_dir=parent_job_dir,
                              job_dir=job_dir, qadapter=qadapter,
                               job_cmd=job_cmd,
-                             turn_knobs = OrderedDict(turn_knobs), is_matrix = is_matrix)
+                             turn_knobs = OrderedDict(turn_knobs))
         
 
 class CalibrateSlab(Calibrate):
@@ -435,8 +475,8 @@ class CalibrateSlab(Calibrate):
                         name = str(kpoint[0]) + 'x' + \
                           str(kpoint[1]) + 'x' + str(kpoint[2])
                         print 'KPOINTS = ', name
-                        job_dir = self.job_dir +os.sep+ 'KPTS' + \
-                          os.sep + name
+                        job_dir = self.job_dir + os.sep + \
+                          key_to_name('KPOINTS') + os.sep + name
                         self.add_job(name=name, job_dir=job_dir)
             else:
                 print 'kpoints_list not provided'
@@ -478,12 +518,13 @@ if __name__ == '__main__':
     calbulk = CalibrateBulk(incar, poscar, potcar, kpoints, 
                             is_matrix = True, job_dir='Bulk',
                             turn_knobs = OrderedDict( [
-                                ('SIGMA',[0.025, 0.50, 0.1, 0.2, 0.4, 0.8]),
-                                ('IBRION',[1, 2, 3]),
+                                ('SIGMA', [0.025, 0.50, 0.1, 0.2, 0.4, 0.8]),
+                                ('POTCAR', [{'Pt':'Pt'}, {'Pt':'Pt_pv'}, {'Pt':'Pt_GW'}]),
+                                ('IBRION', [1, 2, 3]),
                                 ('KPOINTS', kpoint_list),
-                                ('ENCUT', range(400,700,100))
+                                ('ENCUT', range(400,700,100)),
+                                ('VOLUME', [0.6, 0.8, 1.0, 1.2, 1.4])
                                 ]) )
-                                          #('VOLUME',[0.6, 0.8, 1.0, 1.2, 1.4]) ])
     calbulk.setup()     
     calbulk.run(['ls','-lt'])
     #get the knob responses

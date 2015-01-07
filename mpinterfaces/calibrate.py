@@ -69,7 +69,7 @@ class Calibrate(object):
         self.handlers = [ ]
         self.job_cmd = job_cmd
         self.n_atoms = 0
-        self.turn_knobs = OrderedDict(turn_knobs)                          
+        self.turn_knobs = turn_knobs
         self.response_to_knobs = {}
         self.sorted_response_to_knobs = {}        
         for k, v in turn_knobs.items():
@@ -83,134 +83,106 @@ class Calibrate(object):
 		#using the key order of the initialized ordered_dict
         #turn_knobs for the directory order in
 		#setting up the matrix jobs
-            self.setup_matrix_job(r = 3)	
+            self.setup_matrix_job()	
         else:
             self._setup()
 
     def _setup(self, turn_knobs=None):
         if turn_knobs is None:
             turn_knobs = self.turn_knobs
+        
         for k, v in turn_knobs.items():
             if k == 'KPOINTS' and v:
                 self.setup_kpoints_jobs(kpoints_list = v)
             elif k == 'VOLUME' and v:
                 self.setup_poscar_jobs(scale_list = v)
             else:
-                self.setup_incar_jobs(k, v)
-                    
-            
-    def setup_matrix_job(self, r = 3):
-    """
-	order_of_knobs is an ordered list of Param keys and value lists  
-	r=3 params matrix first
-	calls the check_matrix_job_to_setup to call the required 
-	TODO : clean up required in directory structure setting up in innermost loop
-    """
+                self.setup_incar_jobs(k, v)                    
+
+                
+    def setup_matrix_job(self):
         orig_job_dir = self.job_dir
+        job_dir = self.job_dir
         n_items = len(self.turn_knobs.items())
         keys = self.turn_knobs.keys()
         self._setup(turn_knobs=dict([(keys[0], self.turn_knobs[keys[0]])]))
-        for i range(n_items-1):
+        self.recur(n_items, keys, 0)
+
+        
+    def recur(self,n, keys, i):
+        if i == n-1 and i != 0:
+            if keys[i] == 'KPOINTS':
+                job_dir = self.job_dir + os.sep + 'KPTS'
+            else:
+                job_dir = self.job_dir + os.sep + keys[i]                
+            #self._setup(turn_knobs=dict([(keys[i], self.turn_knobs[keys[i]])]))
             for val in self.turn_knobs[keys[i]]:
-                self.job_dir=self.job_dir + os.sep + keys[i] + os.sep + str(val)
-                self._setup(turn_knobs=dict([(keys[i+1], self.turn_knobs[keys[i+1]])]) )
-        #restore
-        self.job_dir = orig_job_dir
-"""
-                
-                
-        #default POSCAR needed as reference before the loop for setup_poscar to scale volume correctly        
-        Store_struct = self.poscar.structure    
-        Store_struct.to(fmt = "poscar", filename= "POSCAR.orig")
-        for a in self.turn_knobs.values()[0]:       #first param
-        	self.check_matrix_job_to_setup(key = self.turn_knobs.keys()[0], value = a)
-            first = self.turn_knobs.items()[0]
-            for b in self.turn_knobs.values()[1]:  #second param
-                self.check_matrix_job_to_setup(key = self.turn_knobs.keys()[1], value = b)
-                second = self.turn_knobs.items()[1]
-                for c in self.turn_knobs.values()[2]: #third param
-                    self.check_matrix_job_to_setup(key = self.turn_knobs.keys()[2], value = c)
-                    third = self.turn_knobs.items()[2]
-                    name =  first[0] + '_' + str(first[1]) + '_' +\
-                       second[0] + '_' + str(second[1]) + '_' + third[0] + str(third[1])
-                    job_dir  = self.job_dir + os.sep + 'Matrix_job' + \
-                      os.sep +  first[0]  + os.sep +  str(first[0]) + \
-                       os.sep + second[0] + os.sep + str(second[1]) + \
-                       os.sep + third[0] + os.sep + str(third[1])
-                    self.add_job(name=name , job_dir=job_dir)
-    
-    def check_matrix_job_to_setup(self, key = None, value = None):
-
-#	checks which setup to call according to the key
-#    and value of turn_knobs dictionary
-
-        if key == 'KPOINTS':
-            k_list = value
-            self.setup_kpoints_jobs(kpoints_list = k_list)
-            print self.k_name
-        if key == 'VOLUME':
-            p_list = value
-            self.setup_poscar_jobs(scale_list = p_list)
+                self.job_dir = job_dir + os.sep + re.sub('\.','_',str(val))
+                print 'setting jobs in the directory: ', self.job_dir
+                self._setup(turn_knobs=dict([(keys[i], [val])]))            
+                self.add_job(job_dir=self.job_dir)
         else:
-            incar_param = key
-            values = value
-            self.setup_incar_jobs(param = incar_param, val_list = values)
-"""            
+            if keys[i] == 'KPOINTS':
+                job_dir = self.job_dir + os.sep + 'KPTS'
+            else:
+                job_dir = self.job_dir + os.sep + keys[i]                
+            for val in self.turn_knobs[keys[i]]:
+                self.job_dir = job_dir + os.sep + re.sub('\.','_',str(val))
+                print 'setting jobs in the directory: ', self.job_dir
+                self._setup(turn_knobs=dict([(keys[i], [val])]))
+                self.recur(n,keys,i+1)
+                #self._setup(turn_knobs=dict([(keys[i+1], self.turn_knobs[keys[i+1]])]) )
 
+                
+    def set_incar(self, param, val):
+            self.incar[param] = val
+
+
+    def set_kpoints(self, kpoint):
+            if self.Grid_type == 'M':
+                self.kpoints = \
+                    Kpoints.monkhorst_automatic(kpts = kpoint)
+                name = str(kpoint[0]) + 'x' + \
+                    str(kpoint[1]) + 'x' + str(kpoint[2])
+                print 'KPOINTS = ', name
+                job_dir = self.job_dir +os.sep+ 'KPTS' + os.sep + name
+            elif self.Grid_type == 'A':
+                self.kpoints = Kpoints.automatic(subdivisions = kpoint)
+                name = str(kpoint)
+                print 'KPOINTS = ', name
+                job_dir = self.job_dir +os.sep+ 'KPTS' + os.sep + name
+            return job_dir
+
+                                        
     def setup_incar_jobs(self, param, val_list):
         for val in val_list:
             print 'setting INCAR parameter '+param+' = ', val
             job_dir  = self.job_dir+ os.sep + \
-                param + os.sep + str(val)
-            self.incar[param] = val
-            self.add_job(name=param+str(val), job_dir=job_dir)
+                param + os.sep +  re.sub('\.','_',str(val))
+            self.set_incar(param, val)
+            if not self.is_matrix:
+                self.add_job(name=param+str(val), job_dir=job_dir)
+
             
     def setup_kpoints_jobs(self, kpoints_list = None):
         """
         set the jobs for kpoint convergence
         
         """
-        if (kpoints_list):
-            #Monkhorst_pack method for bulk            
-            if self.Grid_type == 'M':
-                if (self.is_matrix):
-                    k = kpoints_list
-                    self.kpoints = Kpoints.monkhorst_automatic(kpts = k)
-                    self.k_name = str(k[0]) + 'x' + \
-                      str(k[1]) + 'x' + str(k[2])
-                    print 'KPOINTS = ', self.k_name
-                else:
-                    for kpoint in kpoints_list:
-                        self.kpoints = \
-                            Kpoints.monkhorst_automatic(kpts = kpoint)
-                        name = str(kpoint[0]) + 'x' + \
-                            str(kpoint[1]) + 'x' + str(kpoint[2])
-                        print 'KPOINTS = ', name
-                        job_dir = self.job_dir +os.sep+ 'KPOINTS' +\
-                            os.sep + name
-            #Automatic method default                            
-            elif self.Grid_type == 'A':
-                if (self.is_matrix): 
-                    k = kpoints_list
-                    self.kpoints = Kpoints.automatic(subdivisions = k)
-                    self.k_name = str(k)
-                    print 'KPOINTS = ', self.k_name
-                else:
-                    for kpoint in kpoints_list:
-                        self.kpoints = Kpoints.automatic(subdivisions = kpoint)
-                        name = str(kpoint)
-                        print 'KPOINTS = ', name
-                        job_dir = self.job_dir +os.sep+ 'KPOINTS' +\
-                            os.sep + name
-                        self.add_job(name=name, job_dir=job_dir)
+        if kpoints_list:
+            for kpoint in kpoints_list:
+                job_dir = self.set_kpoints(kpoint)
+                if not self.is_matrix:                
+                    self.add_job(name=job_dir, job_dir=job_dir)
         else:
         	print 'kpoints_list not provided'		
-	   
+
+            
     def setup_poscar_jobs(self, scale_list, Name = "volume_scale_"):
-    """
-	for scaling the latice vectors of the original structure,
-    scale_list is volume scaling factor list
-    """
+        """
+        for scaling the latice vectors of the original structure,
+        scale_list is volume scaling factor list
+        """
         if (self.is_matrix): 
             s = scale_list
             print s
@@ -237,6 +209,7 @@ class Calibrate(object):
         self.add_job(name=Name+str(s), job_dir=job_dir)
 
     def add_job(self, name='noname', job_dir='.'):
+        print 'xx',self.job_dir
         vis = MPINTVaspInputSet(name, self.incar, self.poscar,
                                 self.potcar, self.kpoints,
                                 self.qadapter)
@@ -438,7 +411,7 @@ class CalibrateSlab(Calibrate):
                         name = str(kpoint[0]) + 'x' + \
                           str(kpoint[1]) + 'x' + str(kpoint[2])
                         print 'KPOINTS = ', name
-                        job_dir = self.job_dir +os.sep+ 'KPOINTS' + \
+                        job_dir = self.job_dir +os.sep+ 'KPTS' + \
                           os.sep + name
                         self.add_job(name=name, job_dir=job_dir)
             else:
@@ -474,16 +447,20 @@ if __name__ == '__main__':
     kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16),
                                           shift=(0, 0, 0))
 
-    kpoint_list = [20, 60]          #creation of list of automatic kpoints mesh TODO : include a function to generate the list from the starting points? 
-    kpoint_step = 10
-    for x in range(kpoint_list[0]+kpoint_step, kpoint_list[1], kpoint_step):
-    	kpoint_list.append(x) 
+    #creation of list of automatic kpoints mesh
+    #TODO : include a function to generate the list from the starting points?
+    k_step = 10
+    kpoint_list = [k for k in range(20, 40, k_step)]          
     #change the Kpoints method in the constructor: 
-    calbulk = CalibrateBulk(incar, poscar, potcar, kpoints,
-                            job_dir='./Bulk',
-                            turn_knobs = [('SIGMA',[0.025, 0.50, 0.1, 0.2, 0.4, 0.8]),
-                                          ('KPOINTS', kpoint_list),
-                                               ('VOLUME',[0.6, 0.8, 1.0, 1.2, 1.4])], is_matrix = True)    
+    calbulk = CalibrateBulk(incar, poscar, potcar, kpoints, 
+                            is_matrix = True, job_dir='Bulk',
+                            turn_knobs = OrderedDict( [
+                                ('SIGMA',[0.025, 0.50, 0.1, 0.2, 0.4, 0.8]),
+                                ('IBRION',[1, 2, 3]),
+                                ('KPOINTS', kpoint_list),
+                                ('ENCUT', range(400,700,100))
+                                ]) )
+                                          #('VOLUME',[0.6, 0.8, 1.0, 1.2, 1.4]) ])
     calbulk.setup()     
     calbulk.run(['ls','-lt'])
     #get the knob responses

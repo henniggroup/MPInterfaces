@@ -6,6 +6,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import get_angle
+from pymatgen.io.vaspio.vasp_input import Poscar
 
 class Interface(Slab):
     
@@ -531,3 +532,7 @@ if __name__=='__main__':
     iface.to('poscar', 'POSCAR_interface.vasp')
     iface.slab.sort()
     iface.slab.to('poscar', 'POSCAR_slab.vasp')
+    #if you want a customized poscar file(with selective dynamics etc),
+    #use the following construct to create the poscar file    
+#    Poscar(iface, selective_dynamics=np.ones(iface.frac_coords.shape)).write_file('POSCAR_interface_2.vasp')
+#    print iface.frac_coords.shape

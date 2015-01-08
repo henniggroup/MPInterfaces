@@ -93,38 +93,21 @@ class Interface(Slab):
             else:
                 for nlig in range(1, n_top_atoms+1):
                     for i in range(1, 10):
-                            j = i
-                            surface_area = np.linalg.norm(np.cross(i*m[0], j*m[1]))
-                            surface_coverage = nlig/surface_area
-                            #print i, j, surface_area * self.surface_coverage
-                            #print  nlig, nlig/surface_area
-                            diff_coverage = np.abs(surface_coverage - self.surface_coverage)
-                            if  diff_coverage<=0.05:
-                                print 'supercell = ', i, j, 1
-                                print 'number of ligands = ', nlig
-                                print 'feasible coverage = ', \
-                                  nlig/surface_area, ' requested = ', \
-                                  self.surface_coverage
-                                #self.make_supercell([i,j,1])
-                                k = k+1
-                                num_ligands[str(k)] = [nlig,i,j,1]
-                if not num_ligands:
-                      for nlig in range(1, n_top_atoms+1):
-                        for i in range(1, 10):
-                            for j in range(1, 10):
+                        for j in range(1, 10):
+                            if j*i >= (i+1)*(i+1):
+                                break
+                            else:
                                 surface_area = np.linalg.norm(np.cross(i*m[0], j*m[1]))
-                                surface_coverage = nlig/surface_area        
-                                #print i, j, surface_area * self.surface_coverage
-                                #print  nlig, nlig/surface_area
-                                diff_coverage = \
-                                  np.abs(surface_coverage - self.surface_coverage)
-                                if  diff_coverage<=0.05:
+                                surface_coverage = nlig/surface_area
+                                diff_coverage = np.abs(surface_coverage - self.surface_coverage)
+                                #get all feasible coverages that are
+                                #within the margin of +-max_coverage/10
+                                if  diff_coverage<=max_coverage/10:#0.05:
                                     print 'supercell = ', i, j, 1
                                     print 'number of ligands = ', nlig
                                     print 'feasible coverage = ', \
-                                      nlig/surface_area, ' requested = ', \
-                                      self.surface_coverage
-                                    #self.make_supercell([i,j,1])
+                                        nlig/surface_area, ' requested = ', \
+                                        self.surface_coverage
                                     k = k+1
                                     num_ligands[str(k)] = [nlig,i,j,1]
         return num_ligands
@@ -224,9 +207,14 @@ class Interface(Slab):
                 scells.append(v[1:])
                 nnligands.append(v[0])
                 surf_cvgs.append( v[0]/(v[1]*v[2]*s_area) )
-            diff_cvg = np.abs(np.array(surf_cvgs) - self.surface_coverage)
-            print 'using ...', \
-              nnligands[np.argmin(diff_cvg)], \
+            #diff_cvg = np.abs(np.array(surf_cvgs) - self.surface_coverage)
+            diff_cvg = np.array(surf_cvgs) - self.surface_coverage
+            #of all the feasible coverages use the one that is closest and
+            #bigger than the required value
+            for i in range(len(diff_cvg)):
+                if diff_cvg[i] < 0:
+                    diff_cvg[i] = 1e20
+            print 'using ...', nnligands[np.argmin(diff_cvg)], \
               ' ligands on a ', scells[np.argmin(diff_cvg)], ' supercell'
             #create the supercell and reset the top atoms
             self.make_supercell(scells[np.argmin(diff_cvg)])
@@ -536,3 +524,5 @@ if __name__=='__main__':
     #use the following construct to create the poscar file    
 #    Poscar(iface, selective_dynamics=np.ones(iface.frac_coords.shape)).write_file('POSCAR_interface_2.vasp')
 #    print iface.frac_coords.shape
+    strt = SlabGenerator(strt_pbs, hkl, min_thick, min_vac, center_slab=True).get_slab()
+    strt.to('poscar', 'POSCAR_primtive.vasp')    

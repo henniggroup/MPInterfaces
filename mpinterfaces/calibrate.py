@@ -472,6 +472,36 @@ class CalibrateSlab(Calibrate):
                              job_cmd=job_cmd,
                             turn_knobs = turn_knobs)
 
+    def _setup(self, turn_knobs=None):
+        """
+        invoke the set up methods corresponding to the dict keys
+        overridden to invoke vacuum and thickness jobs setup
+        """
+        if turn_knobs is None:
+            turn_knobs = self.turn_knobs
+        for k, v in turn_knobs.items():
+            if k == 'KPOINTS' and v:
+                self.setup_kpoints_jobs(kpoints_list = v)
+            elif k == 'VOLUME' and v:
+                self.setup_poscar_jobs(scale_list = v)
+            elif k == 'POTCAR' and v:
+                self.setup_potcar_jobs(mappings = v)
+            elif k == 'VACUUM' and v:
+                self.setup_vacuum_jobs()
+            elif k == 'THICKNESS' and v:
+                self.setup_thickness_jobs()
+            else:
+                self.setup_incar_jobs(k, v)                    
+
+    def setup_vacuum_jobs(self):
+        """covergence wrt vacuum spacing """
+        pass
+
+    def setup_thickness_jobs(self):
+        """ convergence wrt slab thickness"""
+        pass
+
+#MODIFY, make it consistent with the calibrate class implementation
     def setup_kpoints_jobs(self, Grid_type = 'M',
                             kpoints_list = None):
         if Grid_type == 'M':

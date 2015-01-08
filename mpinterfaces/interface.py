@@ -46,36 +46,39 @@ class Interface(Slab):
         self.min_vac = min_vac
         self.supercell = supercell
         self.ligand = ligand
+        self.slab = strt
         self.displacement = displacement
         self.solvent = solvent
         self.surface_coverage = surface_coverage
         self.adsorb_on_species = adsorb_on_species
         self.adatom_on_lig = adatom_on_lig
 
-
     def set_top_atoms(self):
-            n_atoms = len(self.frac_coords[:,0])
-            a, b, c = self.oriented_unit_cell.lattice.matrix
-            h = abs(np.dot(self.normal, c))
-            nlayers_slab = int(math.ceil(self.min_thick / h))
-            nlayers_vac = int(math.ceil(self.min_vac / h))
-            nlayers = nlayers_slab + nlayers_vac
-            self.top_atoms = []
-            self.bottom_atoms = []            
-            for i in range(n_atoms):
-                    if np.abs(self.frac_coords[i][2] - max(self.frac_coords[:,2])) < 1e-6:
-                                if  self[i].species_string == self.adsorb_on_species:
-                                    self.top_atoms.append(i)
-                    elif np.abs(self.frac_coords[i][2] - min(self.frac_coords[:,2])) < 1e-6:
-                                if  self[i].species_string == self.adsorb_on_species:
-                                    self.bottom_atoms.append(i)
-
+        """
+        set the list of top and bottom atoms indices
+        """
+        n_atoms = len(self.frac_coords[:,0])
+        a, b, c = self.oriented_unit_cell.lattice.matrix
+        h = abs(np.dot(self.normal, c))
+        nlayers_slab = int(math.ceil(self.min_thick / h))
+        nlayers_vac = int(math.ceil(self.min_vac / h))
+        nlayers = nlayers_slab + nlayers_vac
+        self.top_atoms = []
+        self.bottom_atoms = []            
+        for i in range(n_atoms):
+            if np.abs(self.frac_coords[i][2] - max(self.frac_coords[:,2])) < 1e-6:
+                if  self[i].species_string == self.adsorb_on_species:
+                    self.top_atoms.append(i)
+            elif np.abs(self.frac_coords[i][2] - min(self.frac_coords[:,2])) < 1e-6:
+                if  self[i].species_string == self.adsorb_on_species:
+                    self.bottom_atoms.append(i)
 
     def enforce_surface_cvrg(self):
         """
         adjusts the supercell size and the number of adsorbed lignads
         so as to meet the surface coverage criterion
-        returns the number of ligands that need to be adsorbed 
+        returns the number of ligands  and the supercell size required to
+        satisfy the coverage requirement
         """
         n_top_atoms =  len(self.top_atoms)
         max_coverage = n_top_atoms/self.surface_area 
@@ -123,10 +126,7 @@ class Interface(Slab):
                                     #self.make_supercell([i,j,1])
                                     k = k+1
                                     num_ligands[str(k)] = [nlig,i,j,1]
-        return num_ligands  
-    
-
-
+        return num_ligands
 
     def adsorb_on(self, site_indices):
         """
@@ -187,7 +187,6 @@ class Interface(Slab):
             [self.append(self.ligand.species_and_occu[i],
                          adsorbed_ligands_coords[j,i,:], coords_are_cartesian=True)
             for i in range(num_atoms)]
-
         
     def get_index(self, species_string):
         """
@@ -196,13 +195,13 @@ class Interface(Slab):
         for i in range(len(self.ligand)):
              if self.ligand[i].species_string == species_string:
                  return i
-    
                 
     def create_interface(self):
         """
         creates the interface i.e creates a slab of given thicknes and vacuum space
         and it ensures that the cell is big enough and
         have enough ligands to satify the surface coverage criterion
+        also sets the slab on which the ligand is adsorbed
         """
         self.to(fmt='poscar', filename='POSCAR_primitive_slab.vasp')
         #get the bottom to top distance: to get he top atom indices
@@ -210,10 +209,6 @@ class Interface(Slab):
         self.top_bot_dist = np.max(self.distance_matrix.reshape(n_atoms*n_atoms, 1))
         #set the top atoms
         self.set_top_atoms()
-        #make sure the supercell of the slab is big enough to satisfy
-        #the surface coverage requirement
-        #returns the number of ligands  and the supercell size required to
-        #satisfy the coverage requirement
         nligands = self.enforce_surface_cvrg()
         if nligands:
             print 'list of possible combinations of number of \
@@ -234,6 +229,7 @@ class Interface(Slab):
               ' ligands on a ', scells[np.argmin(diff_cvg)], ' supercell'
             #create the supercell and reset the top atoms
             self.make_supercell(scells[np.argmin(diff_cvg)])
+            self.set_slab()
             self.set_top_atoms()
             self.adsorb_sites = \
               [self.top_atoms[i] for i in range(nnligands[np.argmin(areas)])]
@@ -244,6 +240,10 @@ class Interface(Slab):
         else:
             print 'no ligands'
             sys.exit()
+
+    def set_slab(self):
+        """ set the slab on to which the ligand is adsorbed"""
+        self.slab = Slab.from_dict(self.as_dict())
 
         
 class Ligand(Molecule):
@@ -529,3 +529,5 @@ if __name__=='__main__':
     iface.create_interface()
     iface.sort()
     iface.to('poscar', 'POSCAR_interface.vasp')
+    iface.slab.sort()
+    iface.slab.to('poscar', 'POSCAR_slab.vasp')

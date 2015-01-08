@@ -22,10 +22,10 @@ class Interface(Slab):
                  ligand=None, displacement=1.0,
                  surface_coverage=None, solvent=None, start_from_slab=False,
                  validate_proximity=False, to_unit_cell=False,
-                 coords_are_cartesian=False):
+                 coords_are_cartesian=False, primitive = True):
         #if starting from the bulk structure, create slab
         if isinstance(strt, Structure):
-            strt = SlabGenerator(strt, hkl, min_thick, min_vac, center_slab=True).get_slab()
+            strt = SlabGenerator(strt, hkl, min_thick, min_vac, center_slab=True, primitive = primitive).get_slab()
         else:
             print 'strt must be an object of either Structure or Slab'
             sys.exit()
@@ -478,7 +478,7 @@ if __name__=='__main__':
     hkl = [1,0,0]
     
     #minimum slab thickness in Angstroms
-    min_thick = 15
+    min_thick = 21
     
     #minimum vacuum thickness in Angstroms
     #mind: the ligand will be placed in this vacuum, so the
@@ -511,7 +511,7 @@ if __name__=='__main__':
     iface = Interface(strt_pbs, hkl=hkl, min_thick=min_thick, min_vac=min_vac,
                       supercell=supercell, surface_coverage=surface_coverage,
                       ligand=h2o, displacement=displacement,
-                      adsorb_on_species = adsorb_on_species, adatom_on_lig=adatom_on_lig)
+                      adsorb_on_species = adsorb_on_species, adatom_on_lig=adatom_on_lig, primitive = False)
 #    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=20,
 #                      supercell=supercell, surface_coverage=0.01,
 #                      ligand=lead_acetate, displacement=displacement, adatom_on_lig='Pb')
@@ -524,5 +524,5 @@ if __name__=='__main__':
     #use the following construct to create the poscar file    
 #    Poscar(iface, selective_dynamics=np.ones(iface.frac_coords.shape)).write_file('POSCAR_interface_2.vasp')
 #    print iface.frac_coords.shape
-    strt = SlabGenerator(strt_pbs, hkl, min_thick, min_vac, center_slab=True).get_slab()
+    strt = SlabGenerator(strt_pbs, hkl, min_thick, min_vac, center_slab=True, primitive = False).get_slab()
     strt.to('poscar', 'POSCAR_primtive.vasp')    

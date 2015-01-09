@@ -1,35 +1,35 @@
+"""
+Defines the Interface(extends class Slab) and
+Ligand(extends class Molecule) classes
+"""
 import sys
 import math
 import numpy as np
+
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import get_angle
-from pymatgen.io.vaspio.vasp_input import Poscar
 
 class Interface(Slab):
-    
     """
-    
     Interface = slab + ligand + environment(solvent)
     
     """
-    
     def __init__(self, strt, hkl=[1,1,1], min_thick=10, min_vac=10,
                  supercell=[1,1,1], name=None, adsorb_on_species=None,
-                  adatom_on_lig=None,
-                 ligand=None, displacement=1.0,
-                 surface_coverage=None, solvent=None, start_from_slab=False,
-                 validate_proximity=False, to_unit_cell=False,
-                 coords_are_cartesian=False, primitive = True):
+                 adatom_on_lig=None, ligand=None, displacement=1.0,
+                 surface_coverage=None, scell_nmax=10, coverage_tol=0.25,
+                 solvent=None, start_from_slab=False, validate_proximity=False,
+                 to_unit_cell=False, coords_are_cartesian=False, primitive = True):
         #if starting from the bulk structure, create slab
         if isinstance(strt, Structure):
-            strt = SlabGenerator(strt, hkl, min_thick, min_vac, center_slab=True, primitive = primitive).get_slab()
+            strt = SlabGenerator(strt, hkl, min_thick, min_vac + ligand.max_dist,
+                                 center_slab=True, primitive = primitive).get_slab()
         else:
             print 'strt must be an object of either Structure or Slab'
             sys.exit()
-
         Slab.__init__(self, strt.lattice, strt.species_and_occu,
                            strt.frac_coords, miller_index=strt.miller_index,
                            oriented_unit_cell=strt.oriented_unit_cell,
@@ -39,12 +39,10 @@ class Interface(Slab):
                            coords_are_cartesian=coords_are_cartesian,
                            site_properties=strt.site_properties,
                            energy=strt.energy )
-            
-        #self.strt = strt
         self.name = name
         self.hkl = hkl
         self.min_thick = min_thick
-        self.min_vac = min_vac
+        self.min_vac = min_vac + ligand.max_dist
         self.supercell = supercell
         self.ligand = ligand
         self.slab = strt
@@ -53,6 +51,8 @@ class Interface(Slab):
         self.surface_coverage = surface_coverage
         self.adsorb_on_species = adsorb_on_species
         self.adatom_on_lig = adatom_on_lig
+        self.scell_nmax = scell_nmax
+        self.coverage_tol = coverage_tol
 
     def set_top_atoms(self):
         """
@@ -76,91 +76,94 @@ class Interface(Slab):
 
     def enforce_surface_cvrg(self):
         """
-        adjusts the supercell size and the number of adsorbed lignads
-        so as to meet the surface coverage criterion
-        returns the number of ligands  and the supercell size required to
-        satisfy the coverage requirement
+        adjusts the supercell size and the number of adsorbed ligands
+        so as to meet the surface coverage criterion within the given
+        tolerance limit(specified as fraction of the required surface coverage)
+        sets the dictionary that contains the number of ligands  and
+        the supercell size  that satisfies the criterion
         """
         n_top_atoms =  len(self.top_atoms)
         max_coverage = n_top_atoms/self.surface_area 
         m = self.lattice.matrix
+        print '\nrequested surface coverage = ', self.surface_coverage        
         print 'maximum possible coverage = ', max_coverage
-        num_ligands = {}
+        self.nlig_sizescell = {}
         k = 0
         if self.surface_coverage:
             if self.surface_coverage > max_coverage:
                 print 'requested surface coverage exceeds the max possible coverage'
             else:
                 for nlig in range(1, n_top_atoms+1):
-                    for i in range(1, 10):
-                        for j in range(1, 10):
-                            if j*i >= (i+1)*(i+1):
-                                break
-                            else:
-                                surface_area = np.linalg.norm(np.cross(i*m[0], j*m[1]))
-                                surface_coverage = nlig/surface_area
-                                diff_coverage = np.abs(surface_coverage - self.surface_coverage)
-                                #get all feasible coverages that are
-                                #within the margin of +-max_coverage/10
-                                if  diff_coverage<=max_coverage/10:#0.05:
-                                    print 'supercell = ', i, j, 1
-                                    print 'number of ligands = ', nlig
-                                    print 'feasible coverage = ', \
-                                        nlig/surface_area, ' requested = ', \
-                                        self.surface_coverage
-                                    k = k+1
-                                    num_ligands[str(k)] = [nlig,i,j,1]
-        return num_ligands
+                    for i in range(1, self.scell_nmax):
+                        for j in range(1, i+1):
+                            surface_area = np.linalg.norm(np.cross(i*m[0], j*m[1]))
+                            surface_coverage = nlig/surface_area
+                            diff_coverage = np.abs(surface_coverage - self.surface_coverage)
+                            if  diff_coverage<=self.surface_coverage*self.coverage_tol:
+                                print '\npossible coverages within the tolerance limit = ',\
+                                  nlig/surface_area
+                                print 'supercell = ', i, j, 1
+                                print 'number of ligands = ', nlig
+                                k = k+1
+                                self.nlig_sizescell[str(k)] = [nlig,i,j,1]
 
-    def adsorb_on(self, site_indices):
+    def cover_surface(self, site_indices):
         """
         puts the ligand molecule on the given list of site indices
         """
         num_atoms = len(self.ligand)
         normal = self.normal
-        #get a vector that points from one atome in the botton plane to one atom on
-        #the top plane. This is required to make sure that the surface normal
-        #points outwards from the surface on to which we want to adsorb the ligand
-        vec_vac = \
-          self.cart_coords[self.top_atoms[0]] - self.cart_coords[self.bottom_atoms[0]]
-        #mov_vec = the vector along which the ligand will be displaced
+        # get a vector that points from one atom in the botton plane
+        # to one atom on the top plane. This is required to make sure
+        # that the surface normal points outwards from the surface on
+        #  to which we want to adsorb the ligand
+        vec_vac = self.cart_coords[self.top_atoms[0]] - \
+          self.cart_coords[self.bottom_atoms[0]]
+        # mov_vec = the vector along which the ligand will be displaced
         mov_vec = normal * self.displacement
         angle = get_angle(vec_vac, self.normal)
-        #flip the orientation of normal if it is not pointing in the right direction.
+        # flip the orientation of normal if it is not pointing in
+        # the right direction.
         if ( angle > 90 ):
             normal_frac =  self.lattice.get_fractional_coords(normal)
             normal_frac[2] = -normal_frac[2]
             normal = self.lattice.get_cartesian_coords(normal_frac)
             mov_vec = normal * self.displacement
-        #get the index corresponding to the given atomic species in the ligand that
-        #will bond with the surface on which the ligand will be adsorbed
+        # get the index corresponding to the given atomic species in
+        # the ligand that will bond with the surface on which the
+        # ligand will be adsorbed
         adatom_index = self.get_index(self.adatom_on_lig)
         adsorbed_ligands_coords = []
-        #set the ligand coordinates for each adsorption site on the surface
+        # set the ligand coordinates for each adsorption site on the surface
         for sindex in site_indices:
-            #align the ligand wrt the site on the surface to which it will be adsorbed
+            # align the ligand wrt the site on the surface to which
+            # it will be adsorbed
             origin = self.cart_coords[sindex]
             self.ligand.translate_sites(list(range(num_atoms)),
                                         origin - self.ligand[adatom_index].coords )
-            #displace the ligand by the given amount in the direction normal to surface
+            # displace the ligand by the given amount in the direction
+            # normal to surface
             self.ligand.translate_sites(list(range(num_atoms)), mov_vec)
-            #vector pointing from the adatom_on_log to the ligand center of mass
-            vec_adatom_cm = self.ligand.center_of_mass - self.ligand[adatom_index].coords
-            #rotate the ligand with respect to a vector that is normal to the
-            #vec_adatom_cm and the normal to the surface so that the ligand center of
-            #mass is aligned along the outward normal to the surface
+            # vector pointing from the adatom_on_log to the
+            # ligand center of mass
+            vec_adatom_cm = self.ligand.center_of_mass - \
+              self.ligand[adatom_index].coords
+            # rotate the ligand with respect to a vector that is
+            # normal to the vec_adatom_cm and the normal to the surface
+            # so that the ligand center of mass is aligned along the
+            # outward normal to the surface
             origin = self.ligand[adatom_index].coords 
             angle = get_angle(vec_adatom_cm, normal)
             if 1 < abs(angle % 180) < 179:
-                # For angles which are not 0 or 180, we perform a rotation about
-                # the origin along an axis perpendicular to both bonds to align
-                # bonds.
+                # For angles which are not 0 or 180,
+                # perform a rotation about the origin along an axis
+                # perpendicular to both bonds to align bonds.
                 axis = np.cross(vec_adatom_cm, normal)
                 op = SymmOp.from_origin_axis_angle(origin, axis, angle)
                 self.ligand.apply_operation(op)
             elif abs(abs(angle) - 180) < 1:
-                # We have a 180 degree angle. Simply do an inversion about the
-                # origin
+                # We have a 180 degree angle.
+                # Simply do an inversion about the origin
                 for i in range(len(self.ligand)):
                         self.ligand[i] = (self.ligand[i].species_and_occu,
                                        origin - (self.ligand[i].coords - origin))
@@ -179,55 +182,55 @@ class Interface(Slab):
         for i in range(len(self.ligand)):
              if self.ligand[i].species_string == species_string:
                  return i
-                
+
+    def get_opt_nlig_scell(self):
+        """
+        Of all the possible combinations of number of ligands and
+        supercell sizes that agree with the required surface coverage
+        within the tolerance limit, the one that is chosen is the one
+        with the smallest surface area
+        """
+        print '\nlist of possible combinations of the number of ligands',\
+            'and the supercell sizes = ', self.nlig_sizescell
+        self.possible_scells = []
+        self.possible_nligs = []            
+        surf_areas = []
+        surf_cvgs = []
+        s_area = self.surface_area
+        for k, v in self.nlig_sizescell.items():
+            surf_areas.append(v[1]*v[2])
+            self.possible_scells.append(v[1:])
+            self.possible_nligs.append(v[0])
+            surf_cvgs.append( v[0]/(v[1]*v[2]*s_area) )
+        return np.argmin(surf_areas)
+                        
     def create_interface(self):
         """
-        creates the interface i.e creates a slab of given thicknes and vacuum space
-        and it ensures that the cell is big enough and
+        creates the interface i.e creates a slab of given thicknes and
+        vacuum space. It ensures that the cell is big enough and
         have enough ligands to satify the surface coverage criterion
         also sets the slab on which the ligand is adsorbed
         """
-        self.to(fmt='poscar', filename='POSCAR_primitive_slab.vasp')
-        #get the bottom to top distance: to get he top atom indices
         n_atoms = len(self.frac_coords[:,0])
         self.top_bot_dist = np.max(self.distance_matrix.reshape(n_atoms*n_atoms, 1))
-        #set the top atoms
         self.set_top_atoms()
-        nligands = self.enforce_surface_cvrg()
-        if nligands:
-            print 'list of possible combinations of number of \
-             ligands  and the supercell sizes = ', nligands
-            areas = []
-            scells = []
-            nnligands = []
-            surf_cvgs = []
-            s_area = self.surface_area
-            for k, v in nligands.items():
-                areas.append(v[1]*v[2])
-                scells.append(v[1:])
-                nnligands.append(v[0])
-                surf_cvgs.append( v[0]/(v[1]*v[2]*s_area) )
-            #diff_cvg = np.abs(np.array(surf_cvgs) - self.surface_coverage)
-            diff_cvg = np.array(surf_cvgs) - self.surface_coverage
-            #of all the feasible coverages use the one that is closest and
-            #bigger than the required value
-            for i in range(len(diff_cvg)):
-                if diff_cvg[i] < 0:
-                    diff_cvg[i] = 1e20
-            print 'using ...', nnligands[np.argmin(diff_cvg)], \
-              ' ligands on a ', scells[np.argmin(diff_cvg)], ' supercell'
-            #create the supercell and reset the top atoms
-            self.make_supercell(scells[np.argmin(diff_cvg)])
+        self.enforce_surface_cvrg()
+        if self.nlig_sizescell:
+            opt_lig_scell_index = self.get_opt_nlig_scell()
+            print '\nusing ...', self.possible_nligs[opt_lig_scell_index], \
+              ' ligands on a ', self.possible_scells[opt_lig_scell_index], ' supercell'
+            self.make_supercell(self.possible_scells[opt_lig_scell_index])
             self.set_slab()
             self.set_top_atoms()
-            self.adsorb_sites = \
-              [self.top_atoms[i] for i in range(nnligands[np.argmin(areas)])]
+            self.adsorb_sites = [ self.top_atoms[i]
+                                  for i in range(self.possible_nligs[opt_lig_scell_index])]
             print 'ligands will be adsorbed on these sites on the slab ', self.adsorb_sites
-            #adsorb the ligands
-            #Slab.add_adsorbate_atom([0],'O',2)
-            self.adsorb_on(self.adsorb_sites)
+            self.cover_surface(self.adsorb_sites)
         else:
-            print 'no ligands'
+            print 'none of the combinations of number of ligands'
+            print' and supercell sizes matches the requested surface coverage'
+            print 'try increasing the tolerance or '
+            print 'increase the maximum number of cells in the supercell'
             sys.exit()
 
     def set_slab(self):
@@ -237,10 +240,7 @@ class Interface(Slab):
         
 class Ligand(Molecule):
     """
-    
     Construct ligand from  molecules
-    
-    
     """
     def __init__(self, mols, cm_dist=[], angle={}, link={}, remove=[],
                  charge=0, spin_multiplicity=None,
@@ -255,49 +255,62 @@ class Ligand(Molecule):
         self.angle = angle
         self.link = link
         self.remove = remove
+        if len(self.mols)==1:
+            self.set_distance_matrix(self.mols[0])
 
     def get_perp_vec(self, vec1, vec2):
-        #if the vectors are parllel, then perp_vec = (0, -z, y)
+        """
+        returns the vector that is perpendicular to the vec1 and vec2
+        if the vectors are parllel, then perp_vec = (0, -z, y)        
+        """
         if np.abs(np.dot(vec1, vec2) - np.linalg.norm(vec1)**2 ) < 1e-6:
             perp_vec = np.array([0, -vec1[2], vec1[1]])
         else:
             perp_vec = np.cross(vec1, vec2)
         return perp_vec                        
     
-    def get_distance_matrix(self, mol):
+    def set_distance_matrix(self, mol):
+        """
+        sets the distance matrix for the molecule
+        """
         nsites = len(mol.sites)
-        return np.array([mol.get_distance(i,j) for i in range(nsites) \
+        self.d_mat =  np.array([mol.get_distance(i,j) for i in range(nsites) \
                          for j in range(nsites)]).reshape(nsites, nsites)
+        self.max_dist = np.max(self.d_mat.reshape(nsites*nsites, 1))
 
-    def create_ligand(self):
-        #get the start and end indices to define the vector that defines the molecule
+    def set_mol_vecs(self):
+        """
+        get the start and end indices to define the vector that
+        defines the molecule
+        sets the vectors that point from the start index atom to
+        the farthest atom for each molecule
+        """
         self.vec_indices = []
         for mol in self.mols:
             nsites = len(mol.sites)
-            d_mat = self.get_distance_matrix(mol)
-            max_dist = np.max(d_mat.reshape(nsites*nsites, 1))
+            self.set_distance_matrix(mol)
             temp = []
             for i in range(nsites):
                 if i not in temp:
                     [temp.append([i,j]) for j in range(nsites) \
-                     if np.abs(max_dist-d_mat[i,j]) < 1e-6]
+                     if np.abs(self.max_dist-self.d_mat[i,j]) < 1e-6]
             self.vec_indices.append(temp[0])
-
-        print self.vec_indices
-        #vectors pointing from start index atom to the farthest atom
         self.mol_vecs = []
         for mol,vind in enumerate(self.vec_indices):
             self.mol_vecs.append(self.mols[mol].cart_coords[vind[1]] - \
                                  self.mols[mol].cart_coords[vind[0]])
-    
-        #move center of masses
+
+    def position_mols(self):
+        """
+        position the center of masses of the molecules wrt each other
+        first movement is in the x direction        
+        """
         new_mol = self.mols[0]
-        #first movemen tin the x direction
         mov_vec = np.array([1,0,0])
         for i in range(len(self.mols)-1):
-            cm1 = new_mol.center_of_mass
+            #cm1 = new_mol.center_of_mass
             new_cm = new_mol.center_of_mass        
-            cm2 = self.mols[i+1].center_of_mass
+            #cm2 = self.mols[i+1].center_of_mass
             new_cm = new_cm + self.cm_dist[i] * mov_vec #+ np.random.rand(1,3)
             mov_vec = self.get_perp_vec(self.mol_vecs[i], mov_vec)
             mov_vec = mov_vec / np.linalg.norm(mov_vec)
@@ -307,86 +320,101 @@ class Ligand(Molecule):
                           spin_multiplicity=self.mols[i+1]._spin_multiplicity,
                           site_properties=self.mols[i+1].site_properties)
             new_mol = Molecule.from_sites(self.mols[i].sites + self.mols[i+1].sites,
-                                           validate_proximity=True) 
+                                           validate_proximity=True)
 
-            #rotate the molecules around an axis that is
-            #perpendicular to the molecular axes
-            if self.angle:
-                for mol in range(len(self.mols)):
-                    for ind_key, rot in self.angle[str(mol)].items():
-                        #print 'mol, ind_key, rot ', mol, ind_key, rot
-                        perp_vec = np.cross(self.mol_vecs[int(ind_key)], self.mol_vecs[mol])
-                        #if the vectors are parllel, then perp_vec = (-y, x, 0)
-                        if np.abs(np.dot(self.mol_vecs[int(ind_key)], self.mol_vecs[mol]) -\
-                                   np.linalg.norm(self.mol_vecs[mol])**2 ) < 1e-6:
-                            perp_vec = \
-                              np.array([-self.mol_vecs[mol][1], self.mol_vecs[mol][0], 0])
+    def rotate_mols(self):
+        """
+        rotate the molecules wrt each other using the provided info
+        """
+        #rotate the molecules around an axis that is
+        #perpendicular to the molecular axes
+        if self.angle:
+            for mol in range(len(self.mols)):
+                for ind_key, rot in self.angle[str(mol)].items():
+                    #print 'mol, ind_key, rot ', mol, ind_key, rot
+                    perp_vec = np.cross(self.mol_vecs[int(ind_key)],
+                                         self.mol_vecs[mol])
+                    #if the vectors are parllel, then perp_vec = (-y, x, 0)
+                    if np.abs( np.dot( self.mol_vecs[int(ind_key)],
+                                      self.mol_vecs[mol] ) - \
+                                      np.linalg.norm(self.mol_vecs[mol])**2 ) < 1e-6:
+                        perp_vec = np.array([-self.mol_vecs[mol][1],
+                                             self.mol_vecs[mol][0], 0])
                         org_pt = self.vec_indices[mol][0]
-                        op = \
-                          SymmOp.from_origin_axis_angle(self.mols[mol].cart_coords[org_pt],
-                                                           axis=perp_vec, angle=rot)
+                        op = SymmOp.from_origin_axis_angle(
+                            self.mols[mol].cart_coords[org_pt],
+                            axis=perp_vec, angle=rot )
                         self.mols[mol].apply_operation(op)
-            #connect the molecules together
-            #in this example: connect mol2 to mol0 and mol1, the
-            #coordinates of mol2 is changed 
-            new_coords = np.array([0,0,0]) 
-            displacement = np.array([0,0,0])
-            if self.link:
-                for mol in range(len(self.mols)):
-                    new_coords = copy.deepcopy(self.mols[mol].cart_coords)
-                    if link[str(mol)]:
-                        for ind_key, conn in self.link[str(mol)].items():
-                            ind = int(ind_key)
-                            print 'connection list for atom of index ', \
-                              ind ,' of molecule ', mol, ' : ', conn
-                            coord = np.array([0,0,0])
-                            #if connecting the molecule mol to only one atom of
-                            #just one another molecule
-                            #then move the atom close to the atom in mol and
-                            #shift the whole molecule too
-                            non_neg = np.extract(np.array(conn)>0, conn)
-                            if len(non_neg) == 1 and len(link[str(mol)]) == 1:
-                                for j,k in enumerate(conn):
-                                    coord = self.mols[j].cart_coords[non_neg[0]] + \
+
+    def link_mols(self):
+        """
+        link the molecules together
+        connect the specified atoms of mol to the atoms of other
+        molecules in the list
+        connection means putting the atomm  of the mol at
+        a position that is the average of the position of
+        the atoms of the molecules given in the list
+        """
+        new_coords = np.array([0,0,0]) 
+        displacement = np.array([0,0,0])
+        if self.link:
+            for mol in range(len(self.mols)):
+                new_coords = copy.deepcopy(self.mols[mol].cart_coords)
+                if link[str(mol)]:
+                    for ind_key, conn in self.link[str(mol)].items():
+                        ind = int(ind_key)
+                        print 'connection list for atom of index ', \
+                            ind ,' of molecule ', mol, ' : ', conn
+                        coord = np.array([0,0,0])
+                        #if connecting the molecule mol to only one atom of
+                        #just one another molecule
+                        #then move the atom close to the atom in mol and
+                        #shift the whole molecule 
+                        non_neg = np.extract(np.array(conn)>0, conn)
+                        if len(non_neg) == 1 and len(link[str(mol)]) == 1:
+                            for j,k in enumerate(conn):
+                                coord = self.mols[j].cart_coords[non_neg[0]] + \
                                       np.random.rand(1,3) + 1.0
-                                displacement = coord - self.mols[mol].cart_coords[ind]
-                                #connect the specified atoms of mol to the atoms of
-                                #other molecules in the list
-                                #connection means putting the atomm  of the mol at
-                                #a position that is the average of the position of
-                                #the atoms of the molecules given in the list
-                            else:
-                                for j,k in enumerate(conn):
-                                    if k>=0:
-                                        coord = coord + self.mols[j].cart_coords[k] 
-                                coord = coord / len(conn)
-                            new_coords[ind, 0] = coord[0]
-                            new_coords[ind, 1] = coord[1]
-                            new_coords[ind, 2] = coord[2]
-                        new_coords = new_coords + displacement
-                        self.mols[mol] =  Molecule(self.mols[mol].species_and_occu,
-                                   new_coords, charge=self.mols[mol]._charge,
-                                   spin_multiplicity=self.mols[mol]._spin_multiplicity,
-                                   site_properties=self.mols[mol].site_properties)
-    
-        #remove atoms from the molecules
+                            displacement = coord - self.mols[mol].cart_coords[ind]
+                        else:
+                            for j,k in enumerate(conn):
+                                if k>=0:
+                                    coord = coord + self.mols[j].cart_coords[k] 
+                            coord = coord / len(conn)
+                        new_coords[ind, 0] = coord[0]
+                        new_coords[ind, 1] = coord[1]
+                        new_coords[ind, 2] = coord[2]
+                    new_coords = new_coords + displacement
+                    self.mols[mol] =  Molecule(self.mols[mol].species_and_occu,
+                                               new_coords, charge = \
+                                               self.mols[mol]._charge,
+                                               spin_multiplicity = \
+                                               self.mols[mol]._spin_multiplicity,
+                                               site_properties = \
+                                               self.mols[mol].site_properties)
+
+    def create_ligand(self):
+        """
+        create the ligand by assembling the provided individual molecules
+        and removeing the specified atoms from the molecules
+        """
+        self.set_mol_vecs()
+        self.position_mols()
+        self.rotate_mols()
+        self.link_mols()        
         for i in range(len(self.mols)):
             if self.remove[i]:
                 self.mols[i].remove_sites(self.remove[i])
-
-        #combine the sites of all the molecules
         combine_mol_sites = self.mols[0].sites
         for j in range(1, len(self.mols)):
             combine_mol_sites = combine_mol_sites + self.mols[j].sites
-        
-        #create the ligand
         self._sites = combine_mol_sites
-
-
+        self.set_distance_matrix(self)
         
 
 #test
 if __name__=='__main__':
+    from pymatgen.io.vaspio.vasp_input import Poscar    
     ########################################
     #create lead acetate ligand
     #from 3 molecules: 2 acetic acid + 1 Pb
@@ -403,13 +431,13 @@ if __name__=='__main__':
     # in a direction that is perpendicular to the first moving direction and the
     #molecule vector of one of the molecules
     # for n molecules the size of cm_dist must be n-1
-    cm_dist = [3, 2]
+    cm_dist = [1, 2]
 
     #optional parmater
     #example: angle={'0':{}, '1':{'0':90}, '2':{} }
     #rotate mol1 with respect to mol0 by 90 degreeen around and axis that is normal
     # to the plane containing the molecule vectors of mol0 and mol1
-    angle={'0':{}, '1':{'0':45}, '2':{} }
+    angle={'0':{}, '1':{'0':90}, '2':{} }
     
     #optional paramter
     #a dictionary describing the connection between the molecules, used if the
@@ -481,9 +509,8 @@ if __name__=='__main__':
     min_thick = 21
     
     #minimum vacuum thickness in Angstroms
-    #mind: the ligand will be placed in this vacuum, so the
-    #final effective vacuum space will be smaller than this
-    min_vac = 12
+    #the maximum distance in the lignad will be added to this value
+    min_vac = 10
     
     # surface coverage in the units of lig/ang^2
     #mind: exact coverage as provided cannot be guaranteed, the slab will be constructed
@@ -510,8 +537,9 @@ if __name__=='__main__':
     #
     iface = Interface(strt_pbs, hkl=hkl, min_thick=min_thick, min_vac=min_vac,
                       supercell=supercell, surface_coverage=surface_coverage,
-                      ligand=h2o, displacement=displacement,
-                      adsorb_on_species = adsorb_on_species, adatom_on_lig=adatom_on_lig, primitive = False)
+                      ligand=lead_acetate, displacement=displacement,
+                      adsorb_on_species = adsorb_on_species,
+                      adatom_on_lig=adatom_on_lig, primitive = False)
 #    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=20,
 #                      supercell=supercell, surface_coverage=0.01,
 #                      ligand=lead_acetate, displacement=displacement, adatom_on_lig='Pb')
@@ -522,7 +550,9 @@ if __name__=='__main__':
     iface.slab.to('poscar', 'POSCAR_slab.vasp')
     #if you want a customized poscar file(with selective dynamics etc),
     #use the following construct to create the poscar file    
-#    Poscar(iface, selective_dynamics=np.ones(iface.frac_coords.shape)).write_file('POSCAR_interface_2.vasp')
+#    poscar = Poscar(iface,
+#                    selective_dynamics = np.ones(iface.frac_coords.shape))
+#    poscar.write_file('POSCAR_interface_2.vasp')
 #    print iface.frac_coords.shape
     strt = SlabGenerator(strt_pbs, hkl, min_thick, min_vac, center_slab=True, primitive = False).get_slab()
     strt.to('poscar', 'POSCAR_primtive.vasp')    

@@ -11,6 +11,7 @@ import subprocess as sp
 import socket
 from math import sqrt
 from collections import OrderedDict
+import numpy as np
 
 from pymatgen.matproj.rest import MPRester
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
@@ -18,6 +19,7 @@ from pymatgen.core.structure import Structure
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from mpinterfaces.calibrate import CalibrateMolecule
+from mpinterfaces.interface import Interface
 
 MAPI_KEY="dwvz2XCFUEI9fJiR"
 
@@ -58,7 +60,7 @@ potcar = Potcar(poscar.site_symbols)
 kpoints = Kpoints()
 
 #set job list
-encut_list = [] #range(400,800,100)
+encut_list = [400,500] #range(400,800,100)
 turn_knobs = OrderedDict(
     [
         ('ENCUT', encut_list)
@@ -93,6 +95,9 @@ else:
                '-n', str(nprocs),
                '/home/km468/Software/VASP/vasp.5.3.5/vasp']
         
-cal = CalibrateMolecule(incar, poscar, potcar, kpoints, job_cmd=job_cmd)
+cal = CalibrateMolecule(incar, poscar, potcar, kpoints, 
+                        turn_knobs=turn_knobs, 
+                        job_dir='/home/km468/Software/test/Molecule',
+                        job_cmd=job_cmd, wait=False)
 cal.setup()
 cal.run()

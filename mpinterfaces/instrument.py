@@ -67,7 +67,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         structures read from the poscar files in the directory
         
         """
-        d = './'+job_dir
+        d = job_dir
         if make_dir_if_not_present and not os.path.exists(d):
             os.makedirs(d)
         print 'writing inputset to : ', d
@@ -105,7 +105,7 @@ class MPINTVaspJob(Job):
                  final=True, gzipped=False, backup=True,
                  vis=None, auto_npar=True,
                  auto_gamma=True, settings_override=None,
-                 gamma_vasp_cmd=None, copy_magmom=False):
+                 gamma_vasp_cmd=None, copy_magmom=False, wait=True):
 
         self.job_cmd = job_cmd
         self.output_file = output_file
@@ -122,7 +122,7 @@ class MPINTVaspJob(Job):
         self.auto_gamma = auto_gamma
         self.gamma_vasp_cmd = gamma_vasp_cmd
         self.copy_magmom = copy_magmom
-
+        self.wait = wait
 
     def setup(self):
         """
@@ -136,7 +136,6 @@ class MPINTVaspJob(Job):
             for f in os.listdir('.'):
                 shutil.copy(f, "{}.orig".format(f))
             os.chdir(self.parent_job_dir)                
-
             
     def run(self):
         """
@@ -163,12 +162,13 @@ class MPINTVaspJob(Job):
             with open(self.output_file, 'w') as f:
                 p = subprocess.Popen(cmd, stdout=f, stderr=f)
         os.chdir(self.parent_job_dir)
-        return p
-
+        if self.wait:
+            return p
+        else:
+            return 0
     
     def postprocess(self):
         pass
-    
 
     def name(self):
          return self.__class__.__name__

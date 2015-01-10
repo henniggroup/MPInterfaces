@@ -41,7 +41,7 @@ class Calibrate(object):
     def __init__(self, incar, poscar, potcar, kpoints,
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.',job_dir='./Job',
-                 qadapter=None, job_cmd='qsub',
+                 qadapter=None, job_cmd='qsub', wait=True,
                  turn_knobs=OrderedDict( [ ('ENCUT',[]),
                                            ('KPOINTS',[])] ) ):
         """
@@ -77,6 +77,7 @@ class Calibrate(object):
             self.sorted_response_to_knobs[k] = {}            
         self.is_matrix = is_matrix
         self.Grid_type = Grid_type
+        self.wait = wait
     
     def setup(self):
         """
@@ -291,7 +292,7 @@ class Calibrate(object):
                            setup_dir=self.setup_dir,
                            parent_job_dir=self.parent_job_dir,
                            job_dir=job_dir, vis=vis, auto_npar=False,
-                            auto_gamma=False)
+                            auto_gamma=False, wait=self.wait)
         self.jobs.append(job)
     
     def run(self, job_cmd=None):
@@ -412,7 +413,7 @@ class CalibrateMolecule(Calibrate):
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.',
                  job_dir='./Molecule', qadapter=None,
-                 job_cmd='qsub',
+                 job_cmd='qsub', wait=True,
                  turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
@@ -420,7 +421,7 @@ class CalibrateMolecule(Calibrate):
                            setup_dir=setup_dir,
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
-                           job_cmd=job_cmd,
+                           job_cmd=job_cmd, wait=wait,
                            turn_knobs = turn_knobs)
         
     def setup_kpoints_jobs(self, Grid_type = 'M',
@@ -440,7 +441,7 @@ class CalibrateBulk(Calibrate):
                  is_matrix = False, Grid_type = 'A',
                   setup_dir='.', parent_job_dir='.',
                   job_dir='./Bulk', qadapter=None,
-                  job_cmd='qsub',
+                  job_cmd='qsub', wait=True,
                   turn_knobs={'ENCUT':[],'KPOINTS':[]}): 
             
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
@@ -448,7 +449,7 @@ class CalibrateBulk(Calibrate):
                             setup_dir=setup_dir,
                              parent_job_dir=parent_job_dir,
                              job_dir=job_dir, qadapter=qadapter,
-                              job_cmd=job_cmd,
+                              job_cmd=job_cmd,wait=wait,
                              turn_knobs = OrderedDict(turn_knobs))
         
 
@@ -461,7 +462,7 @@ class CalibrateSlab(Calibrate):
     def __init__(self, incar, poscar, potcar, kpoints,
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.', job_dir='./Slab',
-                qadapter=None, job_cmd='qsub',
+                qadapter=None, job_cmd='qsub', wait=True,
                 turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
@@ -469,7 +470,7 @@ class CalibrateSlab(Calibrate):
                             setup_dir=setup_dir,
                              parent_job_dir=parent_job_dir,
                             job_dir=job_dir, qadapter=qadapter,
-                             job_cmd=job_cmd,
+                             job_cmd=job_cmd, wait=wait,
                             turn_knobs = turn_knobs)
 
     def _setup(self, turn_knobs=None):

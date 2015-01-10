@@ -1,7 +1,7 @@
 """
 This script demonstrates the usage of the module mpinterfaces/calibrate.py
 
-Creates a sample workflow for ENCUT convergence study
+Creates a sample workflow and runs it
 """
 
 import os
@@ -67,7 +67,7 @@ turn_knobs = OrderedDict(
     ])
 
 #set job command
-job_dir = '/home/km468/Software/test/Molecule'
+job_dir = '.'
 qadapter = None
 job_cmd = None
 

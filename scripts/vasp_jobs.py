@@ -67,6 +67,7 @@ turn_knobs = OrderedDict(
     ])
 
 #set job command
+job_dir = '/home/km468/Software/test/Molecule'
 qadapter = None
 job_cmd = None
 
@@ -88,16 +89,22 @@ if 'gator' in socket.gethostname():
      }
     }
     qadapter = CommonAdapter(d['type'], **d['params'])
+    cal = CalibrateMolecule(incar, poscar, potcar, kpoints, 
+                            turn_knobs=turn_knobs, 
+                            job_dir=job_dir,
+                            qadapter=qadapter)
+
 #on henniggroup machines    
 else:    
     job_cmd = ['nohup',
                '/opt/openmpi_intel/bin/mpirun',
                '-n', str(nprocs),
                '/home/km468/Software/VASP/vasp.5.3.5/vasp']
-        
-cal = CalibrateMolecule(incar, poscar, potcar, kpoints, 
-                        turn_knobs=turn_knobs, 
-                        job_dir='/home/km468/Software/test/Molecule',
-                        job_cmd=job_cmd, wait=False)
+    cal = CalibrateMolecule(incar, poscar, potcar, kpoints, 
+                            turn_knobs=turn_knobs, 
+                            job_dir=job_dir,
+                            job_cmd=job_cmd, wait=False)
+
+#setup and run        
 cal.setup()
 cal.run()

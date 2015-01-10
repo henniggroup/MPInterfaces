@@ -11,9 +11,12 @@ import subprocess as sp
 import socket
 from math import sqrt
 from collections import OrderedDict
+
+from pymatgen.matproj.rest import MPRester
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.core.structure import Structure
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
+
 from mpinterfaces.calibrate import CalibrateMolecule
 
 MAPI_KEY="dwvz2XCFUEI9fJiR"

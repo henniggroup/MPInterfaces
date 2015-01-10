@@ -161,7 +161,7 @@ class MPINTVaspJob(Job):
         else:
             cmd = list(self.job_cmd)
             with open(self.output_file, 'w') as f:
-                p = subprocess.Popen(cmd, stdout=f)
+                p = subprocess.Popen(cmd, stdout=f, stderr=f)
         os.chdir(self.parent_job_dir)
         return p
 

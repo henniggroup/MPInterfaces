@@ -89,8 +89,9 @@ class Measurement(object):
             cal.incar['NSW'] = 0
             cal.add_job(job_dir=job_dir)
         else:
-            print 'previous calc not done'
-            sys.exit()
+            print 'previous calc in :', cal.job_dir
+            print 'not done or is running'
+            print 'not setting up this job'            
 
     def setup_solvation_job(self, cal):
         """
@@ -110,8 +111,10 @@ class Measurement(object):
             shutil.copy(wavecar_file, job_dir+os.sep+'WAVECAR')
             cal.add_job(job_dir=job_dir)
         else:
-            print 'previous calc not done'
-            sys.exit()
+            print 'previous calc in :', cal.job_dir
+            print 'not done or is running'
+            print 'not setting up this job'            
+            
         
     def make_measurements(self):
         """

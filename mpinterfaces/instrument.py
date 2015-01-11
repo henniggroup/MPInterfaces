@@ -102,7 +102,7 @@ class MPINTVaspJob(Job):
     """
     def __init__(self, job_cmd, output_file="job.out", setup_dir='.',
                  parent_job_dir='.', job_dir='untitled', suffix="",
-                 final=True, gzipped=False, backup=True,
+                 final=True, gzipped=False, backup=False,
                  vis=None, auto_npar=True,
                  auto_gamma=True, settings_override=None,
                  gamma_vasp_cmd=None, copy_magmom=False, wait=True):

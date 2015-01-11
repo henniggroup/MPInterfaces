@@ -20,6 +20,7 @@ from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar
 from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
+from pymatgen.io.vaspio.vasp_output import Outcar
 #from custodian.vasp.handlers import VaspErrorHandler
 #from custodian.vasp.handlers import FrozenJobErrorHandler
 #from custodian.vasp.handlers import MeshSymmetryErrorHandler
@@ -40,7 +41,7 @@ class Calibrate(object):
     """
     def __init__(self, incar, poscar, potcar, kpoints,
                  is_matrix = False, Grid_type = 'A',
-                 setup_dir='.', parent_job_dir='.',job_dir='./Job',
+                 setup_dir='.', parent_job_dir='.',job_dir='Job',
                  qadapter=None, job_cmd='qsub', wait=True,
                  turn_knobs=OrderedDict( [ ('ENCUT',[]),
                                            ('KPOINTS',[])] ) ):
@@ -401,6 +402,33 @@ class Calibrate(object):
                 return [float(val) for val in matching_list]
         else:
             return []
+        
+    @staticmethod
+    def check_calcs(cal_objs):
+        """
+        checks the OUTCAR file to see whether the calulation is done or not
+        also checks(rather naively) for whether the calculation is running or not
+        sets the calc_done and isrunning variables in the calibrate objects
+        """
+        for cal in cal_objs:        
+            cal.calc_done = False
+            cal.isrunning = True
+            outcar_file = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'OUTCAR'
+            if os.path.isfile(outcar_file):
+                mtime = os.stat(outcar_file)[8]
+                last_mod_time =  datetime.datetime.fromtimestamp(mtime)
+                current_time = datetime.datetime.now()
+                print 'time delta', current_time - last_mod_time
+                #check whether the OUTCAR file had been modified in the last hour
+                #if it had not been modified in the past hour, the calculation is assumed dead
+                if current_time - last_mod_time > datetime.timedelta(seconds=3600):
+                    cal.isrunning = False
+                outcar = Outcar(outcar_file)
+                for k in outcar.run_stats.keys():
+                    if 'time' in k:
+                        cal.calc_done = True
+                        break
+    
                     
         
 class CalibrateMolecule(Calibrate):

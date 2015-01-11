@@ -4,11 +4,14 @@ combines instrument, calibrate and interfaces to perform the calibration
 and run the actual jobs
 
 """
-
+import shutil
+import os
 import numpy as np
+
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
+
 from mpinterfaces.calibrate import Calibrate, CalibrateMolecule,\
       CalibrateSlab, CalibrateBulk
 from mpinterfaces.interface import Interface
@@ -36,7 +39,9 @@ class Measurement(object):
         self.handlers = []
         self.calmol = []
         self.calslab = []
-        self.calbulk = []                
+        self.calbulk = []
+        self.cal_objs = cal_objs
+        self.job_dir = job_dir
         for obj in cal_objs:
             if isinstance(obj, CalibrateMolecule):
                 self.calmol.append(obj)
@@ -64,16 +69,49 @@ class Measurement(object):
         pass
 
     def run(self, job_cmd=None):
-        #override the job_cmd if provided
-        if job_cmd :
-            for j in self.jobs:
-                j.job_cmd = job_cmd
-                
-        c_params = {'jobs': [j.as_dict() for j in self.jobs],
-                    'handlers': [h.as_dict() for h in self.handlers],
-                    'max_errors': 5}
-        c = Custodian(self.handlers, self.jobs, max_errors=5)
-        c.run()
+        """ run jobs """
+        for cal in self.cal_objs:
+            if not cal.calc_done and not cal.isrunning:
+                cal.setup()
+            cal.run()
+
+    def setup_static_job(self, cal):
+        """
+        setup static jobs for the calibrate objects
+        copies CONTCAR to POSCAR
+        and
+        set NSW = 0
+        """
+        if cal.calc_done or not cal.isrunning:
+            job_dir = self.job_dir+os.sep+'STATIC'
+            contcar_file = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'CONTCAR'            
+            cal.poscar = Poscar.from_file(contcar_file)
+            cal.incar['NSW'] = 0
+            cal.add_job(job_dir=job_dir)
+        else:
+            print 'previous calc not done'
+            sys.exit()
+
+    def setup_solvation_job(self, cal):
+        """
+        setup solvation jobs for the calibrate objects
+        copies WAVECAR
+        and
+        sets the solvation params in the incar file
+        """
+        if cal.calc_done or not cal.isrunning:       
+            job_dir = self.job_dir+os.sep+'SOL'       
+            cal.incar['LSOL'] = '.TRUE.'
+            cal.incar['EB_K'] = 80
+            if not os.path.exists(job_dir):            
+                os.makedirs(job_dir)
+            wavecar_file = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'WAVECAR'
+            print 'ww',wavecar_file
+            shutil.copy(wavecar_file, job_dir+os.sep+'WAVECAR')
+            cal.add_job(job_dir=job_dir)
+        else:
+            print 'previous calc not done'
+            sys.exit()
         
     def make_measurements(self):
         """
@@ -116,5 +154,17 @@ if __name__=='__main__':
                     sym_potcar_map=None)
     kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16), shift=(0, 0, 0))
 
-#    measure = Measurement([calmol, calslab], job_dir='./Measurement')
+    cal = CalibrateBulk(incar, poscar, potcar, kpoints,
+                        job_dir='test', job_cmd=['ls','-lt'])
+    #list of calibrate objects
+    cal_objs = [cal]
+    #check whether the cal jobs were done 
+    Calibrate.check_calcs(cal_objs)
+    #set the measurement
+    measure = Measurement(cal_objs, job_dir='./Measurements')
+    #set the measurement jobs
+    for cal in cal_objs:                    
+        measure.setup_static_job(cal)
+        measure.setup_solvation_job(cal)
+    measure.run()
 

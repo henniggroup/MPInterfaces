@@ -18,7 +18,7 @@ from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.core.structure import Structure
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
-from mpinterfaces.calibrate import CalibrateMolecule
+from mpinterfaces.calibrate import CalibrateSlab
 from mpinterfaces.interface import Interface
 
 MAPI_KEY="dwvz2XCFUEI9fJiR"
@@ -67,7 +67,7 @@ turn_knobs = OrderedDict(
     ])
 
 #set job command
-job_dir = '.'
+job_dir = './test'
 qadapter = None
 job_cmd = None
 

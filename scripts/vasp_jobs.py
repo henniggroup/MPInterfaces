@@ -19,7 +19,7 @@ from pymatgen.core.structure import Structure
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from mpinterfaces.calibrate import Calibrate, CalibrateSlab
-from mpinterfaces.measurement import Measurements
+from mpinterfaces.measurement import Measurement
 from mpinterfaces.interface import Interface
 
 MAPI_KEY="dwvz2XCFUEI9fJiR"
@@ -68,7 +68,7 @@ turn_knobs = OrderedDict(
     ])
 
 #set job command
-job_dir = './test'
+job_dir = 'test'
 qadapter = None
 job_cmd = None
 

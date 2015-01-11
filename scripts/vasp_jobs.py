@@ -18,7 +18,8 @@ from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.core.structure import Structure
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
-from mpinterfaces.calibrate import CalibrateSlab
+from mpinterfaces.calibrate import Calibrate, CalibrateSlab
+from mpinterfaces.measurement import Measurements
 from mpinterfaces.interface import Interface
 
 MAPI_KEY="dwvz2XCFUEI9fJiR"
@@ -57,7 +58,7 @@ incar_dict = {
 incar = Incar.from_dict(incar_dict)
 poscar = Poscar(iface)#, selective_dynamics = np.ones(iface.frac_coords.shape))
 potcar = Potcar(poscar.site_symbols)
-kpoints = Kpoints.automatic(80)
+kpoints = Kpoints.automatic(20)#(80)
 
 #set job list
 encut_list = [] #range(400,800,100)
@@ -115,7 +116,7 @@ elif 'stampede' in socket.gethostname():
     cal.qadapter = qadapter
 
 #on henniggroup machines    
-else:    
+elif socket.gethostname() in ['hydrogen', 'helium', 'lithium', 'beryllium', 'carbon']:    
     job_cmd = ['nohup',
                '/opt/openmpi_intel/bin/mpirun',
                '-n', str(nprocs),
@@ -123,6 +124,26 @@ else:
     cal.job_cmd = job_cmd
     cal.wait = False
 
+else:
+    job_cmd = ['ls', '-lt']
+    cal.job_cmd = job_cmd
+    cal.wait = False
+
 #setup and run        
-cal.setup()
-cal.run()
+#cal.setup()
+#cal.run()
+
+#list of calibrate objects
+cal_objs = [cal]
+#check whether the cal jobs were done 
+Calibrate.check_calcs(cal_objs)
+#set the measurement
+measure = Measurement(cal_objs, job_dir='./Measurements')
+#set the measurement jobs
+for cal in cal_objs:                    
+    measure.setup_static_job(cal)
+    measure.setup_solvation_job(cal)
+
+#run
+measure.run()
+

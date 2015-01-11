@@ -77,7 +77,7 @@ class Measurement(object):
                 cal.setup()
                 cal.run()
             else:
-                print 'calc still running'
+                print 'calibration calc still running'
                 print 'try again later'
 
     def setup_static_job(self, cal):
@@ -95,9 +95,8 @@ class Measurement(object):
             cal.add_job(job_dir=job_dir)
         else:
             cal.jobs = []
-            print 'previous calc in :', cal.job_dir
-            print 'not done or is running'
-            print 'not setting up this job'            
+            print 'previous calc in the dir, ', cal.job_dir, 'not done yet or is still running'
+            print 'Not setting up the measurement job\n'            
 
     def setup_solvation_job(self, cal):
         """
@@ -113,15 +112,12 @@ class Measurement(object):
             if not os.path.exists(job_dir):            
                 os.makedirs(job_dir)
             wavecar_file = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'WAVECAR'
-            print 'ww',wavecar_file
             shutil.copy(wavecar_file, job_dir+os.sep+'WAVECAR')
             cal.add_job(job_dir=job_dir)
         else:
             cal.jobs = []
-            print 'previous calc in :', cal.job_dir
-            print 'not done or is running'
-            print 'not setting up this job'            
-            
+            print 'previous calc in the dir, ', cal.job_dir, 'not done yet or is still running'
+            print 'Not setting up the measurement job\n' 
         
     def make_measurements(self):
         """

@@ -412,7 +412,7 @@ class Calibrate(object):
         """
         for cal in cal_objs:        
             cal.calc_done = False
-            cal.isrunning = True
+            cal.isrunning = False
             outcar_file = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'OUTCAR'
             if os.path.isfile(outcar_file):
                 mtime = os.stat(outcar_file)[8]
@@ -421,8 +421,8 @@ class Calibrate(object):
                 print 'time delta', current_time - last_mod_time
                 #check whether the OUTCAR file had been modified in the last hour
                 #if it had not been modified in the past hour, the calculation is assumed dead
-                if current_time - last_mod_time > datetime.timedelta(seconds=3600):
-                    cal.isrunning = False
+                if current_time - last_mod_time < datetime.timedelta(seconds=3600):
+                    cal.isrunning = True
                 outcar = Outcar(outcar_file)
                 for k in outcar.run_stats.keys():
                     if 'time' in k:

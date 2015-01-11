@@ -502,31 +502,6 @@ class CalibrateSlab(Calibrate):
         """ convergence wrt slab thickness"""
         pass
 
-#MODIFY, make it consistent with the calibrate class implementation
-    def setup_kpoints_jobs(self, Grid_type = 'M',
-                            kpoints_list = None):
-        if Grid_type == 'M':
-            #local list convergence_list , convert from tuple
-            #because constructor takes tuple as argument
-            if kpoints_list:
-                conv_list = kpoints_list 
-                start = conv_list[0]
-                end = conv_list[1]
-                if (conv_step):
-                    for x in range(1+start[0], end[0], conv_step):
-                        conv_list.append([x, x, 1])
-                    for kpoint in conv_list:
-                        self.kpoints = \
-                          Kpoints.monkhorst_automatic(kpts = kpoint)
-                        name = str(kpoint[0]) + 'x' + \
-                          str(kpoint[1]) + 'x' + str(kpoint[2])
-                        print 'KPOINTS = ', name
-                        job_dir = self.job_dir + os.sep + \
-                          key_to_name('KPOINTS') + os.sep + name
-                        self.add_job(name=name, job_dir=job_dir)
-            else:
-                print 'kpoints_list not provided'
-
 
 #test
 if __name__ == '__main__':

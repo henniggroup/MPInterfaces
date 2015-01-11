@@ -55,12 +55,12 @@ incar_dict = {
     }
 
 incar = Incar.from_dict(incar_dict)
-poscar = Poscar(iface, selective_dynamics = np.ones(iface.frac_coords.shape))
+poscar = Poscar(iface)#, selective_dynamics = np.ones(iface.frac_coords.shape))
 potcar = Potcar(poscar.site_symbols)
-kpoints = Kpoints()
+kpoints = Kpoints.automatic(80)
 
 #set job list
-encut_list = [400,500] #range(400,800,100)
+encut_list = [] #range(400,800,100)
 turn_knobs = OrderedDict(
     [
         ('ENCUT', encut_list)
@@ -74,6 +74,10 @@ job_cmd = None
 nprocs = 16
 incar['NPAR'] = int(sqrt(nprocs))
 
+cal = CalibrateSlab(incar, poscar, potcar, kpoints, 
+                    turn_knobs=turn_knobs, 
+                    job_dir=job_dir )
+
 #on hipergator
 if 'gator' in socket.gethostname():
     nnodes = 1
@@ -85,14 +89,30 @@ if 'gator' in socket.gethostname():
          'ppnode': str(int(nprocs/nnodes)),
          'walltime': walltime,
          'job_name': 'vasp_job',
-         'rocket_launch': 'mpirun ~/Software/vasp.5.3.5/vasp'
+         'rocket_launch': 'mpirun /home/km468/Software/vasp.5.3.5/vasp'
      }
     }
     qadapter = CommonAdapter(d['type'], **d['params'])
-    cal = CalibrateMolecule(incar, poscar, potcar, kpoints, 
-                            turn_knobs=turn_knobs, 
-                            job_dir=job_dir,
-                            qadapter=qadapter)
+    cal.qadapter = qadapter
+
+#on stampede
+elif 'stampede' in socket.gethostname():
+    nnodes = 1
+    walltime = '24:00:00'
+    d = {'type':'SLURM',
+     'params':
+     {
+         'nodes': str(nnodes),
+         'ntasks': str(nprocs),
+         'walltime': walltime,
+         'queue':'normal',
+         'account':'TG-DMR050028N',
+         'job_name': 'vasp_job',
+         'rocket_launch': 'ibrun /home1/01682/km468/Software/VASP/vasp.5.3.5/vasp'
+     }
+    }
+    qadapter = CommonAdapter(d['type'], **d['params'])
+    cal.qadapter = qadapter
 
 #on henniggroup machines    
 else:    
@@ -100,10 +120,8 @@ else:
                '/opt/openmpi_intel/bin/mpirun',
                '-n', str(nprocs),
                '/home/km468/Software/VASP/vasp.5.3.5/vasp']
-    cal = CalibrateMolecule(incar, poscar, potcar, kpoints, 
-                            turn_knobs=turn_knobs, 
-                            job_dir=job_dir,
-                            job_cmd=job_cmd, wait=False)
+    cal.job_cmd = job_cmd
+    cal.wait = False
 
 #setup and run        
 cal.setup()

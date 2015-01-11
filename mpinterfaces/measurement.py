@@ -71,9 +71,14 @@ class Measurement(object):
     def run(self, job_cmd=None):
         """ run jobs """
         for cal in self.cal_objs:
-            if not cal.calc_done and not cal.isrunning:
+            if cal.calc_done:
+                cal.run()
+            elif not cal.isrunning:
                 cal.setup()
-            cal.run()
+                cal.run()
+            else:
+                print 'calc still running'
+                print 'try again later'
 
     def setup_static_job(self, cal):
         """
@@ -82,13 +87,14 @@ class Measurement(object):
         and
         set NSW = 0
         """
-        if cal.calc_done or not cal.isrunning:
+        if cal.calc_done:
             job_dir = self.job_dir+os.sep+'STATIC'
             contcar_file = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'CONTCAR'            
             cal.poscar = Poscar.from_file(contcar_file)
             cal.incar['NSW'] = 0
             cal.add_job(job_dir=job_dir)
         else:
+            cal.jobs = []
             print 'previous calc in :', cal.job_dir
             print 'not done or is running'
             print 'not setting up this job'            
@@ -100,7 +106,7 @@ class Measurement(object):
         and
         sets the solvation params in the incar file
         """
-        if cal.calc_done or not cal.isrunning:       
+        if cal.calc_done:       
             job_dir = self.job_dir+os.sep+'SOL'       
             cal.incar['LSOL'] = '.TRUE.'
             cal.incar['EB_K'] = 80
@@ -111,6 +117,7 @@ class Measurement(object):
             shutil.copy(wavecar_file, job_dir+os.sep+'WAVECAR')
             cal.add_job(job_dir=job_dir)
         else:
+            cal.jobs = []
             print 'previous calc in :', cal.job_dir
             print 'not done or is running'
             print 'not setting up this job'            

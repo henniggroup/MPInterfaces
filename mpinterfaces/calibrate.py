@@ -166,7 +166,7 @@ class Calibrate(object):
         if type(val) == float:
             return re.sub('\.','_',str(val))
         elif type(val) == list:
-            return self.kpoint_to_name(val, grid_type= self.Grid_type)
+            return self.kpoint_to_name(val, self.Grid_type)
         elif type(val) == dict:
             return self.potcar_to_name(val)
         else:

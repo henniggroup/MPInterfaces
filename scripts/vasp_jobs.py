@@ -141,7 +141,7 @@ if d:
 #---------------------------------------------        
 cal = CalibrateSlab(incar, poscar, potcar, kpoints, 
                     turn_knobs=turn_knobs, qadapter=qadapter,
-                    job_cmd = hob_cmd, job_dir=job_dir, wait=wait )
+                    job_cmd = job_cmd, job_dir=job_dir, wait=wait )
 #list of calibrate objects
 cal_objs = [cal]
 #check whether the cal jobs were done 

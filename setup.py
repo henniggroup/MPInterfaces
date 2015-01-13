@@ -10,6 +10,12 @@ def read(fname):
 setup(
     name = "mpinterfaces",
     version = "0.1",
+    install_requires=["numpy>=1.8", "scipy>=0.10", "pymatgen", "custodian",
+                      "fireworks", "pymatgen-db"],
+    extras_require={"plotting": ["matplotlib>=1.1"],
+                    "ase": ["ase>=3.3"],
+                    "babel": ["openbabel", "pybel"],
+                   },    
     author = "Kiran Mathew, Joshua Gabriel",
     author_email = "km468@cornell.edu",
     description = ("Automate vasp calculations for interfaces"),

@@ -57,26 +57,20 @@ def get_struct_from_mp(formula):
 
                                                                                        
 if __name__=='__main__':
-    # Cu 111 surface with H2O as ligands
+    # PbS 100 surface with single hydrazine as ligand
+    strt= Structure.from_file("POSCAR_PbS")  #provide POSCAR of building block POSCAR_bulk and POSCAR_molecule here
+    mol_struct= Structure.from_file("POSCAR_Hydrazine")
+    mol= Molecule(mol_struct.species, mol_struct.cart_coords)
+    hydrazine= Ligand([mol])
 
-    #h2o ligand
-    mol = Molecule(['O','H', 'H'], [ [0,0,0], [0, 0.77, 0.60], [0, -0.77, 0.60]])
-    h2o = Ligand([mol])
-    
-    #Cu bulk structure from materialsproject
-    formula = 'Cu' #"Li2O"#"Fe2O3"#"SiO2"#
-
-    #initial structure, must be either a bulk structure or a slab
-    strt = get_struct_from_mp(formula)
-    
     #intital supercell, this wont be the final supercell if surface coverage is specified
     supercell = [1,1,1]
 
     #miller index
-    hkl = [1,1,1]
+    hkl = [1,0,0]
     
     #minimum slab thickness in Angstroms
-    min_thick = 9
+    min_thick = 19
     
     #minimum vacuum thickness in Angstroms
     #mind: the ligand will be placed in this vacuum, so the
@@ -92,27 +86,45 @@ if __name__=='__main__':
     
     #atom on the slab surface on which the ligand will be attached,
     #no need to specify if the slab is made of only a single species
-    #adsorb_on_species = 'Cu'
+    adsorb_on_species = 'Pb'
     
     #atom on ligand that will be attached to the slab surface
-    adatom_on_lig='O'
+    adatom_on_lig='N'
     
     #ligand displacement from the slab surface along the surface normal
     #i.e adatom_on_lig will be displced by this amount from the adsorb_on_species atom
     #on the slab
     #in Angstrom
-    displacement = 2.0
+    displacement = 3.0
 
     #
     #here we create the interface
     #
-    iface = Interface(strt, hkl=[1,1,1], min_thick=min_thick, min_vac=min_vac,
+    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=min_vac,
                       supercell=supercell, surface_coverage=0.01,
-                      ligand=h2o, displacement=displacement, adatom_on_lig='O')
-#    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=20,
-#                      supercell=supercell, surface_coverage=0.01,
-#                      ligand=lead_acetate, displacement=displacement, adatom_on_lig='Pb')
+                      ligand=hydrazine, displacement=displacement, adatom_on_lig='N',
+                      adsorb_on_species= 'Pb', primitive= False)
     iface.create_interface()
     iface.sort()
+    #extract bare slab
+    iface_slab = iface.slab
+    iface_slab.sort()
+    #set selective dynamics flags as required
+    true_site= [1, 1, 1]
+    false_site= [0, 0, 0]
+    sd_flag_iface= []
+    sd_flag_slab= []
+    #selective dynamics flags for the interface
+    for i in iface.sites:
+    	sd_flag_iface.append(false_site)
+    #selective dynamics flags for the bare slab        
+    for i in iface_slab.sites:
+        sd_flag_slab.append(false_site)
+    interface_poscar = Poscar(iface, selective_dynamics= sd_flag_iface)
+    slab_poscar = Poscar(iface_slab, selective_dynamics= sd_flag_slab)
+    #poscars without selective dynamics flag
     iface.to('poscar', 'POSCAR_interface.vasp')
-    
+    iface_slab.to('poscar', 'POSCAR_slab.vasp')
+    #poscars with selective dynamics flag    
+    interface_poscar.write_file("POSCAR_interface_with_sd.vasp")
+    slab_poscar.write_file("POSCAR_slab_with_sd.vasp") 

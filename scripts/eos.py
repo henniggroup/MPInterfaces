@@ -4,6 +4,7 @@ volume and the bulk modulus
 
 uses the ase package to do the fitting
 """
+
 import numpy as np
 import matplotlib.pyplot as plot
 
@@ -20,9 +21,10 @@ def get_e_v(path):
     """
     volumes = []
     energies = []
-    drone = MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True)
+    drone = MPINTVaspDrone(inc_structure=True)
     bg = BorgQueen(drone)
-    bg.parallel_assimilate(path)        
+    #bg.parallel_assimilate(path)
+    bg.serial_assimilate(path)            
     allentries =  bg.get_data()
     for e in allentries:
         if e:
@@ -41,11 +43,12 @@ def custom_plot(volumes, energies, eos):
     plot.legend(loc='best')
     plot.savefig('eos.png')
     #show()
+
     
 if __name__=='__main__':
     #load from file
-    #volumes = np.loadtxt('E-V')[:,0]
-    #energies = np.loadtxt('E-V')[:,1]
+    #volumes = np.loadtxt('filename')[:,0]
+    #energies = np.loadtxt('filename')[:,1]
     #volumes = np.array([13.72, 14.83, 16.0, 17.23, 18.52])
     #energies = np.array([-56.29, -56.41, -56.46, -56.46, -56.42])
     volumes, energies = get_e_v('VOLUME')
@@ -55,6 +58,6 @@ if __name__=='__main__':
     #the ASE units for the bulk modulus is eV/Angstrom^3 
     print 'optimum volume, energy and bulk moduls', v0, e0, B
     #plot
-    eos.plot(filename= "eos_fit_plot")
+    eos.plot(filename= "eos_fit")
     #custom_plot(volumes, energies, eos)
 

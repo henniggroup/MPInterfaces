@@ -10,18 +10,27 @@ import matplotlib.pyplot as plot
 from ase.utils.eos import EquationOfState
 from ase.utils.eosase2 import *
 
-if __name__=='__main__':
-    #volumes = np.loadtxt('E-V')[:,0]
-    #energies = np.loadtxt('E-V')[:,1]
-    volumes = np.array([13.72, 14.83, 16.0, 17.23, 18.52])
-    energies = np.array([-56.29, -56.41, -56.46, -56.46, -56.42])
-    #eos = 'sjeos', 'murnaghan', 'birch', 'taylor', 'vinet' etc.
-    eos = EquationOfState(volumes, energies, eos='murnaghan')
-    v0, e0, B = eos.fit()
-    #the ASE units for the bulk modulus is eV/Angstrom^3 
-    print 'optimum volume, energy and bulk moduls', v0, e0, B
-    #plot
-    #eos.plot()    
+from pymatgen.apps.borg.queen import BorgQueen
+from mpinterfaces import MPINTVaspDrone
+
+def get_e_v(path):
+    """
+    uses pymatgen drone and borgqueen classes to get energy and volume data
+    from the given directory path.
+    """
+    volumes = []
+    energies = []
+    drone = MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True)
+    bg = BorgQueen(drone)
+    bg.parallel_assimilate(path)        
+    allentries =  bg.get_data()
+    for e in allentries:
+        if e:
+            energies.append(e.energy)
+            volumes.append(e.structure.lattice.volume)
+    return (volumes, energies)
+
+def custom_plot(volumes, energies, eos):
     plot.plot(volumes,energies,'ro')
     x = np.linspace(min(eos.v), max(eos.v), 100)
     y = eval(eos.eos_string)(x, eos.eos_parameters[0], eos.eos_parameters[1],
@@ -32,4 +41,20 @@ if __name__=='__main__':
     plot.legend(loc='best')
     plot.savefig('eos.png')
     #show()
+    
+if __name__=='__main__':
+    #load from file
+    #volumes = np.loadtxt('E-V')[:,0]
+    #energies = np.loadtxt('E-V')[:,1]
+    #volumes = np.array([13.72, 14.83, 16.0, 17.23, 18.52])
+    #energies = np.array([-56.29, -56.41, -56.46, -56.46, -56.42])
+    volumes, energies = get_e_v('VOLUME')
+    #eos = 'sjeos', 'murnaghan', 'birch', 'taylor', 'vinet' etc.
+    eos = EquationOfState(volumes, energies, eos='murnaghan')
+    v0, e0, B = eos.fit()
+    #the ASE units for the bulk modulus is eV/Angstrom^3 
+    print 'optimum volume, energy and bulk moduls', v0, e0, B
+    #plot
+    eos.plot(filename= "eos_fit_plot")
+    #custom_plot(volumes, energies, eos)
 

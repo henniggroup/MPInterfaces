@@ -1,3 +1,9 @@
+"""
+Compute the reduced matching lattice vectors for heterostructure interfaces
+as described in the paper by Zur and McGill:
+Journal of Applied Physics 55, 378 (1984); doi: 10.1063/1.333084
+"""
+
 import numpy as np
 from mpinterfaces.interface import Interface
 from pymatgen.core.structure import Structure
@@ -19,6 +25,13 @@ def get_struct_from_mp(formula):
             return structure
 
 def get_r_list(area1, area2, max_area, tol=0.01):
+    """
+    returns a list of r1 and r2 values that satisfies:
+    r1/r2 = area2/area1 with the constraints:
+    r1 <= Area_max/area1 and r2 <= Area_max/area2
+    r1 and r2 corresponds to the supercell sizes of the 2 interfaces
+    that align them     
+    """
     r_list = []
     rmax1 = int(max_area/area1)
     rmax2 = int(max_area/area2)
@@ -30,6 +43,10 @@ def get_r_list(area1, area2, max_area, tol=0.01):
     return r_list
 
 def get_im(n):
+    """
+    returns list of i and m such that i*m = n
+    where n is the supercell size
+    """
     m_list = []
     i_list = []
     for i in range(1, n+1):
@@ -40,6 +57,10 @@ def get_im(n):
     return (i_list, m_list)
 
 def get_trans_matrices(n):
+    """
+    returns a list of 2x2 transformation matrices for the given supercell
+    size n
+    """
     i_list, m_list = get_im(n)
     trans_matrices = []
     for k in range(len(i_list)):
@@ -50,11 +71,18 @@ def get_trans_matrices(n):
     
 
 def get_uv(ab, t_mat):
+    """
+    return u and v, the supercell lattice vectors obtained through the 
+    transformation matrix
+    """
     u = np.array(ab[0])*t_mat[0][0] + np.array(ab[1])*t_mat[0][1] 
     v = np.array(ab[1])*t_mat[1][1] 
     return [u, v]
 
 def get_reduced_uv(uv):
+    """
+    reduced lattice vectors
+    """
     is_not_reduced =  True
     u = np.array(uv[0])
     v = np.array(uv[1])
@@ -81,16 +109,26 @@ def get_reduced_uv(uv):
     return [u, v]
 
 def get_mismatch(a, b):
+    """
+    mistmatch between the lattice vectors a and b in percentage
+    """
     a = np.array(a)
     b = np.array(b)
     return np.linalg.norm(b)/np.linalg.norm(a) - 1
 
 def get_angle(a, b):
+    """
+    angle between lattice vectors a and b in degrees
+    """
     a = np.array(a)
     b = np.array(b)
     return np.arccos(np.dot(a,b)/np.linalg.norm(a)/np.linalg.norm(b)) * 180 / np.pi
 
 def get_matching_lattices(iface1, iface2, max_area=50, max_mismatch=1, max_angle_diff = 1):
+    """
+    computes a list of matching reduced lattice vectors that satify the max_area
+    max_mismatch and max_anglele_diff criteria
+    """
     area1 = iface1.surface_area
     ab1 = [ iface1.lattice.matrix[0,:] , iface1.lattice.matrix[1,:] ] 
     area2 = iface2.surface_area
@@ -134,7 +172,6 @@ if __name__ == '__main__':
     iface2 = Interface(strt2, hkl=[1,1,1], min_thick=10, min_vac=5)
 
     get_matching_lattices(iface1, iface2, max_area=100, max_mismatch=0.1, max_angle_diff=1)
-
 
 #    print get_r_list(21, 15.98, 200, tol=0.01)
 #    print get_trans_matrices(4)

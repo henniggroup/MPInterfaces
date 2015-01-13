@@ -1,6 +1,6 @@
 from pymatgen.matproj.rest import MPRester
 
-def get_struct_from_mp(formula):
+def get_struct_from_mp(formula, MAPI_KEY="dwvz2XCFUEI9fJiR"):
     """
     fetches the structure corresponding to the given formula
     from the materialsproject database
@@ -9,7 +9,7 @@ def get_struct_from_mp(formula):
     Note: for the given formula there are many structures available, this
     function returns the first one of those structures
     """
-    with MPRester("dwvz2XCFUEI9fJiR") as m:
+    with MPRester(MAPI_KEY) as m:
         data = m.get_data(formula)
         print "\nnumber of structures matching the chemical formula "+formula+" = ", len(data)
         for d in data:

@@ -24,12 +24,19 @@ class Interface(Slab):
                  solvent=None, start_from_slab=False, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False, primitive = True):
         #if starting from the bulk structure, create slab
-        if isinstance(strt, Structure):
-            strt = SlabGenerator(strt, hkl, min_thick, min_vac + ligand.max_dist,
+        #note: if the starting structure is a slab, the vaccum extension
+        #is not possible
+        vac_extension = 0
+        if ligand is not None:
+            vac_extension = ligand.max_dist
+
+        if isinstance(strt, Structure) and not isinstance(strt, Slab):
+            self.min_vac = min_vac + vac_extension
+            strt = SlabGenerator(strt, hkl, min_thick, min_vac + vac_extension,
                                  center_slab=True, primitive = primitive).get_slab()
+            strt.make_supercell(supercell)
         else:
-            print 'strt must be an object of either Structure or Slab'
-            sys.exit()
+            self.min_vac = min_vac
         Slab.__init__(self, strt.lattice, strt.species_and_occu,
                            strt.frac_coords, miller_index=strt.miller_index,
                            oriented_unit_cell=strt.oriented_unit_cell,
@@ -42,7 +49,6 @@ class Interface(Slab):
         self.name = name
         self.hkl = hkl
         self.min_thick = min_thick
-        self.min_vac = min_vac + ligand.max_dist
         self.supercell = supercell
         self.ligand = ligand
         self.slab = strt

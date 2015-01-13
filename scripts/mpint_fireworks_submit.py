@@ -95,6 +95,12 @@ calparams1['que'] = {
                      'rocket_launch': 'mpirun ~/Software/vasp.5.3.5/vasp'
                      }
                      }
+#if running on henniggroup machines set the job_cmd
+#job_cmd = ['nohup',
+#           '/opt/openmpi_intel/bin/mpirun',
+#           '-n','16',
+#           '/home/km468/Software/VASP/vasp.5.3.5/vasp']
+
 #range specification for encut and kpoints
 encut_list = [str(encut) for encut in range(400, 900, 100)]
 kpoints_list = [str([7,7,7]) , str([11,11,11])]

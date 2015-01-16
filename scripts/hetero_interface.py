@@ -34,7 +34,7 @@ def get_r_list(area1, area2, max_area, tol=0.02):
 
 def get_trans_matrices(n):
     """
-    returns a list of 2x2 transformation matrices for the given supercell
+    yields a list of 2x2 transformation matrices for the given supercell
     size n
     """
     def factors(n0):
@@ -50,14 +50,14 @@ def get_uv(ab, t_mat):
     return u and v, the supercell lattice vectors obtained through the 
     transformation matrix
     """
-    print 't_mat', t_mat
+    print '\ntransformation matrix : ', t_mat
     u = np.array(ab[0])*t_mat[0][0] + np.array(ab[1])*t_mat[0][1] 
     v = np.array(ab[1])*t_mat[1][1] 
     return [u, v]
 
 def get_reduced_uv(uv):
     """
-    reduced lattice vectors
+    returns reduced lattice vectors
     """
     is_not_reduced =  True
     u = np.array(uv[0])
@@ -114,7 +114,7 @@ def get_matching_lattices(iface1, iface2, max_area=200, max_mismatch=0.01, max_a
     #ab1 = [ iface1.lattice.matrix[0,:] , iface1.lattice.matrix[1,:] ] 
     #ab2 = [ iface2.lattice.matrix[0,:] , iface2.lattice.matrix[1,:] ]
 
-    #test
+    #test : the numbers from the paper
     a1 = 5.653
     a2 = 6.481
     #for 100 plane
@@ -122,11 +122,19 @@ def get_matching_lattices(iface1, iface2, max_area=200, max_mismatch=0.01, max_a
     ab2 = [ [0, a2/2, -a2/2], [0, a2/2,a2/2]]
     area1 = a1**2 / 2
     area2 = a2**2 / 2
+    
+    #for 110 plane
+    ab1 = [ [a1/2,-a1/2,0], [0, 0,a1]]
+    ab2 = [ [a2/2,-a2/2,0], [0, 0,a2]]    
+    area1 = a1**2 / sqrt(2)
+    area2 = a2**2 / sqrt(2)
+    
     #for 111 surface
-    ab1 = [ [a1/2, 0, a1/2], [a1/2, a1/2, 0]]
-    ab2 = [ [a2/2, 0, a2/2], [a2/2, a2/2, 0]]    
-    area1 = a1**2 / 2 /sqrt(2)
-    area2 = a2**2 / 2 / sqrt(2)
+    #ab1 = [ [a1/2, 0, a1/2], [a1/2, a1/2, 0]]
+    #ab2 = [ [a2/2, 0, a2/2], [a2/2, a2/2, 0]]    
+    #area1 = a1**2 * sqrt(3)/4 #/ 2 /sqrt(2)
+    #area2 = a2**2 * sqrt(3)/4 #/ 2 / sqrt(2)
+    
     print 'area1, area2', area1, area2
     r_list = get_r_list(area1, area2, max_area)
     for r1r2 in r_list:

@@ -105,7 +105,7 @@ if 'gator' in socket.gethostname():
          'ppnode': str(int(nprocs/nnodes)),
          'walltime': walltime,
          'job_name': 'vasp_job',
-         'rocket_launch': 'mpirun /home/km468/Software/vasp.5.3.5/vasp'
+         'rocket_launch': 'mpirun /home/km468/Software/VASP/vasp.5.3.5/vasp'
      }
     }
 #stampede

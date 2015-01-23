@@ -1,5 +1,5 @@
 """
-Wulff construction to create the anoparticel
+Wulff construction to create the nanoparticle
 """
 
 import sys
@@ -17,7 +17,6 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import in_coord_list
 
 from mpinterfaces import get_struct_from_mp
-
 
 def get_normals(recp_lattice, hkls):
     """
@@ -113,7 +112,7 @@ if __name__ == '__main__':
     nanoparticle.to(fmt='xyz', filename='nanoparticle.xyz')
 
     """
-    Wulff consruction use the ASE package
+    Wulff construction using the ASE package
     works only for cubic systems and doesn't support multiatom basis
     
     from ase.cluster import wulff_construction

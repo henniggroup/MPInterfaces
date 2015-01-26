@@ -50,7 +50,7 @@ def create_nanoparticle(recp_lattice, structure, hkls, surface_energies, rmax):
             surface_energy = surface_energies[j]
             n = np.array(normal)
             n = n/np.linalg.norm(n)
-            if np.dot(site.coords, n) <= -rmax*surface_energy :
+            if np.dot(site.coords, n) + rmax*surface_energy <= 0 :
                 remove_sites.append(i)
                 break
     new_sites = [site for k, site in enumerate(mol)

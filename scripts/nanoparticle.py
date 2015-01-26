@@ -45,8 +45,6 @@ def create_nanoparticle(recp_lattice, structure, hkls, surface_energies, rmax):
     surface_normals = get_normals(recp_lattice, hkls) #hkls
     remove_sites = []
     for i, site in enumerate(mol):
-        flag = True
-        j = 0
         for j, normal in enumerate(surface_normals):
             normal = surface_normals[j]
             surface_energy = surface_energies[j]
@@ -64,24 +62,24 @@ if __name__ == '__main__':
     #nanopartcle settings
     rmax = 15 #max radius in angstroms
     surfaces = [(1,0,0), (1,1,1)] #surface families to be chopped off
-    surface_energies = [28, 25] #could be in any units, will be normalized 
+    surface_energies = [28,25] #could be in any units, will be normalized 
 
-    #caution: set the unit cell wrt which the the miller indices are specified
-    structure = get_struct_from_mp('PbS')
-    #example:- fcc primitve ---> conventional cell      
-    a = structure.lattice.a
-    a_conven_cell = a * np.sqrt(2)
-    conven_cell_mapping =  \
-      structure.lattice.find_mapping(Lattice.cubic(a_conven_cell))
-    structure.make_supercell(conven_cell_mapping[2])
-    unit_cell = structure.copy()
+    #caution: set the structure wrt which the the miller indices are specified
+    #use your own key
+    structure = get_struct_from_mp('PbS', MAPI_KEY="dwvz2XCFUEI9fJiR")
+    #primitve ---> conventional cell
+    sa = SpacegroupAnalyzer(structure)
+    structure_conventional = sa.get_conventional_standard_structure()
 
     #supercell from which the nanoparticle is carved
-    ncell = int(np.ceil(2*rmax/structure.lattice.a))
-    structure.make_supercell([ncell,ncell,ncell])    
+    ncella = int(np.ceil(2*rmax/structure_conventional.lattice.a))
+    ncellb = int(np.ceil(2*rmax/structure_conventional.lattice.b))
+    ncellc = int(np.ceil(2*rmax/structure_conventional.lattice.c))        
+    structure_conventional.make_supercell([ncella, ncellb, ncellc])
+    structure_conventional.to(fmt='poscar', filename='nano_supercell.vasp')    
     
     #uniq_millers = get_symmetrically_distinct_miller_indices(structure,1)
-    recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
+    recp_lattice = structure_conventional.lattice.reciprocal_lattice_crystallographic
     recp_lattice = recp_lattice.scale(1)
     recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
     analyzer = SpacegroupAnalyzer(recp, symprec=0.001)
@@ -106,8 +104,8 @@ if __name__ == '__main__':
                         equiv_millers.append(miller_index)
                         s_energies.append(surface_energies[i])
 
-    structure.to(fmt='poscar', filename='nano_supercell.vasp')
-    nanoparticle = create_nanoparticle(recp_lattice, structure,
+
+    nanoparticle = create_nanoparticle(recp_lattice, structure_conventional,
                                        equiv_millers, s_energies, rmax)
     nanoparticle.to(fmt='xyz', filename='nanoparticle.xyz')
 

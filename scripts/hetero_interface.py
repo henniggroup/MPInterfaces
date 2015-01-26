@@ -172,8 +172,9 @@ def get_matching_lattices(iface1, iface2, max_area=200, max_mismatch=0.01, max_a
 
         
 if __name__ == '__main__':
-    #strt1 = get_struct_from_mp('GaAs')
-    #strt2 = get_struct_from_mp('CdTe')
+    #structure from materials project, use your own key
+    #strt1 = get_struct_from_mp('GaAs', MAPI_KEY="dwvz2XCFUEI9fJiR")
+    #strt2 = get_struct_from_mp('CdTe', MAPI_KEY="dwvz2XCFUEI9fJiR")
 
     #iface1 = Interface(strt1, hkl=[1,1,1], min_thick=10, min_vac=5)
     #iface2 = Interface(strt2, hkl=[1,1,1], min_thick=10, min_vac=5)

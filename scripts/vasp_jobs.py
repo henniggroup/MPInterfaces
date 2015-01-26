@@ -17,41 +17,27 @@ from pymatgen.matproj.rest import MPRester
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
-from mpinterfaces.calibrate import Calibrate, CalibrateSlab
-from mpinterfaces.measurement import Measurement
-from mpinterfaces.interface import Interface
-
-MAPI_KEY="dwvz2XCFUEI9fJiR"
-
-def get_struct_from_mp(formula):
-    with MPRester(MAPI_KEY) as m:
-        data = m.get_data(formula)
-        print "\nnumber of structures matching the chemical formula "+\
-          formula+" = ", len(data)
-        for d in data:
-            x = {}
-            x['material_id'] = str(d['material_id'])
-            structure = m.get_structure_by_material_id(x['material_id'])
-            return structure
+from mpinterfaces import *
 
 #---------------------------------------------
 # STRUCTURE
 #---------------------------------------------        
-#get structure from materialsproject        
-strt = get_struct_from_mp('Pt')
+#get structure from materialsproject, use your own key       
+strt = get_struct_from_mp('Pt', MAPI_KEY="dwvz2XCFUEI9fJiR")
 #convert from fcc primitive to conventional cell
 #the conventional unit cell is used to create the slab
 #this is important becasue the hkl specification for the required slab
 #is wrt the provided unit cell
-a = strt.lattice.a
-a_conven_cell = a * sqrt(2)
-conven_cell_mapping =  strt.lattice.find_mapping(Lattice.cubic(a_conven_cell))
-strt.make_supercell(conven_cell_mapping[2])
+sa = SpacegroupAnalyzer(structure)
+structure_conventional = sa.get_conventional_standard_structure()
+strt = structure_conventional.copy()
 #create slab
-iface = Interface(strt, hkl=[1,1,1],
-                  min_thick=10, min_vac=10, supercell=[1,1,1])
+iface = Interface(strt, hkl=[1,1,1], min_thick=10, min_vac=10,
+                  supercell=[1,1,1])
 
 #---------------------------------------------
 # VASP INPUT FILES

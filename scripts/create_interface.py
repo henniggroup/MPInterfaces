@@ -6,64 +6,22 @@ Note: Before using the script, make sure that you do have a valid api key obtain
 """
 
 import sys
+
 from pymatgen.matproj.rest import MPRester
 from pymatgen.core import Molecule
-from mpinterfaces.interface import Interface, Ligand
 
-MAPI_KEY="dwvz2XCFUEI9fJiR"
+from mpinterfaces import *
 
-def get_struct_from_mp(formula):
-    """
-    fetches the structure corresponding to the given formula
-    from the materialsproject database
-    Note: get the api key from materialsproject website
-    provide the api key here os set the environment variable "MAPI_KEY"
-    Note: for the given formula there are many structures available, this
-    function returns the first one of those structures
-    """
-    with MPRester(MAPI_KEY) as m:
-        #criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
-        #props = ['pretty_formula', 'energy']
-        #data = m.query(criteria=criteria, properties=props)
-        #data = m.get_exp_thermo_data("Fe2O3")
-        #structs = m.get_structures("Mn3O4")
-        #ntries = m.get_entries("TiO2")
-        #entry = m.get_exp_entry("Fe2O3")
-        data = m.get_data(formula)
-        print "\nnumber of structures matching the chemical formula "+formula+" = ", len(data)
-        #srtrs = {}
-        #get info for each structure
-        for d in data:
-            x = {}
-            x['material_id'] = str(d['material_id'])
-            structure = m.get_structure_by_material_id(x['material_id'])
-            return structure
-            #
-            #x['spacegroup'] = str(d['spacegroup']['symbol'])
-            #x['formation_energy_per_atom'] = d['formation_energy_per_atom']
-            #x['band_gap'] = d['band_gap']
-            #srtrs[str(d['full_formula'])] = x
-            #print "Unit cell vol = {}".format(structure.volume), d['volume']
-            #print the info
-            #for k,v in srtrs.iteritems():
-            #    print "\n", k, " : \n"
-            #    for k1,v1 in srtrs[k].iteritems():
-            #        print k1, " : ", v1
-            #Dos for material id
-            #  dos = m.get_dos_by_material_id("mp-1234")
-            #Bandstructure for material id
-            #  bandstructure = m.get_bandstructure_by_material_id("mp-1234")
-
-
-                                                                                       
+ 
 if __name__=='__main__':
     # PbS 100 surface with single hydrazine as ligand
-    strt= Structure.from_file("POSCAR_PbS")  #provide POSCAR of building block POSCAR_bulk and POSCAR_molecule here
+    strt= Structure.from_file("POSCAR_PbS") 
     mol_struct= Structure.from_file("POSCAR_Hydrazine")
     mol= Molecule(mol_struct.species, mol_struct.cart_coords)
     hydrazine= Ligand([mol])
 
-    #intital supercell, this wont be the final supercell if surface coverage is specified
+    #intital supercell, this wont be the final supercell if surface coverage
+    #is specified
     supercell = [1,1,1]
 
     #miller index
@@ -78,7 +36,8 @@ if __name__=='__main__':
     min_vac = 12
     
     # surface coverage in the units of lig/ang^2
-    #mind: exact coverage as provided cannot be guaranteed, the slab will be constructed
+    #mind: exact coverage as provided cannot be guaranteed, the slab
+    #will be constructed
     #with a coverage value thats close to the requested one
     #note: maximum supercell size possible is 10 x 10
     #note: 1 lig/nm^2 = 0.01 lig/ang^2    
@@ -92,7 +51,8 @@ if __name__=='__main__':
     adatom_on_lig='N'
     
     #ligand displacement from the slab surface along the surface normal
-    #i.e adatom_on_lig will be displced by this amount from the adsorb_on_species atom
+    #i.e adatom_on_lig will be displced by this amount from the
+    #adsorb_on_species atom
     #on the slab
     #in Angstrom
     displacement = 3.0
@@ -102,8 +62,9 @@ if __name__=='__main__':
     #
     iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=min_vac,
                       supercell=supercell, surface_coverage=0.01,
-                      ligand=hydrazine, displacement=displacement, adatom_on_lig='N',
-                      adsorb_on_species= 'Pb', primitive= False)
+                      ligand=hydrazine, displacement=displacement,
+                      adatom_on_lig='N', adsorb_on_species= 'Pb',
+                      primitive= False)
     iface.create_interface()
     iface.sort()
     #extract bare slab

@@ -77,8 +77,7 @@ class Interface(Slab):
                 if  self[i].species_string == self.adsorb_on_species:
                     self.top_atoms.append(i)
             elif np.abs(self.frac_coords[i][2] - min(self.frac_coords[:,2])) < 1e-6:
-                if  self[i].species_string == self.adsorb_on_species:
-                    self.bottom_atoms.append(i)
+                self.bottom_atoms.append(i)
 
     def enforce_surface_cvrg(self):
         """

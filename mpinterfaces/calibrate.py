@@ -20,6 +20,7 @@ import logging
 import numpy as np
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar
 from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Outcar
@@ -33,6 +34,7 @@ from pymatgen.apps.borg.queen import BorgQueen
 
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
+
 
 
 class Calibrate(object):    
@@ -506,7 +508,7 @@ class CalibrateSlab(Calibrate):
     
     """
     def __init__(self, incar, poscar, potcar, kpoints,
-                 is_matrix = False, Grid_type = 'A',
+                 is_matrix = False, Grid_type = 'A', hkl=[1, 0, 0],
                  setup_dir='.', parent_job_dir='.', job_dir='./Slab',
                 qadapter=None, job_cmd='qsub', wait=True,
                 turn_knobs={'ENCUT':[],'KPOINTS':[]}):
@@ -518,6 +520,7 @@ class CalibrateSlab(Calibrate):
                             job_dir=job_dir, qadapter=qadapter,
                              job_cmd=job_cmd, wait=wait,
                             turn_knobs = turn_knobs)
+	self.hkl= hkl 
 
     def _setup(self, turn_knobs=None):
         """
@@ -540,9 +543,14 @@ class CalibrateSlab(Calibrate):
             else:
                 self.setup_incar_jobs(k, v)                    
 
-    def setup_vacuum_jobs(self):
+    def setup_vacuum_jobs(self, vacuum_list):
         """covergence wrt vacuum spacing """
-        pass
+        
+	strt_structure = Poscar.from_dict(self.poscar_orig).structure
+        #slab_struct= SlabGenerator(initial_structure= strt_structure, miller_index= self.hkl, min_slab_size= 10, min_vacuum_size, lll_reduce=False, center_slab=False, primitive=True
+	#setting sd_flags
+	self.poscar = Poscar(slab_struct)
+	pass
 
     def setup_thickness_jobs(self):
         """ convergence wrt slab thickness"""
@@ -599,7 +607,7 @@ if __name__ == '__main__':
     calbulk.setup()     
     calbulk.run(['ls','-lt'])
     # to use the next after the calibrate jobs are done , checked by check_calcs
-    calbulk.check_calcs([calbulk])  
+    #calbulk.check_calcs([calbulk])  #
     #get the knob responses
     #calbulk.set_knob_responses()
     #print calbulk.response_to_knobs

@@ -130,7 +130,56 @@ class Measurement(object):
         and uses Vasprun to parse through the vasprun.xml and gets the energy,
         and compute the required quantities
         """
-        
+        #is distinguishing between slab, interface and ligand necessary?
+        #for Interface
+        Interface= self.cal_objs[0]
+        self.setup_static_job(Interface)
+        #for Slab
+        Slab= self.cal_objs[1]
+        self.setup_static_job(Slab)
+        #for Ligand
+        Ligand= self.cal_objs[2]
+        self.setup_static_job(Ligand)
+        #make binding Energy measurement
+        Binding_energy= self.calculate_binding_energy()
+        print Binding_energy
+
+    def measure_energy(self, cal):
+        """
+        measures the energy of a single cal object
+        """
+        drone = \
+          MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=False)
+        bg =  BorgQueen(drone)
+        for a in self.cal_objs:
+            rootpath = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'Relax' #check rootpath to follow? 
+            print 'rootpath = ', rootpath
+            #bg.parallel_assimilate(rootpath)        
+            bg.serial_assimilate(rootpath)
+            allentries =  bg.get_data()
+            for e in allentries:
+                if e:
+                    self.energies = e.energy
+                    print self.energies
+
+
+    def calculate_binding_energy(self, n_ligands= 1):  #n_ligands may not be needed as this may be taken care of by interface creation
+        """
+        calculates the binding energies as Binding Energy = Interface - (Slab + Ligand) 
+        in cal_objs list , 0th is treated as interface, 1st is treated as slab, 2nd 
+        is treated as ligand
+
+        """
+        Interface_energy= self.measure_energy(self.cal_objs[0])
+        Slab_energy= self.measure_energy(self.cal_objs[1])
+        Ligand_energy= self.measure_energy(self.cal_objs[2])
+        #testing purpose 
+        if Ligand_energy == None or Slab_energy == None or Interface_energy == None:
+                return "Binding Energy not ready"
+        else:
+                Binding_energy= Interface_energy - (Slab_energy + n_ligands*Ligand_energy)
+                return Binding_energy
+
         pass
 
 

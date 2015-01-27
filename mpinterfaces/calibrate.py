@@ -1,5 +1,7 @@
 """
-Calibration module
+Calibration module:  
+TODO: slab convergence, add method of creating reconstructed 111
+based on that calibrate slab
 
 """
 import sys
@@ -429,6 +431,22 @@ class Calibrate(object):
                         cal.calc_done = True
                         break
     
+    def setup_relaxation_job(self, cal_objs):
+        """
+        setup the relaxation jobs of Slab, Molecule and Interface
+        """
+
+        for cal in cal_objs:
+                if cal.calc_done:
+                        job_dir= self.job_dir+os.sep+'Relax'
+                        contcar_file= cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'CONTCAR'
+                        cal.poscar= Poscar.from_file(contcar_file)
+                        cal.incar['NSW'] = 1000
+                        cal.add_job(job_dir=job_dir)
+                else:
+                        cal.jobs = []
+                        print 'previous calc in the dir, ', cal.job_dir, 'not done yet or is still running'
+                        print 'Not setting up the relaxation job\n'
                     
         
 class CalibrateMolecule(Calibrate):
@@ -532,6 +550,10 @@ class CalibrateSlab(Calibrate):
 
 
 #test
+"""
+Does Calibration jobs, checks the calculations if done,
+enforces optimum params, and does structural relaxation (a structural calibration task)
+"""
 if __name__ == '__main__':
     system = 'Pt bulk'
     atoms = ['Pt']
@@ -576,6 +598,8 @@ if __name__ == '__main__':
                                 ]) )
     calbulk.setup()     
     calbulk.run(['ls','-lt'])
+    # to use the next after the calibrate jobs are done , checked by check_calcs
+    calbulk.check_calcs([calbulk])  
     #get the knob responses
     #calbulk.set_knob_responses()
     #print calbulk.response_to_knobs
@@ -584,6 +608,10 @@ if __name__ == '__main__':
     #print calbulk.sorted_response_to_knobs['ENCUT']['600.0']    
     #print calbulk.optimum_knob_responses
     #test enforce_cutoff
+    """
+    setup relaxation jobs after optimum parameters are set
+    """
+    #calbulk.setup_relaxation_jobs([calbulk])
     #inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9],
     #           ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888],
     #['[[2,2,8]]', 9.879],]

@@ -28,10 +28,10 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
     
     """
     def __init__(self, host="127.0.0.1", port=27017, database="vasp",
-                             user=None, password=None, collection="nanoparticles",
-                             parse_dos=False, compress_dos=False, simulate_mode=False,
-                             additional_fields=None, update_duplicates=True,
-                             mapi_key=None, use_full_uri=True, runs=None):
+                 user=None, password=None, collection="nanoparticles",
+                 parse_dos=False, compress_dos=False, simulate_mode=False,
+                 additional_fields=None, update_duplicates=True,
+                 mapi_key=None, use_full_uri=True, runs=None):
         """
         Additional_fields = {'authors':[a.as_dict() for a in self.authors],
                              'projects': ,
@@ -57,9 +57,7 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
         with open(filename, "r") as f:
             system = json.load(f)
             d["hkl"] = system["hkl"]
-            print(system["hkl"])
             d["ligand"] = system["ligand"]
-            print(system["ligand"])
         #try:
         #    run_stats = {}
         #    outcar = Outcar("OUTCAR")

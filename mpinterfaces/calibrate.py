@@ -569,7 +569,7 @@ class CalibrateSlab(Calibrate):
         """covergence wrt vacuum spacing """
                 
         for val in vacuum_list:
-            print 'setting Slab Vacuum as ', val
+            print ('setting Slab Vacuum as ', val)
             self.set_vacuum(val)
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + \
@@ -591,7 +591,7 @@ class CalibrateSlab(Calibrate):
         """ convergence wrt slab thickness"""
 
         for val in thickness_list:
-            print 'setting Slab Thickness as ', val
+            print('setting Slab Thickness as ', val)
             self.set_thickness(val)
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + \

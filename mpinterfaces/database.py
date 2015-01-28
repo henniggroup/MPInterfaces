@@ -27,7 +27,7 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
     modified VaspToDbTaskDrone
     
     """
-    def __init__def __init__(self, host="127.0.0.1", port=27017, database="vasp",
+    def __init__(self, host="127.0.0.1", port=27017, database="vasp",
                              user=None, password=None, collection="nanoparticles",
                              parse_dos=False, compress_dos=False, simulate_mode=False,
                              additional_fields=None, update_duplicates=True,
@@ -38,7 +38,7 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
                               'refernces': ,
                               }
         """
-        VaspToDbTaskDrone. __init__(self, host=host, port=port, database=database,
+        VaspToDbTaskDrone.__init__(self, host=host, port=port, database=database,
                                     user=user, password=password, collection=collection,
                                     parse_dos=parse_dos, compress_dos=compress_dos,
                                     simulate_mode=simulate_mode, additional_fields=additional_fields,

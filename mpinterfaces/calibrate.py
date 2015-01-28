@@ -552,19 +552,81 @@ class CalibrateSlab(Calibrate):
                 self.setup_thickness_jobs()
             else:
                 self.setup_incar_jobs(k, v)                    
-
+	
+    def set_vacuum(self, vac_space):
+        """
+        set the vacuum spacing and call sd_flags for top 2 layers
+        """ 
+        strt_structure = Poscar.from_dict(self.poscar_orig).structure
+        slab_struct= SlabGenerator(initial_structure= strt_structure, miller_index= self.hkl, min_slab_size= 10,
+                         min_vacuum_size=vac_space, lll_reduce=False, center_slab=True, primitive=False).get_slab()
+        slab_struct.sort()
+        sd= self.set_sd_flags(slab_struct)
+        self.poscar = Poscar(slab_struct, selective_dynamics= sd)
+                
+            
     def setup_vacuum_jobs(self, vacuum_list):
         """covergence wrt vacuum spacing """
-        
-	strt_structure = Poscar.from_dict(self.poscar_orig).structure
-        #slab_struct= SlabGenerator(initial_structure= strt_structure, miller_index= self.hkl, min_slab_size= 10, min_vacuum_size, lll_reduce=False, center_slab=False, primitive=True
-	#setting sd_flags
-	self.poscar = Poscar(slab_struct)
-	pass
+                
+        for val in vacuum_list:
+            print 'setting Slab Vacuum as ', val
+            self.set_vacuum(val)
+            if not self.is_matrix:
+                job_dir  = self.job_dir+ os.sep + \
+                    'VACUUM' + os.sep +  self.val_to_name(val)
+                self.add_job(name='VACUUM'+str(val), job_dir=job_dir)
 
-    def setup_thickness_jobs(self):
+    def set_thickness(self, thickness):
+        """
+        set thickness and call sd_flags for top 2 layers
+        """
+        strt_structure = Poscar.from_dict(self.poscar_orig).structure
+        slab_struct= SlabGenerator(initial_structure= strt_structure, miller_index= self.hkl, min_slab_size=thickness,
+                         min_vacuum_size=12, lll_reduce=False, center_slab=True, primitive=False).get_slab()
+        slab_struct.sort()
+        sd= self.set_sd_flags(slab_struct)
+        self.poscar = Poscar(slab_struct, selective_dynamics= sd)
+    
+    def setup_thickness_jobs(self, thickness_list):
         """ convergence wrt slab thickness"""
-        pass
+
+        for val in thickness_list:
+            print 'setting Slab Thickness as ', val
+            self.set_thickness(val)
+            if not self.is_matrix:
+                job_dir  = self.job_dir+ os.sep + \
+                    'THICKNESS' + os.sep +  self.val_to_name(val)
+                self.add_job(name='THICKNESS'+str(val), job_dir=job_dir)
+
+    def set_sd_flags(self, slab_obj= None, n_top_layers= 2):
+        """useful method to set the SD flags for Slabs, default is assumed as top one layer, 
+        implemented for top 2 layers of slab now. TODO: generalize to any number of layers"""
+        true_site= [1,1,1]
+        false_site= [0,0,0]
+        sd_flags= []
+        z_coords_slab= []
+        z_coords_ligand= []
+	for i in slab_obj.sites:
+                if i.specie in slab_obj.species:
+                        z_coords_slab.append(i.c)
+                else:
+                        z_coords_ligand.append(i.c)
+        z_coords_slab.sort()
+#       for i in range(n_top_layers):
+        for i in slab_obj.sites:
+                if i.c == max(z_coords_slab) or i.c == z_coords_slab[z_coords_slab.index(max(z_coords_slab)) - 1]:
+                        sd_flags.append(true_site)
+                else:
+                        sd_flags.append(false_site)
+        return sd_flags
+
+    def set_reconstructed_surface(self, sites_to_add):
+        """
+        Append sites as needed for reconstruction TODO
+
+	"""
+	pass                  			                                                                                                                                              
+    
 
 
 #test

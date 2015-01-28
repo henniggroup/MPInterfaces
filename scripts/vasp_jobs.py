@@ -32,7 +32,7 @@ strt = get_struct_from_mp('Pt', MAPI_KEY="dwvz2XCFUEI9fJiR")
 #the conventional unit cell is used to create the slab
 #this is important becasue the hkl specification for the required slab
 #is wrt the provided unit cell
-sa = SpacegroupAnalyzer(structure)
+sa = SpacegroupAnalyzer(strt)
 structure_conventional = sa.get_conventional_standard_structure()
 strt = structure_conventional.copy()
 #create slab
@@ -91,6 +91,7 @@ if 'gator' in socket.gethostname():
          'ppnode': str(int(nprocs/nnodes)),
          'walltime': walltime,
          'job_name': 'vasp_job',
+         'pre_rocket': '#PBS -l pmem=1000mb',
          'rocket_launch': 'mpirun /home/km468/Software/VASP/vasp.5.3.5/vasp'
      }
     }

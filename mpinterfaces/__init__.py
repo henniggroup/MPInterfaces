@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals, print_function
+
 from pymatgen.matproj.rest import MPRester
 
 def get_struct_from_mp(formula, MAPI_KEY="dwvz2XCFUEI9fJiR"):
@@ -11,7 +13,7 @@ def get_struct_from_mp(formula, MAPI_KEY="dwvz2XCFUEI9fJiR"):
     """
     with MPRester(MAPI_KEY) as m:
         data = m.get_data(formula)
-        print "\nnumber of structures matching the chemical formula "+formula+" = ", len(data)
+        print("\nnumber of structures matching the chemical formula {0} = {1}".format(formula, len(data)) )
         for d in data:
             x = {}
             x['material_id'] = str(d['material_id'])

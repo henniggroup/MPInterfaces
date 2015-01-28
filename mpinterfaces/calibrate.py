@@ -10,14 +10,12 @@ based on that calibrate slab
 import sys
 import os
 import shutil
-import shlex
 import subprocess
 import operator
 from collections import Counter, OrderedDict
 import re
 import time
 import datetime
-from pprint import pprint
 import logging
 
 import numpy as np
@@ -28,16 +26,24 @@ from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar
 from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Outcar
+from pymatgen.apps.borg.queen import BorgQueen
+
 #from custodian.vasp.handlers import VaspErrorHandler
 #from custodian.vasp.handlers import FrozenJobErrorHandler
 #from custodian.vasp.handlers import MeshSymmetryErrorHandler
 #from custodian.vasp.handlers import NonConvergingErrorHandler
 from custodian.custodian import Custodian, gzip_dir
 from custodian.vasp.interpreter import VaspModder
-from pymatgen.apps.borg.queen import BorgQueen
 
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+sh = logging.StreamHandler(stream=sys.stdout)
+sh.setFormatter(formatter)
+logger.addHandler(sh)
 
 
 class Calibrate(object):    
@@ -140,13 +146,13 @@ class Calibrate(object):
         if i == n-1 and i != 0:
             for val in self.turn_knobs[keys[i]]:
                 self.job_dir = job_dir + os.sep + self.val_to_name(val) #re.sub('\.','_',str(val))
-                print('setting jobs in the directory: ', self.job_dir)
+                logger.info('setting jobs in the directory: '+self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))            
                 self.add_job(job_dir=self.job_dir)
         else:
             for val in self.turn_knobs[keys[i]]:
                 self.job_dir = job_dir + os.sep + self.val_to_name(val) #re.sub('\.','_',str(val))
-                print('setting jobs in the directory: ', self.job_dir)
+                logger.info('setting jobs in the directory: '+self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))
                 self.recursive_jobs(n,keys,i+1)
 
@@ -234,7 +240,7 @@ class Calibrate(object):
         elif self.Grid_type == 'A':
             self.kpoints = Kpoints.automatic(subdivisions = kpoint)
         name = self.kpoint_to_name(kpoint, self.Grid_type)
-        print('KPOINTS = ', name)
+        logger.info('KPOINTS = '+name)
         job_dir = self.job_dir +os.sep+ self.key_to_name('KPOINTS') \
           + os.sep + name
         return job_dir
@@ -244,7 +250,7 @@ class Calibrate(object):
         set up incar jobs
         """
         for val in val_list:
-            print('setting INCAR parameter ' + param + ' = ', val)
+            logger.info('setting INCAR parameter ' + param + ' = '+str(val))
             self.set_incar(param, val)
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + \
@@ -262,7 +268,7 @@ class Calibrate(object):
                 if not self.is_matrix:                     
                     self.add_job(name=job_dir, job_dir=job_dir)
         else:
-        	print('kpoints_list not provided')
+        	logger.info('kpoints_list not provided')
             
     def setup_poscar_jobs(self, scale_list, Name = "volume_scale_"):
         """
@@ -332,7 +338,7 @@ class Calibrate(object):
         bg =  BorgQueen(drone)
         for k, v in self.response_to_knobs.items():
             rootpath = self.job_dir+ os.sep + k
-            print('rootpath = ', rootpath)
+            logger.info('rootpath = '+rootpath)
             #bg.parallel_assimilate(rootpath)        
             bg.serial_assimilate(rootpath)
             allentries =  bg.get_data()
@@ -425,7 +431,7 @@ class Calibrate(object):
                 mtime = os.stat(outcar_file)[8]
                 last_mod_time =  datetime.datetime.fromtimestamp(mtime)
                 current_time = datetime.datetime.now()
-                print('time delta', current_time - last_mod_time)
+                logger.info('time delta {}'.format(current_time - last_mod_time))
                 #check whether the OUTCAR file had been modified in the last hour
                 #if it had not been modified in the past hour, the calculation is assumed dead
                 if current_time - last_mod_time < datetime.timedelta(seconds=3600):
@@ -450,8 +456,9 @@ class Calibrate(object):
                         cal.add_job(job_dir=job_dir)
                 else:
                         cal.jobs = []
-                        print('previous calc in the dir, ', cal.job_dir, 'not done yet or is still running')
-                        print('Not setting up the relaxation job\n')
+                        logger.warn('previous calc in the dir, '+
+                                    cal.job_dir+'not done yet or is still running')
+                        logger.warn('Not setting up the relaxation job\n')
                     
         
 class CalibrateMolecule(Calibrate):
@@ -477,7 +484,7 @@ class CalibrateMolecule(Calibrate):
         
     def setup_kpoints_jobs(self, Grid_type = 'M',
                            kpoints_list = None, conv_step = 1):
-        print("Its a molecule ! no need for kpoint convergence")
+        logger.warn("Its a molecule ! no need for kpoint convergence")
         self.kpoints = Kpoints.monkhorst_automatic(kpts = [1,1,1])
         return
 

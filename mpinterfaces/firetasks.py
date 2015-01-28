@@ -7,10 +7,11 @@ Defines various firetasks
 import re
 import socket
 import copy
+import logging
 
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar, \
-     Potcar, Kpoints
-     
+from pymatgen.io.vaspio.vasp_input import Incar, Poscar
+from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
+
 from fireworks.core.firework import FireTaskBase, FWAction
 from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable
@@ -19,9 +20,16 @@ from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from matgendb.creator import VaspToDbTaskDrone
 
-from mpinterfaces.calibrate import CalibrateMolecule, \
-     CalibrateSlab, CalibrateBulk
+from mpinterfaces.calibrate import CalibrateMolecule, CalibrateSlab
+from mpinterfaces.calibrate import CalibrateBulk
 from mpinterfaces.measurement import Measurement
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+sh = logging.StreamHandler(stream=sys.stdout)
+sh.setFormatter(formatter)
+logger.addHandler(sh)
 
 
 def load_class(mod, name):
@@ -119,8 +127,8 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             for obj in measure.calbulk:
                 obj.set_knob_responses()
                 obj.set_sorted_optimum_params()
-                print('sorted_response_to_knobs : \n',
-                      obj.sorted_response_to_knobs)
+                logger.info('sorted_response_to_knobs : {} \n'.format(
+                    obj.sorted_response_to_knobs))
 #        if measure.calslab:
 #        if measure.calmol:
 
@@ -144,7 +152,7 @@ class MPINTPostProcessTask(FireTaskBase, FWSerializable):
         t_id = drone.assimilate('Measurement')
 
         if t_id:
-            print('ENTERED task id:', t_id)
+            logger.info('ENTERED task id: {}'.format(t_id))
             stored_data = {'task_id': t_id}
             update_spec = {'prev_vasp_dir': prev_dir,
                            'prev_task_type': fw_spec['prev_task_type']}

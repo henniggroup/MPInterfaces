@@ -1,7 +1,6 @@
 from __future__ import division, unicode_literals, print_function
 
 """
-
 combines instrument, calibrate and interfaces to perform the calibration
 and run the actual jobs
 
@@ -9,6 +8,7 @@ and run the actual jobs
 
 import shutil
 import os
+import logging
 
 import numpy as np
 
@@ -19,7 +19,14 @@ from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from mpinterfaces.calibrate import Calibrate, CalibrateMolecule,\
       CalibrateSlab, CalibrateBulk
 from mpinterfaces.interface import Interface
-        
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+sh = logging.StreamHandler(stream=sys.stdout)
+sh.setFormatter(formatter)
+logger.addHandler(sh)
+
 
 class Measurement(object):
     """
@@ -81,8 +88,8 @@ class Measurement(object):
                 cal.setup()
                 cal.run()
             else:
-                print('calibration calc still running')
-                print('try again later')
+                logger.warn('calibration calc still running')
+                logger.warn('try again later')
 
     def setup_static_job(self, cal):
         """
@@ -99,8 +106,8 @@ class Measurement(object):
             cal.add_job(job_dir=job_dir)
         else:
             cal.jobs = []
-            print('previous calc in the dir, ', cal.job_dir, 'not done yet or is still running')
-            print('Not setting up the measurement job\n')
+            logger.warn('previous calc in the dir, '+cal.job_dir+'not done yet or is still running')
+            logger.warn('Not setting up the measurement job\n')
 
     def setup_solvation_job(self, cal):
         """
@@ -120,8 +127,8 @@ class Measurement(object):
             cal.add_job(job_dir=job_dir)
         else:
             cal.jobs = []
-            print('previous calc in the dir, ', cal.job_dir, 'not done yet or is still running')
-            print('Not setting up the measurement job\n' )
+            logger.warn('previous calc in the dir, '+cal.job_dir+'not done yet or is still running')
+            logger.warn('Not setting up the measurement job\n' )
         
     def make_measurements(self):
         """
@@ -146,7 +153,7 @@ class Measurement(object):
         self.setup_static_job(Ligand)
         #make binding Energy measurement
         Binding_energy= self.calculate_binding_energy()
-        print(Binding_energy)
+        logger.info(Binding_energy)
 
     def measure_energy(self, cal):
         """
@@ -157,14 +164,14 @@ class Measurement(object):
         bg =  BorgQueen(drone)
         for a in self.cal_objs:
             rootpath = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'Relax' #check rootpath to follow? 
-            print('rootpath = ', rootpath)
+            logger.info('rootpath = '+rootpath)
             #bg.parallel_assimilate(rootpath)        
             bg.serial_assimilate(rootpath)
             allentries =  bg.get_data()
             for e in allentries:
                 if e:
                     self.energies = e.energy
-                    print(self.energies)
+                    logger.info(self.energies)
 
 
     def calculate_binding_energy(self, n_ligands= 1):  #n_ligands may not be needed as this may be taken care of by interface creation

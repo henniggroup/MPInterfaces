@@ -8,10 +8,7 @@ defines the inputset and the job
 
 import sys
 import os, shutil
-import shlex, subprocess
-import time
-import datetime
-from pprint import pprint
+import subprocess
 import logging
 
 import numpy as np
@@ -23,6 +20,13 @@ from pymatgen.io.vaspio_set import DictVaspInputSet #MPGGAVaspInputSet
 
 from custodian.custodian import Job, gzip_dir
 from custodian.vasp.interpreter import VaspModder
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+sh = logging.StreamHandler(stream=sys.stdout)
+sh.setFormatter(formatter)
+logger.addHandler(sh)
 
 
 class MPINTVaspInputSet(DictVaspInputSet):
@@ -75,7 +79,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         d = job_dir
         if make_dir_if_not_present and not os.path.exists(d):
             os.makedirs(d)
-        print('writing inputset to : ', d)
+        logger.info('writing inputset to : '+d)
         self.incar.write_file(os.path.join(d, 'INCAR'))
         self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
@@ -148,7 +152,7 @@ class MPINTVaspJob(Job):
          parent job directory
         """
         os.chdir(os.path.abspath(self.job_dir))
-        print('running in : ', self.job_dir)
+        logger.info('running in : '+self.job_dir)
         p = None
         #if launching jobs via batch system
         if self.vis.qadapter is not None:

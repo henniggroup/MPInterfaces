@@ -8,6 +8,7 @@ process vasprun.xml file by walking through the enitre directory tree
 import os
 import glob
 import re
+import logging
 
 from monty.json import MontyEncoder, MontyDecoder
 
@@ -16,6 +17,13 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
      _get_transformation_history
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+sh = logging.StreamHandler(stream=sys.stdout)
+sh.setFormatter(formatter)
+logger.addHandler(sh)
 
 
 class MPINTComputedEntry(ComputedEntry):        
@@ -170,7 +178,7 @@ class MPINTVaspDrone(VaspToComputedEntryDrone):
         try:
             vasprun = MPINTVasprun(filepath)
         except Exception as ex:
-            print("error in {}: {}".format(filepath, ex))
+            logger.info("error in {}: {}".format(filepath, ex))
             #logger.debug("error in {}: {}".format(filepath, ex))
             return None
 

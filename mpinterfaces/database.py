@@ -15,7 +15,7 @@ from matgendb.creator import VaspToDbTaskDrone, get_uri
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
 sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -57,25 +57,28 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
         with open(filename, "r") as f:
             system = json.load(f)
             d["hkl"] = system["hkl"]
+            print(system["hkl"])
             d["ligand"] = system["ligand"]
-        try:
-            run_stats = {}
-            outcar = Outcar('OUTCAR')
-            taskname = "run1"
-            d["calculations"][0]["output"]["outcar"] = outcar.as_dict()
-            run_stats[taskname] = outcar.run_stats
-        except:
-            logger.error("Bad OUTCAR for {}.".format(fullpath))
-        try:
-            overall_run_stats = {}
-            for key in ["Total CPU time used (sec)", "User time (sec)",
-                        "System time (sec)", "Elapsed time (sec)"]:
-                overall_run_stats[key] = sum([v[key]
-                                              for v in run_stats.values()])
-            run_stats["overall"] = overall_run_stats
-        except:
-            logger.error("Bad run stats for {}.".format(fullpath))
-        d["run_stats"] = run_stats
+            print(system["ligand"])
+        #try:
+        #    run_stats = {}
+        #    outcar = Outcar("OUTCAR")
+        #    #print(outcar.efermi)
+        #    taskname = "run1"
+        #    d["calculations"][0]["output"]["outcar"] = outcar.as_dict()
+        #    run_stats[taskname] = outcar.run_stats
+        #except:
+        #    logger.error("Bad OUTCAR for {}.".format(fullpath))
+        #try:
+        #    overall_run_stats = {}
+        #    for key in ["Total CPU time used (sec)", "User time (sec)",
+        #                "System time (sec)", "Elapsed time (sec)"]:
+        #        overall_run_stats[key] = sum([v[key]
+        #                                      for v in run_stats.values()])
+        #    run_stats["overall"] = overall_run_stats
+        #except:
+        #    logger.error("Bad run stats for {}.".format(fullpath))
+        #d["run_stats"] = run_stats
         #Convert to full uri path.
         if self.use_full_uri:
             d["dir_name"] = get_uri(dir_name)

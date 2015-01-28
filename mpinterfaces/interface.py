@@ -19,7 +19,7 @@ from pymatgen.util.coord_utils import get_angle
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
 sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -382,7 +382,7 @@ class Ligand(Molecule):
                 if link[str(mol)]:
                     for ind_key, conn in self.link[str(mol)].items():
                         ind = int(ind_key)
-                        logger.info('connection list for atom of index {0} of molecule {1} : {2}'.format(ind, mol, conn)n)
+                        logger.info('connection list for atom of index {0} of molecule {1} : {2}'.format(ind, mol, conn))
                         coord = np.array([0,0,0])
                         #if connecting the molecule mol to only one atom of
                         #just one another molecule

@@ -6,6 +6,7 @@ and run the actual jobs
 
 """
 
+import sys
 import shutil
 import os
 import logging

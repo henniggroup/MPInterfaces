@@ -4,6 +4,7 @@ from __future__ import division, unicode_literals, print_function
 Defines various firetasks
 """
 
+import sys
 import re
 import socket
 import copy

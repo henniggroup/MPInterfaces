@@ -1,18 +1,23 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 Defines various firetasks
 """
+
 import re
 import socket
 import copy
 
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, \
      Potcar, Kpoints
+     
 from fireworks.core.firework import FireTaskBase, FWAction
 from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import explicit_serialize
-from matgendb.creator import VaspToDbTaskDrone
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
+
+from matgendb.creator import VaspToDbTaskDrone
 
 from mpinterfaces.calibrate import CalibrateMolecule, \
      CalibrateSlab, CalibrateBulk
@@ -114,8 +119,8 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             for obj in measure.calbulk:
                 obj.set_knob_responses()
                 obj.set_sorted_optimum_params()
-                print 'sorted_response_to_knobs : \n', \
-                  obj.sorted_response_to_knobs
+                print('sorted_response_to_knobs : \n',
+                      obj.sorted_response_to_knobs)
 #        if measure.calslab:
 #        if measure.calmol:
 
@@ -139,7 +144,7 @@ class MPINTPostProcessTask(FireTaskBase, FWSerializable):
         t_id = drone.assimilate('Measurement')
 
         if t_id:
-            print 'ENTERED task id:', t_id
+            print('ENTERED task id:', t_id)
             stored_data = {'task_id': t_id}
             update_spec = {'prev_vasp_dir': prev_dir,
                            'prev_task_type': fw_spec['prev_task_type']}

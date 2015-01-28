@@ -1,9 +1,12 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 Calibration module:  
 TODO: slab convergence, add method of creating reconstructed 111
 based on that calibrate slab
 
 """
+
 import sys
 import os
 import shutil
@@ -18,6 +21,7 @@ from pprint import pprint
 import logging
 
 import numpy as np
+
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import Slab, SlabGenerator
@@ -34,7 +38,6 @@ from pymatgen.apps.borg.queen import BorgQueen
 
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
-
 
 
 class Calibrate(object):    
@@ -137,13 +140,13 @@ class Calibrate(object):
         if i == n-1 and i != 0:
             for val in self.turn_knobs[keys[i]]:
                 self.job_dir = job_dir + os.sep + self.val_to_name(val) #re.sub('\.','_',str(val))
-                print 'setting jobs in the directory: ', self.job_dir
+                print('setting jobs in the directory: ', self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))            
                 self.add_job(job_dir=self.job_dir)
         else:
             for val in self.turn_knobs[keys[i]]:
                 self.job_dir = job_dir + os.sep + self.val_to_name(val) #re.sub('\.','_',str(val))
-                print 'setting jobs in the directory: ', self.job_dir
+                print('setting jobs in the directory: ', self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))
                 self.recursive_jobs(n,keys,i+1)
 
@@ -231,7 +234,7 @@ class Calibrate(object):
         elif self.Grid_type == 'A':
             self.kpoints = Kpoints.automatic(subdivisions = kpoint)
         name = self.kpoint_to_name(kpoint, self.Grid_type)
-        print 'KPOINTS = ', name
+        print('KPOINTS = ', name)
         job_dir = self.job_dir +os.sep+ self.key_to_name('KPOINTS') \
           + os.sep + name
         return job_dir
@@ -241,7 +244,7 @@ class Calibrate(object):
         set up incar jobs
         """
         for val in val_list:
-            print 'setting INCAR parameter ' + param + ' = ', val
+            print('setting INCAR parameter ' + param + ' = ', val)
             self.set_incar(param, val)
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + \
@@ -259,7 +262,7 @@ class Calibrate(object):
                 if not self.is_matrix:                     
                     self.add_job(name=job_dir, job_dir=job_dir)
         else:
-        	print 'kpoints_list not provided'		
+        	print('kpoints_list not provided')
             
     def setup_poscar_jobs(self, scale_list, Name = "volume_scale_"):
         """
@@ -329,7 +332,7 @@ class Calibrate(object):
         bg =  BorgQueen(drone)
         for k, v in self.response_to_knobs.items():
             rootpath = self.job_dir+ os.sep + k
-            print 'rootpath = ', rootpath
+            print('rootpath = ', rootpath)
             #bg.parallel_assimilate(rootpath)        
             bg.serial_assimilate(rootpath)
             allentries =  bg.get_data()
@@ -422,7 +425,7 @@ class Calibrate(object):
                 mtime = os.stat(outcar_file)[8]
                 last_mod_time =  datetime.datetime.fromtimestamp(mtime)
                 current_time = datetime.datetime.now()
-                print 'time delta', current_time - last_mod_time
+                print('time delta', current_time - last_mod_time)
                 #check whether the OUTCAR file had been modified in the last hour
                 #if it had not been modified in the past hour, the calculation is assumed dead
                 if current_time - last_mod_time < datetime.timedelta(seconds=3600):
@@ -447,8 +450,8 @@ class Calibrate(object):
                         cal.add_job(job_dir=job_dir)
                 else:
                         cal.jobs = []
-                        print 'previous calc in the dir, ', cal.job_dir, 'not done yet or is still running'
-                        print 'Not setting up the relaxation job\n'
+                        print('previous calc in the dir, ', cal.job_dir, 'not done yet or is still running')
+                        print('Not setting up the relaxation job\n')
                     
         
 class CalibrateMolecule(Calibrate):
@@ -474,7 +477,7 @@ class CalibrateMolecule(Calibrate):
         
     def setup_kpoints_jobs(self, Grid_type = 'M',
                            kpoints_list = None, conv_step = 1):
-        print "Its a molecule ! no need for kpoint convergence"
+        print("Its a molecule ! no need for kpoint convergence")
         self.kpoints = Kpoints.monkhorst_automatic(kpts = [1,1,1])
         return
 

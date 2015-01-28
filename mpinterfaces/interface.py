@@ -1,9 +1,13 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 Defines the Interface(extends class Slab) and
 Ligand(extends class Molecule) classes
 """
+
 import sys
 import math
+
 import numpy as np
 
 from pymatgen.core.structure import Structure, Molecule
@@ -90,13 +94,13 @@ class Interface(Slab):
         n_top_atoms =  len(self.top_atoms)
         max_coverage = n_top_atoms/self.surface_area 
         m = self.lattice.matrix
-        print '\nrequested surface coverage = ', self.surface_coverage        
-        print 'maximum possible coverage = ', max_coverage
+        print('\nrequested surface coverage = ', self.surface_coverage)
+        print('maximum possible coverage = ', max_coverage)
         self.nlig_sizescell = {}
         k = 0
         if self.surface_coverage:
             if self.surface_coverage > max_coverage:
-                print 'requested surface coverage exceeds the max possible coverage'
+                print('requested surface coverage exceeds the max possible coverage')
             else:
                 for nlig in range(1, n_top_atoms+1):
                     for i in range(1, self.scell_nmax):
@@ -105,10 +109,10 @@ class Interface(Slab):
                             surface_coverage = nlig/surface_area
                             diff_coverage = np.abs(surface_coverage - self.surface_coverage)
                             if  diff_coverage<=self.surface_coverage*self.coverage_tol:
-                                print '\npossible coverages within the tolerance limit = ',\
-                                  nlig/surface_area
-                                print 'supercell = ', i, j, 1
-                                print 'number of ligands = ', nlig
+                                print('\npossible coverages within the tolerance limit = ',
+                                      nlig/surface_area)
+                                print('supercell = ', i, j, 1)
+                                print('number of ligands = ', nlig)
                                 k = k+1
                                 self.nlig_sizescell[str(k)] = [nlig,i,j,1]
 
@@ -195,8 +199,8 @@ class Interface(Slab):
         within the tolerance limit, the one that is chosen is the one
         with the smallest surface area
         """
-        print '\nlist of possible combinations of the number of ligands',\
-            'and the supercell sizes = ', self.nlig_sizescell
+        print('\nlist of possible combinations of the number of ligands',
+              'and the supercell sizes = ', self.nlig_sizescell)
         self.possible_scells = []
         self.possible_nligs = []            
         surf_areas = []
@@ -222,20 +226,20 @@ class Interface(Slab):
         self.enforce_surface_cvrg()
         if self.nlig_sizescell:
             opt_lig_scell_index = self.get_opt_nlig_scell()
-            print '\nusing ...', self.possible_nligs[opt_lig_scell_index], \
-              ' ligands on a ', self.possible_scells[opt_lig_scell_index], ' supercell'
+            print('\nusing ...', self.possible_nligs[opt_lig_scell_index],
+                  ' ligands on a ', self.possible_scells[opt_lig_scell_index], ' supercell')
             self.make_supercell(self.possible_scells[opt_lig_scell_index])
             self.set_slab()
             self.set_top_atoms()
             self.adsorb_sites = [ self.top_atoms[i]
                                   for i in range(self.possible_nligs[opt_lig_scell_index])]
-            print 'ligands will be adsorbed on these sites on the slab ', self.adsorb_sites
+            print('ligands will be adsorbed on these sites on the slab ', self.adsorb_sites)
             self.cover_surface(self.adsorb_sites)
         else:
-            print 'none of the combinations of number of ligands'
-            print' and supercell sizes matches the requested surface coverage'
-            print 'try increasing the tolerance or '
-            print 'increase the maximum number of cells in the supercell'
+            print('none of the combinations of number of ligands')
+            print(' and supercell sizes matches the requested surface coverage')
+            print('try increasing the tolerance or ')
+            print('increase the maximum number of cells in the supercell')
             sys.exit()
 
     def set_slab(self):
@@ -368,8 +372,8 @@ class Ligand(Molecule):
                 if link[str(mol)]:
                     for ind_key, conn in self.link[str(mol)].items():
                         ind = int(ind_key)
-                        print 'connection list for atom of index ', \
-                            ind ,' of molecule ', mol, ' : ', conn
+                        print('connection list for atom of index ',
+                              ind ,' of molecule ', mol, ' : ', conn)
                         coord = np.array([0,0,0])
                         #if connecting the molecule mol to only one atom of
                         #just one another molecule

@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 The instrument module:
 defines the inputset and the job
@@ -11,11 +13,14 @@ import time
 import datetime
 from pprint import pprint
 import logging
+
 import numpy as np
+
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio_set import DictVaspInputSet #MPGGAVaspInputSet
+
 from custodian.custodian import Job, gzip_dir
 from custodian.vasp.interpreter import VaspModder
 
@@ -70,7 +75,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         d = job_dir
         if make_dir_if_not_present and not os.path.exists(d):
             os.makedirs(d)
-        print 'writing inputset to : ', d
+        print('writing inputset to : ', d)
         self.incar.write_file(os.path.join(d, 'INCAR'))
         self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
@@ -143,7 +148,7 @@ class MPINTVaspJob(Job):
          parent job directory
         """
         os.chdir(os.path.abspath(self.job_dir))
-        print 'running in : ', self.job_dir
+        print('running in : ', self.job_dir)
         p = None
         #if launching jobs via batch system
         if self.vis.qadapter is not None:

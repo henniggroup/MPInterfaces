@@ -1,11 +1,15 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 
 combines instrument, calibrate and interfaces to perform the calibration
 and run the actual jobs
 
 """
+
 import shutil
 import os
+
 import numpy as np
 
 from pymatgen import Lattice
@@ -77,8 +81,8 @@ class Measurement(object):
                 cal.setup()
                 cal.run()
             else:
-                print 'calibration calc still running'
-                print 'try again later'
+                print('calibration calc still running')
+                print('try again later')
 
     def setup_static_job(self, cal):
         """
@@ -95,8 +99,8 @@ class Measurement(object):
             cal.add_job(job_dir=job_dir)
         else:
             cal.jobs = []
-            print 'previous calc in the dir, ', cal.job_dir, 'not done yet or is still running'
-            print 'Not setting up the measurement job\n'            
+            print('previous calc in the dir, ', cal.job_dir, 'not done yet or is still running')
+            print('Not setting up the measurement job\n')
 
     def setup_solvation_job(self, cal):
         """
@@ -116,8 +120,8 @@ class Measurement(object):
             cal.add_job(job_dir=job_dir)
         else:
             cal.jobs = []
-            print 'previous calc in the dir, ', cal.job_dir, 'not done yet or is still running'
-            print 'Not setting up the measurement job\n' 
+            print('previous calc in the dir, ', cal.job_dir, 'not done yet or is still running')
+            print('Not setting up the measurement job\n' )
         
     def make_measurements(self):
         """
@@ -142,7 +146,7 @@ class Measurement(object):
         self.setup_static_job(Ligand)
         #make binding Energy measurement
         Binding_energy= self.calculate_binding_energy()
-        print Binding_energy
+        print(Binding_energy)
 
     def measure_energy(self, cal):
         """
@@ -153,14 +157,14 @@ class Measurement(object):
         bg =  BorgQueen(drone)
         for a in self.cal_objs:
             rootpath = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'Relax' #check rootpath to follow? 
-            print 'rootpath = ', rootpath
+            print('rootpath = ', rootpath)
             #bg.parallel_assimilate(rootpath)        
             bg.serial_assimilate(rootpath)
             allentries =  bg.get_data()
             for e in allentries:
                 if e:
                     self.energies = e.energy
-                    print self.energies
+                    print(self.energies)
 
 
     def calculate_binding_energy(self, n_ligands= 1):  #n_ligands may not be needed as this may be taken care of by interface creation

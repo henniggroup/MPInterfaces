@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 process vasprun.xml file by walking through the enitre directory tree
  in the parent directory
@@ -7,8 +9,9 @@ import os
 import glob
 import re
 
-from pymatgen.io.vaspio.vasp_output import Vasprun
 from monty.json import MontyEncoder, MontyDecoder
+
+from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
@@ -167,7 +170,7 @@ class MPINTVaspDrone(VaspToComputedEntryDrone):
         try:
             vasprun = MPINTVasprun(filepath)
         except Exception as ex:
-            print "error in {}: {}".format(filepath, ex)
+            print("error in {}: {}".format(filepath, ex))
             #logger.debug("error in {}: {}".format(filepath, ex))
             return None
 

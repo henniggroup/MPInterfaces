@@ -235,14 +235,16 @@ class Interface(Slab):
         self.enforce_surface_cvrg()
         if self.nlig_sizescell:
             opt_lig_scell_index = self.get_opt_nlig_scell()
+            self.n_ligands = self.possible_nligs[opt_lig_scell_index]
+            self.scell = self.possible_scells[opt_lig_scell_index]
             logger.info(
-                '\nusing ... {0} ligands on a {1} supercell'.format(self.possible_nligs[opt_lig_scell_index],
-                                                                    self.possible_scells[opt_lig_scell_index]))
-            self.make_supercell(self.possible_scells[opt_lig_scell_index])
+                '\nusing ... {0} ligands on a {1} supercell'
+                .format(self.n_ligands, self.scell))
+            self.make_supercell(self.scell)
             self.set_slab()
             self.set_top_atoms()
             self.adsorb_sites = [ self.top_atoms[i]
-                                  for i in range(self.possible_nligs[opt_lig_scell_index])]
+                                  for i in range(self.n_ligands)]
             logger.info('ligands will be adsorbed on these sites on the slab {}'.format(self.adsorb_sites))
             self.cover_surface(self.adsorb_sites)
         else:

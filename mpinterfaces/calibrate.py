@@ -52,19 +52,21 @@ class Calibrate(object):
     calibrating the input parameters for different systems
     
     """
-    def __init__(self, incar, poscar, potcar, kpoints,
+    def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.',job_dir='Job',
                  qadapter=None, job_cmd='qsub', wait=True,
                  turn_knobs=OrderedDict( [ ('ENCUT',[]),
                                            ('KPOINTS',[])] ) ):
         """
+        syatem is the thing that is getting calibrated
         setup_dir = directory from where the setup files are
         copied from.
         parent_job_dir = the directory from which the script is run
         job_dir = name of the job directory relative to
         the parent directory
         """
+        self.system = system
         self.parent_job_dir = os.path.abspath(parent_job_dir)
         self.setup_dir = os.path.abspath(setup_dir)
         self.job_dir = job_dir
@@ -318,7 +320,7 @@ class Calibrate(object):
         run a single job with the initial input set
         """
         if not self.jobs :
-            self.add_job(name='single job', job_dir=self.job_dir)  
+            self.add_job(name='single_job', job_dir=self.job_dir)  
         for j in self.jobs:
             if job_cmd is not None:            
                 j.job_cmd = job_cmd
@@ -469,14 +471,14 @@ class CalibrateMolecule(Calibrate):
     Calibrate paramters for Molecule calculations
     
     """
-    def __init__(self, incar, poscar, potcar, kpoints,
+    def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.',
                  job_dir='./Molecule', qadapter=None,
                  job_cmd='qsub', wait=True,
                  turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints,
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints, system=system,
                            is_matrix = is_matrix, Grid_type = Grid_type,
                            setup_dir=setup_dir,
                            parent_job_dir=parent_job_dir,
@@ -497,14 +499,14 @@ class CalibrateBulk(Calibrate):
     Calibrate paramters for Bulk calculations
     
     """
-    def __init__(self, incar, poscar, potcar, kpoints,
+    def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
                   setup_dir='.', parent_job_dir='.',
                   job_dir='./Bulk', qadapter=None,
                   job_cmd='qsub', wait=True,
                   turn_knobs={'ENCUT':[],'KPOINTS':[]}): 
             
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints,
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints, system=system,
                            is_matrix = is_matrix, Grid_type = Grid_type,
                             setup_dir=setup_dir,
                              parent_job_dir=parent_job_dir,
@@ -519,20 +521,19 @@ class CalibrateSlab(Calibrate):
     Calibrate paramters for Slab calculations
     
     """
-    def __init__(self, incar, poscar, potcar, kpoints,
-                 is_matrix = False, Grid_type = 'A', hkl=[1, 0, 0],
+    def __init__(self, incar, poscar, potcar, kpoints, system=None,
+                 is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.', job_dir='./Slab',
                 qadapter=None, job_cmd='qsub', wait=True,
                 turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints,
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints, system=system,
                            is_matrix = is_matrix, Grid_type = Grid_type,
                             setup_dir=setup_dir,
                              parent_job_dir=parent_job_dir,
                             job_dir=job_dir, qadapter=qadapter,
                              job_cmd=job_cmd, wait=wait,
                             turn_knobs = turn_knobs)
-	self.hkl= hkl 
 
     def _setup(self, turn_knobs=None):
         """
@@ -608,11 +609,11 @@ class CalibrateSlab(Calibrate):
         sd_flags= []
         z_coords_slab= []
         z_coords_ligand= []
-	for i in slab_obj.sites:
-                if i.specie in slab_obj.species:
-                        z_coords_slab.append(i.c)
-                else:
-                        z_coords_ligand.append(i.c)
+        for i in slab_obj.sites:
+            if i.specie in slab_obj.species:
+                z_coords_slab.append(i.c)
+            else:
+                z_coords_ligand.append(i.c)
         z_coords_slab.sort()
 #       for i in range(n_top_layers):
         for i in slab_obj.sites:
@@ -626,41 +627,38 @@ class CalibrateSlab(Calibrate):
         """
         Append sites as needed for reconstruction TODO
 
-	"""
-	pass  
+        """
+        pass  
 
+    
 class CalibrateInterface(Calibrate):
     """
     
     Calibrate paramters for interface calculations
     
     """
-    def __init__(self, incar, poscar, potcar, kpoints,
+    def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A', hkl=[1, 0, 0],
-                 ligand=ligand,
+                 ligand=None,
                  setup_dir='.', parent_job_dir='.', job_dir='./Slab',
                 qadapter=None, job_cmd='qsub', wait=True,
                 turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints,
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints, system=system,
                            is_matrix = is_matrix, Grid_type = Grid_type,
                             setup_dir=setup_dir,
                              parent_job_dir=parent_job_dir,
                             job_dir=job_dir, qadapter=qadapter,
                              job_cmd=job_cmd, wait=wait,
                             turn_knobs = turn_knobs)
-	self.hkl= hkl 
-        self.ligand = ligand
 
-    
-
-
-#test
-"""
-Does Calibration jobs, checks the calculations if done,
-enforces optimum params, and does structural relaxation (a structural calibration task)
-"""
+        
 if __name__ == '__main__':
+    """
+    Does Calibration jobs, checks the calculations if done,
+    enforces optimum params, and does structural relaxation
+    (a structural calibration task)
+    """
     system = 'Pt bulk'
     atoms = ['Pt']
     

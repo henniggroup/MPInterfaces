@@ -126,19 +126,20 @@ if d:
 #---------------------------------------------
 # SETUP JOBS
 #---------------------------------------------        
-cal = CalibrateSlab(incar, poscar, potcar, kpoints, 
+cal = CalibrateSlab(incar, poscar, potcar, kpoints, system=iface,
                     turn_knobs=turn_knobs, qadapter=qadapter,
                     job_cmd = job_cmd, job_dir=job_dir, wait=wait )
 #list of calibrate objects
 cal_objs = [cal]
 #check whether the cal jobs were done 
-Calibrate.check_calcs(cal_objs)
+#Calibrate.check_calcs(cal_objs)
 #set the measurement
-measure = Measurement(cal_objs, job_dir='./Measurements')
+measure = MeasurementInterface(cal_objs, job_dir='./Measurement_int')
+measure.setup()
 #set the measurement jobs
-for cal in cal_objs:                    
-    measure.setup_static_job(cal)
-    #measure.setup_solvation_job(cal)
+#for cal in cal_objs:                    
+#    measure.setup_static_job(cal)
+#    #measure.setup_solvation_job(cal)
     
 #---------------------------------------------
 # RUN

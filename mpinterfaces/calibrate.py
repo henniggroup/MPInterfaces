@@ -76,6 +76,7 @@ class Calibrate(object):
         self.qadapter = qadapter
         self.kname = None
         self.vis = []
+        self.job_dir_list = []
         self.jobs = []
         #example:- handlers = [VaspErrorHandler(),
         #FrozenJobErrorHandler(),
@@ -148,7 +149,7 @@ class Calibrate(object):
                 self.job_dir = job_dir + os.sep + self.val_to_name(val) #re.sub('\.','_',str(val))
                 logger.info('setting jobs in the directory: '+self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))            
-                self.add_job(job_dir=self.job_dir)
+                self.add_job(name=job_dir, job_dir=self.job_dir)
         else:
             for val in self.turn_knobs[keys[i]]:
                 self.job_dir = job_dir + os.sep + self.val_to_name(val) #re.sub('\.','_',str(val))
@@ -255,7 +256,7 @@ class Calibrate(object):
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + \
                     param + os.sep +  self.val_to_name(val) #re.sub('\.','_',str(val)) 
-                self.add_job(name=param+str(val), job_dir=job_dir)
+                self.add_job(name=job_dir, job_dir=job_dir)
             
     def setup_kpoints_jobs(self, kpoints_list = []):
         """
@@ -280,7 +281,7 @@ class Calibrate(object):
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + 'VOLUME' +\
                     os.sep + str(scale)
-                self.add_job(name=str(scale), job_dir=job_dir)
+                self.add_job(name=job_dir, job_dir=job_dir)
 
     def setup_potcar_jobs(self, mappings):
         """
@@ -291,7 +292,7 @@ class Calibrate(object):
                 if not self.is_matrix:
                     job_dir  = self.job_dir+ os.sep + self.key_to_name('POTCAR') +\
                         os.sep + self.potcar_to_name(mapping)
-                    self.add_job(name=self.potcar_to_name(mapping), job_dir=job_dir)
+                    self.add_job(name=job_dir, job_dir=job_dir)
                 
 
     def add_job(self, name='noname', job_dir='.'):
@@ -302,11 +303,12 @@ class Calibrate(object):
                                 self.potcar, self.kpoints,
                                 self.qadapter)
         #the job command can be overrridden in the run method
-        job = MPINTVaspJob(self.job_cmd, final = True,
+        job = MPINTVaspJob(self.job_cmd, name=name, final = True,
                            setup_dir=self.setup_dir,
                            parent_job_dir=self.parent_job_dir,
                            job_dir=job_dir, vis=vis, auto_npar=False,
                             auto_gamma=False, wait=self.wait)
+        self.job_dir_list.append(os.path.abspath(job_dir))
         self.jobs.append(job)
     
     def run(self, job_cmd=None):
@@ -453,7 +455,7 @@ class Calibrate(object):
                         contcar_file= cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'CONTCAR'
                         cal.poscar= Poscar.from_file(contcar_file)
                         cal.incar['NSW'] = 1000
-                        cal.add_job(job_dir=job_dir)
+                        cal.add_job(name=job_dir, job_dir=job_dir)
                 else:
                         cal.jobs = []
                         logger.warn('previous calc in the dir, '+
@@ -574,7 +576,7 @@ class CalibrateSlab(Calibrate):
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + \
                     'VACUUM' + os.sep +  self.val_to_name(val)
-                self.add_job(name='VACUUM'+str(val), job_dir=job_dir)
+                self.add_job(name=job_dir, job_dir=job_dir)
 
     def set_thickness(self, thickness):
         """
@@ -596,7 +598,7 @@ class CalibrateSlab(Calibrate):
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + \
                     'THICKNESS' + os.sep +  self.val_to_name(val)
-                self.add_job(name='THICKNESS'+str(val), job_dir=job_dir)
+                self.add_job(name=job_dir, job_dir=job_dir)
 
     def set_sd_flags(self, slab_obj= None, n_top_layers= 2):
         """useful method to set the SD flags for Slabs, default is assumed as top one layer, 
@@ -625,7 +627,31 @@ class CalibrateSlab(Calibrate):
         Append sites as needed for reconstruction TODO
 
 	"""
-	pass                  			                                                                                                                                              
+	pass  
+
+class CalibrateInterface(Calibrate):
+    """
+    
+    Calibrate paramters for interface calculations
+    
+    """
+    def __init__(self, incar, poscar, potcar, kpoints,
+                 is_matrix = False, Grid_type = 'A', hkl=[1, 0, 0],
+                 ligand=ligand,
+                 setup_dir='.', parent_job_dir='.', job_dir='./Slab',
+                qadapter=None, job_cmd='qsub', wait=True,
+                turn_knobs={'ENCUT':[],'KPOINTS':[]}):
+        
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints,
+                           is_matrix = is_matrix, Grid_type = Grid_type,
+                            setup_dir=setup_dir,
+                             parent_job_dir=parent_job_dir,
+                            job_dir=job_dir, qadapter=qadapter,
+                             job_cmd=job_cmd, wait=wait,
+                            turn_knobs = turn_knobs)
+	self.hkl= hkl 
+        self.ligand = ligand
+
     
 
 

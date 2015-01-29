@@ -3,12 +3,12 @@ from __future__ import division, unicode_literals, print_function
 """
 combines instrument, calibrate and interfaces to perform the calibration
 and run the actual jobs
-
 """
 
 import sys
 import shutil
 import os
+import json
 import logging
 
 import numpy as np
@@ -31,18 +31,15 @@ logger.addHandler(sh)
 
 class Measurement(object):
     """
+    Takes in calibrate objects and use that to perform various 
+    measuremnt(solvation, binding energy etc) calcuations
     
-    Perfor the actual measurement using the optimum knob settings
-    takes calibratemolecule, and calibrateslab
-    setups the interface using the poscars of calmol and calslab objects
-    also uses the knob_settings of calmol and calslab to set up the input set
-    for the interface calulation
-    perform the interface calculations and compute binding energy, bandstructure etc. 
-    
+    sets up and runs static calculation
+
+    Override this class to for custom measuremnts
     """
     def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.',
                  job_dir='./Measurement'):
-        #self.interface = interface
         self.encut = None
         self.kpoints = None
         self.vac_spacing = None
@@ -55,6 +52,10 @@ class Measurement(object):
         self.cal_objs = cal_objs
         self.job_dir = job_dir
         for obj in cal_objs:
+            obj.old_jobs = obj.jobs
+            obj.jobs = []
+            obj.old_job_dir_list = cal.job_dir_list
+            obj.job_dir_list = []
             if isinstance(obj, CalibrateMolecule):
                 self.calmol.append(obj)
             elif isinstance(obj, CalibrateSlab):
@@ -64,21 +65,23 @@ class Measurement(object):
 
     def setup(self):
         """
-        uses the calmol and calslab objects to creat the interface poscar
-        and other input files for vasp calculation
-        create a list of jobs to run
-        exampls:- change coverage, site occupancies,
-        also run molecule, slab relaxation calcs
+        setup static jobs for the calibrate objects
+        copies CONTCAR to POSCAR
+        set NSW = 0
         """
-        #job_dir  = self.parent_job_dir + iface.name
-        #self.job_dirs.append(job_dir)
-        #vis = MPINTVaspInputSet(iface.name, self.incar, self.poscar,
-            #self.potcar, self.kpoints)
-            #the job command can be overrridden in the run method
-        #job = MPINTVaspJob(["pwd"], final = True, setup_dir=self.setup_dir,
-            # job_dir=job_dir, vis=vis, auto_npar=False, auto_gamma=False)
-        #self.jobs.append(job)
-        pass
+        for cal in self.cal_objs:
+            if cal.calc_done:
+                cal.incar['NSW'] = 0
+                for i, dir in enumerate(cal.old_job_dir_list):
+                    job_dir = self.job_dir+os.sep+ \
+                        cal.old_jobs[i].name.replace(os.sep, '_').replace('.', '_')+ \
+                        os.sep+'STATIC'
+                    contcar_file = dir+os.sep+'CONTCAR'            
+                    cal.poscar = Poscar.from_file(contcar_file)
+                    cal.add_job(job_dir=job_dir)
+            else:
+                logger.warn('previous calc not done yet or is still running')
+                logger.warn('Not setting up the measurement job\n')
 
     def run(self, job_cmd=None):
         """ run jobs """
@@ -92,107 +95,136 @@ class Measurement(object):
                 logger.warn('calibration calc still running')
                 logger.warn('try again later')
 
-    def setup_static_job(self, cal):
+    def get_energy(self, cal):
         """
-        setup static jobs for the calibrate objects
-        copies CONTCAR to POSCAR
-        and
-        set NSW = 0
+        measures the energy of a single cal object
         """
-        if cal.calc_done:
-            job_dir = self.job_dir+os.sep+'STATIC'
-            contcar_file = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'CONTCAR'            
-            cal.poscar = Poscar.from_file(contcar_file)
-            cal.incar['NSW'] = 0
-            cal.add_job(job_dir=job_dir)
-        else:
-            cal.jobs = []
-            logger.warn('previous calc in the dir, '+cal.job_dir+'not done yet or is still running')
-            logger.warn('Not setting up the measurement job\n')
+        cal.energies = []
+        for job_dir in cal.job_dir_list:
+            drone = MPINTVaspDrone(inc_structure=True, 
+                                   inc_incar_n_kpoints=False)
+            bg =  BorgQueen(drone)
+            #bg.parallel_assimilate(rootpath)        
+            bg.serial_assimilate(job_dir)
+            allentries =  bg.get_data()
+            for e in allentries:
+                if e:
+                    cal.energies.append(e.energy)
+                    logger.info(e.energy)
 
-    def setup_solvation_job(self, cal):
+    def make_measurements(self):
+        """
+        """
+        for cal in self.cal_objs:
+            self.measure_energy(cal)
+
+
+class MeasurementSolvation(Measurement):
+    """
+    Solvation
+    """
+    def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.', job_dir='./MeasurementSolvation',
+                 sol_params={'EB_K':80, 'TAU':0}):
+        Measurement.__init__(self, cal_objs=cal_objs, setup_dir=setup_dir, 
+                            parent_job_dir=parent_job_dir, job_dir=job_dir):
+        self.sol_params = sol_params
+
+
+    def setup(self):
         """
         setup solvation jobs for the calibrate objects
         copies WAVECAR
         and
         sets the solvation params in the incar file
+        works only for cal objects that does only single calc
         """
-        if cal.calc_done:       
-            job_dir = self.job_dir+os.sep+'SOL'       
-            cal.incar['LSOL'] = '.TRUE.'
-            cal.incar['EB_K'] = 80
-            if not os.path.exists(job_dir):            
-                os.makedirs(job_dir)
-            wavecar_file = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'WAVECAR'
-            shutil.copy(wavecar_file, job_dir+os.sep+'WAVECAR')
-            cal.add_job(job_dir=job_dir)
-        else:
-            cal.jobs = []
-            logger.warn('previous calc in the dir, '+cal.job_dir+'not done yet or is still running')
-            logger.warn('Not setting up the measurement job\n' )
-        
+        for cal in self.cal_objs:
+            if cal.calc_done:       
+                job_dir = self.job_dir+os.sep+ \
+                    cal.old_jobs[0].name.replace(os.sep, '_').replace('.', '_')+ \
+                    os.sep + 'SOL'       
+                cal.incar['LSOL'] = '.TRUE.'
+                for k, v in self.sol_params:
+                    cal.incar[k] = v
+                if not os.path.exists(job_dir):            
+                    os.makedirs(job_dir)
+                wavecar_file = cal.old_job_dir_list[0]+os.sep+'WAVECAR'
+                shutil.copy(wavecar_file, job_dir+os.sep+'WAVECAR')
+                cal.add_job(job_dir=job_dir)
+            else:
+                logger.warn('previous calc in the dir, '+cal.job_dir+'not done yet or is still running')
+                logger.warn('Not setting up the measurement job\n' )
+
     def make_measurements(self):
         """
-        To calculate binding energy of interface.
-        Needs to get relaxed molecule energy,
-        relaxed slab energy and relaxed interface energies
-        Get the molecule and slab energies from a relaxation run
-        of optimum paramter set for Molecule and Slab.
-        Goes to the required directories for Molecule and Slab
-        and uses Vasprun to parse through the vasprun.xml and gets the energy,
-        and compute the required quantities
+        call this after setup and run
+        get solvation energies
         """
-        #is distinguishing between slab, interface and ligand necessary?
-        #for Interface
-        Interface= self.cal_objs[0]
-        self.setup_static_job(Interface)
-        #for Slab
-        Slab= self.cal_objs[1]
-        self.setup_static_job(Slab)
-        #for Ligand
-        Ligand= self.cal_objs[2]
-        self.setup_static_job(Ligand)
-        #make binding Energy measurement
+        pass
+
+
+class MeasurementInterface(Measurement):
+    """
+    Interface
+    """
+    def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.', job_dir='./MeasurementSolvation'):
+        Measurement.__init__(self, cal_objs=cal_objs, setup_dir=setup_dir, 
+                            parent_job_dir=parent_job_dir, job_dir=job_dir):
+
+    def setup(self):
+        """
+        setup static jobs for the calibrate objects
+        copies CONTCAR to POSCAR
+        set NSW = 0
+        write system.json file for database
+        """
+        d = {}
+        for cal in self.cal_objs:
+            if cal.calc_done:
+                cal.incar['NSW'] = 0
+                for i, dir in enumerate(cal.old_job_dir_list):
+                    job_dir = self.job_dir+os.sep+ \
+                        cal.old_jobs[i].name.replace(os.sep, '_').replace('.', '_')+ \
+                        os.sep+'STATIC'
+                    contcar_file = dir+os.sep+'CONTCAR'            
+                    cal.poscar = Poscar.from_file(contcar_file)
+                    if isinstance(cal, CalibrateSlab) or isinstance(obj, CalibrateInterface):
+                        d['hkl'] = cal.hkl
+                    if isinstance(obj, CalibrateInterface):                    
+                        d['ligand'] = cal.ligand.composition.formula
+                    os.makedirs(job_dir)
+                    if d:
+                        with open(job_dir+os.sep+'system.json') as f:
+                            json.dump(d, f)
+                    cal.add_job(job_dir=job_dir)
+            else:
+                logger.warn('previous calc not done yet or is still running')
+                logger.warn('Not setting up the measurement job\n')
+
+
+    def make_measurements(self):
+        """
+        call this after setup and run
+        """
         Binding_energy= self.calculate_binding_energy()
         logger.info(Binding_energy)
 
-    def measure_energy(self, cal):
-        """
-        measures the energy of a single cal object
-        """
-        drone = \
-          MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=False)
-        bg =  BorgQueen(drone)
-        for a in self.cal_objs:
-            rootpath = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'Relax' #check rootpath to follow? 
-            logger.info('rootpath = '+rootpath)
-            #bg.parallel_assimilate(rootpath)        
-            bg.serial_assimilate(rootpath)
-            allentries =  bg.get_data()
-            for e in allentries:
-                if e:
-                    self.energies = e.energy
-                    logger.info(self.energies)
-
-
-    def calculate_binding_energy(self, n_ligands= 1):  #n_ligands may not be needed as this may be taken care of by interface creation
+    def calculate_binding_energy(self): 
         """
         calculates the binding energies as Binding Energy = Interface - (Slab + Ligand) 
         in cal_objs list , 0th is treated as interface, 1st is treated as slab, 2nd 
         is treated as ligand
-
         """
-        Interface_energy= self.measure_energy(self.cal_objs[0])
-        Slab_energy= self.measure_energy(self.cal_objs[1])
-        Ligand_energy= self.measure_energy(self.cal_objs[2])
+        self.get_energy(self.cal_objs)
+        Interface_energy= self.cal_objs[0].energies[0]
+        Slab_energy= self.cal_objs[1].energies[1]
+        Ligand_energy= self.cal_objs[2].energies[2]
         #testing purpose 
         if Ligand_energy == None or Slab_energy == None or Interface_energy == None:
                 return "Binding Energy not ready"
         else:
                 Binding_energy= Interface_energy - (Slab_energy + n_ligands*Ligand_energy)
                 return Binding_energy
-
-        pass
 
 
 #test
@@ -229,9 +261,11 @@ if __name__=='__main__':
     Calibrate.check_calcs(cal_objs)
     #set the measurement
     measure = Measurement(cal_objs, job_dir='./Measurements')
-    #set the measurement jobs
-    for cal in cal_objs:                    
-        measure.setup_static_job(cal)
-        measure.setup_solvation_job(cal)
+    measure.setup()
     measure.run()
+    #set the measurement jobs
+    #for cal in cal_objs:                    
+    #    measure.setup(cal)
+    #    #measure.setup_solvation_job(cal)
+    #measure.run()
 

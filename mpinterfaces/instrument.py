@@ -109,7 +109,7 @@ class MPINTVaspJob(Job):
        job_dir : the directory from which the jobs will be launched
     
     """
-    def __init__(self, job_cmd, output_file="job.out", setup_dir='.',
+    def __init__(self, job_cmd, name='noname',output_file="job.out", setup_dir='.',
                  parent_job_dir='.', job_dir='untitled', suffix="",
                  final=True, gzipped=False, backup=False,
                  vis=None, auto_npar=True,
@@ -117,6 +117,7 @@ class MPINTVaspJob(Job):
                  gamma_vasp_cmd=None, copy_magmom=False, wait=True):
 
         self.job_cmd = job_cmd
+        self.name = name
         self.output_file = output_file
         self.setup_dir = setup_dir
         self.parent_job_dir = parent_job_dir

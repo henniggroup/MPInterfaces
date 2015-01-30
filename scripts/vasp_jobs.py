@@ -93,7 +93,7 @@ incar['NPAR'] = int(sqrt(nprocs))
 d = {}
 wait = True
 #hipergator
-if 'gator' in socket.gethostname():
+if 'ufhpc' in socket.gethostname():
     d = {'type':'PBS',
      'params':
      {

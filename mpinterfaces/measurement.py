@@ -15,7 +15,8 @@ import numpy as np
 
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.vaspio.vasp_input import Incar, Poscar
+from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
 
 from mpinterfaces.calibrate import Calibrate, CalibrateMolecule
 from mpinterfaces.calibrate import CalibrateSlab, CalibrateBulk
@@ -33,19 +34,15 @@ logger.addHandler(sh)
 class Measurement(object):
     """
     Takes in calibrate objects and use that to perform various 
-    measurement calcuations such as solvation, ligand binding energy etc
-    
-    default behaviour: sets up and runs static calculations for all
+    measurement calculations such as solvation, ligand binding energy 
+    etc
+    default behaviour is to setup and run static calculations for all
     the given calibrate jobs
 
-    Override this classfor custom measuremnts
+    Override this class for custom measurements
     """
     def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.',
                  job_dir='./Measurement'):
-        self.encut = None
-        self.kpoints = None
-        self.vac_spacing = None
-        self.slab_thickness = None
         self.jobs = []
         self.handlers = []
         self.calmol = []
@@ -56,7 +53,7 @@ class Measurement(object):
         for obj in cal_objs:
             obj.old_jobs = obj.jobs
             obj.jobs = []
-            obj.old_job_dir_list = cal.job_dir_list
+            obj.old_job_dir_list = obj.job_dir_list
             obj.job_dir_list = []
 
     def setup(self):
@@ -68,12 +65,13 @@ class Measurement(object):
         for cal in self.cal_objs:
             cal.incar['NSW'] = 0
             for i, jdir in enumerate(cal.old_job_dir_list):
-                job_dir = self.job_dir+os.sep+ \
-                  cal.old_jobs[i].name.replace(os.sep, '_').replace('.', '_')+ \
-                  os.sep+'STATIC'
+                job_dir = self.job_dir + os.sep \
+                  + cal.old_jobs[i].name.replace(os.sep, '_').replace('.', '_') \
+                  + os.sep+'STATIC'
                 logger.info('setting up job in {}'.format(job_dir))                  
                 contcar_file = jdir+os.sep+'CONTCAR'
-                logger.info('setting poscar file from {}'.format(contcar_file))
+                logger.info('setting poscar file from {}'
+                            .format(contcar_file))
                 cal.poscar = Poscar.from_file(contcar_file)
                 cal.add_job(job_dir=job_dir)
 
@@ -117,10 +115,13 @@ class MeasurementSolvation(Measurement):
     """
     Solvation
     """
-    def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.', job_dir='./MeasurementSolvation',
+    def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.', 
+                 job_dir='./MeasurementSolvation',
                  sol_params={'EB_K':80, 'TAU':0}):
-        Measurement.__init__(self, cal_objs=cal_objs, setup_dir=setup_dir, 
-                            parent_job_dir=parent_job_dir, job_dir=job_dir)
+        Measurement.__init__(self, cal_objs=cal_objs, 
+                            setup_dir=setup_dir, 
+                            parent_job_dir=parent_job_dir, 
+                            job_dir=job_dir)
         self.sol_params = sol_params
 
 
@@ -130,14 +131,14 @@ class MeasurementSolvation(Measurement):
         copies WAVECAR and sets the solvation params in the incar file
         also dumps system.json file in each directory for database
         crawler
-        
-        mind: works only for cal objects that does only single calculations
+        mind: works only for cal objects that does only single 
+        calculations
         """
         for cal in self.cal_objs:
             cal.incar['LSOL'] = '.TRUE.'            
-            job_dir = self.job_dir+os.sep+ \
-                    cal.old_jobs[0].name.replace(os.sep, '_').replace('.', '_')+ \
-                    os.sep + 'SOL'       
+            job_dir = self.job_dir + os.sep \
+                    + cal.old_jobs[0].name.replace(os.sep, '_').replace('.', '_') \
+                    + os.sep + 'SOL'       
             for k, v in self.sol_params:
                 cal.incar[k] = v
             if not os.path.exists(job_dir):            
@@ -161,8 +162,10 @@ class MeasurementInterface(Measurement):
     """
     def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.',
                  job_dir='./MeasurementInterface'):
-        Measurement.__init__(self, cal_objs=cal_objs, setup_dir=setup_dir, 
-                            parent_job_dir=parent_job_dir, job_dir=job_dir)
+        Measurement.__init__(self, cal_objs=cal_objs,
+                            setup_dir=setup_dir, 
+                            parent_job_dir=parent_job_dir,
+                            job_dir=job_dir)
         self.cal_slabs = []
         self.cal_interfaces = []
         self.cal_ligands = []
@@ -185,8 +188,8 @@ class MeasurementInterface(Measurement):
         for cal in self.cal_objs:
             cal.incar['NSW'] = 0
             for i, jdir in enumerate(cal.old_job_dir_list):
-                job_dir = self.job_dir+os.sep+ \
-                    cal.old_jobs[i].name.replace(os.sep, '_').replace('.', '_')+ \
+                job_dir = self.job_dir + os.sep \
+                    + cal.old_jobs[i].name.replace(os.sep, '_').replace('.', '_')+ \
                     os.sep+'STATIC'
                 contcar_file = jdir+os.sep+'CONTCAR'            
                 cal.poscar = Poscar.from_file(contcar_file)
@@ -194,12 +197,14 @@ class MeasurementInterface(Measurement):
                     try:
                         d['hkl'] = list(cal.system.miller_index)
                     except:
-                        logger.critical('the calibrate object doesnt have a system set for calibrating')
+                        logger.critical("""the calibrate object doesnt 
+                        have a system set for calibrating""")
                 if cal in self.cal_interfaces:
                     try:
                         d['ligand'] = cal.system.ligand.composition.formula
                     except:
-                        logger.critical('the calibrate object doesnt have a system set for calibrating')                        
+                        logger.critical("""the calibrate object doesnt 
+                        have a system set for calibrating""")                        
                 if not os.path.exists(job_dir):
                     os.makedirs(job_dir)
                 if d:
@@ -270,10 +275,12 @@ if __name__=='__main__':
                     predictor_corrector=None)
     potcar = Potcar(symbols=poscar.site_symbols, functional='PBE',
                     sym_potcar_map=None)
-    kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16), shift=(0, 0, 0))
+    kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16), 
+                                          shift=(0, 0, 0))
 
-    cal = CalibrateInterface(incar, poscar, potcar, kpoints, system=iface,
-                        job_dir='test', job_cmd=['ls','-lt'])
+    cal = CalibrateInterface(incar, poscar, potcar, kpoints, 
+                             system=iface,
+                             job_dir='test', job_cmd=['ls','-lt'])
     cal.setup()
     cal.run()
     #list of calibrate objects

@@ -4,7 +4,6 @@ from __future__ import division, unicode_literals, print_function
 Calibration module:  
 TODO: slab convergence, add method of creating reconstructed 111
 based on that calibrate slab
-
 """
 
 import sys
@@ -59,12 +58,31 @@ class Calibrate(object):
                  turn_knobs=OrderedDict( [ ('ENCUT',[]),
                                            ('KPOINTS',[])] ) ):
         """
-        syatem is the thing that is getting calibrated
-        setup_dir = directory from where the setup files are
-        copied from.
-        parent_job_dir = the directory from which the script is run
-        job_dir = name of the job directory relative to
-        the parent directory
+        Calibrate constructor
+
+        Args:
+            incar (Incar object): input INCAR
+            poscar (Poscar object): input POSCAR
+            potcar (Potcar object): input POTCAR
+            kpoints: input KPOINTS
+            system: Structure, Molecule, Slab, Ligand or Interface
+                object
+            is_matrix (bool): whether the jobs are dependent on each
+                other
+            Grid_type: kpoints grid_type
+            setup_dir: directory from which the intial setup files
+                will be copied from
+            parent_job_dir: the directory from which all the jobs are
+                launched
+            job_dir: job directory
+            qadapter: adapter for the batch system
+            job_cmd: command to be used for submitting the job. If 
+                qadapter is specified then job_cmd is ignored
+            wait: whther to wait for the job to finish. If the job is
+                being submitted to the queue then there is no need for \
+                waiting
+            turn_knobs: an ordered dictionary of parmaters and the 
+                corresponding values
         """
         self.system = system
         self.parent_job_dir = os.path.abspath(parent_job_dir)
@@ -99,8 +117,8 @@ class Calibrate(object):
     def setup(self):
         """
         set up the jobs for the given turn_knobs dict
-        is_matrix = True implies that the params in the dict are interrelated
-        otherwise calcs corresponding to each dict key is independent
+        is_matrix = True implies that the params in the dict are 
+        interrelated. Otherwise calcs corresponding to each dict key is independent
         """
         if self.is_matrix: 
             self.setup_matrix_job()	
@@ -112,18 +130,25 @@ class Calibrate(object):
         invoke the set up methods corresponding to the dict keys
         any key other than KPOINTS, VOLUME and POTCAR are treated
         as INCAR parameters
+        
+        Args:
+            turn_knobs: knobs aka paramters to be tuned
         """
         if turn_knobs is None:
             turn_knobs = self.turn_knobs
-        for k, v in turn_knobs.items():
-            if k == 'KPOINTS' and v:
-                self.setup_kpoints_jobs(kpoints_list = v)
-            elif k == 'VOLUME' and v:
-                self.setup_poscar_jobs(scale_list = v)
-            elif k == 'POTCAR' and v:
-                self.setup_potcar_jobs(mappings = v)
-            else:
-                self.setup_incar_jobs(k, v)                    
+        if any(turn_knobs.values()):
+            for k, v in turn_knobs.items():
+                if k == 'KPOINTS' and v:
+                    self.setup_kpoints_jobs(kpoints_list = v)
+                elif k == 'VOLUME' and v:
+                    self.setup_poscar_jobs(scale_list = v)
+                elif k == 'POTCAR' and v:
+                    self.setup_potcar_jobs(mappings = v)
+                else:
+                    self.setup_incar_jobs(k, v)
+        else:
+            logger.warn('knobs not set, running a single job')
+            self.add_job(name='single_job', job_dir=self.job_dir)          
 
     def setup_matrix_job(self):
         """
@@ -135,7 +160,8 @@ class Calibrate(object):
         job_dir = self.job_dir
         n_items = len(self.turn_knobs.items())
         keys = self.turn_knobs.keys()
-        self._setup(turn_knobs=dict([(keys[0], self.turn_knobs[keys[0]])]))
+        self._setup(turn_knobs=dict([(keys[0], 
+                                      self.turn_knobs[keys[0]])]))
         self.recursive_jobs(n_items, keys, 0)
         #restore
         self.job_dir = orig_job_dir
@@ -144,6 +170,12 @@ class Calibrate(object):
     def recursive_jobs(self,n, keys, i):
         """
         recursively setup the jobs: used by setup_matrix_job
+        
+        Args:
+            n: total number of knobs aka parameters to be tuned
+            keys: list of knobs i.e parameter names
+            i: ith knob
+            
         """
         job_dir = self.job_dir + os.sep + self.key_to_name(keys[i])
         if i == n-1 and i != 0:
@@ -162,6 +194,13 @@ class Calibrate(object):
     def key_to_name(self, key):
         """
         convenient string mapping for the keys in the turn_knobs dict
+        
+        Args:
+            key: key to the knob dict
+            
+        Returns:
+            an appropriate string representation of the key so that
+            the name doesnt clash with the filenames
         """
         if key == 'KPOINTS':
             return 'KPTS'
@@ -174,10 +213,20 @@ class Calibrate(object):
         """
         convert a value to a string so that it can be used for naming
         the job directory
-        the decimal points in floats are replaced with underscore character
-        if the value is of type list, kpoint_to_name method is used since
+        the decimal points in floats are replaced with underscore 
+        character
+        if the value is of type list, kpoint_to_name method is used 
+        since
         only kpoint values are expected to be of type list
-        if the values is of type dict then potcar_to_name method is invoked
+        if the values is of type dict then potcar_to_name method is 
+        invoked
+        
+        Args:
+            val: knob value to be converted into an appropriate string 
+                representation
+            
+        Returns:
+            a string
         """
         if type(val) == float:
             return re.sub('\.','_',str(val))
@@ -191,18 +240,31 @@ class Calibrate(object):
     def kpoint_to_name(self, kpoint, grid_type):
         """
         get a string representation for the given kpoint
+        
+        Args:
+            kpoint: an iterable
+            grid_type: grid_type used for the KPOINTS
+        
+        Returns:    
+            string
         """
         if grid_type == 'M':
-            return str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' + str(kpoint[2])
+            return str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' \
+                + str(kpoint[2])
         elif grid_type == 'A':    
             return str(kpoint)
 
     def potcar_to_name(self, mapping):
         """
-        convert a symbol mapping to a name that can be used for setting up
-        the potcar jobs
-        example:- if mapping = {'Pt':'Pt_pv', 'Si':'Si_GW'} then the
-        name will be Pt_pvSi_GW
+        convert a symbol mapping to a name that can be used for setting
+         up the potcar jobs
+         
+         Args:
+             mapping: example:- if mapping = {'Pt':'Pt_pv', 
+                 'Si':'Si_GW'} then the name will be Pt_pvSi_GW
+                 
+        Returns:
+            tring
         """
         l = [v for k,v in mapping.items()]
         return ''.join(l)
@@ -252,13 +314,18 @@ class Calibrate(object):
         """
         set up incar jobs
         """
-        for val in val_list:
-            logger.info('setting INCAR parameter ' + param + ' = '+str(val))
-            self.set_incar(param, val)
-            if not self.is_matrix:
-                job_dir  = self.job_dir+ os.sep + \
-                    param + os.sep +  self.val_to_name(val) #re.sub('\.','_',str(val)) 
-                self.add_job(name=job_dir, job_dir=job_dir)
+        if val_list:
+            for val in val_list:
+                logger.info('setting INCAR parameter ' + param + ' = '\
+                            + str(val))
+                self.set_incar(param, val)
+                if not self.is_matrix:
+                    job_dir  = self.job_dir+ os.sep + \
+                        param + os.sep +  self.val_to_name(val)
+                    self.add_job(name=job_dir, job_dir=job_dir)
+        else:
+        	logger.warn('incar list empty')
+                    
             
     def setup_kpoints_jobs(self, kpoints_list = []):
         """
@@ -271,7 +338,7 @@ class Calibrate(object):
                 if not self.is_matrix:                     
                     self.add_job(name=job_dir, job_dir=job_dir)
         else:
-        	logger.info('kpoints_list not provided')
+        	logger.warn('kpoints_list empty')
             
     def setup_poscar_jobs(self, scale_list, Name = "volume_scale_"):
         """
@@ -292,14 +359,16 @@ class Calibrate(object):
         for mapping in mappings:
                 self.set_potcar(mapping)
                 if not self.is_matrix:
-                    job_dir  = self.job_dir+ os.sep + self.key_to_name('POTCAR') +\
-                        os.sep + self.potcar_to_name(mapping)
+                    job_dir  = self.job_dir+ os.sep \
+                        + self.key_to_name('POTCAR') \
+                        + os.sep + self.potcar_to_name(mapping)
                     self.add_job(name=job_dir, job_dir=job_dir)
                 
 
     def add_job(self, name='noname', job_dir='.'):
         """
-        add a single job using the current incar, poscar, potcar and kpoints
+        add a single job using the current incar, poscar, potcar and 
+        kpoints
         """
         vis = MPINTVaspInputSet(name, self.incar, self.poscar,
                                 self.potcar, self.kpoints,
@@ -319,8 +388,6 @@ class Calibrate(object):
         if the job list is empty,
         run a single job with the initial input set
         """
-        if not self.jobs :
-            self.add_job(name='single_job', job_dir=self.job_dir)  
         for j in self.jobs:
             if job_cmd is not None:            
                 j.job_cmd = job_cmd
@@ -349,7 +416,6 @@ class Calibrate(object):
             for e in allentries:
                 if e:
                     self.n_atoms = len(e.structure)
-                    #print 'n_atoms', self.n_atoms
                     if k == 'KPOINTS':
                         self.response_to_knobs[k][str(e.kpoints.kpts)] \
                            = e.energy
@@ -359,9 +425,10 @@ class Calibrate(object):
 
     def set_sorted_optimum_params(self):
         """
-        sort the dictionary of energy values and enforce the convergence criterion.
-        Finally, get the optimum parameter values from the set of values that satisfy 
-        the convergence criterion
+        sort the dictionary of energy values and enforce the convergence 
+        criterion.
+        Finally, get the optimum parameter values from the set of values
+         that satisfy the convergence criterion
         """
         matching_knob_responses = []
         sorted_knob_responses = []                
@@ -370,14 +437,15 @@ class Calibrate(object):
         # energy  to small value
         for k, v in self.response_to_knobs.items():
             sorted_knob_responses = \
-              sorted(v.items(), key=operator.itemgetter(1), reverse=True)
-            #print 'sorted_knob_responses ', sorted_knob_responses
+              sorted(v.items(), 
+                     key=operator.itemgetter(1), reverse=True)
             #get the list of encut and kpoints that
             #satisfy the delate criterion
             #mind: default deltae = 0.001eV per atom
-            matching_knob_responses = self.enforce_cutoff(sorted_knob_responses)
-            self.sorted_response_to_knobs[k] = OrderedDict(sorted_knob_responses)
-            #print 'matching_knob_response ', matching_knob_responses
+            matching_knob_responses \
+                = self.enforce_cutoff(sorted_knob_responses)
+            self.sorted_response_to_knobs[k] \
+                = OrderedDict(sorted_knob_responses)
             if matching_knob_responses:
                 if k == "KPOINTS" and self.Grid_type == 'M':
                     nkpt = matching_knob_responses[0][0] * \
@@ -398,13 +466,10 @@ class Calibrate(object):
         matching_list = []
         for i, e in enumerate(input_list):
             if i < len(input_list)-1:
-                #print i, input_list[i+1], e
-                #print np.abs(input_list[i+1][1] - e[1])
                 if np.abs(input_list[i+1][1] - e[1])/self.n_atoms <= \
                   delta_e_peratom:
                     matching_list.append(input_list[i+1][0])
         if matching_list:
-            #print matching_list
             matching_kpt_list = []
             if '[[' in matching_list[0]:
                 for ml in matching_list:
@@ -423,28 +488,40 @@ class Calibrate(object):
     @staticmethod
     def check_calcs(cal_objs):
         """
-        checks the OUTCAR file to see whether the calulation is done or not
-        also checks(rather naively) for whether the calculation is running or not
-        sets the calc_done and isrunning variables in the calibrate objects
+        checks the OUTCAR file to see whether the calulation is done or 
+        not. Also checks(rather naively) for whether the calculation is 
+        running or not.
+        Sets the calc_done and isrunning variables in the calibrate 
+        objects
         """
+        done = []
         for cal in cal_objs:        
             cal.calc_done = False
             cal.isrunning = False
-            outcar_file = cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'OUTCAR'
-            if os.path.isfile(outcar_file):
-                mtime = os.stat(outcar_file)[8]
-                last_mod_time =  datetime.datetime.fromtimestamp(mtime)
-                current_time = datetime.datetime.now()
-                logger.info('time delta {}'.format(current_time - last_mod_time))
-                #check whether the OUTCAR file had been modified in the last hour
-                #if it had not been modified in the past hour, the calculation is assumed dead
-                if current_time - last_mod_time < datetime.timedelta(seconds=3600):
-                    cal.isrunning = True
-                outcar = Outcar(outcar_file)
-                for k in outcar.run_stats.keys():
-                    if 'time' in k:
-                        cal.calc_done = True
-                        break
+            for jdir in cal.old_job_dir_list:
+                outcar_file = jdir + os.sep + 'OUTCAR'
+                if os.path.isfile(outcar_file):
+                    mtime = os.stat(outcar_file)[8]
+                    last_mod_time =  datetime.datetime.fromtimestamp(mtime)
+                    current_time = datetime.datetime.now()
+                    logger.info('time delta {}'
+                                .format(current_time - last_mod_time))
+                    #check whether the OUTCAR file had been modified in the
+                    # last hour
+                    #if it had not been modified in the past hour, the 
+                    #calculation is assumed dead
+                    if current_time - last_mod_time < datetime.timedelta(seconds=3600):
+                        cal.isrunning = True
+                    outcar = Outcar(outcar_file)
+                    for k in outcar.run_stats.keys():
+                        if 'time' in k:
+                            cal.calc_done = True
+                            done.append(cal.calc_done)
+                            break
+        if done:
+            return all(done)
+        else:
+            return False
     
     def setup_relaxation_job(self, cal_objs):
         """
@@ -454,14 +531,16 @@ class Calibrate(object):
         for cal in cal_objs:
                 if cal.calc_done:
                         job_dir= self.job_dir+os.sep+'Relax'
-                        contcar_file= cal.parent_job_dir+os.sep+cal.job_dir+os.sep+'CONTCAR'
+                        contcar_file= cal.parent_job_dir \
+                            +os.sep + cal.job_dir + os.sep + 'CONTCAR'
                         cal.poscar= Poscar.from_file(contcar_file)
                         cal.incar['NSW'] = 1000
                         cal.add_job(name=job_dir, job_dir=job_dir)
                 else:
                         cal.jobs = []
                         logger.warn('previous calc in the dir, '+
-                                    cal.job_dir+'not done yet or is still running')
+                                    cal.job_dir 
+                                    + 'not done yet or is still running')
                         logger.warn('Not setting up the relaxation job\n')
                     
         
@@ -478,9 +557,9 @@ class CalibrateMolecule(Calibrate):
                  job_cmd='qsub', wait=True,
                  turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints, system=system,
-                           is_matrix = is_matrix, Grid_type = Grid_type,
-                           setup_dir=setup_dir,
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints, 
+                           system=system, is_matrix = is_matrix, 
+                           Grid_type = Grid_type, setup_dir=setup_dir,
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd, wait=wait,
@@ -506,20 +585,18 @@ class CalibrateBulk(Calibrate):
                   job_cmd='qsub', wait=True,
                   turn_knobs={'ENCUT':[],'KPOINTS':[]}): 
             
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints, system=system,
-                           is_matrix = is_matrix, Grid_type = Grid_type,
-                            setup_dir=setup_dir,
-                             parent_job_dir=parent_job_dir,
-                             job_dir=job_dir, qadapter=qadapter,
-                              job_cmd=job_cmd,wait=wait,
-                             turn_knobs = OrderedDict(turn_knobs))
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints,
+                           system=system, is_matrix = is_matrix,
+                           Grid_type = Grid_type, setup_dir=setup_dir,
+                           parent_job_dir=parent_job_dir,
+                           job_dir=job_dir, qadapter=qadapter,
+                           job_cmd=job_cmd,wait=wait,
+                           turn_knobs = OrderedDict(turn_knobs))
         
 
 class CalibrateSlab(Calibrate):
     """
-    
     Calibrate paramters for Slab calculations
-    
     """
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
@@ -527,13 +604,13 @@ class CalibrateSlab(Calibrate):
                 qadapter=None, job_cmd='qsub', wait=True,
                 turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints, system=system,
-                           is_matrix = is_matrix, Grid_type = Grid_type,
-                            setup_dir=setup_dir,
-                             parent_job_dir=parent_job_dir,
-                            job_dir=job_dir, qadapter=qadapter,
-                             job_cmd=job_cmd, wait=wait,
-                            turn_knobs = turn_knobs)
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints, 
+                           system=system, is_matrix = is_matrix,
+                           Grid_type = Grid_type,setup_dir=setup_dir,
+                           parent_job_dir=parent_job_dir,
+                           job_dir=job_dir, qadapter=qadapter,
+                           job_cmd=job_cmd, wait=wait,
+                           turn_knobs = turn_knobs)
 
     def _setup(self, turn_knobs=None):
         """
@@ -542,37 +619,45 @@ class CalibrateSlab(Calibrate):
         """
         if turn_knobs is None:
             turn_knobs = self.turn_knobs
-        for k, v in turn_knobs.items():
-            if k == 'KPOINTS' and v:
-                self.setup_kpoints_jobs(kpoints_list = v)
-            elif k == 'VOLUME' and v:
-                self.setup_poscar_jobs(scale_list = v)
-            elif k == 'POTCAR' and v:
-                self.setup_potcar_jobs(mappings = v)
-            elif k == 'VACUUM' and v:
-                self.setup_vacuum_jobs()
-            elif k == 'THICKNESS' and v:
-                self.setup_thickness_jobs()
-            else:
-                self.setup_incar_jobs(k, v)                    
+        if any(turn_knobs.values()):            
+            for k, v in turn_knobs.items():
+                if k == 'KPOINTS' and v:
+                    self.setup_kpoints_jobs(kpoints_list = v)
+                elif k == 'VOLUME' and v:
+                    self.setup_poscar_jobs(scale_list = v)
+                elif k == 'POTCAR' and v:
+                    self.setup_potcar_jobs(mappings = v)
+                elif k == 'VACUUM' and v:
+                    self.setup_vacuum_jobs()
+                elif k == 'THICKNESS' and v:
+                    self.setup_thickness_jobs()
+                else:
+                    self.setup_incar_jobs(k, v)
+        else:
+            logger.warn('knobs not set, running a single job')
+            self.add_job(name='single_job', job_dir=self.job_dir)          
+                
 	
     def set_vacuum(self, vac_space):
         """
         set the vacuum spacing and call sd_flags for top 2 layers
         """ 
         strt_structure = Poscar.from_dict(self.poscar_orig).structure
-        slab_struct= SlabGenerator(initial_structure= strt_structure, miller_index= self.hkl, min_slab_size= 10,
-                         min_vacuum_size=vac_space, lll_reduce=False, center_slab=True, primitive=False).get_slab()
+        slab_struct= SlabGenerator(initial_structure= strt_structure,
+                                   miller_index= self.hkl, 
+                                   min_slab_size= 10,
+                                   min_vacuum_size=vac_space, 
+                                   lll_reduce=False, center_slab=True, 
+                                   primitive=False).get_slab()
         slab_struct.sort()
-        sd= self.set_sd_flags(slab_struct)
+        sd = self.set_sd_flags(slab_struct)
         self.poscar = Poscar(slab_struct, selective_dynamics= sd)
-                
-            
+                 
     def setup_vacuum_jobs(self, vacuum_list):
         """covergence wrt vacuum spacing """
                 
         for val in vacuum_list:
-            print ('setting Slab Vacuum as ', val)
+            logger.info('setting Slab Vacuum as {}'.format(val))
             self.set_vacuum(val)
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + \
@@ -584,8 +669,12 @@ class CalibrateSlab(Calibrate):
         set thickness and call sd_flags for top 2 layers
         """
         strt_structure = Poscar.from_dict(self.poscar_orig).structure
-        slab_struct= SlabGenerator(initial_structure= strt_structure, miller_index= self.hkl, min_slab_size=thickness,
-                         min_vacuum_size=12, lll_reduce=False, center_slab=True, primitive=False).get_slab()
+        slab_struct= SlabGenerator(initial_structure= strt_structure, 
+                                   miller_index= self.hkl, 
+                                   min_slab_size=thickness,
+                                   min_vacuum_size=12, lll_reduce=False, 
+                                   center_slab=True, 
+                                   primitive=False).get_slab()
         slab_struct.sort()
         sd= self.set_sd_flags(slab_struct)
         self.poscar = Poscar(slab_struct, selective_dynamics= sd)
@@ -594,7 +683,7 @@ class CalibrateSlab(Calibrate):
         """ convergence wrt slab thickness"""
 
         for val in thickness_list:
-            print('setting Slab Thickness as ', val)
+            logger.info('setting Slab Thickness as {}'.format(val))
             self.set_thickness(val)
             if not self.is_matrix:
                 job_dir  = self.job_dir+ os.sep + \
@@ -602,8 +691,11 @@ class CalibrateSlab(Calibrate):
                 self.add_job(name=job_dir, job_dir=job_dir)
 
     def set_sd_flags(self, slab_obj= None, n_top_layers= 2):
-        """useful method to set the SD flags for Slabs, default is assumed as top one layer, 
-        implemented for top 2 layers of slab now. TODO: generalize to any number of layers"""
+        """
+        useful method to set the SD flags for Slabs, default is assumed 
+        as top one layer, implemented for top 2 layers of slab now. 
+        TODO: generalize to any number of layers
+        """
         true_site= [1,1,1]
         false_site= [0,0,0]
         sd_flags= []
@@ -617,7 +709,8 @@ class CalibrateSlab(Calibrate):
         z_coords_slab.sort()
 #       for i in range(n_top_layers):
         for i in slab_obj.sites:
-                if i.c == max(z_coords_slab) or i.c == z_coords_slab[z_coords_slab.index(max(z_coords_slab)) - 1]:
+                if i.c == max(z_coords_slab) or \
+                i.c == z_coords_slab[z_coords_slab.index(max(z_coords_slab)) - 1]:
                         sd_flags.append(true_site)
                 else:
                         sd_flags.append(false_site)
@@ -639,18 +732,17 @@ class CalibrateInterface(Calibrate):
     """
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A', hkl=[1, 0, 0],
-                 ligand=None,
                  setup_dir='.', parent_job_dir='.', job_dir='./Slab',
-                qadapter=None, job_cmd='qsub', wait=True,
-                turn_knobs={'ENCUT':[],'KPOINTS':[]}):
+                 qadapter=None, job_cmd='qsub', wait=True,
+                 turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints, system=system,
-                           is_matrix = is_matrix, Grid_type = Grid_type,
-                            setup_dir=setup_dir,
-                             parent_job_dir=parent_job_dir,
-                            job_dir=job_dir, qadapter=qadapter,
-                             job_cmd=job_cmd, wait=wait,
-                            turn_knobs = turn_knobs)
+        Calibrate.__init__(self, incar, poscar, potcar, kpoints, 
+                           system=system, is_matrix = is_matrix, 
+                           Grid_type = Grid_type, setup_dir=setup_dir,
+                           parent_job_dir=parent_job_dir,
+                           job_dir=job_dir, qadapter=qadapter,
+                           job_cmd=job_cmd, wait=wait,
+                           turn_knobs = turn_knobs)
 
         
 if __name__ == '__main__':
@@ -674,7 +766,7 @@ if __name__ == '__main__':
                    'ENCUT': 400,
                    'ISMEAR': 1,
                    'SIGMA': 0.1,
-                   'EDIFF':1E-6}
+                   'EDIFF': 1E-6}
     incar = Incar(params=incarparams)
     poscar = Poscar(structure, comment=system,
                     selective_dynamics=None,
@@ -706,17 +798,14 @@ if __name__ == '__main__':
     #calbulk.check_calcs([calbulk])  #
     #get the knob responses
     #calbulk.set_knob_responses()
-    #print calbulk.response_to_knobs
     #optimu knob responses
     #calbulk.set_sorted_optimum_params()
-    #print calbulk.sorted_response_to_knobs['ENCUT']['600.0']    
-    #print calbulk.optimum_knob_responses
+    #print(calbulk.sorted_response_to_knobs['ENCUT']['600.0'])
+    #print(calbulk.optimum_knob_responses)
     #test enforce_cutoff
-    """
-    setup relaxation jobs after optimum parameters are set
-    """
+    #setup relaxation jobs after optimum parameters are set
     #calbulk.setup_relaxation_jobs([calbulk])
     #inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9],
     #           ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888],
     #['[[2,2,8]]', 9.879],]
-    #print calbulk.enforce_cutoff(inp_list, delta_e=0.01)
+    #print(calbulk.enforce_cutoff(inp_list, delta_e=0.01))

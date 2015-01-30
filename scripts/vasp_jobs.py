@@ -1,6 +1,9 @@
+from __future__ import division, unicode_literals, print_function
+
 """
-This script demonstrates the usage of the modules mpinterfaces/calibrate.py
-and mpinterfaces/measurement.py to setup and run vasp jobs
+This script demonstrates the usage of the modules
+mpinterfaces/calibrate.py and mpinterfaces/measurement.py to setup and
+run vasp jobs
 Note: use your own materials project key to download the required structure
 """
 
@@ -14,18 +17,22 @@ from collections import OrderedDict
 import numpy as np
 
 from pymatgen.matproj.rest import MPRester
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.vaspio.vasp_input import Incar, Poscar
+from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
-from mpinterfaces import *
+from mpinterfaces import get_struct_from_mp, Interface
+from mpinterfaces.measurement import MeasurementInterface
+from mpinterfaces.calibrate import Calibrate, CalibrateSlab
+from mpinterfaces.calibrate import CalibrateInterface
 
-#---------------------------------------------
+#--------------------------------------------------------------------
 # STRUCTURE
-#---------------------------------------------        
+#--------------------------------------------------------------------
 #get structure from materialsproject, use your own key       
 strt = get_struct_from_mp('Pt', MAPI_KEY="dwvz2XCFUEI9fJiR")
 #convert from fcc primitive to conventional cell
@@ -39,9 +46,9 @@ strt = structure_conventional.copy()
 iface = Interface(strt, hkl=[1,1,1], min_thick=10, min_vac=10,
                   supercell=[1,1,1])
 
-#---------------------------------------------
+#--------------------------------------------------------------------
 # VASP INPUT FILES
-#---------------------------------------------                
+#--------------------------------------------------------------------
 incar_dict = {
                  'SYSTEM': 'Pt slab', 
                  'ENCUT': 500, 
@@ -59,21 +66,24 @@ poscar = Poscar(iface)#, selective_dynamics = np.ones(iface.frac_coords.shape))
 potcar = Potcar(poscar.site_symbols)
 kpoints = Kpoints.automatic(20)#(80)
 
-#---------------------------------------------
+#--------------------------------------------------------------------
 # JOB DEFINITIONS
-#---------------------------------------------        
-#set job list
+#--------------------------------------------------------------------
+#set job list. if empty a single job will be run with the
+#given inputset
 encut_list = [] #range(400,800,100)
 turn_knobs = OrderedDict(
     [
         ('ENCUT', encut_list)
     ])
-#directory in which the jobs will be setup and run
-job_dir = 'test'
+#job directory for calibration runs
+cal_job_dir = 'CAL_DIR'
+#job directory for measurement runs
+msr_job_dir = 'MSR_DIR'
 
-#---------------------------------------------
+#--------------------------------------------------------------------
 # COMPUTATIONAL RESOURCE SETTINGS
-#---------------------------------------------
+#--------------------------------------------------------------------
 qadapter = None
 job_cmd = None
 nprocs = 16
@@ -123,27 +133,32 @@ else:
 if d:    
     qadapter = CommonAdapter(d['type'], **d['params'])
 
-#---------------------------------------------
-# SETUP JOBS
-#---------------------------------------------        
+#--------------------------------------------------------------------
+# setup calibration jobs and run
+#--------------------------------------------------------------------
+calibrations = []
 cal = CalibrateSlab(incar, poscar, potcar, kpoints, system=iface,
                     turn_knobs=turn_knobs, qadapter=qadapter,
-                    job_cmd = job_cmd, job_dir=job_dir, wait=wait )
-#list of calibrate objects
-cal_objs = [cal]
-#check whether the cal jobs were done 
-#Calibrate.check_calcs(cal_objs)
-#set the measurement
-measure = MeasurementInterface(cal_objs, job_dir='./Measurement_int')
-measure.setup()
-#set the measurement jobs
-#for cal in cal_objs:                    
-#    measure.setup_static_job(cal)
-#    #measure.setup_solvation_job(cal)
-    
-#---------------------------------------------
-# RUN
-#---------------------------------------------
-#will run calibration jobs if the job is not done and is dead
-measure.run()
+                    job_cmd = job_cmd, job_dir=cal_job_dir, wait=wait)
+calibrations.append(cal)
+for c in calibrations:
+    c.setup()
+    c.run()
+
+#-------------------------------------------------------------------- 
+# setup measurement jobs and run
+#--------------------------------------------------------------------
+measure = MeasurementInterface(calibrations, job_dir=msr_job_dir)
+#CAUTION: an infinte loop.
+#Breaks only if the job is done i.e the OUTCAR files from all the runs
+#in the calibration jobs have the final time stamp present in it
+while True:
+    done  = Calibrate.check_calcs(calibrations)
+    if done:
+        print('calibration done ...')                
+        measure.setup()
+        measure.run()
+        break
+    else:
+        print('calibrating  ...')
 

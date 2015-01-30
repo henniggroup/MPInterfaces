@@ -23,9 +23,7 @@ logger.addHandler(sh)
 
 class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):  
     """
-    
-    modified VaspToDbTaskDrone
-    
+    subclassing VaspToDbTaskDrone
     """
     def __init__(self, host="127.0.0.1", port=27017, database="vasp",
                  user=None, password=None, collection="nanoparticles",
@@ -38,18 +36,23 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
                               'refernces': ,
                               }
         """
-        VaspToDbTaskDrone.__init__(self, host=host, port=port, database=database,
-                                    user=user, password=password, collection=collection,
-                                    parse_dos=parse_dos, compress_dos=compress_dos,
-                                    simulate_mode=simulate_mode, additional_fields=additional_fields,
-                                     update_duplicates=update_duplicates,
-                                     mapi_key=mapi_key, use_full_uri=use_full_uri, runs=runs)
+        VaspToDbTaskDrone.__init__(self, host=host, port=port, 
+                                   database=database, user=user, 
+                                   password=password, 
+                                   collection=collection,
+                                   parse_dos=parse_dos, 
+                                   compress_dos=compress_dos,
+                                   simulate_mode=simulate_mode, 
+                                   additional_fields=additional_fields,
+                                   update_duplicates=update_duplicates,
+                                   mapi_key=mapi_key, 
+                                   use_full_uri=use_full_uri, runs=runs)
 
 
     def post_process(self, dir_name, d):
         """
-        overridden
-        adds system.json to the dictionary
+        customization:
+            adds system.json to the dictionary
         """
         logger.info("Post-processing dir:{}".format(dir_name))
         fullpath = os.path.abspath(dir_name)

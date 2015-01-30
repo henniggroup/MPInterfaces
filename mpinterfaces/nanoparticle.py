@@ -50,7 +50,8 @@ class Nanoparticle(Molecule):
         recp_lattice = self.structure.lattice.reciprocal_lattice_crystallographic
         self.recp_lattice = recp_lattice.scale(1)
         self.set_miller_family()        
-        Molecule.__init__(self, [site.species_and_occu for site in self.structure.sites],
+        Molecule.__init__(self, [site.species_and_occu 
+                                 for site in self.structure.sites],
                            self.structure.cart_coords, charge=0 )
         #self._sites = list(self._sites)
 
@@ -96,7 +97,8 @@ class Nanoparticle(Molecule):
         center = self.center_of_mass
         new_coords = np.array(self.cart_coords) - center
         return Molecule(self.species_and_occu, new_coords,
-                        charge=self._charge, spin_multiplicity=self._spin_multiplicity,
+                        charge=self._charge, 
+                        spin_multiplicity=self._spin_multiplicity,
                         site_properties=self.site_properties)
 
     def create(self):
@@ -125,9 +127,12 @@ class Nanoparticle(Molecule):
             
 if __name__ == '__main__':
     #nanopartcle settings
-    rmax = 15 #max radius in angstroms
-    surface_families = [(1,0,0), (1,1,1)] #surface families to be chopped off
-    surface_energies = [28,25] #could be in any units, will be normalized 
+    #max radius in angstroms
+    rmax = 15 
+    #surface families to be chopped off
+    surface_families = [(1,0,0), (1,1,1)]
+    #could be in any units, will be normalized 
+    surface_energies = [28,25]  
 
     #caution: set the structure wrt which the the miller indices are specified
     #use your own API key

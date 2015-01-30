@@ -88,10 +88,12 @@ class MPINTVasprun(Vasprun):
                  parse_eigen=True, parse_projected_eigen=False):
         
         Vasprun.__init__(self, filename, ionic_step_skip=ionic_step_skip,
-                 ionic_step_offset=ionic_step_offset, parse_dos=parse_dos,
-                 parse_eigen=parse_eigen, parse_projected_eigen=parse_projected_eigen)
+                 ionic_step_offset=ionic_step_offset, 
+                 parse_dos=parse_dos, parse_eigen=parse_eigen, 
+                 parse_projected_eigen=parse_projected_eigen)
             
-    def get_computed_entry(self, inc_structure=False, inc_incar_n_kpoints=False,
+    def get_computed_entry(self, inc_structure=False, 
+                           inc_incar_n_kpoints=False,
                            parameters=None, data=None):
         """
         Returns a ComputedEntry from the vasprun.
@@ -104,12 +106,12 @@ class MPINTVasprun(Vasprun):
             to True if you want MPINTComputedEntries to be returned :
             returns incar and kpoints objects 
                 
-            parameters (list): Input parameters to include. It has to be one of
-                the properties supported by the Vasprun object. If
-                parameters == None, a default set of parameters that are
-                necessary for typical post-processing will be set.
-            data (list): Output data to include. Has to be one of the properties
-                supported by the Vasprun object.
+            parameters (list): Input parameters to include. It has to be
+                 one of the properties supported by the Vasprun object. 
+                 If parameters == None, a default set of parameters that
+                are necessary for typical post-processing will be set.
+            data (list): Output data to include. Has to be one of the 
+                properties supported by the Vasprun object.
 
         Returns:
             ComputedStructureEntry/ComputedEntry

@@ -34,7 +34,7 @@ from mpinterfaces.calibrate import CalibrateInterface
 # STRUCTURE
 #--------------------------------------------------------------------
 #get structure from materialsproject, use your own key       
-strt = get_struct_from_mp('Pt', MAPI_KEY="dwvz2XCFUEI9fJiR")
+strt = get_struct_from_mp('PbS', MAPI_KEY="dwvz2XCFUEI9fJiR")
 #convert from fcc primitive to conventional cell
 #the conventional unit cell is used to create the slab
 #this is important becasue the hkl specification for the required slab
@@ -56,9 +56,9 @@ incar_dict = {
                  'IBRION': 2, 
                  'ISMEAR': 1, 
                  'EDIFF': 1e-06, 
-                 'EDIFFG': -0.01, 
                  'NPAR': 8, 
                  'SIGMA': 0.1, 
+                 'NSW' : 100,
                  'PREC': 'Accurate'
     }
 incar = Incar.from_dict(incar_dict)

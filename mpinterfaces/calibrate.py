@@ -724,7 +724,7 @@ class CalibrateSlab(Calibrate):
         pass  
 
     
-class CalibrateInterface(Calibrate):
+class CalibrateInterface(CalibrateSlab):
     """
     
     Calibrate paramters for interface calculations
@@ -736,7 +736,7 @@ class CalibrateInterface(Calibrate):
                  qadapter=None, job_cmd='qsub', wait=True,
                  turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
-        Calibrate.__init__(self, incar, poscar, potcar, kpoints, 
+        CalibrateSlab.__init__(self, incar, poscar, potcar, kpoints, 
                            system=system, is_matrix = is_matrix, 
                            Grid_type = Grid_type, setup_dir=setup_dir,
                            parent_job_dir=parent_job_dir,
@@ -744,7 +744,38 @@ class CalibrateInterface(Calibrate):
                            job_cmd=job_cmd, wait=wait,
                            turn_knobs = turn_knobs)
 
-        
+    
+    	self.poscar = Poscar(self.system, selective_dynamics= \
+			self.set_sd_flags(self.system)) 
+	
+    def set_sd_flags(self, interface_obj= None, n_top_layers= 2):
+    	"""useful method to set the SD flags for Slabs, default 
+        is assumed as top one layer, 
+        implemented for top 2 layers of slab now. 
+        TODO: generalize to any number of layers
+	"""
+        true_site= [1,1,1]
+        false_site= [0,0,0]
+        sd_flags= []
+        z_coords_slab= []
+        z_coords_ligand= []
+        for i in interface_obj.sites:
+                if i.specie in self.system.ligand.species:
+                        z_coords_ligand.append(i.c)
+                else:
+                        z_coords_slab.append(i.c)
+        z_coords_slab.sort()
+#       for i in range(n_top_layers):
+        for i in interface_obj.sites:
+                if i.c == max(z_coords_slab) or i.c == z_coords_slab\
+                        [z_coords_slab.index(max(z_coords_slab)) - 1]:
+                        sd_flags.append(true_site)
+                elif i.c in z_coords_ligand:
+                        sd_flags.append(true_site)
+                else:
+                        sd_flags.append(false_site)
+        return sd_flags
+    
 if __name__ == '__main__':
     """
     Does Calibration jobs, checks the calculations if done,

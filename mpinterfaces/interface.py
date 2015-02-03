@@ -17,6 +17,8 @@ from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import get_angle
 
+from mpinterfaces.transformations import reduced_supercell_vectors
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
@@ -36,9 +38,11 @@ class Interface(Slab):
                  surface_coverage=None, scell_nmax=10, coverage_tol=0.25,
                  solvent=None, start_from_slab=False, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False, primitive = True):
-        #if starting from the bulk structure, create slab
-        #note: if the starting structure is a slab, the vaccum extension
-        #is not possible
+        """
+        if starting from the bulk structure, create slab
+        note: if the starting structure is a slab, the vaccum extension
+        is not possible
+        """
         vac_extension = 0
         if ligand is not None:
             vac_extension = ligand.max_dist
@@ -92,38 +96,61 @@ class Interface(Slab):
             elif np.abs(self.frac_coords[i][2] - min(self.frac_coords[:,2])) < 1e-6:
                 self.bottom_atoms.append(i)
 
-    def enforce_surface_cvrg(self):
+    def enforce_coverage(self):
         """
         adjusts the supercell size and the number of adsorbed ligands
         so as to meet the surface coverage criterion within the given
-        tolerance limit(specified as fraction of the required surface coverage)
-        sets the dictionary that contains the number of ligands  and
-        the supercell size  that satisfies the criterion
+        tolerance limit(specified as fraction of the required
+        surface coverage)
+        
+        returns the number of ligands  and the supercell size  that
+        satisfies the criterion
         """
+        n_atoms = len(self.frac_coords[:,0])
+        self.top_bot_dist = np.max(self.distance_matrix.reshape(n_atoms*n_atoms, 1))
+        self.set_top_atoms()        
         n_top_atoms =  len(self.top_atoms)
         max_coverage = n_top_atoms/self.surface_area 
         m = self.lattice.matrix
+        surface_area = np.linalg.norm(np.cross(m[0], m[1]))        
         logger.info('\nrequested surface coverage = {}'.format(self.surface_coverage))
         logger.info('maximum possible coverage = {}'.format(max_coverage))
-        self.nlig_sizescell = {}
-        k = 0
         if self.surface_coverage:
             if self.surface_coverage > max_coverage:
                 logger.info('requested surface coverage exceeds the max possible coverage')
             else:
-                for nlig in range(1, n_top_atoms+1):
-                    for i in range(1, self.scell_nmax):
-                        for j in range(1, i+1):
-                            surface_area = np.linalg.norm(np.cross(i*m[0], j*m[1]))
-                            surface_coverage = nlig/surface_area
-                            diff_coverage = np.abs(surface_coverage - self.surface_coverage)
-                            if  diff_coverage<=self.surface_coverage*self.coverage_tol:
-                                logger.info(
-                                    '\npossible coverages within the tolerance limit = {}'.format(nlig/surface_area))
-                                logger.info('supercell = {}'.format((i, j, 1)))
-                                logger.info('number of ligands = '.format(nlig))
-                                k = k+1
-                                self.nlig_sizescell[str(k)] = [nlig,i,j,1]
+                for scell in range(1, self.scell_nmax):
+                    for nlig in range(1, scell*n_top_atoms+1):
+                        surface_area = scell * surface_area
+                        surface_coverage = nlig/surface_area
+                        diff_coverage = np.abs(surface_coverage - self.surface_coverage)
+                        if diff_coverage<=self.surface_coverage*self.coverage_tol:
+                            logger.info('\ntolerance limit = {}'
+                                        .format(self.coverage_tol))                                
+                            logger.info('\npossible coverage within the tolerance limit = {}'
+                                        .format(nlig/surface_area))
+                            logger.info('supercell size = {}'.format(scell))
+                            logger.info('number of ligands = {}'.format(nlig))
+                            return scell, nlig
+
+    def get_reduced_scell(self):
+        """
+        enforces the surface coverage criterion and generates
+        the list all reduced lattice vectors that correspond to
+        the computed supercell size and returns the one with similar
+        lattice vector norms
+        """
+        scell, nlig = self.enforce_coverage()
+        ab = [self.lattice.matrix[0,:], self.lattice.matrix[1,:]]
+        uv_list = reduced_supercell_vectors(ab, scell)
+        logger.info('\nlist of possible reduced lattice vectors {}'
+                    .format(uv_list))
+        norm_list = []
+        for  uv in uv_list:
+            unorm = np.linalg.norm(uv[0])
+            vnorm = np.linalg.norm(uv[1])
+            norm_list.append(abs(1. - unorm/vnorm))
+        return nlig, uv_list[np.argmin(norm_list)]
 
     def cover_surface(self, site_indices):
         """
@@ -201,26 +228,6 @@ class Interface(Slab):
              if self.ligand[i].species_string == species_string:
                  return i
 
-    def get_opt_nlig_scell(self):
-        """
-        Of all the possible combinations of number of ligands and
-        supercell sizes that agree with the required surface coverage
-        within the tolerance limit, the one that is chosen is the one
-        with the smallest surface area
-        """
-        logger.info('\nlist of possible combinations of the number of ligands'+
-                    ' and the supercell sizes = {}'.format(self.nlig_sizescell))
-        self.possible_scells = []
-        self.possible_nligs = []            
-        surf_areas = []
-        surf_cvgs = []
-        s_area = self.surface_area
-        for k, v in self.nlig_sizescell.items():
-            surf_areas.append(v[1]*v[2])
-            self.possible_scells.append(v[1:])
-            self.possible_nligs.append(v[0])
-            surf_cvgs.append( v[0]/(v[1]*v[2]*s_area) )
-        return np.argmin(surf_areas)
                         
     def create_interface(self):
         """
@@ -229,30 +236,28 @@ class Interface(Slab):
         have enough ligands to satify the surface coverage criterion
         also sets the slab on which the ligand is adsorbed
         """
-        n_atoms = len(self.frac_coords[:,0])
-        self.top_bot_dist = np.max(self.distance_matrix.reshape(n_atoms*n_atoms, 1))
+        nlig, uv = self.get_reduced_scell()
+        self.n_ligands = nlig        
+        logger.info(
+                '\nusing ... {0} ligands on a supercell with in-plane lattice vectors {1}'
+                .format(self.n_ligands, uv))
+        new_latt_matrix = [ uv[0][:], uv[1][:], self.lattice.matrix[2,:]]
+        new_latt = Lattice(new_latt_matrix)
+        _, __, scell = self.lattice.find_mapping(new_latt) #ltol = 0.01, atol=1)
+        #self.scell = self.possible_scells[opt_lig_scell_index]
+        self.make_supercell(scell)
+        self.set_slab()
         self.set_top_atoms()
-        self.enforce_surface_cvrg()
-        if self.nlig_sizescell:
-            opt_lig_scell_index = self.get_opt_nlig_scell()
-            self.n_ligands = self.possible_nligs[opt_lig_scell_index]
-            self.scell = self.possible_scells[opt_lig_scell_index]
-            logger.info(
-                '\nusing ... {0} ligands on a {1} supercell'
-                .format(self.n_ligands, self.scell))
-            self.make_supercell(self.scell)
-            self.set_slab()
-            self.set_top_atoms()
-            self.adsorb_sites = [ self.top_atoms[i]
+        self.adsorb_sites = [ self.top_atoms[i]
                                   for i in range(self.n_ligands)]
-            logger.info('ligands will be adsorbed on these sites on the slab {}'.format(self.adsorb_sites))
-            self.cover_surface(self.adsorb_sites)
-        else:
-            logger.critical('none of the combinations of number of ligands')
-            logger.critical(' and supercell sizes matches the requested surface coverage')
-            logger.critical('try increasing the tolerance or ')
-            logger.critical('increase the maximum number of cells in the supercell')
-            sys.exit()
+        logger.info('ligands will be adsorbed on these sites on the slab {}'.format(self.adsorb_sites))
+        self.cover_surface(self.adsorb_sites)
+#        else:
+#            logger.critical('none of the combinations of number of ligands')
+#            logger.critical(' and supercell sizes matches the requested surface coverage')
+#            logger.critical('try increasing the tolerance or ')
+#            logger.critical('increase the maximum number of cells in the supercell')
+#            sys.exit()
 
     def set_slab(self):
         """ set the slab on to which the ligand is adsorbed"""

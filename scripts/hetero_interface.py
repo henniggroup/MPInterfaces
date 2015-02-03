@@ -13,7 +13,8 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 
-from mpinterfaces import Interface, get_struct_from_mp
+from mpinterfaces import get_struct_from_mp
+from mpinterfaces.interface import Interface
 from mpinterfaces.transformations import reduced_supercell_vectors
 
 

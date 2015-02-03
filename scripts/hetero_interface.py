@@ -1,17 +1,21 @@
 """
-Compute the reduced matching lattice vectors for heterostructure interfaces
-as described in the paper by Zur and McGill:
+Compute the reduced matching lattice vectors for heterostructure
+interfaces as described in the paper by Zur and McGill:
 Journal of Applied Physics 55, 378 (1984); doi: 10.1063/1.333084
 """
 
 import sys
 from math import sqrt
 from copy import copy
+
 import numpy as np
+
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.matproj.rest import MPRester
+
 from mpinterfaces import Interface, get_struct_from_mp
+
 
 def get_r_list(area1, area2, max_area, tol=0.02):
     """
@@ -47,7 +51,7 @@ def get_trans_matrices(n):
 
 def get_uv(ab, t_mat):
     """
-    return u and v, the supercell lattice vectors obtained through the 
+    return u and v, the supercell lattice vectors obtained through the
     transformation matrix
     """
     print '\ntransformation matrix : ', t_mat
@@ -68,16 +72,16 @@ def get_reduced_uv(uv):
     while is_not_reduced:
         if np.dot(u, v) <0:
             v = -v
-        print 'v after dot', v
+        #print 'v after dot', v
         if np.linalg.norm(u) > np.linalg.norm(v):
-            print 'norm u and v', np.linalg.norm(u), np.linalg.norm(v) 
+            #print 'norm u and v', np.linalg.norm(u), np.linalg.norm(v)
             u1 = copy(v)
             v1 = copy(u)
         elif np.linalg.norm(v) > np.linalg.norm(u+v):
-            print 'norm v and v+u', np.linalg.norm(v), np.linalg.norm(v+u)              
+            #print 'norm v and v+u', np.linalg.norm(v), np.linalg.norm(v+u)
             v1 =  v+u
         elif np.linalg.norm(v) > np.linalg.norm(u-v):
-            print 'norm v and u-v', np.linalg.norm(v), np.linalg.norm(u-v)                          
+            #print 'norm v and u-v', np.linalg.norm(v), np.linalg.norm(u-v)
             v1 = v-u
         else:
             is_not_reduced = False
@@ -107,36 +111,39 @@ def get_matching_lattices(iface1, iface2, max_area=200, max_mismatch=0.01, max_a
     computes a list of matching reduced lattice vectors that satify the max_area
     max_mismatch and max_anglele_diff criteria
     """
-    #area1 = iface1.surface_area
-    #area2 = iface2.surface_area
+    if iface1 is None and iface2 is None:
+        #test : the numbers from the paper
+        a1 = 5.653
+        a2 = 6.481
+        #for 100 plane
+        ab1 = [ [0, a1/2, -a1/2], [0, a1/2,a1/2]]
+        ab2 = [ [0, a2/2, -a2/2], [0, a2/2,a2/2]]
+        area1 = a1**2 / 2
+        area2 = a2**2 / 2
     
-    #a, b vectors that define the surface    
-    #ab1 = [ iface1.lattice.matrix[0,:] , iface1.lattice.matrix[1,:] ] 
-    #ab2 = [ iface2.lattice.matrix[0,:] , iface2.lattice.matrix[1,:] ]
-
-    #test : the numbers from the paper
-    a1 = 5.653
-    a2 = 6.481
-    #for 100 plane
-    ab1 = [ [0, a1/2, -a1/2], [0, a1/2,a1/2]]
-    ab2 = [ [0, a2/2, -a2/2], [0, a2/2,a2/2]]
-    area1 = a1**2 / 2
-    area2 = a2**2 / 2
+        #for 110 plane
+        ab1 = [ [a1/2,-a1/2,0], [0, 0,a1]]
+        ab2 = [ [a2/2,-a2/2,0], [0, 0,a2]]    
+        area1 = a1**2 / sqrt(2)
+        area2 = a2**2 / sqrt(2)
     
-    #for 110 plane
-    ab1 = [ [a1/2,-a1/2,0], [0, 0,a1]]
-    ab2 = [ [a2/2,-a2/2,0], [0, 0,a2]]    
-    area1 = a1**2 / sqrt(2)
-    area2 = a2**2 / sqrt(2)
+        #for 111 surface
+        #ab1 = [ [a1/2, 0, a1/2], [a1/2, a1/2, 0]]
+        #ab2 = [ [a2/2, 0, a2/2], [a2/2, a2/2, 0]]
+        #area1 = a1**2 * sqrt(3)/4 #/ 2 /sqrt(2)
+        #area2 = a2**2 * sqrt(3)/4 #/ 2 / sqrt(2)
+    else:
+        area1 = iface1.surface_area
+        area2 = iface2.surface_area
     
-    #for 111 surface
-    #ab1 = [ [a1/2, 0, a1/2], [a1/2, a1/2, 0]]
-    #ab2 = [ [a2/2, 0, a2/2], [a2/2, a2/2, 0]]    
-    #area1 = a1**2 * sqrt(3)/4 #/ 2 /sqrt(2)
-    #area2 = a2**2 * sqrt(3)/4 #/ 2 / sqrt(2)
+        #a, b vectors that define the surface    
+        ab1 = [ iface1.lattice.matrix[0,:] , iface1.lattice.matrix[1,:] ]
+        ab2 = [ iface2.lattice.matrix[0,:] , iface2.lattice.matrix[1,:] ]
     
     print 'area1, area2', area1, area2
-    r_list = get_r_list(area1, area2, max_area)
+    r_list = get_r_list(area1, area2, max_area, tol=0.02)
+    print r_list
+    #sys.exit()
     for r1r2 in r_list:
         print 'r1, r2', r1r2, '\n'
         uv1_list = []
@@ -168,19 +175,80 @@ def get_matching_lattices(iface1, iface2, max_area=200, max_mismatch=0.01, max_a
                         print 'v mismatch in percentage = ', v_mismatch
                         print 'angle1, angle diff', angle1, abs(angle1 - angle2)
                         print 'uv1, uv2', uv1, uv2
-                        sys.exit()
+                        return uv1, uv2
 
         
 if __name__ == '__main__':
+    from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    
     #structure from materials project, use your own key
-    #strt1 = get_struct_from_mp('GaAs', MAPI_KEY="dwvz2XCFUEI9fJiR")
-    #strt2 = get_struct_from_mp('CdTe', MAPI_KEY="dwvz2XCFUEI9fJiR")
+    #gaas = get_struct_from_mp('GaAs', MAPI_KEY="dwvz2XCFUEI9fJiR")
+    #sa_gaas = SpacegroupAnalyzer(gaas)
+    #gaas_cvn = sa_gaas.get_conventional_standard_structure()
+    #gaas_cvn.to(fmt='poscar', filename='POSCAR_GaAs.vasp')
+    
+    #cdte = get_struct_from_mp('CdTe', MAPI_KEY="dwvz2XCFUEI9fJiR")
+    #sa_cdte = SpacegroupAnalyzer(cdte)
+    #cdte_cvn = sa_cdte.get_conventional_standard_structure()
+    #cdte_cvn.to(fmt='poscar', filename='POSCAR_CdTe.vasp')    
 
-    #iface1 = Interface(strt1, hkl=[1,1,1], min_thick=10, min_vac=5)
-    #iface2 = Interface(strt2, hkl=[1,1,1], min_thick=10, min_vac=5)
+    #initial conventional bulk unit cells
+    gaas_cvn = Structure.from_file('POSCAR.mp-2534_GaAs')
+    cdte_cvn = Structure.from_file('POSCAR.mp-406_CdTe')    
 
-    get_matching_lattices(None, None, max_area=100, max_mismatch=0.01, max_angle_diff=1)
+    #slabs
+    iface_gaas = Interface(gaas_cvn, hkl=[1,1,0], min_thick=5, min_vac=25)
+    iface_cdte = Interface(cdte_cvn, hkl=[1,1,0], min_thick=5, min_vac=5)
 
-#    for i in get_trans_matrices(4):
-#        print 'transformation matrix', i
-#    print get_r_list(21, 15.98, 200, tol=0.01)
+    #matching lattice
+    uv_gaas, uv_cdte = get_matching_lattices(iface_gaas, iface_cdte,
+                                             max_area=100,
+                                             max_mismatch=0.01,
+                                             max_angle_diff=1)
+
+    #create supercells
+    gaas_tmp = np.array( [ uv_gaas[0][:], uv_gaas[1][:],
+                            iface_gaas.lattice.matrix[2,:] ] )        
+    cdte_tmp = np.array( [ uv_cdte[0][:], uv_cdte[1][:],
+                            iface_cdte.lattice.matrix[2,:] ] )
+    gaas_latt = Lattice(gaas_tmp)    
+    cdte_latt = Lattice(cdte_tmp)
+    _, __, scell = iface_gaas.lattice.find_mapping(gaas_latt,
+                                               ltol = 0.01, atol=1)
+    iface_gaas.make_supercell(scell)
+    _, __, scell = iface_cdte.lattice.find_mapping(cdte_latt,
+                                               ltol = 0.01, atol=1)
+    iface_cdte.make_supercell(scell)
+    
+    ###################
+    #change the lattice 
+    ##################
+    print 'lattice mapping'
+    lmap_matrix = np.array( [ iface_cdte.lattice.matrix[0,:],
+                              iface_cdte.lattice.matrix[1,:],
+                            iface_gaas.lattice.matrix[2,:] ] )
+    lmap = Lattice(lmap_matrix)    
+    #lattice, _, scell = iface_gaas.lattice.find_mapping(lmap,
+    #                                           ltol = 0.01, atol=1)
+    #print iface_gaas.lattice
+    print 'new lattice',lmap
+    iface_gaas.to(fmt='poscar', filename='POSCAR_GaAs_iface_1.vasp')
+    iface_gaas.modify_lattice(lmap)
+    #iface_gaas.make_supercell(scell)
+    print 'final lattices'
+    print iface_gaas.lattice
+    print iface_cdte.lattice    
+    iface_gaas.to(fmt='poscar', filename='POSCAR_GaAs_iface_2.vasp')
+    iface_cdte.to(fmt='poscar', filename='POSCAR_CdTe_iface2.vasp')
+
+    #merge
+    for site in iface_cdte:
+        vec = iface_gaas.lattice.matrix[2,:]
+        print vec
+        print site.coords
+        new_coords = site.coords - vec/np.linalg.norm(vec)
+        print new_coords
+        iface_gaas.append(site.specie, new_coords, coords_are_cartesian=True)
+
+    iface_gaas.to(fmt='poscar', filename='POSCAR_combo.vasp')        
+    

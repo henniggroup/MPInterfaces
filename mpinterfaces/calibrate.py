@@ -84,15 +84,19 @@ class Calibrate(object):
             turn_knobs: an ordered dictionary of parmaters and the 
                 corresponding values
         """
+        self.name = datetime.datetime.now().isoformat()
         self.system = system
         self.parent_job_dir = os.path.abspath(parent_job_dir)
         self.setup_dir = os.path.abspath(setup_dir)
         self.job_dir = job_dir
         self.incar = incar               
         self.poscar = poscar
-        self.poscar_orig = poscar.as_dict()
         self.potcar =potcar
         self.kpoints = kpoints
+        self.incar_orig = incar.as_dict()
+        self.poscar_orig = poscar.as_dict()
+        self.potcar_orig = potcar.as_dict()
+        self.kpoints_orig = kpoints.as_dict()
         self.qadapter = qadapter
         self.kname = None
         self.vis = []
@@ -542,7 +546,19 @@ class Calibrate(object):
                                     cal.job_dir 
                                     + 'not done yet or is still running')
                         logger.warn('Not setting up the relaxation job\n')
-                    
+    
+    def as_dict(self):
+        d = {}
+        d['calibrate'] = self.__class__.__name__
+        d['name'] = self.name
+        d['incar'] = self.incar_orig
+        d['poscar'] = self.poscar_orig
+        d['kpoints'] = self.kpoints_orig
+        d['turn_knobs'] = self.turn_knobs
+        d['job_dir_list'] = self.job_dir_list
+        if system is not None:
+            d['system'] = system
+        return d
         
 class CalibrateMolecule(Calibrate):
     """
@@ -745,36 +761,35 @@ class CalibrateInterface(CalibrateSlab):
                            turn_knobs = turn_knobs)
 
     
-    	self.poscar = Poscar(self.system, selective_dynamics= \
-			self.set_sd_flags(self.system)) 
+    	self.poscar.selective_dynamics = self.set_sd_flags(self.poscar.structure)) 
 	
-    def set_sd_flags(self, interface_obj= None, n_top_layers= 2):
-    	"""useful method to set the SD flags for Slabs, default 
-        is assumed as top one layer, 
-        implemented for top 2 layers of slab now. 
-        TODO: generalize to any number of layers
-	"""
-        true_site= [1,1,1]
-        false_site= [0,0,0]
-        sd_flags= []
-        z_coords_slab= []
-        z_coords_ligand= []
-        for i in interface_obj.sites:
-                if i.specie in self.system.ligand.species:
-                        z_coords_ligand.append(i.c)
-                else:
-                        z_coords_slab.append(i.c)
-        z_coords_slab.sort()
-#       for i in range(n_top_layers):
-        for i in interface_obj.sites:
-                if i.c == max(z_coords_slab) or i.c == z_coords_slab\
-                        [z_coords_slab.index(max(z_coords_slab)) - 1]:
-                        sd_flags.append(true_site)
-                elif i.c in z_coords_ligand:
-                        sd_flags.append(true_site)
-                else:
-                        sd_flags.append(false_site)
-        return sd_flags
+    #def set_sd_flags(self, interface_obj= None, n_top_layers= 2):
+    #	"""useful method to set the SD flags for Slabs, default 
+    #    is assumed as top one layer, 
+    #    implemented for top 2 layers of slab now. 
+    #    TODO: generalize to any number of layers
+	#"""
+        #true_site= [1,1,1]
+        #false_site= [0,0,0]
+        #sd_flags= []
+        #z_coords_slab= []
+        #z_coords_ligand= []
+        #for i in interface_obj.sites:
+        #        if i.specie in self.system.ligand.species:
+        #                z_coords_ligand.append(i.c)
+        #        else:
+        #                z_coords_slab.append(i.c)
+        #z_coords_slab.sort()
+#       #for i in range(n_top_layers):
+        #for i in interface_obj.sites:
+        #        if i.c == max(z_coords_slab) or i.c == z_coords_slab\
+        #                [z_coords_slab.index(max(z_coords_slab)) - 1]:
+        #                sd_flags.append(true_site)
+        #        elif i.c in z_coords_ligand:
+        #                sd_flags.append(true_site)
+        #        else:
+        #                sd_flags.append(false_site)
+        #return sd_flags
     
 if __name__ == '__main__':
     """

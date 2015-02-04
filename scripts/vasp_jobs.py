@@ -137,7 +137,7 @@ if d:
 # setup calibration jobs and run
 #--------------------------------------------------------------------
 calibrations = []
-cal = CalibrateSlab(incar, poscar, potcar, kpoints, system=iface,
+cal = CalibrateSlab(incar, poscar, potcar, kpoints, system=iface.as_dict(),
                     turn_knobs=turn_knobs, qadapter=qadapter,
                     job_cmd = job_cmd, job_dir=cal_job_dir, wait=wait)
 calibrations.append(cal)

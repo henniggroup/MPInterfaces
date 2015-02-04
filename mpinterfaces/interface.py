@@ -262,6 +262,13 @@ class Interface(Slab):
     def set_slab(self):
         """ set the slab on to which the ligand is adsorbed"""
         self.slab = Slab.from_dict(self.as_dict())
+        
+    def as_dict(self):
+        d = {}
+        d['hkl'] = list(self.miller_index)
+        d['ligand'] = self.ligand.composition.formula
+        d['n_ligands'] = self.n_ligands
+        return d
 
         
 class Ligand(Molecule):

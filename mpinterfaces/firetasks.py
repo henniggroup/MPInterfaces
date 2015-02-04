@@ -32,16 +32,13 @@ sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
-
 def load_class(mod, name):
     mod = __import__(mod, globals(), locals(), [name], 0)
     return getattr(mod, name)
 
-
 def to_int_list(str_list):
     m = re.search(r"\[(\d+)\,\s*(\d+)\,\s*(\d+)\]", str_list)
     return [int(m.group(i)) for i in range(1,4)]       
-
 
 def get_cal_obj(d):
     qadapter = None
@@ -62,7 +59,7 @@ def get_cal_obj(d):
         turn_knobs[k] = copy.copy(in_list)
     if d['que']:
         qadapter = CommonAdapter(d['que']['type'], **d['que']['params'])
-    if qadapter is not None and ('gator' in socket.gethostname()):
+    if qadapter is not None and ('ufhpc' in socket.gethostname()):
         cal =  load_class("mpinterfaces.calibrate",
                           d["calibrate"])(incar, poscar, potcar, kpoints,
                                           qadapter=qadapter, job_cmd='qsub',
@@ -82,16 +79,17 @@ def get_cal_obj(d):
                                           job_cmd=['ls', '-lt'],
                                           turn_knobs=turn_knobs,
                                           **d.get("cal_construct_params", {}))            
+    if d.get('job_dir_list'):
+        cal.job_dir_list = d['job_dir_list']
+    if d.get('system'):
+        cal.system = d['system']
     return cal           
-    
-
 
 @explicit_serialize
 class MPINTCalibrateTask(FireTaskBase, FWSerializable):
     """
     Calibration Task
     """
-    
     required_params = ["incar", "poscar", "kpoints", "calibrate",
                        "que", "turn_knobs"]
     optional_params = ["job_cmd", "cal_construct_params"]
@@ -103,12 +101,13 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         cal = get_cal_obj(self)
         cal.setup()
         cal.run()
+        return FWAction(mod_spec=[{'_push': {'cal_objs':cal.as_dict()}}])
         
 
 @explicit_serialize
 class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     
-    required_params = ["cal_objs"]
+    required_params = ["measurement", "que"]
     optional_params = ["msr_construct_params"]    
 
     def run_task(self, fw_spec):
@@ -117,21 +116,23 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         and launch the actual measurement jobs to the queue
         """
         cal_objs_list = []
-        for calparams in self['cal_objs']:
+        for calparams in fw_spec['cal_objs']: #self['cal_objs']:
+            calparams.update('que')
             cal = get_cal_obj(calparams)
             cal_objs_list.append(cal)
-        measure = Measurement(cal_objs_list,
-                               **self.get("msr_construct_params", {}))
-        #test
-        #measure.setup()
-        if measure.calbulk:
-            for obj in measure.calbulk:
-                obj.set_knob_responses()
-                obj.set_sorted_optimum_params()
-                logger.info('sorted_response_to_knobs : {} \n'.format(
-                    obj.sorted_response_to_knobs))
-#        if measure.calslab:
-#        if measure.calmol:
+        measure = load_class("mpinterfaces.measurement",
+                          self['measurement'])(cal_objs_list, **self.get("msr_construct_params", {}))
+        measure.setup()
+        measure.run()
+
+        #measure = Measurement(cal_objs_list,
+        #                       **self.get("msr_construct_params", {}))
+        #if measure.calbulk:
+        #    for obj in measure.calbulk:
+        #        obj.set_knob_responses()
+        #        obj.set_sorted_optimum_params()
+        #        logger.info('sorted_response_to_knobs : {} \n'.format(
+        #            obj.sorted_response_to_knobs))
 
 
 @explicit_serialize
@@ -161,18 +162,3 @@ class MPINTPostProcessTask(FireTaskBase, FWSerializable):
         else:
             raise ValueError("Could not parse entry for database insertion!")
 
-
-#        # get the db credentials
-#        db_dir = os.environ['DB_LOC']
-#        db_path = os.path.join(db_dir, 'tasks_db.json')
-#
-#        # use MPDrone to put it in the database
-#        with open(db_path) as f:
-#            db_creds = json.load(f)
-#            drone = VaspToDbTaskDrone(
-#                host=db_creds['host'], port=db_creds['port'],
-#                database=db_creds['database'], user=db_creds['admin_user'],
-#                password=db_creds['admin_password'],
-#                collection=db_creds['collection'])
-#            t_id = drone.assimilate('Measurement')
-        

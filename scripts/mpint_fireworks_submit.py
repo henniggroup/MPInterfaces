@@ -134,7 +134,8 @@ caltask2 = MPINTCalibrateTask(calparams2)
 #create a Measurement task
 #---------------------------------------------------
 msrparams1 = {}
-msrparams1['cal_objs'] = [calparams1]#, calparams2]
+msrparams1['measurement'] = 'MeasurementSlab'
+msrparams1['que'] = calparams1['que']
 msrparams1['msr_construct_params'] = {'job_dir':'Measurement_1'}
 msrtask1 = MPINTMeasurementTask(msrparams1)
 

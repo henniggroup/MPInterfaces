@@ -195,13 +195,13 @@ class MeasurementInterface(Measurement):
                 cal.poscar = Poscar.from_file(contcar_file)
                 if cal in self.cal_slabs or cal in self.cal_interfaces:
                     try:
-                        d['hkl'] = list(cal.system.miller_index)
+                        d['hkl'] = cal.system['hkl']
                     except:
                         logger.critical("""the calibrate object doesnt 
                         have a system set for calibrating""")
                 if cal in self.cal_interfaces:
                     try:
-                        d['ligand'] = cal.system.ligand.composition.formula
+                        d['ligand'] = cal.system['ligand']#.ligand.composition.formula
                     except:
                         logger.critical("""the calibrate object doesnt 
                         have a system set for calibrating""")                        
@@ -221,19 +221,19 @@ class MeasurementInterface(Measurement):
         E_slabs ={}
         E_ligands = {}
         for cal in self.cal_slabs:
-            key = str(cal.system.miller_index)
+            key = str(cal.system['hkl'])
             E_slabs[key] = self.get_energy(cal)
         for cal in self.cal_ligands:
-            key = cal.system.ligand.composition.formula
+            key = cal.system['ligand']
             E_ligands[key] = self.get_energy(cal)
         for cal in self.cal_interfaces:
-            key_slab = str(cal.system.miller_index)            
-            key_ligand = cal.system.ligand.composition.formula            
+            key_slab = str(cal.system['hkl'])            
+            key_ligand = cal.system['ligand']
             key = key_slab + key_ligand
             E_interfaces[key] = self.get_energy(cal)
             E_binding[key] = E_interfaces[key] \
               - E_slabs[key_slab] \
-              - cal.system.n_ligands * E_ligands[key_ligand]
+              - cal.system['n_ligands'] * E_ligands[key_ligand]
         logger.info('Binding energy = {}'.format(E_binding))
 
 #test
@@ -279,7 +279,7 @@ if __name__=='__main__':
                                           shift=(0, 0, 0))
 
     cal = CalibrateInterface(incar, poscar, potcar, kpoints, 
-                             system=iface,
+                             system=iface.as_dict(),
                              job_dir='test', job_cmd=['ls','-lt'])
     cal.setup()
     cal.run()

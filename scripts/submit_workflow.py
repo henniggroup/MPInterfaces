@@ -32,10 +32,9 @@ from fireworks.core.rocket_launcher import launch_rocket #rapidfire
 
 from mpinterfaces.firetasks import MPINTCalibrateTask, MPINTMeasurementTask
 
-
-#---------------------------------
+#---------------------------------------------------------------------
 # INITIAL INPUTSET
-#---------------------------------
+#---------------------------------------------------------------------
 #structure
 system = 'Pt bulk'
 atoms = ['Pt']
@@ -60,11 +59,11 @@ potcar = Potcar(symbols = poscar.site_symbols, functional='PBE',
                 sym_potcar_map=None)
 kpoints = Kpoints(kpts=((8, 8, 8),))
 
-#-------------------------------------------------
+#---------------------------------------------------------------------
 # FIRETASK
 #
 # calibratebulk task
-#------------------------------------------------
+#---------------------------------------------------------------------
 calparams1 = {}
 calparams1['incar'] = incar.as_dict()
 calparams1['poscar'] = poscar.as_dict()
@@ -87,63 +86,61 @@ calparams1['que'] = {}
 #           '/opt/openmpi_intel/bin/mpirun',
 #           '-n','16',
 #           '/home/km468/Software/VASP/vasp.5.3.5/vasp']
-
+#calparams1['job_cmd'] = job_cmd
 turn_knobs = { 'ENCUT' : range(400, 900, 100),
                'KPOINTS': [k for k in range(20, 40, 10)]
              }
-#type of calibration to be done: basically the name of calibrate calss to
-#be used. available options: CalibrateMolecule, CalibrateSlab, CalibrateBulk
+#type of calibration to be done: basically the name of calibrate class
+#to be used. 
 calparams1['calibrate'] = 'CalibrateBulk'
 calparams1['turn_knobs'] = turn_knobs
-#calparams1['job_cmd'] = job_cmd
-#specify other parmaters to the constructor here
 calparams1['other_params'] = { 'job_dir':'calBulk'}
 
 caltask1 = MPINTCalibrateTask(calparams1)
 
-#---------------------------------------------------
+#---------------------------------------------------------------------
 # FIRETASK
 #
-# calibrateslab task
-#---------------------------------------------------
+# calibrateinterface task
+#---------------------------------------------------------------------
 calparams2 = {}
 calparams2 = {k:calparams1[k] for k in calparams1.keys()}
-calparams2['calibrate'] = 'CalibrateSlab'
+calparams2['calibrate'] = 'CalibrateInterface'
 calparams2['system'] = {'hkl':[1,1,1], 'ligand':None}
-calparams2['other_params'] = {'job_dir':'calSlab'}
+calparams2['other_params'] = {'job_dir':'califace'}
 
 caltask2 = MPINTCalibrateTask(calparams2)
 
-#---------------------------------------------------
+#---------------------------------------------------------------------
 # FIRETASK
 #
 # Measurement task
-#---------------------------------------------------
+#---------------------------------------------------------------------
 msrparams1 = {}
-msrparams1['measurement'] = 'MeasurementSlab'
+msrparams1['measurement'] = 'MeasurementInterface'
 msrparams1['que'] = calparams1['que']
 msrparams1['other_params'] = {'job_dir':'Measurement_1'}
 msrtask1 = MPINTMeasurementTask(msrparams1)
 
-#--------------------------------------------------
+#---------------------------------------------------------------------
 # FIREWORKS
 #
-# create the fireworks from the firetasks 
-#--------------------------------------------------
+# create the fireworks from the firetasks
+#---------------------------------------------------------------------
 fw_calibrate = Firework([caltask1, caltask2], name="fw_calibrate")
 fw_measure = Firework([msrtask1], name="fw_measurement", parents=[fw_calibrate])
 
-#-----------------------------------------------------
+#---------------------------------------------------------------------
 # WORKFLOW
 #
 #create workflow from the fireworks
-#-----------------------------------------------------
+#---------------------------------------------------------------------
 wf = Workflow([fw_calibrate, fw_measure], name="MPINT_workflow")
 
 #---------------------------------------------------------------------
 # connect to the fireworks database and add workflow to it
 # use your own account
-#--------------------------------------------------------------------
+#---------------------------------------------------------------------
 launchpad = LaunchPad(host='localhost', port=27017, name='fireworks',
                        username="km468", password="km468")
 print('fireworks in the database before adding the workflow: \n',

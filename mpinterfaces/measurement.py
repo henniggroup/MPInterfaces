@@ -1,8 +1,7 @@
 from __future__ import division, unicode_literals, print_function
 
 """
-combines instrument, calibrate and interfaces to perform the calibration
-and run the actual jobs
+Defines measurement jobs
 """
 
 import sys
@@ -63,17 +62,27 @@ class Measurement(object):
         sets NSW = 0
         """
         for cal in self.cal_objs:
-            cal.incar['NSW'] = 0
             for i, jdir in enumerate(cal.old_job_dir_list):
                 job_dir = self.job_dir + os.sep \
-                  + cal.old_jobs[i].name.replace(os.sep, '_').replace('.', '_') \
+                  + jdir.replace(os.sep, '_').replace('.', '_') \
                   + os.sep+'STATIC'
-                logger.info('setting up job in {}'.format(job_dir))                  
+                logger.info('setting up job in {}'.format(job_dir))
+                cal.incar = Incar.from_file(jdir+os.sep+'INCAR')
+                cal.incar['NSW'] = 0
+                cal.potcar = Potcar.from_file(jdir+os.sep+'POTCAR')
+                cal.kpoints = Kpoints.from_file(jdir+os.sep+'KPOINTS')
                 contcar_file = jdir+os.sep+'CONTCAR'
-                logger.info('setting poscar file from {}'
-                            .format(contcar_file))
-                cal.poscar = Poscar.from_file(contcar_file)
-                cal.add_job(job_dir=job_dir)
+                if os.path.isfile(contcar_file):
+                    logger.info('setting poscar file from {}'
+                                .format(contcar_file))
+                    cal.poscar = Poscar.from_file(contcar_file)
+                    cal.add_job(job_dir=job_dir)
+                else:
+                    logger.critical("""CONTCAR doesnt exist.
+                    Setting up job using input set in the old
+                    calibration directory""")
+                    cal.poscar = Poscar.from_file(jdir+os.sep+'POSCAR')
+                    cal.add_job(job_dir=job_dir)
 
     def run(self, job_cmd=None):
         """ run jobs """
@@ -135,9 +144,14 @@ class MeasurementSolvation(Measurement):
         calculations
         """
         for cal in self.cal_objs:
-            cal.incar['LSOL'] = '.TRUE.'            
+            jdir = cal.old_job_dir_list[0]
+            cal.incar = Incar.from_file(jdir+os.sep+'INCAR')
+            cal.incar['LSOL'] = '.TRUE.'
+            cal.poscar = Poscar.from_file(jdir+os.sep+'POSCAR')
+            cal.potcar = Potcar.from_file(jdir+os.sep+'POTCAR')
+            cal.kpoints = Kpoints.from_file(jdir+os.sep+'KPOINTS')
             job_dir = self.job_dir + os.sep \
-                    + cal.old_jobs[0].name.replace(os.sep, '_').replace('.', '_') \
+                    + cal.old_job_dir_list[0].replace(os.sep, '_').replace('.', '_') \
                     + os.sep + 'SOL'       
             for k, v in self.sol_params:
                 cal.incar[k] = v
@@ -146,8 +160,12 @@ class MeasurementSolvation(Measurement):
             with open(job_dir+os.sep+'system.json', 'w') as f:
                 json.dump(self.sol_params, f)
             wavecar_file = cal.old_job_dir_list[0]+os.sep+'WAVECAR'
-            shutil.copy(wavecar_file, job_dir+os.sep+'WAVECAR')
-            cal.add_job(job_dir=job_dir)
+            if os.path.isfile(wavecar_file):
+                shutil.copy(wavecar_file, job_dir+os.sep+'WAVECAR')
+                cal.add_job(job_dir=job_dir)
+            else:
+                logger.critical('WAVECAR doesnt exist. Aborting ...')
+                sys.exit(0)
 
     def make_measurements(self):
         """
@@ -186,31 +204,41 @@ class MeasurementInterface(Measurement):
         """
         d = {}
         for cal in self.cal_objs:
-            cal.incar['NSW'] = 0
             for i, jdir in enumerate(cal.old_job_dir_list):
                 job_dir = self.job_dir + os.sep \
-                    + cal.old_jobs[i].name.replace(os.sep, '_').replace('.', '_')+ \
+                    + jdir.replace(os.sep, '_').replace('.', '_')+ \
                     os.sep+'STATIC'
-                contcar_file = jdir+os.sep+'CONTCAR'            
-                cal.poscar = Poscar.from_file(contcar_file)
-                if cal in self.cal_slabs or cal in self.cal_interfaces:
-                    try:
-                        d['hkl'] = cal.system['hkl']
-                    except:
-                        logger.critical("""the calibrate object doesnt 
-                        have a system set for calibrating""")
-                if cal in self.cal_interfaces:
-                    try:
-                        d['ligand'] = cal.system['ligand']#.ligand.composition.formula
-                    except:
-                        logger.critical("""the calibrate object doesnt 
-                        have a system set for calibrating""")                        
-                if not os.path.exists(job_dir):
-                    os.makedirs(job_dir)
-                if d:
-                    with open(job_dir+os.sep+'system.json', 'w') as f:
-                        json.dump(d, f)
-                cal.add_job(job_dir=job_dir)
+                cal.incar = Incar.from_file(jdir+os.sep+'INCAR')
+                cal.incar['NSW'] = 0
+                cal.potcar = Potcar.from_file(jdir+os.sep+'POTCAR')
+                cal.kpoints = Kpoints.from_file(jdir+os.sep+'KPOINTS')
+                contcar_file = jdir+os.sep+'CONTCAR'
+                if os.path.isfile(contcar_file):
+                    cal.poscar = Poscar.from_file(contcar_file)
+                    if cal in self.cal_slabs or cal in self.cal_interfaces:
+                        try:
+                            d['hkl'] = cal.system['hkl']
+                        except:
+                            logger.critical("""the calibrate object
+                            doesnt have a system set for calibrating""")
+                    if cal in self.cal_interfaces:
+                        try:
+                            d['ligand'] = cal.system['ligand']
+                        except:
+                            logger.critical("""the calibrate object
+                            doesnt have a system set for calibrating""")
+                    if not os.path.exists(job_dir):
+                        os.makedirs(job_dir)
+                    if d:
+                        with open(job_dir+os.sep+'system.json', 'w') as f:
+                            json.dump(d, f)
+                    cal.add_job(job_dir=job_dir)
+                else:
+                    logger.critical("""CONTCAR doesnt exist.
+                    Setting up job using input set in the old
+                    calibration directory""")
+                    cal.poscar = Poscar.from_file(jdir+os.sep+'POSCAR')
+                    cal.add_job(job_dir=job_dir)
 
     def make_measurements(self):
         """
@@ -254,7 +282,8 @@ if __name__=='__main__':
     adsorb_on_species = 'Pt'
     adatom_on_lig='Pb'
     displacement = 3.0
-    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=min_vac,
+    iface = Interface(strt, hkl=hkl, min_thick=min_thick,
+                      min_vac=min_vac,
                       supercell=supercell, surface_coverage=0.01,
                       ligand=hydrazine, displacement=displacement,
                       adatom_on_lig=adatom_on_lig,

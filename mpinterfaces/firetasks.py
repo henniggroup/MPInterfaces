@@ -55,7 +55,7 @@ def get_cal_obj(d):
     turn_knobs = d["turn_knobs"]
     
     qadapter = None    
-    if d['que']:
+    if d.get('que'):
         qadapter = CommonAdapter(d['que']['type'], **d['que']['params'])
 
     job_cmd = None        
@@ -97,14 +97,16 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         cal = get_cal_obj(self)
         cal.setup()
         cal.run()
-        return FWAction(mod_spec=[{'_push': {'cal_objs':cal.as_dict()}}])
+        d = cal.as_dict()
+        d.update(self.get('que'))
+        return FWAction(mod_spec=[{'_push': {'cal_objs':d}}])
         
 
 @explicit_serialize
 class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     
-    required_params = ["measurement", "que"]
-    optional_params = ["job_cmd", "other_params"]    
+    required_params = ["measurement"]
+    optional_params = ["que", "job_cmd", "other_params"]    
 
     def run_task(self, fw_spec):
         """
@@ -112,17 +114,17 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         and run
         """
         cal_objs = []
-        print(len(fw_spec['cal_objs']))
-        sys.exit()
+        logger.info('The measurement task will be constructed from {} calibration objects'
+                    .format(len(fw_spec['cal_objs'])) )
         for calparams in fw_spec['cal_objs']:
-            calparams.update('que')
+            calparams.update(self.get('que'))
             cal = get_cal_obj(calparams)
             cal_objs.append(cal)
         measure = load_class("mpinterfaces.measurement",
                           self['measurement'])(cal_objs,
                                                **self.get("other_params", {}))
         job_cmd = None
-        if d.get("job_cmd"):
+        if self.get("job_cmd"):
             job_cmd = job_cmd
         measure.setup()
         measure.run(job_cmd = job_cmd)

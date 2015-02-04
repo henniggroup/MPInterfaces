@@ -65,8 +65,9 @@ class Calibrate(object):
             poscar (Poscar object): input POSCAR
             potcar (Potcar object): input POTCAR
             kpoints: input KPOINTS
-            system: Structure, Molecule, Slab, Ligand or Interface
-                object
+            system: system info as a dictionary,
+                slab or interface example:
+                system={'hkl':[1,1,1], 'ligand':None}, 
             is_matrix (bool): whether the jobs are dependent on each
                 other
             Grid_type: kpoints grid_type
@@ -83,6 +84,9 @@ class Calibrate(object):
                 waiting
             turn_knobs: an ordered dictionary of parmaters and the 
                 corresponding values
+
+        Note: input structure if needed will be obtained from the
+            provided poscar object
         """
         self.name = datetime.datetime.now().isoformat()
         self.system = system
@@ -98,8 +102,6 @@ class Calibrate(object):
         self.potcar_orig = potcar.as_dict()
         self.kpoints_orig = kpoints.as_dict()
         self.qadapter = qadapter
-        self.kname = None
-        self.vis = []
         self.job_dir_list = []
         self.jobs = []
         #example:- handlers = [VaspErrorHandler(),
@@ -137,6 +139,10 @@ class Calibrate(object):
         
         Args:
             turn_knobs: knobs aka paramters to be tuned
+
+        Note: poscar jobs setup through the VOLUME is only for backward
+              compatibility, use POSCAR key in the turn_knobs to tune
+              poscars
         """
         if turn_knobs is None:
             turn_knobs = self.turn_knobs
@@ -148,6 +154,8 @@ class Calibrate(object):
                     self.setup_poscar_jobs(scale_list = v)
                 elif k == 'POTCAR' and v:
                     self.setup_potcar_jobs(mappings = v)
+                elif k == 'POSCAR' and v:
+                    self.setup_poscar_jobs(poscar_list=v)                    
                 else:
                     self.setup_incar_jobs(k, v)
         else:
@@ -170,7 +178,6 @@ class Calibrate(object):
         #restore
         self.job_dir = orig_job_dir
 
-        
     def recursive_jobs(self,n, keys, i):
         """
         recursively setup the jobs: used by setup_matrix_job
@@ -184,13 +191,13 @@ class Calibrate(object):
         job_dir = self.job_dir + os.sep + self.key_to_name(keys[i])
         if i == n-1 and i != 0:
             for val in self.turn_knobs[keys[i]]:
-                self.job_dir = job_dir + os.sep + self.val_to_name(val) #re.sub('\.','_',str(val))
+                self.job_dir = job_dir + os.sep + self.val_to_name(val)
                 logger.info('setting jobs in the directory: '+self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))            
                 self.add_job(name=job_dir, job_dir=self.job_dir)
         else:
             for val in self.turn_knobs[keys[i]]:
-                self.job_dir = job_dir + os.sep + self.val_to_name(val) #re.sub('\.','_',str(val))
+                self.job_dir = job_dir + os.sep + self.val_to_name(val)
                 logger.info('setting jobs in the directory: '+self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))
                 self.recursive_jobs(n,keys,i+1)
@@ -210,6 +217,8 @@ class Calibrate(object):
             return 'KPTS'
         elif key == 'POTCAR':
             return 'POT'
+        elif key == 'POSCAR':
+            return 'POS'        
         else:
             return key
 
@@ -235,9 +244,11 @@ class Calibrate(object):
         if type(val) == float:
             return re.sub('\.','_',str(val))
         elif type(val) == list:
-            return self.kpoint_to_name(val, self.Grid_type)
+            return self.kpoint_to_name(val, 'M')
         elif type(val) == dict:
             return self.potcar_to_name(val)
+        elif isinstance(val, Poscar):
+            return val.comment        
         else:
             return str(val)
                 
@@ -280,14 +291,17 @@ class Calibrate(object):
         """
         self.incar[param] = val
 
-    def set_poscar(self, scale):
+    def set_poscar(self, scale=None, poscar=None):
         """
         set the poscar: volume scaled by the scale factor
         """
-        structure = Poscar.from_dict(self.poscar_orig).structure
-        volume = structure.volume
-        structure.scale_lattice(scale *volume)
-        self.poscar = Poscar(structure)
+        if scale is not None:
+            structure = Poscar.from_dict(self.poscar_orig).structure
+            volume = structure.volume
+            structure.scale_lattice(scale *volume)
+            self.poscar = Poscar(structure)
+        elif poscar is not None:
+            self.poscar = poscar
 
     def set_potcar(self, mapping):
         """
@@ -344,17 +358,26 @@ class Calibrate(object):
         else:
         	logger.warn('kpoints_list empty')
             
-    def setup_poscar_jobs(self, scale_list, Name = "volume_scale_"):
+    def setup_poscar_jobs(self, scale_list=[], poscar_list=[]):
         """
         for scaling the latice vectors of the original structure,
         scale_list is volume scaling factor list
         """
-        for scale in scale_list:
-            self.set_poscar(scale)
-            if not self.is_matrix:
-                job_dir  = self.job_dir+ os.sep + 'VOLUME' +\
-                    os.sep + str(scale)
-                self.add_job(name=job_dir, job_dir=job_dir)
+        if scale_list:
+            for scale in scale_list:
+                self.set_poscar(scale=scale)
+                job_dir  = self.job_dir+ os.sep + 'POS' +\
+                        os.sep + 'VOLUME_'+str(scale)
+                if not self.is_matrix:
+                    self.add_job(name=job_dir, job_dir=job_dir)
+        elif poscar_list:
+            for poscar in poscar_list:
+                self.set_poscar(poscar=poscar)
+                job_dir  = self.job_dir+ os.sep +'POS' +\
+                  os.sep + poscar.comment
+                if not self.is_matrix:
+                    self.add_job(name=job_dir, job_dir=job_dir)
+                    
 
     def setup_potcar_jobs(self, mappings):
         """
@@ -556,8 +579,8 @@ class Calibrate(object):
         d['kpoints'] = self.kpoints_orig
         d['turn_knobs'] = self.turn_knobs
         d['job_dir_list'] = self.job_dir_list
-        if system is not None:
-            d['system'] = system
+        if self.system is not None:
+            d['system'] = self.system
         return d
         
 class CalibrateMolecule(Calibrate):
@@ -619,7 +642,9 @@ class CalibrateSlab(Calibrate):
                  setup_dir='.', parent_job_dir='.', job_dir='./Slab',
                 qadapter=None, job_cmd='qsub', wait=True,
                 turn_knobs={'ENCUT':[],'KPOINTS':[]}):
-        
+        self.system = system
+        self.input_structure = poscar.structure.copy()
+        self.slab_setup(turn_knobs=turn_knobs)
         Calibrate.__init__(self, incar, poscar, potcar, kpoints, 
                            system=system, is_matrix = is_matrix,
                            Grid_type = Grid_type,setup_dir=setup_dir,
@@ -628,83 +653,59 @@ class CalibrateSlab(Calibrate):
                            job_cmd=job_cmd, wait=wait,
                            turn_knobs = turn_knobs)
 
-    def _setup(self, turn_knobs=None):
+    def slab_setup(self, turn_knobs=None):
         """
-        invoke the set up methods corresponding to the dict keys
-        overridden to invoke vacuum and thickness jobs setup
+        invoke the set up methods corresponding to the dict keys:
+        VACUUM and THICKNESS
+        sets the POSCAR key in the turn_knobs 
         """
         if turn_knobs is None:
             turn_knobs = self.turn_knobs
-        if any(turn_knobs.values()):            
+        if any(turn_knobs.values()):
+            poscar_list = []
             for k, v in turn_knobs.items():
-                if k == 'KPOINTS' and v:
-                    self.setup_kpoints_jobs(kpoints_list = v)
-                elif k == 'VOLUME' and v:
-                    self.setup_poscar_jobs(scale_list = v)
-                elif k == 'POTCAR' and v:
-                    self.setup_potcar_jobs(mappings = v)
-                elif k == 'VACUUM' and v:
-                    self.setup_vacuum_jobs()
+                if k == 'VACUUM' and v:
+                    poscar_list += self.setup_vacuum_jobs(v)
+                    del turn_knobs['VACUUM']
                 elif k == 'THICKNESS' and v:
-                    self.setup_thickness_jobs()
-                else:
-                    self.setup_incar_jobs(k, v)
-        else:
-            logger.warn('knobs not set, running a single job')
-            self.add_job(name='single_job', job_dir=self.job_dir)          
-                
-	
-    def set_vacuum(self, vac_space):
+                    poscar_list += self.setup_thickness_jobs(v)
+                    del turn_knobs['THICKNESS']
+            turn_knobs['POSCAR'] = poscar_list
+
+    def setup_vacuum_jobs(self, vacuum_list):
         """
-        set the vacuum spacing and call sd_flags for top 2 layers
+        create slabs with the provided vacuum settings
+
+        returns list of poscars        
+        """
+        return [self.create_slab(vacuum=val) for val in vacuum_list]
+
+    def setup_thickness_jobs(self, thickness_list):
+        """
+        create slabs with the provided thickness settings
+
+        returns list of poscars
+        """
+        return [self.create_slab(thickness=val) for val in thickness_list]
+            
+    def create_slab(self, vacuum=12, thickness=10):
+        """
+        set the vacuum spacing, slab thickness and call sd_flags
+        for top 2 layers
+
+        returns the poscar corresponding to the modified structure
         """ 
-        strt_structure = Poscar.from_dict(self.poscar_orig).structure
+        strt_structure = self.input_structure.copy()
         slab_struct= SlabGenerator(initial_structure= strt_structure,
-                                   miller_index= self.hkl, 
-                                   min_slab_size= 10,
-                                   min_vacuum_size=vac_space, 
-                                   lll_reduce=False, center_slab=True, 
+                                   miller_index= self.system['hkl'], 
+                                   min_slab_size= thickness,
+                                   min_vacuum_size=vacuum, 
+                                   lll_reduce=False, center_slab=True,
                                    primitive=False).get_slab()
         slab_struct.sort()
         sd = self.set_sd_flags(slab_struct)
-        self.poscar = Poscar(slab_struct, selective_dynamics= sd)
-                 
-    def setup_vacuum_jobs(self, vacuum_list):
-        """covergence wrt vacuum spacing """
-                
-        for val in vacuum_list:
-            logger.info('setting Slab Vacuum as {}'.format(val))
-            self.set_vacuum(val)
-            if not self.is_matrix:
-                job_dir  = self.job_dir+ os.sep + \
-                    'VACUUM' + os.sep +  self.val_to_name(val)
-                self.add_job(name=job_dir, job_dir=job_dir)
-
-    def set_thickness(self, thickness):
-        """
-        set thickness and call sd_flags for top 2 layers
-        """
-        strt_structure = Poscar.from_dict(self.poscar_orig).structure
-        slab_struct= SlabGenerator(initial_structure= strt_structure, 
-                                   miller_index= self.hkl, 
-                                   min_slab_size=thickness,
-                                   min_vacuum_size=12, lll_reduce=False, 
-                                   center_slab=True, 
-                                   primitive=False).get_slab()
-        slab_struct.sort()
-        sd= self.set_sd_flags(slab_struct)
-        self.poscar = Poscar(slab_struct, selective_dynamics= sd)
-    
-    def setup_thickness_jobs(self, thickness_list):
-        """ convergence wrt slab thickness"""
-
-        for val in thickness_list:
-            logger.info('setting Slab Thickness as {}'.format(val))
-            self.set_thickness(val)
-            if not self.is_matrix:
-                job_dir  = self.job_dir+ os.sep + \
-                    'THICKNESS' + os.sep +  self.val_to_name(val)
-                self.add_job(name=job_dir, job_dir=job_dir)
+        comment = 'VAC'+str(vacuum)+'THICK'+str(thickness)
+        return Poscar(slab_struct, comment=comment, selective_dynamics= sd)    
 
     def set_sd_flags(self, slab_obj= None, n_top_layers= 2):
         """
@@ -759,9 +760,11 @@ class CalibrateInterface(CalibrateSlab):
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd, wait=wait,
                            turn_knobs = turn_knobs)
-
-    
-    	self.poscar.selective_dynamics = self.set_sd_flags(self.poscar.structure)) 
+    ####
+    #needed here only if the input structures are getting manipulated
+    #like in createslab
+    ####
+    #	self.poscar.selective_dynamics = self.set_sd_flags(self.poscar.structure)) 
 	
     #def set_sd_flags(self, interface_obj= None, n_top_layers= 2):
     #	"""useful method to set the SD flags for Slabs, default 
@@ -792,66 +795,63 @@ class CalibrateInterface(CalibrateSlab):
         #return sd_flags
     
 if __name__ == '__main__':
-    """
-    Does Calibration jobs, checks the calculations if done,
-    enforces optimum params, and does structural relaxation
-    (a structural calibration task)
-    """
-    system = 'Pt bulk'
-    atoms = ['Pt']
-    
+    #STRUCTURE
     a0 = 3.965
     lvec = [ [0.5, 0.0, 0.5], [0.5, 0.5, 0.0], [0.0, 0.5, 0.5] ]
     lvec = np.array(lvec) * a0
     lattice = Lattice(lvec)
-    structure = Structure( lattice, atoms, [ [0.0, 0.0, 0.0] ],
-                           coords_are_cartesian=False,
-                           site_properties={"magmom":[0]} )
+    structure = Structure( lattice, ['Pt'], [ [0.0, 0.0, 0.0] ],
+                           coords_are_cartesian=False )
 
+    #INITIAL VASP INPUT SET
     incarparams = {'System':'test',
                    'ENCUT': 400,
                    'ISMEAR': 1,
                    'SIGMA': 0.1,
                    'EDIFF': 1E-6}
-    incar = Incar(params=incarparams)
-    poscar = Poscar(structure, comment=system,
-                    selective_dynamics=None,
-                    true_names=True, velocities=None,
-                    predictor_corrector=None)
-    atoms = poscar.site_symbols
-    potcar = Potcar(symbols=atoms, functional='PBE',
-                    sym_potcar_map=None)
+    incar = Incar(params = incarparams)
+    poscar = Poscar(structure, comment='test')
+    potcar = Potcar( symbols = poscar.site_symbols, functional='PBE',
+                     sym_potcar_map=None)
     kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16),
                                           shift=(0, 0, 0))
 
-    #creation of list of automatic kpoints mesh
-    k_step = 10
-    kpoint_list = [k for k in range(20, 40, k_step)]          
-    #change the Kpoints method in the constructor
-    calbulk = CalibrateBulk(incar, poscar, potcar, kpoints, 
-                            is_matrix = True, job_dir='Bulk',
-                            turn_knobs = OrderedDict( [
-                                ('SIGMA', [0.025, 0.50, 0.1, 0.2, 0.4, 0.8]),
-                                ('POTCAR', [{'Pt':'Pt'}, {'Pt':'Pt_pv'}, {'Pt':'Pt_GW'}]),
-                                ('IBRION', [1, 2, 3]),
-                                ('KPOINTS', kpoint_list),
-                                ('ENCUT', range(400,700,100)),
-                                ('VOLUME', [0.6, 0.8, 1.0, 1.2, 1.4])
-                                ]) )
-    calbulk.setup()     
-    calbulk.run(['ls','-lt'])
+    #CALIBRATION INPUT
+    system = {'hkl':[1,1,1], 'ligand':None }    
+    turn_knobs = OrderedDict( [
+        ('SIGMA', [0.025, 0.50]),
+        ('POTCAR', [{'Pt':'Pt'}, {'Pt':'Pt_pv'}, {'Pt':'Pt_GW'}]),
+        ('IBRION', [1, 2, 3]),
+        ('KPOINTS', [k for k in range(20, 40, 10)]),
+        ('ENCUT', range(400,700,100)),
+        ('VACUUM', [10,12,15])
+        ] )
+    is_matrix = True
+    job_dir = 'Slab'
+    job_cmd = ['ls','-lt'] 
+
+    #SETUP AND RUN    
+    cal = CalibrateSlab( incar, poscar, potcar, kpoints,
+                         system = system,
+                         is_matrix = is_matrix,
+                         job_dir = job_dir,
+                         turn_knobs = turn_knobs )
+    cal.setup()     
+    cal.run(job_cmd)
+
+    
     # to use the next after the calibrate jobs are done , checked by check_calcs
-    #calbulk.check_calcs([calbulk])  #
+    #done = Calibrate.check_calcs([cal])  #
     #get the knob responses
-    #calbulk.set_knob_responses()
+    #cal.set_knob_responses()
     #optimu knob responses
-    #calbulk.set_sorted_optimum_params()
-    #print(calbulk.sorted_response_to_knobs['ENCUT']['600.0'])
-    #print(calbulk.optimum_knob_responses)
+    #cal.set_sorted_optimum_params()
+    #print(cal.sorted_response_to_knobs['ENCUT']['600.0'])
+    #print(cal.optimum_knob_responses)
     #test enforce_cutoff
     #setup relaxation jobs after optimum parameters are set
-    #calbulk.setup_relaxation_jobs([calbulk])
+    #cal.setup_relaxation_jobs([cal])
     #inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9],
     #           ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888],
     #['[[2,2,8]]', 9.879],]
-    #print(calbulk.enforce_cutoff(inp_list, delta_e=0.01))
+    #print(cal.enforce_cutoff(inp_list, delta_e=0.01))

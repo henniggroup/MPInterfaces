@@ -78,7 +78,7 @@ class Measurement(object):
     def run(self, job_cmd=None):
         """ run jobs """
         for cal in self.cal_objs:
-            cal.run()
+            cal.run(job_cmd=job_cmd)
 
     def get_energy(self, cal):
         """

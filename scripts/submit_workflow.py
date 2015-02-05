@@ -10,16 +10,51 @@ Note 1:
       contact me(km468@cornell.edu) to create a database account
       
 Note 2:
-        Since hydrogen is part of the hermes subnetwork, direct connection to the database
-        is not possible. So tunell port number 27017 from your local machine to port 27017
+        Since hydrogen is part of the hermes subnetwork, direct
+        connection to the database is not possible. So tunell 
+        port number 27017 from your local machine to port 27017 
         on hydrogen via ssh:
+
         ssh -N -f -L 27017:10.1.255.101:27017 username@hermes.mse.ufl.edu
-        if port 27017 on the machine that you are running is not available,
-        use another port number for tunneling. example:-
+
+        if port 27017 on the machine that you are running is 
+        not available, use another port number for tunneling. example:-
+
         ssh -N -f -L 27030:10.1.255.101:27017 username@hermes.mse.ufl.edu
-        mind: if the tunneled port is changed, the port number in the
-        launchpad initialization should also be changed
+
+        mind: if the tunneled port is changed, the port number
+        in the launchpad initialization should also be changed
+
+Note 3:
+     to submit workflow to the database:
+
+         python submit_workflow.py
+ 
+     Fireworks package has some nice utility scripts for 
+     launching fireworks and checking job status. If the 
+     fireworks package is installed then those scripts are already
+     in your PATH. Some examples are given below
+
+     initialize database connection(writes a yaml file with the 
+     database settings in the directory where it is called):
+
+         lpad init
+
+     CAUTION: Be careful when using the following command as it will 
+     erase all workflows from the database:
+
+         lpad reset
+
+     launch a single firework:
+
+         rlaunch singleshot
+
+     get all fireworks info:
+
+         lpad get_fws
 """
+
+import sys
 
 import numpy as np
 
@@ -28,7 +63,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 
 from fireworks import Firework, Workflow, LaunchPad
-from fireworks.core.rocket_launcher import launch_rocket #rapidfire
+from fireworks.core.rocket_launcher import launch_rocket
 
 from mpinterfaces.firetasks import MPINTCalibrateTask, MPINTMeasurementTask
 
@@ -36,25 +71,18 @@ from mpinterfaces.firetasks import MPINTCalibrateTask, MPINTMeasurementTask
 # INITIAL INPUTSET
 #---------------------------------------------------------------------
 #structure
-system = 'Pt bulk'
-atoms = ['Pt']
-    
 a0 = 3.965
-lvec = [ [0.5, 0.0, 0.5], [0.5, 0.5, 0.0], [0.0, 0.5, 0.5] ]
-lvec = np.array(lvec) * a0
-lattice = Lattice(lvec)
-structure = Structure( lattice,
-                        atoms,
-                        [ [0.0, 0.0, 0.0] ],
-                        coords_are_cartesian=False)
-
+lattice_matrix = np.array([ [0.5, 0.0, 0.5], [0.5, 0.5, 0.0], [0.0, 0.5, 0.5] ]) * a0
+lattice = Lattice(lattice_matrix)
+structure = Structure( lattice, ['Pt'], [ [0.0, 0.0, 0.0] ],
+                       coords_are_cartesian=False)
 incarparams = {'System':'test',
                    'ENCUT': 400,
                    'ISMEAR': 1,
                    'SIGMA': 0.1,
                    'EDIFF':1E-6}
 incar = Incar(params=incarparams)
-poscar = Poscar(structure, comment=system, selective_dynamics=None)
+poscar = Poscar(structure, comment='test', selective_dynamics=None)
 potcar = Potcar(symbols = poscar.site_symbols, functional='PBE',
                 sym_potcar_map=None)
 kpoints = Kpoints(kpts=((8, 8, 8),))
@@ -70,6 +98,7 @@ calparams1['poscar'] = poscar.as_dict()
 calparams1['kpoints'] = kpoints.as_dict()
 calparams1['que'] = {}
 #submit script setting for hipergator
+#uncomment the following lines if the jobs are run on hipergator
 #calparams1['que'] = {
 #                     'type':'PBS',
 #                     'params':
@@ -125,7 +154,7 @@ msrtask1 = MPINTMeasurementTask(msrparams1)
 #---------------------------------------------------------------------
 # FIREWORKS
 #
-# create the fireworks from the firetasks
+# create fireworks from the firetasks
 #---------------------------------------------------------------------
 fw_calibrate = Firework([caltask1, caltask2], name="fw_calibrate")
 fw_measure = Firework([msrtask1], name="fw_measurement", parents=[fw_calibrate])
@@ -133,21 +162,28 @@ fw_measure = Firework([msrtask1], name="fw_measurement", parents=[fw_calibrate])
 #---------------------------------------------------------------------
 # WORKFLOW
 #
-#create workflow from the fireworks
+# create workflow from the fireworks
 #---------------------------------------------------------------------
-wf = Workflow([fw_calibrate, fw_measure], name="MPINT_workflow")
+wf = Workflow([fw_calibrate, fw_measure], name="mpint_workflow")
 
 #---------------------------------------------------------------------
 # connect to the fireworks database and add workflow to it
 # use your own account
 #---------------------------------------------------------------------
-launchpad = LaunchPad(host='localhost', port=27017, name='fireworks',
-                       username="km468", password="km468")
+if len(sys.argv)>1:
+    launchpad = LaunchPad(host='localhost', port=int(sys.argv[1]), 
+                          name='fireworks', username="km468", 
+                          password="km468")
+else:
+    launchpad = LaunchPad(host='localhost', port=27017, name='fireworks',
+                          username="km468", password="km468")
+
 print('fireworks in the database before adding the workflow: \n',
       launchpad.get_fw_ids())
-launchpad.add_wf(wf)
-print('fireworks in the database: \n', launchpad.get_fw_ids())
 
+launchpad.add_wf(wf)
+
+print('fireworks in the database: \n', launchpad.get_fw_ids())
 
 
 ##ignore, for testing purposes only

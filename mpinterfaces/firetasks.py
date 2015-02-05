@@ -104,7 +104,9 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
 
 @explicit_serialize
 class MPINTMeasurementTask(FireTaskBase, FWSerializable):
-    
+    """
+    Measurement Task
+    """
     required_params = ["measurement"]
     optional_params = ["que", "job_cmd", "other_params"]    
 
@@ -120,19 +122,20 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             calparams.update(self.get('que'))
             cal = get_cal_obj(calparams)
             cal_objs.append(cal)
-        measure = load_class("mpinterfaces.measurement",
-                          self['measurement'])(cal_objs,
-                                               **self.get("other_params", {}))
-        job_cmd = None
-        if self.get("job_cmd"):
-            job_cmd = job_cmd
-        measure.setup()
-        measure.run(job_cmd = job_cmd)
         done = load_class("mpinterfaces.calibrate", "Calibrate").check_calcs(cal_objs)
         if not done:
-            logger.info('Not done yet. Try again later')
+            logger.info('Calibration not done yet. Try again later')
             new_fw = Firework(MPINTMeasurementTask(self), spec={'cal_objs':fw_spec['cal_objs']})
             return FWAction(additions=new_fw)
+        else:
+            measure = load_class("mpinterfaces.measurement",self['measurement'])(cal_objs,
+                                                                                 **self.get("other_params", {}))
+            job_cmd = None
+            if self.get("job_cmd"):
+                job_cmd = job_cmd
+            measure.setup()
+            measure.run(job_cmd = job_cmd)
+            
 
 @explicit_serialize
 class MPINTPostProcessTask(FireTaskBase, FWSerializable):

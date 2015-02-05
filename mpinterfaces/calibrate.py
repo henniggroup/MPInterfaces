@@ -525,7 +525,7 @@ class Calibrate(object):
         for cal in cal_objs:        
             cal.calc_done = False
             cal.isrunning = False
-            for jdir in cal.old_job_dir_list:
+            for jdir in cal.job_dir_list:
                 outcar_file = jdir + os.sep + 'OUTCAR'
                 if os.path.isfile(outcar_file):
                     mtime = os.stat(outcar_file)[8]

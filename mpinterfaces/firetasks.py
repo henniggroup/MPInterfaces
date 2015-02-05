@@ -13,7 +13,7 @@ import logging
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar
 from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
 
-from fireworks.core.firework import FireTaskBase, FWAction
+from fireworks.core.firework import FireTaskBase, Firework, FWAction
 from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import explicit_serialize
@@ -128,15 +128,11 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             job_cmd = job_cmd
         measure.setup()
         measure.run(job_cmd = job_cmd)
-
-        #measure = Measurement(cal_objs_list,
-        #                       **self.get("msr_construct_params", {}))
-        #if measure.calbulk:
-        #    for obj in measure.calbulk:
-        #        obj.set_knob_responses()
-        #        obj.set_sorted_optimum_params()
-        #        logger.info('sorted_response_to_knobs : {} \n'.format(
-        #            obj.sorted_response_to_knobs))
+        done = load_class("mpinterfaces.calibrate", "Calibrate").check_calcs(cal_objs)
+        if not done:
+            logger.info('Not done yet. Try again later')
+            new_fw = Firework(MPINTMeasurementTask(self), spec={'cal_objs':fw_spec['cal_objs']})
+            return FWAction(additions=new_fw)
 
 @explicit_serialize
 class MPINTPostProcessTask(FireTaskBase, FWSerializable):

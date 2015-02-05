@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 Fit energy and volume to an equation of state to get the minimum
 volume and the bulk modulus
@@ -56,7 +58,7 @@ if __name__=='__main__':
     eos = EquationOfState(volumes, energies, eos='murnaghan')
     v0, e0, B = eos.fit()
     #the ASE units for the bulk modulus is eV/Angstrom^3 
-    print 'optimum volume, energy and bulk moduls', v0, e0, B
+    print('optimum volume, energy and bulk moduls', v0, e0, B)
     #plot
     eos.plot(filename= "eos_fit")
     #custom_plot(volumes, energies, eos)

@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 Compute the reduced matching lattice vectors for heterostructure
 interfaces as described in the paper by Zur and McGill:
@@ -29,8 +31,8 @@ def get_r_list(area1, area2, max_area, tol=0.02):
     r_list = []
     rmax1 = int(max_area/area1)
     rmax2 = int(max_area/area2)
-    print 'rmax1, rmax2', rmax1, rmax2
-    print 'a2/a1', area2/area1
+    print('rmax1, rmax2', rmax1, rmax2)
+    print('a2/a1', area2/area1)
     for r1 in range(1, rmax1+1):
         for r2 in range(1, rmax2+1):
             if abs(float(r1)/float(r2) - area2/area1) < tol:
@@ -88,12 +90,11 @@ def get_matching_lattices(iface1, iface2, max_area=200,
         ab1 = [ iface1.lattice.matrix[0,:] , iface1.lattice.matrix[1,:] ]
         ab2 = [ iface2.lattice.matrix[0,:] , iface2.lattice.matrix[1,:] ]
     
-    print 'area1, area2', area1, area2
+    print('area1, area2', area1, area2)
     r_list = get_r_list(area1, area2, max_area, tol=0.02)
-    print r_list
-    #sys.exit()
+    print(r_list)
     for r1r2 in r_list:
-        print 'r1, r2', r1r2, '\n'
+        print('r1, r2', r1r2, '\n')
         uv1_list = reduced_supercell_vectors(ab1, r1r2[0])
         uv2_list = reduced_supercell_vectors(ab2, r1r2[1])
         for uv1 in uv1_list:
@@ -102,17 +103,17 @@ def get_matching_lattices(iface1, iface2, max_area=200,
                 v_mismatch = get_mismatch(uv1[1], uv2[1])
                 angle1 = get_angle(uv1[0], uv1[1])
                 angle2 = get_angle(uv2[0], uv2[1])
-                print '\nu1, u2', np.linalg.norm(uv1[0]), np.linalg.norm(uv2[0])
-                print 'v1, v2', np.linalg.norm(uv1[1]), np.linalg.norm(uv2[1])
-                print 'angle1, angle2', angle1, angle2
-                print 'u and v mismatches', u_mismatch, v_mismatch
+                print('\nu1, u2', np.linalg.norm(uv1[0]), np.linalg.norm(uv2[0]))
+                print('v1, v2', np.linalg.norm(uv1[1]), np.linalg.norm(uv2[1]))
+                print('angle1, angle2', angle1, angle2)
+                print('u and v mismatches', u_mismatch, v_mismatch)
                 if  abs(u_mismatch) < max_mismatch and abs(v_mismatch) < max_mismatch:
                     if  abs(angle1 - angle2) < max_angle_diff:
-                        print '\n FOUND ONE'
-                        print 'u mismatch in percentage = ', u_mismatch
-                        print 'v mismatch in percentage = ', v_mismatch
-                        print 'angle1, angle diff', angle1, abs(angle1 - angle2)
-                        print 'uv1, uv2', uv1, uv2
+                        print('\n FOUND ONE')
+                        print('u mismatch in percentage = ', u_mismatch)
+                        print('v mismatch in percentage = ', v_mismatch)
+                        print('angle1, angle diff', angle1, abs(angle1 - angle2))
+                        print('uv1, uv2', uv1, uv2)
                         return uv1, uv2
 
         
@@ -161,7 +162,7 @@ if __name__ == '__main__':
     ###################
     #change the lattice 
     ##################
-    print 'lattice mapping'
+    print('lattice mapping')
     lmap_matrix = np.array( [ iface_cdte.lattice.matrix[0,:],
                               iface_cdte.lattice.matrix[1,:],
                             iface_gaas.lattice.matrix[2,:] ] )
@@ -169,23 +170,23 @@ if __name__ == '__main__':
     #lattice, _, scell = iface_gaas.lattice.find_mapping(lmap,
     #                                           ltol = 0.01, atol=1)
     #print iface_gaas.lattice
-    print 'new lattice',lmap
+    print('new lattice',lmap)
     iface_gaas.to(fmt='poscar', filename='POSCAR_GaAs_iface_1.vasp')
     iface_gaas.modify_lattice(lmap)
     #iface_gaas.make_supercell(scell)
-    print 'final lattices'
-    print iface_gaas.lattice
-    print iface_cdte.lattice    
+    print('final lattices')
+    print(iface_gaas.lattice)
+    print(iface_cdte.lattice)
     iface_gaas.to(fmt='poscar', filename='POSCAR_GaAs_iface_2.vasp')
     iface_cdte.to(fmt='poscar', filename='POSCAR_CdTe_iface2.vasp')
 
     #merge
     for site in iface_cdte:
         vec = iface_gaas.lattice.matrix[2,:]
-        print vec
-        print site.coords
+        print(vec)
+        print(site.coords)
         new_coords = site.coords - vec/np.linalg.norm(vec)
-        print new_coords
+        print(new_coords)
         iface_gaas.append(site.specie, new_coords, coords_are_cartesian=True)
 
     iface_gaas.to(fmt='poscar', filename='POSCAR_combo.vasp')        

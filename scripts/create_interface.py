@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 This script demonstrates the usage of the module mpinterfaces/interface.py
 

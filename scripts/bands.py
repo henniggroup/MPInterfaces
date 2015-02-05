@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 reads in KPOINTS(with labels) and vasprun.xml files and plots the band structure
 """

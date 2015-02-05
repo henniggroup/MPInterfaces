@@ -522,10 +522,12 @@ class Calibrate(object):
         objects
         """
         done = []
+        i = 0
         for cal in cal_objs:        
             cal.calc_done = False
             cal.isrunning = False
             for jdir in cal.job_dir_list:
+                i += 1
                 outcar_file = jdir + os.sep + 'OUTCAR'
                 if os.path.isfile(outcar_file):
                     mtime = os.stat(outcar_file)[8]
@@ -544,9 +546,13 @@ class Calibrate(object):
                         if 'time' in k:
                             cal.calc_done = True
                             done.append(cal.calc_done)
+                            logger.info('done in {}'.format(jdir))
                             break
         if done:
-            return all(done)
+            if len(done) == i:
+                return all(done)
+            else:
+                return False
         else:
             return False
     

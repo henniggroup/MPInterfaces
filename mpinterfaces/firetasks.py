@@ -55,7 +55,7 @@ def get_cal_obj(d):
     turn_knobs = d["turn_knobs"]
     
     qadapter = None    
-    if d.get('que'):
+    if d['que']:
         qadapter = CommonAdapter(d['que']['type'], **d['que']['params'])
 
     job_cmd = None        
@@ -73,7 +73,7 @@ def get_cal_obj(d):
     cal =  load_class("mpinterfaces.calibrate",
                       d["calibrate"])(incar, poscar, potcar, kpoints,
                                       system = d.get("system", None),
-                                      qadapter=qadapter, job_cmd=job_cmd,
+                                      qadapter=qadapter,
                                       turn_knobs=turn_knobs,
                                       **d.get("other_params", {}))
         
@@ -98,7 +98,7 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         cal.setup()
         cal.run()
         d = cal.as_dict()
-        d.update(self.get('que'))
+        d.update({'que':self['que']})
         return FWAction(mod_spec=[{'_push': {'cal_objs':d}}])
         
 
@@ -107,8 +107,8 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     """
     Measurement Task
     """
-    required_params = ["measurement"]
-    optional_params = ["que", "job_cmd", "other_params"]    
+    required_params = ["measurement", "que"]
+    optional_params = ["job_cmd", "other_params"]    
 
     def run_task(self, fw_spec):
         """
@@ -119,7 +119,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         logger.info('The measurement task will be constructed from {} calibration objects'
                     .format(len(fw_spec['cal_objs'])) )
         for calparams in fw_spec['cal_objs']:
-            calparams.update(self.get('que'))
+            calparams.update({'que':self['que']})
             cal = get_cal_obj(calparams)
             cal_objs.append(cal)
         done = load_class("mpinterfaces.calibrate", "Calibrate").check_calcs(cal_objs)
@@ -131,8 +131,8 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             measure = load_class("mpinterfaces.measurement",self['measurement'])(cal_objs,
                                                                                  **self.get("other_params", {}))
             job_cmd = None
-            if self.get("job_cmd"):
-                job_cmd = job_cmd
+            if self.get("job_cmd", None) is not None:
+                job_cmd = self.get("job_cmd")
             measure.setup()
             measure.run(job_cmd = job_cmd)
             

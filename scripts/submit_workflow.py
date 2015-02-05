@@ -96,20 +96,20 @@ calparams1 = {}
 calparams1['incar'] = incar.as_dict()
 calparams1['poscar'] = poscar.as_dict()
 calparams1['kpoints'] = kpoints.as_dict()
-calparams1['que'] = {}
+#calparams1['que'] = {}
 #submit script setting for hipergator
 #uncomment the following lines if the jobs are run on hipergator
-#calparams1['que'] = {
-#                     'type':'PBS',
-#                     'params':
-#                     {
-#                     'nnodes': '1',
-#                     'ppnode': '8',
-#                     'walltime': '24:00:00',
-#                     'job_name': 'test_job',
-#                     'rocket_launch': 'mpirun ~/Software/vasp.5.3.5/vasp'
-#                     }
-#                     }
+calparams1['que'] = {
+                     'type':'PBS',
+                     'params':
+                     {
+                     'nnodes': '1',
+                     'ppnode': '8',
+                     'walltime': '24:00:00',
+                     'job_name': 'test_job',
+                     'rocket_launch': 'mpirun /home/km468/Software/VASP/vasp.5.3.5/vasp'
+                     }
+                     }
 #if running on henniggroup machines set the job_cmd
 #job_cmd = ['nohup',
 #           '/opt/openmpi_intel/bin/mpirun',

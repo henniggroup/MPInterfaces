@@ -148,7 +148,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     Measurement Task
     """
     required_params = ["measurement", "que_params"]
-    optional_params = ["job_cmd", "other_params"]    
+    optional_params = ["job_cmd", "other_params", "fw_id"]    
 
     def run_task(self, fw_spec):
         """
@@ -165,7 +165,17 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         done = load_class("mpinterfaces.calibrate", "Calibrate").check_calcs(cal_objs)
         if not done:
             logger.info('Calibration not done yet. Try again later')
-            new_fw = Firework(MPINTMeasurementTask(self), spec={'cal_objs':fw_spec['cal_objs']})
+            if self.get("fw_id"):
+                fw_id = int(self.get("fw_id")) + 1
+                self["fw_id"] = fw_id
+                new_fw = Firework(MPINTMeasurementTask(self),
+                                  spec={'cal_objs':fw_spec['cal_objs']},
+                                  name = 'new_fw', fw_id = fw_id)
+            else:
+                new_fw = Firework(MPINTMeasurementTask(self),
+                                  spec={'cal_objs':fw_spec['cal_objs']},
+                                  name = 'new_fw')
+                
             return FWAction(additions=new_fw)
         else:
             measure = load_class("mpinterfaces.measurement",self['measurement'])(cal_objs,

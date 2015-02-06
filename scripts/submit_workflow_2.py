@@ -113,26 +113,32 @@ msrtask1 = MPINTMeasurementTask(msrparams1)
 #
 # create fireworks from the firetasks
 #---------------------------------------------------------------------
+fw_id1 = 100
 fw_calibrate1 = Firework( [caltask1, caltask2],
                          name="fw_calibrate",
-                         fw_id = 10 )
+                         fw_id = fw_id1 )
+msrtask1['fw_id'] = fw_id1+1
 fw_measure1 = Firework( [msrtask1],
                        name="fw_measurement",
-                       fw_id = 11 )
+                       fw_id = fw_id1+1 )
 
+fw_id2 = 200
 fw_calibrate2 = Firework( [caltask1, caltask2],
                          name="fw_calibrate",
-                         fw_id = 20 )
+                         fw_id = fw_id2 )
+msrtask1['fw_id'] = fw_id2+1
 fw_measure2 = Firework( [msrtask1],
                        name="fw_measurement",
-                       fw_id = 21 )
+                       fw_id = fw_id2+1 )
 
+fw_id3 = 300
 fw_calibrate3 = Firework( [caltask1, caltask2],
                          name="fw_calibrate",
-                         fw_id = 30 )
+                         fw_id = fw_id3 )
+msrtask1['fw_id'] = fw_id3+1
 fw_measure3 = Firework( [msrtask1],
                        name="fw_measurement",
-                       fw_id = 31 )
+                       fw_id = fw_id3+1 )
 
 
 #---------------------------------------------------------------------
@@ -141,15 +147,15 @@ fw_measure3 = Firework( [msrtask1],
 # create workflow from the fireworks
 #---------------------------------------------------------------------
 wf1 = Workflow( [fw_calibrate1, fw_measure1],
-               links_dict = {10:[11]},
+               links_dict = {fw_calibrate1.fw_id:[fw_measure1.fw_id]},
                name="mpint_workflow1" )
 
 wf2 = Workflow( [fw_calibrate2, fw_measure2],
-               links_dict = {20:[21]},
+               links_dict = {fw_calibrate2.fw_id:[fw_measure2.fw_id]},
                name="mpint_workflow2" )
 
 wf3 = Workflow( [fw_calibrate3, fw_measure3],
-               links_dict = {30:[31]},
+               links_dict = {fw_calibrate3.fw_id:[fw_measure3.fw_id]},
                name="mpint_workflow3" )
 
 workflows = [wf1, wf2, wf3]

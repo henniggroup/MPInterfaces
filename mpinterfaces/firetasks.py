@@ -12,6 +12,7 @@ import logging
 
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar
 from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
+from pymatgen.apps.borg.queen import BorgQueen
 
 from fireworks.core.firework import FireTaskBase, Firework, FWAction
 from fireworks.core.launchpad import LaunchPad
@@ -19,11 +20,10 @@ from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import explicit_serialize
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
-from matgendb.creator import VaspToDbTaskDrone
-
 from mpinterfaces.calibrate import CalibrateMolecule, CalibrateSlab
 from mpinterfaces.calibrate import CalibrateBulk
 from mpinterfaces.measurement import Measurement
+from mpinterfaces.database import MPINTVaspToDbTaskDrone
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -100,7 +100,7 @@ def get_cal_obj(d):
                                     'carbon']:    
             job_cmd = ['nohup',
                        '/opt/openmpi_intel/bin/mpirun',
-                       '-n', str(nprocs),
+                       '-n', '24',
                        '/home/km468/Software/VASP/vasp.5.3.5/vasp']
         else:
             job_cmd=['ls', '-lt']        
@@ -188,11 +188,7 @@ class MPINTDatabaseTask(FireTaskBase, FWSerializable):
         go through the measurement job dirs and 
         put the measurement jobs in the database
         """
-        drone = MPINTVaspToDbTaskDrone(**d.get("dbase_params", {})
-        t_id = drone.assimilate(self["measure_dir"])
-        if t_id:
-            logger.info('ENTERED task id: {}'.format(t_id))
-            return FWAction()
-        else:
-            raise ValueError("Could not parse entry for database insertion!")
-
+        drone = MPINTVaspToDbTaskDrone(**d.get("dbase_params", {}))
+        queen = BorgQueen(drone)#, number_of_drones=ncpus)
+        queen.serial_assimilate(self["measure_dir"])
+        return FWAction()

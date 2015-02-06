@@ -96,10 +96,10 @@ calparams1 = {}
 calparams1['incar'] = incar.as_dict()
 calparams1['poscar'] = poscar.as_dict()
 calparams1['kpoints'] = kpoints.as_dict()
-calparams1['que_params'] = { 'nnodes'=1, 
-                             'nprocs'=16, 
-                             'walltime'='24:00:00',
-                             'job_bin'='/home/km468/Software/VASP/vasp.5.3.5/vasp'
+calparams1['que_params'] = { 'nnodes':1, 
+                             'nprocs':16, 
+                             'walltime':'24:00:00',
+                             'job_bin':'/home/km468/Software/VASP/vasp.5.3.5/vasp'
                              }
 #calparams1['job_cmd'] = job_cmd
 turn_knobs = { 'ENCUT' : range(400, 900, 100),

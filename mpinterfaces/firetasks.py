@@ -45,6 +45,7 @@ def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
     d = {}
     #hipergator
     if 'ufhpc' in socket.gethostname():
+        job_bin='/home/km468/Software/VASP/vasp.5.3.5/vasp'
         d = {'type':'PBS',
              'params':
                  {
@@ -58,6 +59,7 @@ def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
              }
     #stampede
     elif 'stampede' in socket.gethostname():
+        job_bin='/home1/01682/km468/Software/VASP/vasp.5.3.5/vasp'
         d = {'type':'SLURM',
              'params':
                  {

@@ -1,7 +1,7 @@
 from __future__ import division, unicode_literals, print_function
 
 """
-Create and submit multiple workflows it to the 'fireworks' database
+Create and submit multiple(3) workflows it to the 'fireworks' database
 on hydrogen
 
 """

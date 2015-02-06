@@ -11,10 +11,11 @@ import os
 import shutil
 import subprocess
 import operator
-from collections import Counter, OrderedDict
 import re
 import time
 import datetime
+from itertools import product
+from collections import Counter, OrderedDict
 import logging
 
 import numpy as np
@@ -563,10 +564,10 @@ class Calibrate(object):
 
         for cal in cal_objs:
                 if cal.calc_done:
-                        job_dir= self.job_dir+os.sep+'Relax'
-                        contcar_file= cal.parent_job_dir \
-                            +os.sep + cal.job_dir + os.sep + 'CONTCAR'
-                        cal.poscar= Poscar.from_file(contcar_file)
+                        job_dir= self.job_dir+os.sep+'RELAX'
+                        #contcar_file= cal.parent_job_dir \
+                        #    +os.sep + cal.job_dir + os.sep + 'CONTCAR'
+                        #cal.poscar= Poscar.from_file(contcar_file)
                         cal.incar['NSW'] = 1000
                         cal.add_job(name=job_dir, job_dir=job_dir)
                 else:
@@ -647,7 +648,7 @@ class CalibrateSlab(Calibrate):
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.', job_dir='./Slab',
                 qadapter=None, job_cmd='qsub', wait=True,
-                turn_knobs={'ENCUT':[],'KPOINTS':[]}):
+                turn_knobs={'VACUUM':[],'THICKNESS':[]}):
         self.system = system
         self.input_structure = poscar.structure.copy()
         self.slab_setup(turn_knobs=turn_knobs)
@@ -669,13 +670,18 @@ class CalibrateSlab(Calibrate):
             turn_knobs = self.turn_knobs
         if any(turn_knobs.values()):
             poscar_list = []
-            for k, v in turn_knobs.items():
-                if k == 'VACUUM' and v:
-                    poscar_list += self.setup_vacuum_jobs(v)
-                    del turn_knobs['VACUUM']
-                elif k == 'THICKNESS' and v:
-                    poscar_list += self.setup_thickness_jobs(v)
-                    del turn_knobs['THICKNESS']
+            if is_matrix:
+                prod_list = [turn_knobs[k] for k in turn_knobs.keys()]
+                for params in product(*tuple(prod_list)):
+                    poscar_list.append(create_slab(*params))
+            else:                    
+                for k, v in turn_knobs.items():
+                    if k == 'VACUUM' and v:
+                        poscar_list += self.setup_vacuum_jobs(v)
+                    elif k == 'THICKNESS' and v:
+                        poscar_list += self.setup_thickness_jobs(v)
+            del turn_knobs['VACUUM']
+            del turn_knobs['THICKNESS']            
             turn_knobs['POSCAR'] = poscar_list
 
     def setup_vacuum_jobs(self, vacuum_list):
@@ -754,10 +760,10 @@ class CalibrateInterface(CalibrateSlab):
     
     """
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
-                 is_matrix = False, Grid_type = 'A', hkl=[1, 0, 0],
-                 setup_dir='.', parent_job_dir='.', job_dir='./Slab',
+                 is_matrix = False, Grid_type = 'A',
+                 setup_dir='.', parent_job_dir='.', job_dir='./Interface',
                  qadapter=None, job_cmd='qsub', wait=True,
-                 turn_knobs={'ENCUT':[],'KPOINTS':[]}):
+                 turn_knobs={'VACUUM':[],'THICKNESS':[]}):
         
         CalibrateSlab.__init__(self, incar, poscar, potcar, kpoints, 
                            system=system, is_matrix = is_matrix, 

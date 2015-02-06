@@ -170,7 +170,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
                 self["fw_id"] = fw_id
                 new_fw = Firework(MPINTMeasurementTask(self),
                                   spec={'cal_objs':fw_spec['cal_objs']},
-                                  name = 'new_fw', fw_id = fw_id)
+                                  name = 'new_fw', fw_id = -fw_id)
             else:
                 new_fw = Firework(MPINTMeasurementTask(self),
                                   spec={'cal_objs':fw_spec['cal_objs']},

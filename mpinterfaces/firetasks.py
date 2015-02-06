@@ -101,7 +101,6 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         d.update({'que':self['que']})
         return FWAction(mod_spec=[{'_push': {'cal_objs':d}}])
         
-
 @explicit_serialize
 class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     """
@@ -135,32 +134,30 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
                 job_cmd = self.get("job_cmd")
             measure.setup()
             measure.run(job_cmd = job_cmd)
-            
+            d = {}
+            for cal in measure.cal_objs:
+                d = cal.as_dict()
+                d.update({'que':self['que']})
+            return FWAction(update_spec={'cal_objs':d})
 
 @explicit_serialize
-class MPINTPostProcessTask(FireTaskBase, FWSerializable):
-
-    required_params = ["measure_dirs"]    
-#    _fw_name = "MPINTPostProcessTask"
+class MPINTDatabaseTask(FireTaskBase, FWSerializable):
+    """
+    submit data to the database firetask
+    """
+    required_params = ["measure_dir"]
+    optional_params = ["dbase_params"]    
 
     def run_task(self, fw_spec):
         """
-        go through the measurement job dirs and compute quatities of interst
-        also put the measurement jobs in the datbase
+        go through the measurement job dirs and 
+        put the measurement jobs in the database
         """
-        drone = VaspToDbTaskDrone(
-                host='localhost', port='27017',
-                database='vasp_test', user='km468',
-                password='km468',
-                collection='test_collection')
-        t_id = drone.assimilate('Measurement')
-
+        drone = MPINTVaspToDbTaskDrone(**d.get("dbase_params", {})
+        t_id = drone.assimilate(self["measure_dir"])
         if t_id:
             logger.info('ENTERED task id: {}'.format(t_id))
-            stored_data = {'task_id': t_id}
-            update_spec = {'prev_vasp_dir': prev_dir,
-                           'prev_task_type': fw_spec['prev_task_type']}
-            return FWAction(stored_data=stored_data, update_spec=update_spec)
+            return FWAction()
         else:
             raise ValueError("Could not parse entry for database insertion!")
 

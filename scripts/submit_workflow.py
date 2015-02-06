@@ -96,25 +96,11 @@ calparams1 = {}
 calparams1['incar'] = incar.as_dict()
 calparams1['poscar'] = poscar.as_dict()
 calparams1['kpoints'] = kpoints.as_dict()
-#calparams1['que'] = {}
-#submit script setting for hipergator
-#uncomment the following lines if the jobs are run on hipergator
-calparams1['que'] = {
-                     'type':'PBS',
-                     'params':
-                     {
-                     'nnodes': '1',
-                     'ppnode': '8',
-                     'walltime': '24:00:00',
-                     'job_name': 'test_job',
-                     'rocket_launch': 'mpirun /home/km468/Software/VASP/vasp.5.3.5/vasp'
-                     }
-                     }
-#if running on henniggroup machines set the job_cmd
-#job_cmd = ['nohup',
-#           '/opt/openmpi_intel/bin/mpirun',
-#           '-n','16',
-#           '/home/km468/Software/VASP/vasp.5.3.5/vasp']
+calparams1['que_params'] = { 'nnodes'=1, 
+                             'nprocs'=16, 
+                             'walltime'='24:00:00',
+                             'job_bin'='/home/km468/Software/VASP/vasp.5.3.5/vasp'
+                             }
 #calparams1['job_cmd'] = job_cmd
 turn_knobs = { 'ENCUT' : range(400, 900, 100),
                'KPOINTS': [k for k in range(20, 40, 10)]
@@ -147,8 +133,9 @@ caltask2 = MPINTCalibrateTask(calparams2)
 #---------------------------------------------------------------------
 msrparams1 = {}
 msrparams1['measurement'] = 'MeasurementInterface'
-msrparams1['que'] = calparams1['que']
+msrparams1['que_params'] = calparams1['que_params']
 msrparams1['other_params'] = {'job_dir':'Measurement_1'}
+
 msrtask1 = MPINTMeasurementTask(msrparams1)
 
 #---------------------------------------------------------------------

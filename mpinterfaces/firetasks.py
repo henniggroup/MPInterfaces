@@ -40,6 +40,41 @@ def load_class(mod, name):
     mod = __import__(mod, globals(), locals(), [name], 0)
     return getattr(mod, name)
 
+def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
+                 job_bin='/home/km468/Software/VASP/vasp.5.3.5/vasp'):
+    d = {}
+    #hipergator
+    if 'ufhpc' in socket.gethostname():
+        d = {'type':'PBS',
+             'params':
+                 {
+                'nnodes': str(nnodes),
+                'ppnode': str(int(nprocs/nnodes)),
+                'walltime': walltime,
+                'job_name': 'vasp_job',
+                'pre_rocket': '#PBS -l pmem=1000mb',
+                'rocket_launch': 'mpirun '+job_bin
+                }
+             }
+    #stampede
+    elif 'stampede' in socket.gethostname():
+        d = {'type':'SLURM',
+             'params':
+                 {
+                'nodes': str(nnodes),
+                'ntasks': str(nprocs),
+                'walltime': walltime,
+                'queue':'normal',
+                'account':'TG-DMR050028N',
+                'job_name': 'vasp_job',
+                'rocket_launch': 'ibrun '+job_bin
+                }
+             }
+    if d:
+        return CommonAdapter(d['type'], **d['params'])
+    else:
+        return None
+    
 def get_cal_obj(d):
     """
     construct a calibration object from the input dictionary, d
@@ -48,35 +83,35 @@ def get_cal_obj(d):
     """
     incar = Incar.from_dict(d["incar"])
     poscar = Poscar.from_dict(d["poscar"])
-    symbols = poscar.site_symbols #symbol_set
+    symbols = poscar.site_symbols
     potcar = Potcar(symbols)
     kpoints = Kpoints.from_dict(d["kpoints"])
-    
     turn_knobs = d["turn_knobs"]
-    
     qadapter = None    
-    if d['que']:
-        qadapter = CommonAdapter(d['que']['type'], **d['que']['params'])
-
     job_cmd = None        
-    if qadapter is not None and ('ufhpc' in socket.gethostname()):
-        job_cmd = 'qsub'
-    elif d.get('job_cmd') is not None and ('hydrogen' or 'helium' in
-                                           socket.gethostname()):
-        job_cmd=['mpirun ']
-    else:
-        job_cmd=['ls', '-lt']
-        
+    if d['que_params']:
+        qadapter = get_qadapter(**d['que_params'])
+    #henniggroup machines    
+    if qadapter is None:
+        if socket.gethostname() in ['hydrogen', 
+                                    'helium', 
+                                    'lithium', 
+                                    'beryllium', 
+                                    'carbon']:    
+            job_cmd = ['nohup',
+                       '/opt/openmpi_intel/bin/mpirun',
+                       '-n', str(nprocs),
+                       '/home/km468/Software/VASP/vasp.5.3.5/vasp']
+        else:
+            job_cmd=['ls', '-lt']        
     if d.get('job_cmd'):
         job_cmd = d.get('job_cmd')
-        
     cal =  load_class("mpinterfaces.calibrate",
                       d["calibrate"])(incar, poscar, potcar, kpoints,
                                       system = d.get("system", None),
-                                      qadapter=qadapter,
+                                      qadapter=qadapter, job_cmd=job_cmd,
                                       turn_knobs=turn_knobs,
                                       **d.get("other_params", {}))
-        
     if d.get('job_dir_list'):
         cal.job_dir_list = d.get('job_dir_list')
     return cal           
@@ -87,7 +122,7 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
     Calibration Task
     """
     required_params = ["incar", "poscar", "kpoints", "calibrate",
-                       "que", "turn_knobs"]
+                       "que_params", "turn_knobs"]
     optional_params = ["job_cmd", "system", "other_params"]
 
     def run_task(self, fw_spec):
@@ -98,7 +133,7 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         cal.setup()
         cal.run()
         d = cal.as_dict()
-        d.update({'que':self['que']})
+        d.update({'que_params':self['que_params']})
         return FWAction(mod_spec=[{'_push': {'cal_objs':d}}])
         
 @explicit_serialize
@@ -106,7 +141,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     """
     Measurement Task
     """
-    required_params = ["measurement", "que"]
+    required_params = ["measurement", "que_params"]
     optional_params = ["job_cmd", "other_params"]    
 
     def run_task(self, fw_spec):
@@ -118,7 +153,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         logger.info('The measurement task will be constructed from {} calibration objects'
                     .format(len(fw_spec['cal_objs'])) )
         for calparams in fw_spec['cal_objs']:
-            calparams.update({'que':self['que']})
+            calparams.update({'que_params':self['que_params']})
             cal = get_cal_obj(calparams)
             cal_objs.append(cal)
         done = load_class("mpinterfaces.calibrate", "Calibrate").check_calcs(cal_objs)
@@ -137,7 +172,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             d = {}
             for cal in measure.cal_objs:
                 d = cal.as_dict()
-                d.update({'que':self['que']})
+                d.update({'que_params':self['que_params']})
             return FWAction(update_spec={'cal_objs':d})
 
 @explicit_serialize

@@ -102,6 +102,10 @@ def get_cal_obj(d):
                        '/opt/openmpi_intel/bin/mpirun',
                        '-n', '24',
                        '/home/km468/Software/VASP/vasp.5.3.5/vasp']
+            if d.get("other_params") is not None:
+                d.get("other_params").update({'wait':False})
+            else:
+                d["other_params"] = {'wait':False}
         else:
             job_cmd=['ls', '-lt']        
     if d.get('job_cmd'):

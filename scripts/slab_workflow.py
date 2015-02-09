@@ -2,10 +2,15 @@ from __future__ import division, unicode_literals, print_function
 
 """
 
-slab relaxation and static calculation workflow
-workflow = calibrations tasks(relax 110 and 111)
-Create and submit multiple(3) workflows it to the 'fireworks' database
-on hydrogen
+slab relaxation and static calculation workflows
+
+1. get the initial structures from the materials project database
+2. set relaxation calibration tasks for 100, 110 and 111 slabs for
+   each of the structures --> firework1
+3. set static measurement task for each of the structures --> firework2
+4. construct workflow consiting of the above mentioned fireworks for
+   each of the structures
+5. submit all the workflows to the database on hydrogen
 
 """
 
@@ -26,6 +31,7 @@ from mpinterfaces import get_struct_from_mp
 from mpinterfaces.firetasks import MPINTCalibrateTask
 from mpinterfaces.firetasks import MPINTMeasurementTask
 from mpinterfaces.firetasks import MPINTDatabaseTask
+
 
 def get_calibration_task(structure, hkl=[1,0,0]):
     """
@@ -91,7 +97,8 @@ def get_workflows(structure, wf_id=100):
     msrparams1['measurement'] = 'MeasurementInterface'
     #msrparams1['que_params'] = que
     msrparams1['other_params'] = {
-        'job_dir':structure.composition.reduced_formula+'_static_measurements'
+        'job_dir':structure.composition.reduced_formula \
+        +'_static_measurements'
         }
     msrtask1 = MPINTMeasurementTask(msrparams1)
     #firework1 = [caltask1, caltask2, caltask3]
@@ -126,11 +133,11 @@ if __name__=='__main__':
     # connect to the fireworks database and add workflow to it
     # use your own account
     if len(sys.argv)>1:
-        launchpad = LaunchPad( host='localhost', port=int(sys.argv[1]), 
+        launchpad = LaunchPad(host='localhost', port=int(sys.argv[1]),
                             name='fireworks', username="km468", 
                             password="km468" )
     else:
-        launchpad = LaunchPad( host='localhost', port=27017,
+        launchpad = LaunchPad(host='localhost', port=27017,
                             name='fireworks', username="km468",
                             password="km468" )
 

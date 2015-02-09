@@ -760,14 +760,14 @@ class CalibrateInterface(CalibrateSlab):
 
     def interface_setup(self, turn_knobs=None):
         if self.system['ligand'] is None:
-            pass
+            return
         else:
             if turn_knobs is None:
                 turn_knobs = self.turn_knobs
-        if any(turn_knobs.values()):
-            poscar_list = []
-            poscar_list.append(self.create_interface())
-            turn_knobs['POSCAR'] = poscar_list
+            if any(turn_knobs.values()):
+                poscar_list = []
+                poscar_list.append(self.create_interface())
+                turn_knobs['POSCAR'] = poscar_list
             
     def create_interface(self):
         """

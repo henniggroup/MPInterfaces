@@ -89,27 +89,26 @@ def get_cal_obj(d):
     potcar = Potcar(symbols)
     kpoints = Kpoints.from_dict(d["kpoints"])
     turn_knobs = d["turn_knobs"]
-    qadapter = None    
-    job_cmd = None        
-    if d['que_params']:
-        qadapter = get_qadapter(**d['que_params'])
-    #henniggroup machines    
-    if qadapter is None:
-        if socket.gethostname() in ['hydrogen', 
-                                    'helium', 
-                                    'lithium', 
-                                    'beryllium', 
-                                    'carbon']:    
-            job_cmd = ['nohup',
-                       '/opt/openmpi_intel/bin/mpirun',
-                       '-n', '24',
-                       '/home/km468/Software/VASP/vasp.5.3.5/vasp']
-            if d.get("other_params") is not None:
-                d.get("other_params").update({'wait':False})
-            else:
-                d["other_params"] = {'wait':False}
+    #if running on hipergator or stampede, will return a qadapter
+    #with default values even if que_params is not set
+    qadapter = get_qadapter(**d.get('que_params', {}))
+    job_cmd = None
+    #running henniggroup machines
+    if qadapter is None and  socket.gethostname() in ['hydrogen',
+                                                      'helium',
+                                                      'lithium',
+                                                      'beryllium',
+                                                      'carbon']:
+        job_cmd = ['nohup', '/opt/openmpi_intel/bin/mpirun',
+                   '-n', '24',
+                   '/home/km468/Software/VASP/vasp.5.3.5/vasp']
+        if d.get("other_params") is not None:
+            d.get("other_params").update({'wait':False})
         else:
-            job_cmd=['ls', '-lt']        
+            d["other_params"] = {'wait':False}
+    #if running on your desktop or laptop
+    else:
+        job_cmd=['ls', '-lt']
     if d.get('job_cmd'):
         job_cmd = d.get('job_cmd')
     cal =  load_class("mpinterfaces.calibrate",
@@ -120,7 +119,7 @@ def get_cal_obj(d):
                                       **d.get("other_params", {}))
     if d.get('job_dir_list'):
         cal.job_dir_list = d.get('job_dir_list')
-    return cal           
+    return cal
 
 @explicit_serialize
 class MPINTCalibrateTask(FireTaskBase, FWSerializable):
@@ -128,8 +127,8 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
     Calibration Task
     """
     required_params = ["incar", "poscar", "kpoints", "calibrate",
-                       "que_params", "turn_knobs"]
-    optional_params = ["job_cmd", "system", "other_params"]
+                        "turn_knobs"]
+    optional_params = ["que_params", "job_cmd", "system", "other_params"]
 
     def run_task(self, fw_spec):
         """
@@ -139,7 +138,7 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         cal.setup()
         cal.run()
         d = cal.as_dict()
-        d.update({'que_params':self['que_params']})
+        d.update({'que_params':self.get('que_params')})
         return FWAction(mod_spec=[{'_push': {'cal_objs':d}}])
         
 @explicit_serialize
@@ -159,7 +158,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         logger.info('The measurement task will be constructed from {} calibration objects'
                     .format(len(fw_spec['cal_objs'])) )
         for calparams in fw_spec['cal_objs']:
-            calparams.update({'que_params':self['que_params']})
+            calparams.update({'que_params':self.get('que_params')})
             cal = get_cal_obj(calparams)
             cal_objs.append(cal)
         done = load_class("mpinterfaces.calibrate", "Calibrate").check_calcs(cal_objs)
@@ -188,7 +187,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             d = {}
             for cal in measure.cal_objs:
                 d = cal.as_dict()
-                d.update({'que_params':self['que_params']})
+                d.update({'que_params':self.get('que_params')})
             return FWAction(update_spec={'cal_objs':d})
 
 @explicit_serialize

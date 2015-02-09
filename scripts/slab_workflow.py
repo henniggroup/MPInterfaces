@@ -95,7 +95,10 @@ def get_workflows(structure, wf_id=100):
     # measurement task: static 
     msrparams1 = {}
     msrparams1['measurement'] = 'MeasurementInterface'
-    #msrparams1['que_params'] = que
+    msrparams1['que_params'] =  { 'nnodes':1,
+                                  'nprocs':16,
+                                  'walltime':'24:00:00',
+                                }
     msrparams1['other_params'] = {
         'job_dir':structure.composition.reduced_formula \
         +'_static_measurements'

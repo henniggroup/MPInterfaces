@@ -82,7 +82,7 @@ class Calibrate(object):
             job_cmd: command to be used for submitting the job. If 
                 qadapter is specified then job_cmd is ignored
             wait: whther to wait for the job to finish. If the job is
-                being submitted to the queue then there is no need for \
+                being submitted to the queue then there is no need for
                 waiting
             turn_knobs: an ordered dictionary of parmaters and the 
                 corresponding values
@@ -126,7 +126,8 @@ class Calibrate(object):
         """
         set up the jobs for the given turn_knobs dict
         is_matrix = True implies that the params in the dict are 
-        interrelated. Otherwise calcs corresponding to each dict key is independent
+        interrelated. Otherwise calcs corresponding to each dict key
+        is independent
         """
         if self.is_matrix: 
             self.setup_matrix_job()	
@@ -142,9 +143,9 @@ class Calibrate(object):
         Args:
             turn_knobs: knobs aka paramters to be tuned
 
-        Note: poscar jobs setup through the VOLUME is only for backward
-              compatibility, use POSCAR key in the turn_knobs to tune
-              poscars
+        Note: poscar jobs setup through the VOLUME is only for
+              backward compatibility, use POSCAR key in the
+              turn_knobs to tune poscars
         """
         if turn_knobs is None:
             turn_knobs = self.turn_knobs
@@ -157,12 +158,12 @@ class Calibrate(object):
                 elif k == 'POTCAR' and v:
                     self.setup_potcar_jobs(mappings = v)
                 elif k == 'POSCAR' and v:
-                    self.setup_poscar_jobs(poscar_list=v)                    
+                    self.setup_poscar_jobs(poscar_list=v)
                 else:
                     self.setup_incar_jobs(k, v)
         else:
             logger.warn('knobs not set, running a single job')
-            self.add_job(name='single_job', job_dir=self.job_dir)          
+            self.add_job(name='single_job', job_dir=self.job_dir)
 
     def setup_matrix_job(self):
         """
@@ -237,7 +238,7 @@ class Calibrate(object):
         invoked
         
         Args:
-            val: knob value to be converted into an appropriate string 
+            val: knob value to be converted into an appropriate string
                 representation
             
         Returns:
@@ -273,8 +274,8 @@ class Calibrate(object):
 
     def potcar_to_name(self, mapping):
         """
-        convert a symbol mapping to a name that can be used for setting
-         up the potcar jobs
+        convert a symbol mapping to a name that can be used for
+        setting up the potcar jobs
          
          Args:
              mapping: example:- if mapping = {'Pt':'Pt_pv', 
@@ -454,10 +455,10 @@ class Calibrate(object):
 
     def set_sorted_optimum_params(self):
         """
-        sort the dictionary of energy values and enforce the convergence 
-        criterion.
-        Finally, get the optimum parameter values from the set of values
-         that satisfy the convergence criterion
+        sort the dictionary of energy values and enforce the
+        convergence criterion.
+        Finally, get the optimum parameter values from the set of
+        values that satisfy the convergence criterion
         """
         matching_knob_responses = []
         sorted_knob_responses = []                
@@ -489,7 +490,9 @@ class Calibrate(object):
                         
     def enforce_cutoff(self, input_list, delta_e_peratom=0.001):
         """
-        enfore convergence criterion: energy difference of 1meV per atom
+        enfore convergence criterion: energy difference of 1meV per
+        atom.
+        
         returns a list of the parameters that satisfy the criterion
         """
         matching_list = []
@@ -517,9 +520,9 @@ class Calibrate(object):
     @staticmethod
     def check_calcs(cal_objs):
         """
-        checks the OUTCAR file to see whether the calulation is done or 
-        not. Also checks(rather naively) for whether the calculation is 
-        running or not.
+        checks the OUTCAR file to see whether the calulation is done
+        or not. Also checks(rather naively) for whether the
+        calculation is running or not.
         Sets the calc_done and isrunning variables in the calibrate 
         objects
         """
@@ -557,26 +560,6 @@ class Calibrate(object):
                 return False
         else:
             return False
-    
-    def setup_relaxation_job(self, cal_objs):
-        """
-        setup the relaxation jobs of Slab, Molecule and Interface
-        """
-
-        for cal in cal_objs:
-                if cal.calc_done:
-                        job_dir= self.job_dir+os.sep+'RELAX'
-                        #contcar_file= cal.parent_job_dir \
-                        #    +os.sep + cal.job_dir + os.sep + 'CONTCAR'
-                        #cal.poscar= Poscar.from_file(contcar_file)
-                        cal.incar['NSW'] = 1000
-                        cal.add_job(name=job_dir, job_dir=job_dir)
-                else:
-                        cal.jobs = []
-                        logger.warn('previous calc in the dir, '+
-                                    cal.job_dir 
-                                    + 'not done yet or is still running')
-                        logger.warn('Not setting up the relaxation job\n')
     
     def as_dict(self):
         d = {}
@@ -849,7 +832,7 @@ if __name__ == '__main__':
     cal.run(job_cmd)
 
     
-    # to use the next after the calibrate jobs are done , checked by check_calcs
+    # to use the next after the calibrate jobs are done
     #done = Calibrate.check_calcs([cal])  #
     #get the knob responses
     #cal.set_knob_responses()

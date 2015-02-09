@@ -96,7 +96,7 @@ class Calibrate(object):
         self.job_dir = job_dir
         self.incar = incar               
         self.poscar = poscar
-        self.potcar =potcar
+        self.potcar = Potcar(poscar.site_symbols)
         self.kpoints = kpoints
         self.incar_orig = incar.as_dict()
         self.poscar_orig = poscar.as_dict()

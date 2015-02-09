@@ -147,8 +147,8 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     """
     Measurement Task
     """
-    required_params = ["measurement", "que_params"]
-    optional_params = ["job_cmd", "other_params", "fw_id"]    
+    required_params = ["measurement"]
+    optional_params = ["que_params", "job_cmd", "other_params", "fw_id"]    
 
     def run_task(self, fw_spec):
         """

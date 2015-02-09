@@ -37,6 +37,7 @@ from custodian.vasp.interpreter import VaspModder
 
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
+from mpinterfaces.interface import Interface, Ligand
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -720,32 +721,30 @@ class CalibrateSlab(Calibrate):
         slab_struct.sort()
         sd = self.set_sd_flags(slab_struct)
         comment = 'VAC'+str(vacuum)+'THICK'+str(thickness)
-        return Poscar(slab_struct, comment=comment, selective_dynamics= sd)    
+        return Poscar(slab_struct, comment=comment,
+                      selective_dynamics=sd)    
 
-    def set_sd_flags(self, slab_obj= None, n_top_layers= 2):
+    @staticmethod
+    def set_sd_flags(interface=None, n_layers=2):
         """
-        useful method to set the SD flags for Slabs, default is assumed 
-        as top one layer, implemented for top 2 layers of slab now. 
-        TODO: generalize to any number of layers
+        set the relaxation flags for top and bottom layers of interface.
+        
+        The upper and lower bounds of the z coordinate are determined
+        based on the slab. All layers above and below the bounds will
+        be relaxed. This means if there is a ligand on top of the slab,
+        all of its atoms will also be relaxed.
         """
-        true_site= [1,1,1]
-        false_site= [0,0,0]
-        sd_flags= []
-        z_coords_slab= []
-        z_coords_ligand= []
-        for i in slab_obj.sites:
-            if i.specie in slab_obj.species:
-                z_coords_slab.append(i.c)
-            else:
-                z_coords_ligand.append(i.c)
-        z_coords_slab.sort()
-#       for i in range(n_top_layers):
-        for i in slab_obj.sites:
-                if i.c == max(z_coords_slab) or \
-                i.c == z_coords_slab[z_coords_slab.index(max(z_coords_slab)) - 1]:
-                        sd_flags.append(true_site)
-                else:
-                        sd_flags.append(false_site)
+        sd_flags = np.zeros_like(interface.frac_coords)
+        if isinstance(interface, Interface):
+            slab = interface.slab
+        else:
+            slab = interface
+        z_coords = slab.frac_coords[:,2]
+        z_lower_bound = np.unique(z_coords)[n_layers-1]
+        z_upper_bound = np.unique(z_coords)[-n_layers]
+        sd_flags[ [i for i, coords in enumerate(slab.frac_coords)
+                  if coords[2]>=z_upper_bound or coords[2]<=z_lower_bound] ] \
+                  = np.ones((1,3))
         return sd_flags
 
     def set_reconstructed_surface(self, sites_to_add):
@@ -767,7 +766,6 @@ class CalibrateInterface(CalibrateSlab):
                  setup_dir='.', parent_job_dir='.', job_dir='./Interface',
                  qadapter=None, job_cmd='qsub', wait=True,
                  turn_knobs={'VACUUM':[],'THICKNESS':[]}):
-        
         CalibrateSlab.__init__(self, incar, poscar, potcar, kpoints, 
                            system=system, is_matrix = is_matrix, 
                            Grid_type = Grid_type, setup_dir=setup_dir,
@@ -775,40 +773,35 @@ class CalibrateInterface(CalibrateSlab):
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd, wait=wait,
                            turn_knobs = turn_knobs)
-    ####
-    #needed here only if the input structures are getting manipulated
-    #like in createslab
-    ####
-    #	self.poscar.selective_dynamics = self.set_sd_flags(self.poscar.structure)) 
-	
-    #def set_sd_flags(self, interface_obj= None, n_top_layers= 2):
-    #	"""useful method to set the SD flags for Slabs, default 
-    #    is assumed as top one layer, 
-    #    implemented for top 2 layers of slab now. 
-    #    TODO: generalize to any number of layers
-	#"""
-        #true_site= [1,1,1]
-        #false_site= [0,0,0]
-        #sd_flags= []
-        #z_coords_slab= []
-        #z_coords_ligand= []
-        #for i in interface_obj.sites:
-        #        if i.specie in self.system.ligand.species:
-        #                z_coords_ligand.append(i.c)
-        #        else:
-        #                z_coords_slab.append(i.c)
-        #z_coords_slab.sort()
-#       #for i in range(n_top_layers):
-        #for i in interface_obj.sites:
-        #        if i.c == max(z_coords_slab) or i.c == z_coords_slab\
-        #                [z_coords_slab.index(max(z_coords_slab)) - 1]:
-        #                sd_flags.append(true_site)
-        #        elif i.c in z_coords_ligand:
-        #                sd_flags.append(true_site)
-        #        else:
-        #                sd_flags.append(false_site)
-        #return sd_flags
-    
+        self.interface_setup(turn_knobs=turn_knobs)        
+
+    def interface_setup(self, turn_knobs=None):
+        if self.system['ligand'] is None:
+            pass
+        else:
+            if turn_knobs is None:
+                turn_knobs = self.turn_knobs
+        if any(turn_knobs.values()):
+            poscar_list = []
+            poscar_list.append(self.create_interface())
+            turn_knobs['POSCAR'] = poscar_list
+            
+    def create_interface(self):
+        """
+        add params that you want to vary
+        """
+        structure = self.input_structure.copy()
+        iface = Interface(structure,
+                          hkl=self.system['hkl'],
+                          ligand = Ligand.from_dict(self.system['ligand']))
+        iface.sort()
+        sd = self.set_sd_flags(iface, n_layers=1)
+        #if theer are other paramters that are being varied
+        #change the comment accordingly
+        comment = self.system['hkl']+self.system['ligand']['name']
+        return Poscar(slab_struct, comment=comment,
+                      selective_dynamics=sd)
+            
 if __name__ == '__main__':
     #STRUCTURE
     a0 = 3.965
@@ -839,7 +832,8 @@ if __name__ == '__main__':
         ('IBRION', [1, 2, 3]),
         ('KPOINTS', [k for k in range(20, 40, 10)]),
         ('ENCUT', range(400,700,100)),
-        ('VACUUM', [10,12,15])
+        ('VACUUM', [10,12,15]),
+        ('THICKNESS', [11])        
         ] )
     is_matrix = True
     job_dir = 'Slab'

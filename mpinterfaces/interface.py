@@ -264,10 +264,15 @@ class Interface(Slab):
         self.slab = Slab.from_dict(self.as_dict())
         
     def as_dict(self):
-        d = {}
+        d = self.as_dict()
         d['hkl'] = list(self.miller_index)
-        d['ligand'] = self.ligand.composition.formula
-        d['n_ligands'] = self.n_ligands
+        d['ligand'] = None
+        if self.ligand is not None:
+            d['ligand'] = self.ligand.as_dict()
+        if d['ligand'] is not None:
+            d['num_ligands'] = self.n_ligands
+        else:
+            d['num_ligands'] = 0            
         return d
 
         
@@ -442,6 +447,11 @@ class Ligand(Molecule):
             combine_mol_sites = combine_mol_sites + self.mols[j].sites
         self._sites = combine_mol_sites
         self.set_distance_matrix(self)
+        
+    def as_dict(self) :
+        d = self.as_dict()
+        d['name'] = self.composition.formula
+        return d
         
 
 #test

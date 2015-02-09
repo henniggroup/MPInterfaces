@@ -223,7 +223,7 @@ class MeasurementInterface(Measurement):
                             doesnt have a system set for calibrating""")
                     if cal in self.cal_interfaces:
                         try:
-                            d['ligand'] = cal.system['ligand']
+                            d['ligand'] = cal.system['ligand']['name']
                         except:
                             logger.critical("""the calibrate object
                             doesnt have a system set for calibrating""")
@@ -252,16 +252,16 @@ class MeasurementInterface(Measurement):
             key = str(cal.system['hkl'])
             E_slabs[key] = self.get_energy(cal)
         for cal in self.cal_ligands:
-            key = cal.system['ligand']
+            key = cal.system['ligand']['name']
             E_ligands[key] = self.get_energy(cal)
         for cal in self.cal_interfaces:
             key_slab = str(cal.system['hkl'])            
-            key_ligand = cal.system['ligand']
+            key_ligand = cal.system['ligand']['name']
             key = key_slab + key_ligand
             E_interfaces[key] = self.get_energy(cal)
             E_binding[key] = E_interfaces[key] \
               - E_slabs[key_slab] \
-              - cal.system['n_ligands'] * E_ligands[key_ligand]
+              - cal.system['num_ligands'] * E_ligands[key_ligand]
         logger.info('Binding energy = {}'.format(E_binding))
 
 #test

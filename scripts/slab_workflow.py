@@ -5,11 +5,10 @@ from __future__ import division, unicode_literals, print_function
 slab relaxation and static calculation workflows
 
 1. get the initial structures from the materials project database
-2. set relaxation calibration tasks for 100, 110 and 111 slabs for
-   each of the structures --> firework1
+2. set relaxation calibration task for the hkl slab --> firework1
 3. set static measurement task for each of the structures --> firework2
 4. construct workflow consiting of the above mentioned fireworks for
-   each of the structures
+   each of the structures and hkls
 5. submit all the workflows to the database on hydrogen
 
 """
@@ -80,48 +79,46 @@ def get_calibration_task(structure, hkl=[1,0,0]):
     return MPINTCalibrateTask(calparams)
     
 
-def get_workflows(structure, wf_id=100):
+def get_workflows(structure, hkl, wf_id=100):
     """
     returns a workflow consisting of 2 fireworks.
     firework1 has 3 calibration tasks(relax 100, 110, 111 slabs)
     firework2 has 1 measurement task(static calulations)
     """
-    # calibration task1: relax 100
-    caltask1 = get_calibration_task(structure, hkl=[1,0,0])
-    # calibration task1: relax 110
-    caltask2 = get_calibration_task(structure, hkl=[1,1,0])    
-    # calibration task1: relax 111
-    caltask3 = get_calibration_task(structure, hkl=[1,1,1])    
+    # calibration task1: relax hkl
+    caltask = get_calibration_task(structure, hkl=hkl)
+
     # measurement task: static 
-    msrparams1 = {}
-    msrparams1['measurement'] = 'MeasurementInterface'
-    msrparams1['que_params'] =  { 'nnodes':1,
+    msrparams = {}
+    msrparams['measurement'] = 'MeasurementInterface'
+    msrparams['que_params'] =  { 'nnodes':1,
                                   'nprocs':16,
                                   'walltime':'24:00:00',
                                 }
-    msrparams1['other_params'] = {
+    msrparams['other_params'] = {
         'job_dir':structure.composition.reduced_formula \
         +'_static_measurements'
         }
-    msrtask1 = MPINTMeasurementTask(msrparams1)
-    #firework1 = [caltask1, caltask2, caltask3]
-    fw_calibrate1 = Firework([caltask1, caltask2, caltask3],
+    msrtask = MPINTMeasurementTask(msrparams)
+    #firework1 = [caltask]
+    fw_calibrate = Firework([caltask],
                              name="fw_calibrate",
                              fw_id = wf_id)
-    msrtask1['fw_id'] = wf_id+1
-    #firework2 = [msrtask1]
-    fw_measure1 = Firework([msrtask1],
+    msrtask['fw_id'] = wf_id+1
+    #firework2 = [msrtask]
+    fw_measure = Firework([msrtask],
                             name="fw_measurement",
                             fw_id = wf_id+1 )
     #workflow = [firework1, firework2]
     #firework2 is linked to firework1
-    return Workflow( [fw_calibrate1, fw_measure1],
-               links_dict = {fw_calibrate1.fw_id:[fw_measure1.fw_id]},
+    return Workflow( [fw_calibrate, fw_measure],
+               links_dict = {fw_calibrate.fw_id:[fw_measure.fw_id]},
                name="mpint_workflow1" )
 
     
 if __name__=='__main__':
     species = ['Pt', 'Au', 'Ag']
+    hkls = [[1,0,0], [1,1,0], [1,1,1]]
     workflows = []
 
     for i, sp in enumerate(species):
@@ -131,7 +128,8 @@ if __name__=='__main__':
         structure_conventional = sa.get_conventional_standard_structure()
         structure = structure_conventional.copy()
         structure.sort()
-        workflows.append( get_workflows(structure, wf_id=100*(i+1)) )
+        for hkl in hkls:
+            workflows.append( get_workflows(structure, hkl, wf_id=100*(i+1)) )
         
     # connect to the fireworks database and add workflow to it
     # use your own account

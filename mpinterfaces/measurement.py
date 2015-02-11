@@ -9,6 +9,7 @@ import shutil
 import os
 import json
 import logging
+import itertools
 
 import numpy as np
 
@@ -122,17 +123,19 @@ class Measurement(object):
 
 class MeasurementSolvation(Measurement):
     """
-    Solvation
+    Solvation with poisson-boltzmann(test verison)
     """
-    def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.', 
+    def __init__(self, cal_obj, setup_dir='.', parent_job_dir='.', 
                  job_dir='./MeasurementSolvation',
-                 sol_params={'EB_K':80, 'TAU':0}):
-        Measurement.__init__(self, cal_objs=cal_objs, 
+                 sol_params={'EB_K':[78.4], 
+                             'TAU':[0],
+                             'LAMBDA_D_K':[3.0],
+                             'NELECT':[]}):
+        Measurement.__init__(self, cal_objs=cal_obj, 
                             setup_dir=setup_dir, 
                             parent_job_dir=parent_job_dir, 
                             job_dir=job_dir)
         self.sol_params = sol_params
-
 
     def setup(self):
         """
@@ -145,27 +148,37 @@ class MeasurementSolvation(Measurement):
         """
         for cal in self.cal_objs:
             jdir = cal.old_job_dir_list[0]
-            cal.incar = Incar.from_file(jdir+os.sep+'INCAR')
-            cal.incar['LSOL'] = '.TRUE.'
             cal.poscar = Poscar.from_file(jdir+os.sep+'POSCAR')
             cal.potcar = Potcar.from_file(jdir+os.sep+'POTCAR')
             cal.kpoints = Kpoints.from_file(jdir+os.sep+'KPOINTS')
-            job_dir = self.job_dir + os.sep \
-                    + cal.old_job_dir_list[0].replace(os.sep, '_').replace('.', '_') \
-                    + os.sep + 'SOL'       
-            for k, v in self.sol_params:
-                cal.incar[k] = v
-            if not os.path.exists(job_dir):            
-                os.makedirs(job_dir)
-            with open(job_dir+os.sep+'system.json', 'w') as f:
-                json.dump(self.sol_params, f)
-            wavecar_file = cal.old_job_dir_list[0]+os.sep+'WAVECAR'
-            if os.path.isfile(wavecar_file):
-                shutil.copy(wavecar_file, job_dir+os.sep+'WAVECAR')
-                cal.add_job(job_dir=job_dir)
-            else:
-                logger.critical('WAVECAR doesnt exist. Aborting ...')
-                sys.exit(0)
+            cal.incar = Incar.from_file(jdir+os.sep+'INCAR')
+            cal.incar['LSOL'] = '.TRUE.'
+            syms = [site.specie.symbol for site in cal.poscar.structure]
+            zvals = {p.symbol:p.nelectrons for p in cal.potcar}
+            nelectrons = sum([zvals[a[0]]*a[1] for a in itertools.groupby(syms)])
+            keys = [ k for k in self.sol_params.keys() if self.sol_params[k] ]
+            prod_list = [self.sol_params.get(k) for k in keys]
+            for params in itertools.product(*tuple(prod_list)):
+                job_dir = self.job_dir + os.sep \
+                        + cal.old_job_dir_list[0].replace(os.sep, '_').replace('.', '_') \
+                        + os.sep + 'SOL'
+                for i, k in enumerate(keys):
+                    if k == 'NELECT':
+                        cal.incar[k] = params[i] + nelectrons
+                    else:
+                        cal.incar[k] = params[i]
+                    job_dir = job_dir + os.sep + k + os.sep + str(params[i])       
+                if not os.path.exists(job_dir):            
+                    os.makedirs(job_dir)
+                with open(job_dir+os.sep+'system.json', 'w') as f:
+                    json.dump(dict(zip(keys,params)), f)
+                wavecar_file = cal.old_job_dir_list[0]+os.sep+'WAVECAR'
+                if os.path.isfile(wavecar_file):
+                    shutil.copy(wavecar_file, job_dir+os.sep+'WAVECAR')
+                    cal.add_job(job_dir=job_dir)
+                else:
+                    logger.critical('WAVECAR doesnt exist. Aborting ...')
+                    sys.exit(0)
 
     def make_measurements(self):
         """

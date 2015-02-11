@@ -18,6 +18,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import get_angle
 
 from mpinterfaces.transformations import reduced_supercell_vectors
+from mpinterfaces.utils import get_ase_slab
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -37,20 +38,26 @@ class Interface(Slab):
                  adatom_on_lig=None, ligand=None, displacement=1.0,
                  surface_coverage=None, scell_nmax=10, coverage_tol=0.25,
                  solvent=None, start_from_slab=False, validate_proximity=False,
-                 to_unit_cell=False, coords_are_cartesian=False, primitive = True):
+                 to_unit_cell=False, coords_are_cartesian=False, primitive = True,
+                 from_ase=False):
         """
         if starting from the bulk structure, create slab
         note: if the starting structure is a slab, the vaccum extension
         is not possible
         """
+        self.from_ase = from_ase
         vac_extension = 0
         if ligand is not None:
             vac_extension = ligand.max_dist
 
         if isinstance(strt, Structure) and not isinstance(strt, Slab):
             self.min_vac = min_vac + vac_extension
-            strt = SlabGenerator(strt, hkl, min_thick, min_vac + vac_extension,
-                                 center_slab=True, primitive = primitive).get_slab()
+            if self.from_ase:
+                strt = get_ase_slab(strt, hkl=hkl,min_thick=min_thick,
+                                    min_vac=min_vac + vac_extension)
+            else:
+                strt = SlabGenerator(strt, hkl, min_thick, min_vac + vac_extension,
+                                    center_slab=True, primitive = primitive).get_slab()
             strt.make_supercell(supercell)
         else:
             self.min_vac = min_vac

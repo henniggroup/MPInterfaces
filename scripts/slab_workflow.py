@@ -50,17 +50,19 @@ def get_calibration_task(structure, hkl=[1,0,0]):
                    'PREC': 'Accurate'
                  }
     incar = Incar.from_dict(incar_dict)
-    kpoints = Kpoints.automatic(20)#(80)
+    #kpoints = Kpoints.automatic(20)#(80)
+    kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 1))
     que  = { 'nnodes':1,
              'nprocs':16,
              'walltime':'24:00:00',
             }
     # relaxation
     turn_knobs = { 'NSW' : [100],
-                   'VACUUM': [5],
-                   'THICKNESS': [5]
+                   'VACUUM': [12],
+                   'THICKNESS': [10]
                  }    
     is_matrix = True
+    from_ase = True
     # calibration task: relax hkl
     calparams = {}
     calparams['calibrate'] = 'CalibrateInterface'
@@ -75,7 +77,9 @@ def get_calibration_task(structure, hkl=[1,0,0]):
     calparams['other_params'] = {
         'job_dir':structure.composition.reduced_formula+\
         '_{0[0]}{0[1]}{0[2]}'.format(hkl),
-        'is_matrix':is_matrix
+        'is_matrix':is_matrix,
+        'from_ase':from_ase,
+        'Grid_type':'M'
         }
     return MPINTCalibrateTask(calparams)
     

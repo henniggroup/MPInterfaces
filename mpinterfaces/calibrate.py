@@ -38,6 +38,7 @@ from custodian.vasp.interpreter import VaspModder
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
 from mpinterfaces.interface import Interface, Ligand
+from mpinterfaces.utils import get_ase_slab
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -632,7 +633,8 @@ class CalibrateSlab(Calibrate):
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.', job_dir='./Slab',
                  qadapter=None, job_cmd='qsub', wait=True,
-                 turn_knobs={'VACUUM':[],'THICKNESS':[]}):
+                 turn_knobs={'VACUUM':[],'THICKNESS':[]}, from_ase=False):
+        self.from_ase = from_ase
         self.is_matrix = is_matrix
         self.system = system
         self.input_structure = poscar.structure.copy()
@@ -695,12 +697,16 @@ class CalibrateSlab(Calibrate):
         returns the poscar corresponding to the modified structure
         """ 
         strt_structure = self.input_structure.copy()
-        slab_struct= SlabGenerator(initial_structure= strt_structure,
-                                   miller_index= self.system['hkl'], 
-                                   min_slab_size= thickness,
-                                   min_vacuum_size=vacuum, 
-                                   lll_reduce=False, center_slab=True,
-                                   primitive=False).get_slab()
+        if self.from_ase:
+            slab_struct = get_ase_slab(strt_structure, hkl=self.system['hkl'],
+                                        min_thick=thickness, min_vac=vacuum)
+        else:
+            slab_struct= SlabGenerator(initial_structure= strt_structure,
+                                       miller_index= self.system['hkl'], 
+                                       min_slab_size= thickness,
+                                       min_vacuum_size=vacuum, 
+                                       lll_reduce=False, center_slab=True,
+                                       primitive=False).get_slab()
         slab_struct.sort()
         sd = self.set_sd_flags(slab_struct)
         comment = 'VAC'+str(vacuum)+'THICK'+str(thickness)
@@ -748,14 +754,14 @@ class CalibrateInterface(CalibrateSlab):
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.', job_dir='./Interface',
                  qadapter=None, job_cmd='qsub', wait=True,
-                 turn_knobs={'VACUUM':[],'THICKNESS':[]}):
+                 turn_knobs={'VACUUM':[],'THICKNESS':[]}, from_ase=False):
         CalibrateSlab.__init__(self, incar, poscar, potcar, kpoints, 
                            system=system, is_matrix = is_matrix, 
                            Grid_type = Grid_type, setup_dir=setup_dir,
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd, wait=wait,
-                           turn_knobs = turn_knobs)
+                           turn_knobs = turn_knobs, from_ase=from_ase)
         self.interface_setup(turn_knobs=turn_knobs)        
 
     def interface_setup(self, turn_knobs=None):
@@ -776,9 +782,10 @@ class CalibrateInterface(CalibrateSlab):
         structure = self.input_structure.copy()
         iface = Interface(structure,
                           hkl=self.system['hkl'],
-                          ligand = Ligand.from_dict(self.system['ligand']))
+                          ligand = Ligand.from_dict(self.system['ligand']),
+                          from_ase=self.from_ase)
         iface.sort()
-        sd = self.set_sd_flags(iface, n_layers=1)
+        sd = self.set_sd_flags(iface, n_layers=2)
         #if theer are other paramters that are being varied
         #change the comment accordingly
         comment = self.system['hkl']+self.system['ligand']['name']

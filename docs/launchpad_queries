@@ -1,0 +1,19 @@
+get all running workflows:
+    lpad get_wflows -q '{"state":"RUNNING"}' --sort created_on
+
+get all fireworks that are ready:
+    lpad get_fws -q '{"state":"READY"}' --sort created_on
+
+get all fizzled fireworks:
+    lpad get_fws -q '{"state":"FIZZLED"}' --sort created_on
+
+get all defused fireworks:
+    lpad get_fws -q '{"state":"DEFUSED"}' --sort created_on
+
+get all waiting fireworks:
+    lpad get_fws -q '{"state":"WAITING"}' --sort created_on
+
+
+mark the firework with id=fw_id as ready
+     lpad rerun_fws -i fw_id
+		

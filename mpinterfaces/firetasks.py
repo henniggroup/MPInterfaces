@@ -164,18 +164,24 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         done = load_class("mpinterfaces.calibrate", "Calibrate").check_calcs(cal_objs)
         if not done:
             logger.info('Calibration not done yet. Try again later')
-            if self.get("fw_id"):
-                fw_id = int(self.get("fw_id")) + 1
-                self["fw_id"] = fw_id
-                new_fw = Firework(MPINTMeasurementTask(self),
-                                  spec={'cal_objs':fw_spec['cal_objs']},
-                                  name = 'new_fw', fw_id = -fw_id)
-            else:
-                new_fw = Firework(MPINTMeasurementTask(self),
-                                  spec={'cal_objs':fw_spec['cal_objs']},
-                                  name = 'new_fw')
-                
-            return FWAction(additions=new_fw)
+            logger.info('All subsequent fireworks will be defused')
+            logger.info("""Try re-running this firework again later.
+            Re-running this firework will activate all the subsequent foreworks too""")
+            logger.info('This fireworks id = {}'.format(self.get("fw_id")))
+            return FWAction(defuse_children=True)
+            ### to enable dynamic workflow, uncomment the following
+            #if self.get("fw_id"):
+            #    fw_id = int(self.get("fw_id")) + 1
+            #    self["fw_id"] = fw_id
+            #    new_fw = Firework(MPINTMeasurementTask(self),
+            #                      spec={'cal_objs':fw_spec['cal_objs']},
+            #                      name = 'new_fw', fw_id = -fw_id)
+            #else:
+            #    new_fw = Firework(MPINTMeasurementTask(self),
+            #                      spec={'cal_objs':fw_spec['cal_objs']},
+            #                      name = 'new_fw')
+            #    
+            #return FWAction(detours=new_fw)
         else:
             measure = load_class("mpinterfaces.measurement",self['measurement'])(cal_objs,
                                                                                  **self.get("other_params", {}))
@@ -184,11 +190,12 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
                 job_cmd = self.get("job_cmd")
             measure.setup()
             measure.run(job_cmd = job_cmd)
-            d = {}
+            cal_list = []
             for cal in measure.cal_objs:
                 d = cal.as_dict()
                 d.update({'que_params':self.get('que_params')})
-            return FWAction(update_spec={'cal_objs':d})
+                cal_list.append(d)
+            return FWAction(update_spec={'cal_objs':cal_list})
 
 @explicit_serialize
 class MPINTDatabaseTask(FireTaskBase, FWSerializable):

@@ -141,7 +141,7 @@ class MeasurementSolvation(Measurement):
         """
         setup solvation jobs for the calibrate objects
         copies WAVECAR and sets the solvation params in the incar file
-        also dumps system.json file in each directory for database
+        also dumps system.json file in each directory for the database
         crawler
         mind: works only for cal objects that does only single 
         calculations
@@ -155,8 +155,10 @@ class MeasurementSolvation(Measurement):
             cal.incar['LSOL'] = '.TRUE.'
             syms = [site.specie.symbol for site in cal.poscar.structure]
             zvals = {p.symbol:p.nelectrons for p in cal.potcar}
-            nelectrons = sum([zvals[a[0]]*a[1] for a in itertools.groupby(syms)])
-            keys = [ k for k in self.sol_params.keys() if self.sol_params[k] ]
+            nelectrons = sum([zvals[a[0]]*len(tuple(a[1]))
+                              for a in itertools.groupby(syms)])
+            keys = [ k for k in self.sol_params.keys()
+                     if self.sol_params[k] ]
             prod_list = [self.sol_params.get(k) for k in keys]
             for params in itertools.product(*tuple(prod_list)):
                 job_dir = self.job_dir + os.sep \
@@ -167,7 +169,7 @@ class MeasurementSolvation(Measurement):
                         cal.incar[k] = params[i] + nelectrons
                     else:
                         cal.incar[k] = params[i]
-                    job_dir = job_dir + os.sep + k + os.sep + str(params[i])       
+                    job_dir = job_dir + os.sep + k + os.sep + str(cal.incar[k]).replace('.', '_')
                 if not os.path.exists(job_dir):            
                     os.makedirs(job_dir)
                 with open(job_dir+os.sep+'system.json', 'w') as f:
@@ -283,16 +285,16 @@ if __name__=='__main__':
     from mpinterfaces import Ligand
     
     # PbS 100 surface with single hydrazine as ligand
-    strt= Structure.from_file("POSCAR_Pt") 
+    strt= Structure.from_file("POSCAR.mp-21276_PbS") 
     mol_struct= Structure.from_file("POSCAR_diacetate")
     mol= Molecule(mol_struct.species, mol_struct.cart_coords)
     hydrazine= Ligand([mol])
     supercell = [1,1,1]
-    hkl = [1,0,0]
-    min_thick = 19
+    hkl = [1,1,1]
+    min_thick = 10
     min_vac = 12
     surface_coverage = 0.01
-    adsorb_on_species = 'Pt'
+    adsorb_on_species = 'S'
     adatom_on_lig='Pb'
     displacement = 3.0
     iface = Interface(strt, hkl=hkl, min_thick=min_thick,
@@ -301,9 +303,9 @@ if __name__=='__main__':
                       ligand=hydrazine, displacement=displacement,
                       adatom_on_lig=adatom_on_lig,
                       adsorb_on_species= adsorb_on_species,
-                      primitive= False)
+                      primitive= False, coverage_tol=0.5)
     iface.create_interface()
-    #iface.sort()
+    iface.sort()
 
     incarparams = {'System':'test',
                    'ENCUT': 400,
@@ -311,17 +313,13 @@ if __name__=='__main__':
                    'SIGMA': 0.1,
                    'EDIFF':1E-6}
     incar = Incar(params=incarparams)
-    poscar = Poscar(iface, comment="system",
-                    selective_dynamics=None,
-                    true_names=True, velocities=None,
-                    predictor_corrector=None)
+    poscar = Poscar(iface)
     potcar = Potcar(symbols=poscar.site_symbols, functional='PBE',
                     sym_potcar_map=None)
     kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16), 
                                           shift=(0, 0, 0))
-
     cal = CalibrateInterface(incar, poscar, potcar, kpoints, 
-                             system=iface.as_dict(),
+                             system=iface.to_dict(),
                              job_dir='test', job_cmd=['ls','-lt'])
     cal.setup()
     cal.run()
@@ -330,6 +328,11 @@ if __name__=='__main__':
     #check whether the cal jobs were done 
     #Calibrate.check_calcs(cal_objs)
     #set the measurement
-    measure = MeasurementInterface(cal_objs, job_dir='./Measurements')
+    #measure = MeasurementInterface(cal_objs, job_dir='./Measurements')
+    measure = MeasurementSolvation(cal_objs, job_dir='./MSR_SOL',
+                                   sol_params={ 'EB_K':[78.4],
+                                                'TAU':[0],
+                                                'LAMBDA_D_K':[3.0],
+                                                'NELECT':[1,-1]})    
     measure.setup()
     measure.run()

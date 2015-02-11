@@ -110,7 +110,7 @@ class Interface(Slab):
         self.top_bot_dist = np.max(self.distance_matrix.reshape(n_atoms*n_atoms, 1))
         self.set_top_atoms()        
         n_top_atoms =  len(self.top_atoms)
-        max_coverage = n_top_atoms/self.surface_area 
+        max_coverage = n_top_atoms/self.surface_area
         m = self.lattice.matrix
         surface_area = np.linalg.norm(np.cross(m[0], m[1]))        
         logger.info('\nrequested surface coverage = {}'.format(self.surface_coverage))
@@ -263,19 +263,22 @@ class Interface(Slab):
         """ set the slab on to which the ligand is adsorbed"""
         self.slab = Slab.from_dict(self.as_dict())
         
-    def as_dict(self):
+    def to_dict(self):
         d = self.as_dict()
         d['hkl'] = list(self.miller_index)
         d['ligand'] = None
         if self.ligand is not None:
-            d['ligand'] = self.ligand.as_dict()
+            d['ligand'] = self.ligand.to_dict()
         if d['ligand'] is not None:
             d['num_ligands'] = self.n_ligands
         else:
             d['num_ligands'] = 0            
         return d
+    
+    def copy(self):
+        return Structure.from_sites(self)
 
-        
+            
 class Ligand(Molecule):
     """
     Construct ligand from  molecules
@@ -448,11 +451,13 @@ class Ligand(Molecule):
         self._sites = combine_mol_sites
         self.set_distance_matrix(self)
         
-    def as_dict(self) :
+    def to_dict(self) :
         d = self.as_dict()
         d['name'] = self.composition.formula
         return d
-        
+
+    def copy(self):
+        return Structure.from_sites(self)
 
 #test
 if __name__=='__main__':

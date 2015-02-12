@@ -36,7 +36,9 @@ Note 3:
      in your PATH. Some examples are given below
 
      initialize database connection(writes a yaml file with the 
-     database settings in the directory where it is called):
+     database settings in the directory where it is called).
+     Tip: dont have to do this again if you create a ~/.fireworks
+     folder and the generated yaml file there:
 
          lpad init
 

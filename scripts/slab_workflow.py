@@ -44,21 +44,21 @@ def get_calibration_task(structure, hkl=[1,0,0]):
                    'ISIF': 2, 
                    'IBRION': 2, 
                    'ISMEAR': 1, 
-                   'EDIFF': 1e-06, 
+                   'EDIFF': 1e-05, 
                    'NPAR': 4, 
                    'SIGMA': 0.1, 
                    'PREC': 'Accurate'
                  }
     incar = Incar.from_dict(incar_dict)
-    #kpoints = Kpoints.automatic(20)#(80)
-    kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 1))
+    kpoints = Kpoints.monkhorst_automatic(kpts=(8, 8, 1))
     que  = { 'nnodes':1,
              'nprocs':16,
-             'walltime':'24:00:00',
+             'walltime':'48:00:00',
+             'job_bin': '/home/km468/Software/VASP/vaspsol_kappa.5.3.5/vasp'             
             }
     # relaxation
-    turn_knobs = { 'NSW' : [100],
-                   'VACUUM': [12],
+    turn_knobs = { 'NSW' : [1000],
+                   'VACUUM': [30],
                    'THICKNESS': [10]
                  }    
     is_matrix = True
@@ -99,7 +99,8 @@ def get_workflow(structure, hkl, wf_id=100):
     msrparams['measurement'] = 'MeasurementInterface'
     msrparams['que_params'] =  { 'nnodes':1,
                                  'nprocs':16,
-                                 'walltime':'24:00:00',
+                                 'walltime':'48:00:00',
+                                 'job_bin': '/home/km468/Software/VASP/vaspsol_kappa.5.3.5/vasp'
                                }
     msrparams['other_params'] = {'job_dir': name+'_static'}
     msrtask = MPINTMeasurementTask(msrparams)
@@ -108,9 +109,9 @@ def get_workflow(structure, hkl, wf_id=100):
     solmsrparams['measurement'] = 'MeasurementSolvation'
     solmsrparams['que_params'] =  msrparams['que_params']
     sol_params = { 'EB_K':[78.4],
-                   'TAU':[0],
+                   'TAU':[],
                    'LAMBDA_D_K':[3.0],
-                   'NELECT':[1,-1]
+                   'NELECT':[-1, -0.5, 0.5, 1]
                  }
     solmsrparams['other_params'] = {'job_dir': name+'_sol',
                                     'sol_params':sol_params

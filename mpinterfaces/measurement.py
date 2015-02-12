@@ -69,6 +69,7 @@ class Measurement(object):
                   + os.sep+'STATIC'
                 logger.info('setting up job in {}'.format(job_dir))
                 cal.incar = Incar.from_file(jdir+os.sep+'INCAR')
+                cal.incar['EDIFF'] = '1E-6'
                 cal.incar['NSW'] = 0
                 cal.potcar = Potcar.from_file(jdir+os.sep+'POTCAR')
                 cal.kpoints = Kpoints.from_file(jdir+os.sep+'KPOINTS')
@@ -224,6 +225,7 @@ class MeasurementInterface(Measurement):
                     + jdir.replace(os.sep, '_').replace('.', '_')+ \
                     os.sep+'STATIC'
                 cal.incar = Incar.from_file(jdir+os.sep+'INCAR')
+                cal.incar['EDIFF'] = '1E-6'
                 cal.incar['NSW'] = 0
                 cal.potcar = Potcar.from_file(jdir+os.sep+'POTCAR')
                 cal.kpoints = Kpoints.from_file(jdir+os.sep+'KPOINTS')

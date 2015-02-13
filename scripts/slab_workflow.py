@@ -111,7 +111,7 @@ def get_workflow(structure, hkl, wf_id=100):
     sol_params = { 'EB_K':[78.4],
                    'TAU':[],
                    'LAMBDA_D_K':[3.0],
-                   'NELECT':[-1, -0.5, 0.5, 1]
+                   'NELECT':list(np.linspace(-1,1,5))
                  }
     solmsrparams['other_params'] = {'job_dir': name+'_sol',
                                     'sol_params':sol_params

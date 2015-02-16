@@ -1,8 +1,8 @@
 Workflows
 ==========
-- query workflows by name:
+- query by name:
       example:
-	lpad get_wflows -n Ag_100
+	lpad get_wflows -n "Ag_100"
 
 - query by state
       lpad get_wflows -s STATE
@@ -11,7 +11,7 @@ Workflows
       
       lpad get_wflows -q '{"state":STATE}' --sort created_on
 
-      where STATE = "READY", "WAITING", "RUNNING", "FIZZLED", "DEFUSED"
+      where STATE = "READY", "WAITING", "RUNNING", "FIZZLED" or "DEFUSED"
 
 - delete workflows:
       example:
@@ -35,7 +35,7 @@ Fireworks
 	   
 	   lpad get_fws -i 102 -d all
 
-- re-run the firework id=fw_id(same as marking the firework with as ready)
+- re-run firework with id, fw_id. Same as marking the firework as ready
      lpad rerun_fws -i fw_id
 
 - re-run a finished or fizzled firework with updated specs:

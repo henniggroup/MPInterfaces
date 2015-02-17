@@ -13,7 +13,7 @@ Packages:
 Scripts:
 ==========
 
-- some utility scripts that make use of the modules in the package
+- sample scripts that demonstrate the usage of mpinterfaces as well as materialsproject packages
 - start from here
 
 Requirements:
@@ -53,7 +53,7 @@ Install Instructions:
 Status:
 =======================
 
-	Alpha testing phase. Requires more thorough tests
+	Alpha testing phase.
 
 Authors
 =======================

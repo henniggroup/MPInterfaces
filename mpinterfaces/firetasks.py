@@ -46,7 +46,7 @@ def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
     #hipergator
     if 'ufhpc' in socket.gethostname():
         if job_bin is None:
-            job_bin='/home/km468/Software/VASP/vaspsol_kappa.5.3.5/vasp'
+            job_bin='/home/km468/Software/VASP/vasp.5.3.5/vasp'
         else:
             job_bin = job_bin
         d = {'type':'PBS',
@@ -63,7 +63,7 @@ def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
     #stampede
     elif 'stampede' in socket.gethostname():
         if job_bin is None:
-            job_bin='/home1/01682/km468/Software/VASP/vaspsol_kappa.5.3.5/vasp'
+            job_bin='/home1/01682/km468/Software/VASP/vasp.5.3.5/vasp'
         else:
             job_bin = job_bin
         d = {'type':'SLURM',
@@ -107,7 +107,7 @@ def get_cal_obj(d):
                                                       'carbon']:
         job_cmd = ['nohup', '/opt/openmpi_intel/bin/mpirun',
                    '-n', '24',
-                   '/home/km468/Software/VASP_JDFTx/VASP/vasp_kappa.5.3.5/vasp']
+                   '/home/km468/Software/VASP/vasp.5.3.5/vasp']
         if d.get("other_params") is not None:
             d.get("other_params").update({'wait':False})
         else:

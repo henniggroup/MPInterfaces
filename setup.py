@@ -2,37 +2,33 @@ import os
 import glob
 from setuptools import setup, find_packages
 
-SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+MPINT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 setup(
     name = "mpinterfaces",
     version = "0.1",
-    install_requires=["numpy>=1.8", "scipy>=0.10", "pymatgen", "custodian",
+    install_requires=["numpy", "scipy",
+                      "pymatgen", "custodian",
                       "fireworks", "pymatgen-db"],
     extras_require={"plotting": ["matplotlib>=1.1"],
                     "ase": ["ase>=3.3"],
                     "babel": ["openbabel", "pybel"],
+                    "remote_launch": ["fabric"]
                    },    
     author = "Kiran Mathew, Joshua Gabriel",
     author_email = "km468@cornell.edu",
-    description = ("Automate vasp calculations for interfaces"),
+    description = ("High throughput analysis of interfaces using VASP and Materials Project tools"),
     license = "GPL",
     url = "https://matk86@bitbucket.org/matk86/vasp_automation.git",
     packages=find_packages(),
-    long_description=read('README.rst'),
+    long_description=open(os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
     classifiers=[
         "Programming Language :: Python :: 2.7",
         "Development Status :: Alpha",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GPL License",
         "Operating System :: OS Independent",
-        "Topic :: Scientific/Engineering :: Information Analysis",
-        "Topic :: Scientific/Engineering :: Physics",
-        "Topic :: Scientific/Engineering :: Chemistry",
-        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Scientific/Engineering",
     ],
-#    scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
+#    scripts=glob.glob(os.path.join(MPINT_DIR, "scripts", "*"))
 )

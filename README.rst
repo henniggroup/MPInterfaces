@@ -1,9 +1,13 @@
 About:
 ========
 
-Python package that uses the materialsproject_ tools to automate vasp calculations for molecules, surfaces and interfaces(=surface+ligand+solvent)
+Python package that enables high throughput analysis of interfaces(=surface+ligand+solvent) using VASP_, VASPsol_ and materialsproject_ tools
 
 .. _materialsproject: https://github.com/materialsproject
+
+.. _VASPsol: http://vaspsol.mse.ufl.edu/
+
+.. _VASP: http://www.vasp.at/
 
 Packages:
 ==========
@@ -19,7 +23,7 @@ Scripts:
 Requirements:
 ==============
 
-- python2.7
+- python>=2.7
 - numpy
 - scipy
 - pymatgen
@@ -48,7 +52,7 @@ Install Instructions:
 	
 - cd vasp_automation
 	
-- python setup.py install(or develop) (no sudo privilege required if installing in a virtual environment)
+- python setup.py install(or develop)
 
 Status:
 =======================

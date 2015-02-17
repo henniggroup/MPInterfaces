@@ -48,7 +48,7 @@ Install Instructions:
 	
 - cd vasp_automation
 	
-- python setup.py install (no sudo privilege required if installing in a virtual environment)
+- python setup.py install(or develop) (no sudo privilege required if installing in a virtual environment)
 
 Status:
 =======================

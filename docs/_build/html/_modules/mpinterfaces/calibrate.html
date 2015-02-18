@@ -1,0 +1,950 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.calibrate &mdash; mpinterfaces alpha documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="mpinterfaces alpha documentation" href="../../index.html" />
+    <link rel="up" title="mpinterfaces" href="../mpinterfaces.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">mpinterfaces alpha documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../mpinterfaces.html" accesskey="U">mpinterfaces</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for mpinterfaces.calibrate</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calibration module:  </span>
+<span class="sd">TODO: slab convergence, add method of creating reconstructed 111</span>
+<span class="sd">based on that calibrate slab</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="kn">import</span> <span class="n">Slab</span><span class="p">,</span> <span class="n">SlabGenerator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vaspio.vasp_input</span> <span class="kn">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vaspio.vasp_input</span> <span class="kn">import</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vaspio.vasp_output</span> <span class="kn">import</span> <span class="n">Outcar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.apps.borg.queen</span> <span class="kn">import</span> <span class="n">BorgQueen</span>
+
+<span class="c">#from custodian.vasp.handlers import VaspErrorHandler</span>
+<span class="c">#from custodian.vasp.handlers import FrozenJobErrorHandler</span>
+<span class="c">#from custodian.vasp.handlers import MeshSymmetryErrorHandler</span>
+<span class="c">#from custodian.vasp.handlers import NonConvergingErrorHandler</span>
+<span class="kn">from</span> <span class="nn">custodian.custodian</span> <span class="kn">import</span> <span class="n">Custodian</span><span class="p">,</span> <span class="n">gzip_dir</span>
+<span class="kn">from</span> <span class="nn">custodian.vasp.interpreter</span> <span class="kn">import</span> <span class="n">VaspModder</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces.instrument</span> <span class="kn">import</span> <span class="n">MPINTVaspInputSet</span><span class="p">,</span> <span class="n">MPINTVaspJob</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.data_processor</span> <span class="kn">import</span> <span class="n">MPINTVaspDrone</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.interface</span> <span class="kn">import</span> <span class="n">Interface</span><span class="p">,</span> <span class="n">Ligand</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.utils</span> <span class="kn">import</span> <span class="n">get_ase_slab</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%(levelname)s</span><span class="s">:</span><span class="si">%(name)s</span><span class="s">:</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
+<span class="n">sh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+<span class="n">sh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Calibrate"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate">[docs]</a><span class="k">class</span> <span class="nc">Calibrate</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The base class for creating vasp work flows for</span>
+<span class="sd">    calibrating the input parameters for different systems</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">is_matrix</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">Grid_type</span> <span class="o">=</span> <span class="s">&#39;A&#39;</span><span class="p">,</span>
+                 <span class="n">setup_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="n">parent_job_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">,</span><span class="n">job_dir</span><span class="o">=</span><span class="s">&#39;Job&#39;</span><span class="p">,</span>
+                 <span class="n">qadapter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">job_cmd</span><span class="o">=</span><span class="s">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="n">turn_knobs</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">(</span> <span class="p">[</span> <span class="p">(</span><span class="s">&#39;ENCUT&#39;</span><span class="p">,[]),</span>
+                                           <span class="p">(</span><span class="s">&#39;KPOINTS&#39;</span><span class="p">,[])]</span> <span class="p">)</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calibrate constructor</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            incar (Incar object): input INCAR</span>
+<span class="sd">            poscar (Poscar object): input POSCAR</span>
+<span class="sd">            potcar (Potcar object): input POTCAR</span>
+<span class="sd">            kpoints: input KPOINTS</span>
+<span class="sd">            system: system info as a dictionary,</span>
+<span class="sd">                slab or interface example:</span>
+<span class="sd">                system={&#39;hkl&#39;:[1,1,1], &#39;ligand&#39;:None}, </span>
+<span class="sd">            is_matrix (bool): whether the jobs are dependent on each</span>
+<span class="sd">                other</span>
+<span class="sd">            Grid_type: kpoints grid_type</span>
+<span class="sd">            setup_dir: directory from which the intial setup files</span>
+<span class="sd">                will be copied from</span>
+<span class="sd">            parent_job_dir: the directory from which all the jobs are</span>
+<span class="sd">                launched</span>
+<span class="sd">            job_dir: job directory</span>
+<span class="sd">            qadapter: adapter for the batch system</span>
+<span class="sd">            job_cmd: command to be used for submitting the job. If </span>
+<span class="sd">                qadapter is specified then job_cmd is ignored</span>
+<span class="sd">            wait: whther to wait for the job to finish. If the job is</span>
+<span class="sd">                being submitted to the queue then there is no need for</span>
+<span class="sd">                waiting</span>
+<span class="sd">            turn_knobs: an ordered dictionary of parmaters and the </span>
+<span class="sd">                corresponding values</span>
+
+<span class="sd">        Note: input structure if needed will be obtained from the</span>
+<span class="sd">            provided poscar object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="n">system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent_job_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">parent_job_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">setup_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">=</span> <span class="n">job_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">incar</span> <span class="o">=</span> <span class="n">incar</span>               
+        <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">poscar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="n">kpoints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">incar_orig</span> <span class="o">=</span> <span class="n">incar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poscar_orig</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">potcar_orig</span> <span class="o">=</span> <span class="n">potcar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_orig</span> <span class="o">=</span> <span class="n">kpoints</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span> <span class="o">=</span> <span class="n">qadapter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_dir_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c">#example:- handlers = [VaspErrorHandler(),</span>
+        <span class="c">#FrozenJobErrorHandler(),</span>
+        <span class="c">#MeshSymmetryErrorHandler(), NonConvergingErrorHandler()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="p">[</span> <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_cmd</span> <span class="o">=</span> <span class="n">job_cmd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turn_knobs</span> <span class="o">=</span> <span class="n">turn_knobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response_to_knobs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sorted_response_to_knobs</span> <span class="o">=</span> <span class="p">{}</span>        
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">turn_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">response_to_knobs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sorted_response_to_knobs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>            
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span> <span class="o">=</span> <span class="n">is_matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Grid_type</span> <span class="o">=</span> <span class="n">Grid_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait</span> <span class="o">=</span> <span class="n">wait</span>
+    
+<div class="viewcode-block" id="Calibrate.setup"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set up the jobs for the given turn_knobs dict</span>
+<span class="sd">        is_matrix = True implies that the params in the dict are </span>
+<span class="sd">        interrelated. Otherwise calcs corresponding to each dict key</span>
+<span class="sd">        is independent</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">:</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">setup_matrix_job</span><span class="p">()</span>	
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turn_knobs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        invoke the set up methods corresponding to the dict keys</span>
+<span class="sd">        any key other than KPOINTS, VOLUME and POTCAR are treated</span>
+<span class="sd">        as INCAR parameters</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            turn_knobs: knobs aka paramters to be tuned</span>
+
+<span class="sd">        Note: poscar jobs setup through the VOLUME is only for</span>
+<span class="sd">              backward compatibility, use POSCAR key in the</span>
+<span class="sd">              turn_knobs to tune poscars</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">turn_knobs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">turn_knobs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_knobs</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">turn_knobs</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">turn_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;KPOINTS&#39;</span> <span class="ow">and</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setup_kpoints_jobs</span><span class="p">(</span><span class="n">kpoints_list</span> <span class="o">=</span> <span class="n">v</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;VOLUME&#39;</span> <span class="ow">and</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setup_poscar_jobs</span><span class="p">(</span><span class="n">scale_list</span> <span class="o">=</span> <span class="n">v</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;POTCAR&#39;</span> <span class="ow">and</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setup_potcar_jobs</span><span class="p">(</span><span class="n">mappings</span> <span class="o">=</span> <span class="n">v</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;POSCAR&#39;</span> <span class="ow">and</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setup_poscar_jobs</span><span class="p">(</span><span class="n">poscar_list</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setup_incar_jobs</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;knobs not set, running a single job&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;single_job&#39;</span><span class="p">,</span> <span class="n">job_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Calibrate.setup_matrix_job"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.setup_matrix_job">[docs]</a>    <span class="k">def</span> <span class="nf">setup_matrix_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set up jobs where the dict keys are interrelated</span>
+<span class="sd">        mind: its an ordered dict, the order in which the keys</span>
+<span class="sd">        are specified determines the nested directory structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orig_job_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span>
+        <span class="n">job_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span>
+        <span class="n">n_items</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">turn_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_knobs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">turn_knobs</span><span class="o">=</span><span class="nb">dict</span><span class="p">([(</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">turn_knobs</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]])]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recursive_jobs</span><span class="p">(</span><span class="n">n_items</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c">#restore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">=</span> <span class="n">orig_job_dir</span>
+</div>
+<div class="viewcode-block" id="Calibrate.recursive_jobs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.recursive_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">recursive_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        recursively setup the jobs: used by setup_matrix_job</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            n: total number of knobs aka parameters to be tuned</span>
+<span class="sd">            keys: list of knobs i.e parameter names</span>
+<span class="sd">            i: ith knob</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">job_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_to_name</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_knobs</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">i</span><span class="p">]]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">=</span> <span class="n">job_dir</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;setting jobs in the directory: &#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">turn_knobs</span><span class="o">=</span><span class="nb">dict</span><span class="p">([(</span><span class="n">keys</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">[</span><span class="n">val</span><span class="p">])]))</span>            
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">job_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_knobs</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">i</span><span class="p">]]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">=</span> <span class="n">job_dir</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;setting jobs in the directory: &#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_setup</span><span class="p">(</span><span class="n">turn_knobs</span><span class="o">=</span><span class="nb">dict</span><span class="p">([(</span><span class="n">keys</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">[</span><span class="n">val</span><span class="p">])]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">recursive_jobs</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">keys</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Calibrate.key_to_name"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.key_to_name">[docs]</a>    <span class="k">def</span> <span class="nf">key_to_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        convenient string mapping for the keys in the turn_knobs dict</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            key: key to the knob dict</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            an appropriate string representation of the key so that</span>
+<span class="sd">            the name doesnt clash with the filenames</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&#39;KPOINTS&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;KPTS&#39;</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&#39;POTCAR&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;POT&#39;</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&#39;POSCAR&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;POS&#39;</span>        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">key</span>
+</div>
+<div class="viewcode-block" id="Calibrate.val_to_name"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.val_to_name">[docs]</a>    <span class="k">def</span> <span class="nf">val_to_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        convert a value to a string so that it can be used for naming</span>
+<span class="sd">        the job directory</span>
+<span class="sd">        the decimal points in floats are replaced with underscore </span>
+<span class="sd">        character</span>
+<span class="sd">        if the value is of type list, kpoint_to_name method is used </span>
+<span class="sd">        since</span>
+<span class="sd">        only kpoint values are expected to be of type list</span>
+<span class="sd">        if the values is of type dict then potcar_to_name method is </span>
+<span class="sd">        invoked</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            val: knob value to be converted into an appropriate string</span>
+<span class="sd">                representation</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;\.&#39;</span><span class="p">,</span><span class="s">&#39;_&#39;</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoint_to_name</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="s">&#39;M&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_to_name</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">val</span><span class="o">.</span><span class="n">comment</span>        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                </div>
+<div class="viewcode-block" id="Calibrate.kpoint_to_name"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.kpoint_to_name">[docs]</a>    <span class="k">def</span> <span class="nf">kpoint_to_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">grid_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get a string representation for the given kpoint</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            kpoint: an iterable</span>
+<span class="sd">            grid_type: grid_type used for the KPOINTS</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:    </span>
+<span class="sd">            string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">grid_type</span> <span class="o">==</span> <span class="s">&#39;M&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">kpoint</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s">&#39;x&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">kpoint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s">&#39;x&#39;</span> \
+                <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">kpoint</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">grid_type</span> <span class="o">==</span> <span class="s">&#39;A&#39;</span><span class="p">:</span>    
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">kpoint</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Calibrate.potcar_to_name"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.potcar_to_name">[docs]</a>    <span class="k">def</span> <span class="nf">potcar_to_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        convert a symbol mapping to a name that can be used for</span>
+<span class="sd">        setting up the potcar jobs</span>
+<span class="sd">         </span>
+<span class="sd">         Args:</span>
+<span class="sd">             mapping: example:- if mapping = {&#39;Pt&#39;:&#39;Pt_pv&#39;, </span>
+<span class="sd">                 &#39;Si&#39;:&#39;Si_GW&#39;} then the name will be Pt_pvSi_GW</span>
+<span class="sd">                 </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            tring</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+        
+</div>
+<div class="viewcode-block" id="Calibrate.set_incar"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.set_incar">[docs]</a>    <span class="k">def</span> <span class="nf">set_incar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set the incar paramter, param = val</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+</div>
+<div class="viewcode-block" id="Calibrate.set_poscar"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.set_poscar">[docs]</a>    <span class="k">def</span> <span class="nf">set_poscar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">poscar</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set the poscar: volume scaled by the scale factor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">scale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poscar_orig</span><span class="p">)</span><span class="o">.</span><span class="n">structure</span>
+            <span class="n">volume</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
+            <span class="n">structure</span><span class="o">.</span><span class="n">scale_lattice</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span><span class="n">volume</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">poscar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">poscar</span>
+</div>
+<div class="viewcode-block" id="Calibrate.set_potcar"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.set_potcar">[docs]</a>    <span class="k">def</span> <span class="nf">set_potcar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set the potcar: symbol to potcar type mapping</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span>
+        <span class="n">mapped_symbols</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span>
+            <span class="n">mapped_symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="n">sym</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="p">(</span><span class="n">symbols</span><span class="o">=</span><span class="n">mapped_symbols</span><span class="p">)</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="Calibrate.set_kpoints"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.set_kpoints">[docs]</a>    <span class="k">def</span> <span class="nf">set_kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set the kpoint</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Grid_type</span> <span class="o">==</span> <span class="s">&#39;M&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">monkhorst_automatic</span><span class="p">(</span><span class="n">kpts</span> <span class="o">=</span> <span class="n">kpoint</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">Grid_type</span> <span class="o">==</span> <span class="s">&#39;A&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">automatic</span><span class="p">(</span><span class="n">subdivisions</span> <span class="o">=</span> <span class="n">kpoint</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoint_to_name</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Grid_type</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;KPOINTS = &#39;</span><span class="o">+</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">job_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">+</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_to_name</span><span class="p">(</span><span class="s">&#39;KPOINTS&#39;</span><span class="p">)</span> \
+          <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="n">job_dir</span>
+                                        </div>
+<div class="viewcode-block" id="Calibrate.setup_incar_jobs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.setup_incar_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_incar_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">val_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set up incar jobs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">val_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">val_list</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;setting INCAR parameter &#39;</span> <span class="o">+</span> <span class="n">param</span> <span class="o">+</span> <span class="s">&#39; = &#39;</span>\
+                            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_incar</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">:</span>
+                    <span class="n">job_dir</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> \
+                        <span class="n">param</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span>  <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+        	<span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;incar list empty&#39;</span><span class="p">)</span>
+                    
+            </div>
+<div class="viewcode-block" id="Calibrate.setup_kpoints_jobs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.setup_kpoints_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_kpoints_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoints_list</span> <span class="o">=</span> <span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setup the kpoint jobs</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">kpoints_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">kpoint</span> <span class="ow">in</span> <span class="n">kpoints_list</span><span class="p">:</span>
+                <span class="n">job_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_kpoints</span><span class="p">(</span><span class="n">kpoint</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">:</span>                     
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+        	<span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;kpoints_list empty&#39;</span><span class="p">)</span>
+            </div>
+<div class="viewcode-block" id="Calibrate.setup_poscar_jobs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.setup_poscar_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_poscar_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale_list</span><span class="o">=</span><span class="p">[],</span> <span class="n">poscar_list</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        for scaling the latice vectors of the original structure,</span>
+<span class="sd">        scale_list is volume scaling factor list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">scale_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">scale</span> <span class="ow">in</span> <span class="n">scale_list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_poscar</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span>
+                <span class="n">job_dir</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s">&#39;POS&#39;</span> <span class="o">+</span>\
+                        <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s">&#39;VOLUME_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">poscar_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">poscar</span> <span class="ow">in</span> <span class="n">poscar_list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_poscar</span><span class="p">(</span><span class="n">poscar</span><span class="o">=</span><span class="n">poscar</span><span class="p">)</span>
+                <span class="n">job_dir</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span><span class="s">&#39;POS&#39;</span> <span class="o">+</span>\
+                  <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">poscar</span><span class="o">.</span><span class="n">comment</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">)</span>
+                    
+</div>
+<div class="viewcode-block" id="Calibrate.setup_potcar_jobs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.setup_potcar_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_potcar_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mappings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        take a list of symbol mappings and setup the potcar jobs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">mapping</span> <span class="ow">in</span> <span class="n">mappings</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_potcar</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">:</span>
+                    <span class="n">job_dir</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> \
+                        <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_to_name</span><span class="p">(</span><span class="s">&#39;POTCAR&#39;</span><span class="p">)</span> \
+                        <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_to_name</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">)</span>
+                
+</div>
+<div class="viewcode-block" id="Calibrate.add_job"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.add_job">[docs]</a>    <span class="k">def</span> <span class="nf">add_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;noname&#39;</span><span class="p">,</span> <span class="n">job_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        add a single job using the current incar, poscar, potcar and </span>
+<span class="sd">        kpoints</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vis</span> <span class="o">=</span> <span class="n">MPINTVaspInputSet</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="p">)</span>
+        <span class="c">#the job command can be overrridden in the run method</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="n">MPINTVaspJob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_cmd</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">final</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+                           <span class="n">setup_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">setup_dir</span><span class="p">,</span>
+                           <span class="n">parent_job_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_job_dir</span><span class="p">,</span>
+                           <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">vis</span><span class="o">=</span><span class="n">vis</span><span class="p">,</span> <span class="n">auto_npar</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                            <span class="n">auto_gamma</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wait</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_dir_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">job_dir</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Calibrate.run"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_cmd</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        run the vasp jobs through custodian</span>
+<span class="sd">        if the job list is empty,</span>
+<span class="sd">        run a single job with the initial input set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">job_cmd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>            
+                <span class="n">j</span><span class="o">.</span><span class="n">job_cmd</span> <span class="o">=</span> <span class="n">job_cmd</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">j</span><span class="o">.</span><span class="n">job_cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_cmd</span>
+        <span class="n">c_params</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;jobs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs</span><span class="p">],</span>
+                <span class="s">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">handlers</span><span class="p">],</span>
+                <span class="s">&#39;max_errors&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Custodian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handlers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs</span><span class="p">,</span> <span class="n">max_errors</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Calibrate.set_knob_responses"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.set_knob_responses">[docs]</a>    <span class="k">def</span> <span class="nf">set_knob_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set up a dictionary that maps the turn knob keys and</span>
+<span class="sd">        their values to the calculated energy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">drone</span> <span class="o">=</span> \
+          <span class="n">MPINTVaspDrone</span><span class="p">(</span><span class="n">inc_structure</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">inc_incar_n_kpoints</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">bg</span> <span class="o">=</span>  <span class="n">BorgQueen</span><span class="p">(</span><span class="n">drone</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_to_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir</span><span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">k</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;rootpath = &#39;</span><span class="o">+</span><span class="n">rootpath</span><span class="p">)</span>
+            <span class="c">#bg.parallel_assimilate(rootpath)        </span>
+            <span class="n">bg</span><span class="o">.</span><span class="n">serial_assimilate</span><span class="p">(</span><span class="n">rootpath</span><span class="p">)</span>
+            <span class="n">allentries</span> <span class="o">=</span>  <span class="n">bg</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">allentries</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;KPOINTS&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">response_to_knobs</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">)]</span> \
+                           <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">energy</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">response_to_knobs</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">incar</span><span class="p">[</span><span class="n">k</span><span class="p">])]</span> \
+                          <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">energy</span>
+</div>
+<div class="viewcode-block" id="Calibrate.set_sorted_optimum_params"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.set_sorted_optimum_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_sorted_optimum_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        sort the dictionary of energy values and enforce the</span>
+<span class="sd">        convergence criterion.</span>
+<span class="sd">        Finally, get the optimum parameter values from the set of</span>
+<span class="sd">        values that satisfy the convergence criterion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matching_knob_responses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sorted_knob_responses</span> <span class="o">=</span> <span class="p">[]</span>                
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimum_knob_responses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c">#order the keys(encut or kpoint)from large value of the</span>
+        <span class="c"># energy  to small value</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_to_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">sorted_knob_responses</span> <span class="o">=</span> \
+              <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> 
+                     <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="c">#get the list of encut and kpoints that</span>
+            <span class="c">#satisfy the delate criterion</span>
+            <span class="c">#mind: default deltae = 0.001eV per atom</span>
+            <span class="n">matching_knob_responses</span> \
+                <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enforce_cutoff</span><span class="p">(</span><span class="n">sorted_knob_responses</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sorted_response_to_knobs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> \
+                <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">sorted_knob_responses</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">matching_knob_responses</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&quot;KPOINTS&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Grid_type</span> <span class="o">==</span> <span class="s">&#39;M&#39;</span><span class="p">:</span>
+                    <span class="n">nkpt</span> <span class="o">=</span> <span class="n">matching_knob_responses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> \
+                      <span class="n">matching_knob_responses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">matching_knob_responses</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">matching_knob_responses</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">matching_kpt</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                            <span class="n">nkpt1</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">val</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">nkpt1</span><span class="o">&lt;</span><span class="n">nktp</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">optimum_knob_responses</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">optimum_knob_responses</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">matching_knob_responses</span><span class="p">)</span>
+                        </div>
+<div class="viewcode-block" id="Calibrate.enforce_cutoff"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.enforce_cutoff">[docs]</a>    <span class="k">def</span> <span class="nf">enforce_cutoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_list</span><span class="p">,</span> <span class="n">delta_e_peratom</span><span class="o">=</span><span class="mf">0.001</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        enfore convergence criterion: energy difference of 1meV per</span>
+<span class="sd">        atom.</span>
+<span class="sd">        </span>
+<span class="sd">        returns a list of the parameters that satisfy the criterion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matching_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">input_list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_list</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">input_list</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">&lt;=</span> \
+                  <span class="n">delta_e_peratom</span><span class="p">:</span>
+                    <span class="n">matching_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_list</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">matching_list</span><span class="p">:</span>
+            <span class="n">matching_kpt_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="s">&#39;[[&#39;</span> <span class="ow">in</span> <span class="n">matching_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">ml</span> <span class="ow">in</span> <span class="n">matching_list</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s">&#39;[[&#39;</span> <span class="ow">in</span> <span class="n">ml</span><span class="p">:</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r&quot;\[\[(\d+)\,(\d+)\,(\d+)\]\]&quot;</span><span class="p">,</span>
+                                       <span class="n">ml</span><span class="p">)</span>
+                        <span class="n">matching_kpt_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span>
+                                                    <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span>
+                                                     <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))])</span>
+                <span class="k">return</span> <span class="n">matching_kpt_list</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">matching_list</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        </div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Calibrate.check_calcs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.check_calcs">[docs]</a>    <span class="k">def</span> <span class="nf">check_calcs</span><span class="p">(</span><span class="n">cal_objs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        checks the OUTCAR file to see whether the calulation is done</span>
+<span class="sd">        or not. Also checks(rather naively) for whether the</span>
+<span class="sd">        calculation is running or not.</span>
+<span class="sd">        Sets the calc_done and isrunning variables in the calibrate </span>
+<span class="sd">        objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">cal</span> <span class="ow">in</span> <span class="n">cal_objs</span><span class="p">:</span>        
+            <span class="n">cal</span><span class="o">.</span><span class="n">calc_done</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">cal</span><span class="o">.</span><span class="n">isrunning</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">for</span> <span class="n">jdir</span> <span class="ow">in</span> <span class="n">cal</span><span class="o">.</span><span class="n">job_dir_list</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">outcar_file</span> <span class="o">=</span> <span class="n">jdir</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s">&#39;OUTCAR&#39;</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">outcar_file</span><span class="p">):</span>
+                    <span class="n">mtime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">outcar_file</span><span class="p">)[</span><span class="mi">8</span><span class="p">]</span>
+                    <span class="n">last_mod_time</span> <span class="o">=</span>  <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">mtime</span><span class="p">)</span>
+                    <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;time delta {}&#39;</span>
+                                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">current_time</span> <span class="o">-</span> <span class="n">last_mod_time</span><span class="p">))</span>
+                    <span class="c">#check whether the OUTCAR file had been modified in the</span>
+                    <span class="c"># last hour</span>
+                    <span class="c">#if it had not been modified in the past hour, the </span>
+                    <span class="c">#calculation is assumed dead</span>
+                    <span class="k">if</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">last_mod_time</span> <span class="o">&lt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">3600</span><span class="p">):</span>
+                        <span class="n">cal</span><span class="o">.</span><span class="n">isrunning</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="n">outcar</span> <span class="o">=</span> <span class="n">Outcar</span><span class="p">(</span><span class="n">outcar_file</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">outcar</span><span class="o">.</span><span class="n">run_stats</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="s">&#39;time&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+                            <span class="n">cal</span><span class="o">.</span><span class="n">calc_done</span> <span class="o">=</span> <span class="bp">True</span>
+                            <span class="n">done</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cal</span><span class="o">.</span><span class="n">calc_done</span><span class="p">)</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;done in {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">jdir</span><span class="p">))</span>
+                            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">done</span><span class="p">)</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">done</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+    </div>
+<div class="viewcode-block" id="Calibrate.as_dict"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.Calibrate.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&#39;calibrate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&#39;incar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_orig</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&#39;poscar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">poscar_orig</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&#39;kpoints&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_orig</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&#39;turn_knobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_knobs</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&#39;job_dir_list&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_dir_list</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&#39;system&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span>
+        <span class="k">return</span> <span class="n">d</span>
+        </div></div>
+<div class="viewcode-block" id="CalibrateMolecule"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateMolecule">[docs]</a><span class="k">class</span> <span class="nc">CalibrateMolecule</span><span class="p">(</span><span class="n">Calibrate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Calibrate paramters for Molecule calculations</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">is_matrix</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">Grid_type</span> <span class="o">=</span> <span class="s">&#39;A&#39;</span><span class="p">,</span>
+                 <span class="n">setup_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="n">parent_job_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">,</span>
+                 <span class="n">job_dir</span><span class="o">=</span><span class="s">&#39;./Molecule&#39;</span><span class="p">,</span> <span class="n">qadapter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">job_cmd</span><span class="o">=</span><span class="s">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="n">turn_knobs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;ENCUT&#39;</span><span class="p">:[],</span><span class="s">&#39;KPOINTS&#39;</span><span class="p">:[]}):</span>
+        
+        <span class="n">Calibrate</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> 
+                           <span class="n">system</span><span class="o">=</span><span class="n">system</span><span class="p">,</span> <span class="n">is_matrix</span> <span class="o">=</span> <span class="n">is_matrix</span><span class="p">,</span> 
+                           <span class="n">Grid_type</span> <span class="o">=</span> <span class="n">Grid_type</span><span class="p">,</span> <span class="n">setup_dir</span><span class="o">=</span><span class="n">setup_dir</span><span class="p">,</span>
+                           <span class="n">parent_job_dir</span><span class="o">=</span><span class="n">parent_job_dir</span><span class="p">,</span>
+                           <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">qadapter</span><span class="o">=</span><span class="n">qadapter</span><span class="p">,</span>
+                           <span class="n">job_cmd</span><span class="o">=</span><span class="n">job_cmd</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span>
+                           <span class="n">turn_knobs</span> <span class="o">=</span> <span class="n">turn_knobs</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="CalibrateMolecule.setup_kpoints_jobs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateMolecule.setup_kpoints_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_kpoints_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Grid_type</span> <span class="o">=</span> <span class="s">&#39;M&#39;</span><span class="p">,</span>
+                           <span class="n">kpoints_list</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">conv_step</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Its a molecule ! no need for kpoint convergence&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">monkhorst_automatic</span><span class="p">(</span><span class="n">kpts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span>
+
+    </div></div>
+<div class="viewcode-block" id="CalibrateBulk"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateBulk">[docs]</a><span class="k">class</span> <span class="nc">CalibrateBulk</span><span class="p">(</span><span class="n">Calibrate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Calibrate paramters for Bulk calculations</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">is_matrix</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">Grid_type</span> <span class="o">=</span> <span class="s">&#39;A&#39;</span><span class="p">,</span>
+                  <span class="n">setup_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="n">parent_job_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">,</span>
+                  <span class="n">job_dir</span><span class="o">=</span><span class="s">&#39;./Bulk&#39;</span><span class="p">,</span> <span class="n">qadapter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                  <span class="n">job_cmd</span><span class="o">=</span><span class="s">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                  <span class="n">turn_knobs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;ENCUT&#39;</span><span class="p">:[],</span><span class="s">&#39;KPOINTS&#39;</span><span class="p">:[]}):</span> 
+            
+        <span class="n">Calibrate</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span>
+                           <span class="n">system</span><span class="o">=</span><span class="n">system</span><span class="p">,</span> <span class="n">is_matrix</span> <span class="o">=</span> <span class="n">is_matrix</span><span class="p">,</span>
+                           <span class="n">Grid_type</span> <span class="o">=</span> <span class="n">Grid_type</span><span class="p">,</span> <span class="n">setup_dir</span><span class="o">=</span><span class="n">setup_dir</span><span class="p">,</span>
+                           <span class="n">parent_job_dir</span><span class="o">=</span><span class="n">parent_job_dir</span><span class="p">,</span>
+                           <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">qadapter</span><span class="o">=</span><span class="n">qadapter</span><span class="p">,</span>
+                           <span class="n">job_cmd</span><span class="o">=</span><span class="n">job_cmd</span><span class="p">,</span><span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span>
+                           <span class="n">turn_knobs</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">turn_knobs</span><span class="p">))</span>
+        
+</div>
+<div class="viewcode-block" id="CalibrateSlab"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateSlab">[docs]</a><span class="k">class</span> <span class="nc">CalibrateSlab</span><span class="p">(</span><span class="n">Calibrate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calibrate paramters for Slab calculations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">is_matrix</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">Grid_type</span> <span class="o">=</span> <span class="s">&#39;A&#39;</span><span class="p">,</span>
+                 <span class="n">setup_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="n">parent_job_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="n">job_dir</span><span class="o">=</span><span class="s">&#39;./Slab&#39;</span><span class="p">,</span>
+                 <span class="n">qadapter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">job_cmd</span><span class="o">=</span><span class="s">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="n">turn_knobs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;VACUUM&#39;</span><span class="p">:[],</span><span class="s">&#39;THICKNESS&#39;</span><span class="p">:[]},</span> <span class="n">from_ase</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">from_ase</span> <span class="o">=</span> <span class="n">from_ase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span> <span class="o">=</span> <span class="n">is_matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="n">system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_structure</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slab_setup</span><span class="p">(</span><span class="n">turn_knobs</span><span class="o">=</span><span class="n">turn_knobs</span><span class="p">)</span>
+        <span class="n">Calibrate</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> 
+                           <span class="n">system</span><span class="o">=</span><span class="n">system</span><span class="p">,</span> <span class="n">is_matrix</span> <span class="o">=</span> <span class="n">is_matrix</span><span class="p">,</span>
+                           <span class="n">Grid_type</span> <span class="o">=</span> <span class="n">Grid_type</span><span class="p">,</span><span class="n">setup_dir</span><span class="o">=</span><span class="n">setup_dir</span><span class="p">,</span>
+                           <span class="n">parent_job_dir</span><span class="o">=</span><span class="n">parent_job_dir</span><span class="p">,</span>
+                           <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">qadapter</span><span class="o">=</span><span class="n">qadapter</span><span class="p">,</span>
+                           <span class="n">job_cmd</span><span class="o">=</span><span class="n">job_cmd</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span>
+                           <span class="n">turn_knobs</span> <span class="o">=</span> <span class="n">turn_knobs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CalibrateSlab.slab_setup"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateSlab.slab_setup">[docs]</a>    <span class="k">def</span> <span class="nf">slab_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turn_knobs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        invoke the set up methods corresponding to the dict keys:</span>
+<span class="sd">        VACUUM and THICKNESS</span>
+<span class="sd">        sets the POSCAR key in the turn_knobs </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">turn_knobs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">turn_knobs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_knobs</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">turn_knobs</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;VACUUM&#39;</span><span class="p">,</span> <span class="s">&#39;THICKNESS&#39;</span><span class="p">]</span>
+            <span class="n">poscar_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_matrix</span><span class="p">:</span>
+                <span class="n">prod_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">turn_knobs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="nb">tuple</span><span class="p">(</span><span class="n">prod_list</span><span class="p">)):</span>
+                    <span class="n">poscar_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_slab</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>                    
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">turn_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;VACUUM&#39;</span> <span class="ow">and</span> <span class="n">v</span><span class="p">:</span>
+                        <span class="n">poscar_list</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setup_vacuum_jobs</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;THICKNESS&#39;</span> <span class="ow">and</span> <span class="n">v</span><span class="p">:</span>
+                        <span class="n">poscar_list</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setup_thickness_jobs</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">turn_knobs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+                    <span class="k">del</span> <span class="n">turn_knobs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">turn_knobs</span><span class="p">[</span><span class="s">&#39;POSCAR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">poscar_list</span>
+</div>
+<div class="viewcode-block" id="CalibrateSlab.setup_vacuum_jobs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateSlab.setup_vacuum_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_vacuum_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vacuum_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        create slabs with the provided vacuum settings</span>
+
+<span class="sd">        returns list of poscars        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">create_slab</span><span class="p">(</span><span class="n">vacuum</span><span class="o">=</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vacuum_list</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="CalibrateSlab.setup_thickness_jobs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateSlab.setup_thickness_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_thickness_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thickness_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        create slabs with the provided thickness settings</span>
+
+<span class="sd">        returns list of poscars</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">create_slab</span><span class="p">(</span><span class="n">thickness</span><span class="o">=</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">thickness_list</span><span class="p">]</span>
+            </div>
+<div class="viewcode-block" id="CalibrateSlab.create_slab"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateSlab.create_slab">[docs]</a>    <span class="k">def</span> <span class="nf">create_slab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vacuum</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set the vacuum spacing, slab thickness and call sd_flags</span>
+<span class="sd">        for top 2 layers</span>
+
+<span class="sd">        returns the poscar corresponding to the modified structure</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+        <span class="n">strt_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_ase</span><span class="p">:</span>
+            <span class="n">slab_struct</span> <span class="o">=</span> <span class="n">get_ase_slab</span><span class="p">(</span><span class="n">strt_structure</span><span class="p">,</span> <span class="n">hkl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s">&#39;hkl&#39;</span><span class="p">],</span>
+                                        <span class="n">min_thick</span><span class="o">=</span><span class="n">thickness</span><span class="p">,</span> <span class="n">min_vac</span><span class="o">=</span><span class="n">vacuum</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">slab_struct</span><span class="o">=</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="n">initial_structure</span><span class="o">=</span> <span class="n">strt_structure</span><span class="p">,</span>
+                                       <span class="n">miller_index</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s">&#39;hkl&#39;</span><span class="p">],</span> 
+                                       <span class="n">min_slab_size</span><span class="o">=</span> <span class="n">thickness</span><span class="p">,</span>
+                                       <span class="n">min_vacuum_size</span><span class="o">=</span><span class="n">vacuum</span><span class="p">,</span> 
+                                       <span class="n">lll_reduce</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">center_slab</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                                       <span class="n">primitive</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">get_slab</span><span class="p">()</span>
+        <span class="n">slab_struct</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">sd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_sd_flags</span><span class="p">(</span><span class="n">slab_struct</span><span class="p">)</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="s">&#39;VAC&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">vacuum</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;THICK&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">thickness</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">slab_struct</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="n">comment</span><span class="p">,</span>
+                      <span class="n">selective_dynamics</span><span class="o">=</span><span class="n">sd</span><span class="p">)</span>    
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CalibrateSlab.set_sd_flags"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateSlab.set_sd_flags">[docs]</a>    <span class="k">def</span> <span class="nf">set_sd_flags</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">n_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set the relaxation flags for top and bottom layers of interface.</span>
+<span class="sd">        </span>
+<span class="sd">        The upper and lower bounds of the z coordinate are determined</span>
+<span class="sd">        based on the slab. All layers above and below the bounds will</span>
+<span class="sd">        be relaxed. This means if there is a ligand on top of the slab,</span>
+<span class="sd">        all of its atoms will also be relaxed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sd_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">interface</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">Interface</span><span class="p">):</span>
+            <span class="n">slab</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">slab</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">slab</span> <span class="o">=</span> <span class="n">interface</span>
+        <span class="n">z_coords</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">z_lower_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">z_coords</span><span class="p">)[</span><span class="n">n_layers</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">z_upper_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">z_coords</span><span class="p">)[</span><span class="o">-</span><span class="n">n_layers</span><span class="p">]</span>
+        <span class="n">sd_flags</span><span class="p">[</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">slab</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+                  <span class="k">if</span> <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">z_upper_bound</span> <span class="ow">or</span> <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">z_lower_bound</span><span class="p">]</span> <span class="p">]</span> \
+                  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">sd_flags</span>
+</div>
+<div class="viewcode-block" id="CalibrateSlab.set_reconstructed_surface"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateSlab.set_reconstructed_surface">[docs]</a>    <span class="k">def</span> <span class="nf">set_reconstructed_surface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sites_to_add</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Append sites as needed for reconstruction TODO</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>  
+
+    </div></div>
+<div class="viewcode-block" id="CalibrateInterface"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateInterface">[docs]</a><span class="k">class</span> <span class="nc">CalibrateInterface</span><span class="p">(</span><span class="n">CalibrateSlab</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Calibrate paramters for interface calculations</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">is_matrix</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">Grid_type</span> <span class="o">=</span> <span class="s">&#39;A&#39;</span><span class="p">,</span>
+                 <span class="n">setup_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="n">parent_job_dir</span><span class="o">=</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="n">job_dir</span><span class="o">=</span><span class="s">&#39;./Interface&#39;</span><span class="p">,</span>
+                 <span class="n">qadapter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">job_cmd</span><span class="o">=</span><span class="s">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="n">turn_knobs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;VACUUM&#39;</span><span class="p">:[],</span><span class="s">&#39;THICKNESS&#39;</span><span class="p">:[]},</span> <span class="n">from_ase</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">CalibrateSlab</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> 
+                           <span class="n">system</span><span class="o">=</span><span class="n">system</span><span class="p">,</span> <span class="n">is_matrix</span> <span class="o">=</span> <span class="n">is_matrix</span><span class="p">,</span> 
+                           <span class="n">Grid_type</span> <span class="o">=</span> <span class="n">Grid_type</span><span class="p">,</span> <span class="n">setup_dir</span><span class="o">=</span><span class="n">setup_dir</span><span class="p">,</span>
+                           <span class="n">parent_job_dir</span><span class="o">=</span><span class="n">parent_job_dir</span><span class="p">,</span>
+                           <span class="n">job_dir</span><span class="o">=</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">qadapter</span><span class="o">=</span><span class="n">qadapter</span><span class="p">,</span>
+                           <span class="n">job_cmd</span><span class="o">=</span><span class="n">job_cmd</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span>
+                           <span class="n">turn_knobs</span> <span class="o">=</span> <span class="n">turn_knobs</span><span class="p">,</span> <span class="n">from_ase</span><span class="o">=</span><span class="n">from_ase</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface_setup</span><span class="p">(</span><span class="n">turn_knobs</span><span class="o">=</span><span class="n">turn_knobs</span><span class="p">)</span>        
+
+<div class="viewcode-block" id="CalibrateInterface.interface_setup"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateInterface.interface_setup">[docs]</a>    <span class="k">def</span> <span class="nf">interface_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turn_knobs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s">&#39;ligand&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">turn_knobs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">turn_knobs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_knobs</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">turn_knobs</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                <span class="n">poscar_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">poscar_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_interface</span><span class="p">())</span>
+                <span class="n">turn_knobs</span><span class="p">[</span><span class="s">&#39;POSCAR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">poscar_list</span>
+            </div>
+<div class="viewcode-block" id="CalibrateInterface.create_interface"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.calibrate.CalibrateInterface.create_interface">[docs]</a>    <span class="k">def</span> <span class="nf">create_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        add params that you want to vary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">iface</span> <span class="o">=</span> <span class="n">Interface</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
+                          <span class="n">hkl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s">&#39;hkl&#39;</span><span class="p">],</span>
+                          <span class="n">ligand</span> <span class="o">=</span> <span class="n">Ligand</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s">&#39;ligand&#39;</span><span class="p">]),</span>
+                          <span class="n">from_ase</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">from_ase</span><span class="p">)</span>
+        <span class="n">iface</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">sd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_sd_flags</span><span class="p">(</span><span class="n">iface</span><span class="p">,</span> <span class="n">n_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c">#if theer are other paramters that are being varied</span>
+        <span class="c">#change the comment accordingly</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s">&#39;hkl&#39;</span><span class="p">]</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s">&#39;ligand&#39;</span><span class="p">][</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">slab_struct</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="n">comment</span><span class="p">,</span>
+                      <span class="n">selective_dynamics</span><span class="o">=</span><span class="n">sd</span><span class="p">)</span>
+            </div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c">#STRUCTURE</span>
+    <span class="n">a0</span> <span class="o">=</span> <span class="mf">3.965</span>
+    <span class="n">lvec</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span> <span class="p">]</span>
+    <span class="n">lvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lvec</span><span class="p">)</span> <span class="o">*</span> <span class="n">a0</span>
+    <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">lvec</span><span class="p">)</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span> <span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;Pt&#39;</span><span class="p">],</span> <span class="p">[</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span> <span class="p">],</span>
+                           <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="bp">False</span> <span class="p">)</span>
+
+    <span class="c">#INITIAL VASP INPUT SET</span>
+    <span class="n">incarparams</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;System&#39;</span><span class="p">:</span><span class="s">&#39;test&#39;</span><span class="p">,</span>
+                   <span class="s">&#39;ENCUT&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
+                   <span class="s">&#39;ISMEAR&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                   <span class="s">&#39;SIGMA&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+                   <span class="s">&#39;EDIFF&#39;</span><span class="p">:</span> <span class="mf">1E-6</span><span class="p">}</span>
+    <span class="n">incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="n">incarparams</span><span class="p">)</span>
+    <span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
+    <span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="p">(</span> <span class="n">symbols</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">,</span> <span class="n">functional</span><span class="o">=</span><span class="s">&#39;PBE&#39;</span><span class="p">,</span>
+                     <span class="n">sym_potcar_map</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+    <span class="n">kpoints</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">monkhorst_automatic</span><span class="p">(</span><span class="n">kpts</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span>
+                                          <span class="n">shift</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="c">#CALIBRATION INPUT</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;hkl&#39;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;ligand&#39;</span><span class="p">:</span><span class="bp">None</span> <span class="p">}</span>    
+    <span class="n">turn_knobs</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s">&#39;SIGMA&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s">&#39;POTCAR&#39;</span><span class="p">,</span> <span class="p">[{</span><span class="s">&#39;Pt&#39;</span><span class="p">:</span><span class="s">&#39;Pt&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s">&#39;Pt&#39;</span><span class="p">:</span><span class="s">&#39;Pt_pv&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s">&#39;Pt&#39;</span><span class="p">:</span><span class="s">&#39;Pt_GW&#39;</span><span class="p">}]),</span>
+        <span class="p">(</span><span class="s">&#39;IBRION&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s">&#39;KPOINTS&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]),</span>
+        <span class="p">(</span><span class="s">&#39;ENCUT&#39;</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="mi">700</span><span class="p">,</span><span class="mi">100</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s">&#39;VACUUM&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">15</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s">&#39;THICKNESS&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">11</span><span class="p">])</span>        
+        <span class="p">]</span> <span class="p">)</span>
+    <span class="n">is_matrix</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">job_dir</span> <span class="o">=</span> <span class="s">&#39;Slab&#39;</span>
+    <span class="n">job_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;ls&#39;</span><span class="p">,</span><span class="s">&#39;-lt&#39;</span><span class="p">]</span> 
+
+    <span class="c">#SETUP AND RUN    </span>
+    <span class="n">cal</span> <span class="o">=</span> <span class="n">CalibrateSlab</span><span class="p">(</span> <span class="n">incar</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span>
+                         <span class="n">system</span> <span class="o">=</span> <span class="n">system</span><span class="p">,</span>
+                         <span class="n">is_matrix</span> <span class="o">=</span> <span class="n">is_matrix</span><span class="p">,</span>
+                         <span class="n">job_dir</span> <span class="o">=</span> <span class="n">job_dir</span><span class="p">,</span>
+                         <span class="n">turn_knobs</span> <span class="o">=</span> <span class="n">turn_knobs</span> <span class="p">)</span>
+    <span class="n">cal</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>     
+    <span class="n">cal</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">job_cmd</span><span class="p">)</span>
+
+    
+    <span class="c"># to use the next after the calibrate jobs are done</span>
+    <span class="c">#done = Calibrate.check_calcs([cal])  #</span>
+    <span class="c">#get the knob responses</span>
+    <span class="c">#cal.set_knob_responses()</span>
+    <span class="c">#optimu knob responses</span>
+    <span class="c">#cal.set_sorted_optimum_params()</span>
+    <span class="c">#print(cal.sorted_response_to_knobs[&#39;ENCUT&#39;][&#39;600.0&#39;])</span>
+    <span class="c">#print(cal.optimum_knob_responses)</span>
+    <span class="c">#test enforce_cutoff</span>
+    <span class="c">#setup relaxation jobs after optimum parameters are set</span>
+    <span class="c">#cal.setup_relaxation_jobs([cal])</span>
+    <span class="c">#inp_list = [ [&#39;[[2,2,4]]&#39;, 10], [&#39;[[2,2,5]]&#39;, 9.9],</span>
+    <span class="c">#           [&#39;[[2,2,6]]&#39;, 9.895], [&#39;[[2,2,7]]&#39;, 9.888],</span>
+    <span class="c">#[&#39;[[2,2,8]]&#39;, 9.879],]</span>
+    <span class="c">#print(cal.enforce_cutoff(inp_list, delta_e=0.01))</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">mpinterfaces alpha documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../mpinterfaces.html" >mpinterfaces</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

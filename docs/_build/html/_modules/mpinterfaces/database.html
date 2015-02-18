@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.database &mdash; mpinterfaces alpha documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="mpinterfaces alpha documentation" href="../../index.html" />
+    <link rel="up" title="mpinterfaces" href="../mpinterfaces.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">mpinterfaces alpha documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../mpinterfaces.html" accesskey="U">mpinterfaces</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for mpinterfaces.database</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Put data into mongo database</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.io.vaspio</span> <span class="kn">import</span> <span class="n">Outcar</span>
+
+<span class="kn">from</span> <span class="nn">matgendb.creator</span> <span class="kn">import</span> <span class="n">VaspToDbTaskDrone</span><span class="p">,</span> <span class="n">get_uri</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%(levelname)s</span><span class="s">:</span><span class="si">%(name)s</span><span class="s">:</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
+<span class="n">sh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+<span class="n">sh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MPINTVaspToDbTaskDrone"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.database.MPINTVaspToDbTaskDrone">[docs]</a><span class="k">class</span> <span class="nc">MPINTVaspToDbTaskDrone</span><span class="p">(</span><span class="n">VaspToDbTaskDrone</span><span class="p">):</span>  
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    subclassing VaspToDbTaskDrone</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">27017</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s">&quot;vasp&quot;</span><span class="p">,</span>
+                 <span class="n">user</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s">&quot;nanoparticles&quot;</span><span class="p">,</span>
+                 <span class="n">parse_dos</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">compress_dos</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">simulate_mode</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">additional_fields</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">update_duplicates</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="n">mapi_key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">use_full_uri</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">runs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Additional_fields = {&#39;authors&#39;:[a.as_dict() for a in self.authors],</span>
+<span class="sd">                             &#39;projects&#39;: ,</span>
+<span class="sd">                              &#39;refernces&#39;: ,</span>
+<span class="sd">                              }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">VaspToDbTaskDrone</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> 
+                                   <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> 
+                                   <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> 
+                                   <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span>
+                                   <span class="n">parse_dos</span><span class="o">=</span><span class="n">parse_dos</span><span class="p">,</span> 
+                                   <span class="n">compress_dos</span><span class="o">=</span><span class="n">compress_dos</span><span class="p">,</span>
+                                   <span class="n">simulate_mode</span><span class="o">=</span><span class="n">simulate_mode</span><span class="p">,</span> 
+                                   <span class="n">additional_fields</span><span class="o">=</span><span class="n">additional_fields</span><span class="p">,</span>
+                                   <span class="n">update_duplicates</span><span class="o">=</span><span class="n">update_duplicates</span><span class="p">,</span>
+                                   <span class="n">mapi_key</span><span class="o">=</span><span class="n">mapi_key</span><span class="p">,</span> 
+                                   <span class="n">use_full_uri</span><span class="o">=</span><span class="n">use_full_uri</span><span class="p">,</span> <span class="n">runs</span><span class="o">=</span><span class="n">runs</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MPINTVaspToDbTaskDrone.post_process"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.database.MPINTVaspToDbTaskDrone.post_process">[docs]</a>    <span class="k">def</span> <span class="nf">post_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dir_name</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        customization:</span>
+<span class="sd">            adds system.json to the dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Post-processing dir:{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dir_name</span><span class="p">))</span>
+        <span class="n">fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fullpath</span><span class="p">,</span> <span class="s">&quot;system.json&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">system</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;hkl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">system</span><span class="p">[</span><span class="s">&quot;hkl&quot;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;ligand&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">system</span><span class="p">[</span><span class="s">&quot;ligand&quot;</span><span class="p">]</span>
+        <span class="c">#try:</span>
+        <span class="c">#    run_stats = {}</span>
+        <span class="c">#    outcar = Outcar(&quot;OUTCAR&quot;)</span>
+        <span class="c">#    #print(outcar.efermi)</span>
+        <span class="c">#    taskname = &quot;run1&quot;</span>
+        <span class="c">#    d[&quot;calculations&quot;][0][&quot;output&quot;][&quot;outcar&quot;] = outcar.as_dict()</span>
+        <span class="c">#    run_stats[taskname] = outcar.run_stats</span>
+        <span class="c">#except:</span>
+        <span class="c">#    logger.error(&quot;Bad OUTCAR for {}.&quot;.format(fullpath))</span>
+        <span class="c">#try:</span>
+        <span class="c">#    overall_run_stats = {}</span>
+        <span class="c">#    for key in [&quot;Total CPU time used (sec)&quot;, &quot;User time (sec)&quot;,</span>
+        <span class="c">#                &quot;System time (sec)&quot;, &quot;Elapsed time (sec)&quot;]:</span>
+        <span class="c">#        overall_run_stats[key] = sum([v[key]</span>
+        <span class="c">#                                      for v in run_stats.values()])</span>
+        <span class="c">#    run_stats[&quot;overall&quot;] = overall_run_stats</span>
+        <span class="c">#except:</span>
+        <span class="c">#    logger.error(&quot;Bad run stats for {}.&quot;.format(fullpath))</span>
+        <span class="c">#d[&quot;run_stats&quot;] = run_stats</span>
+        <span class="c">#Convert to full uri path.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_full_uri</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;dir_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_uri</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Post-processed &quot;</span> <span class="o">+</span> <span class="n">fullpath</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">mpinterfaces alpha documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../mpinterfaces.html" >mpinterfaces</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

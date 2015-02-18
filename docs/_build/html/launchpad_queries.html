@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Workflows &mdash; mpinterfaces alpha documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="mpinterfaces alpha documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">mpinterfaces alpha documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="workflows">
+<h1>Workflows<a class="headerlink" href="#workflows" title="Permalink to this headline">¶</a></h1>
+<ul>
+<li><dl class="first docutils">
+<dt>query by name:</dt>
+<dd><dl class="first last docutils">
+<dt>example:</dt>
+<dd><p class="first last">lpad get_wflows -n &#8220;Ag_100&#8221;</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>query by state</dt>
+<dd><p class="first">lpad get_wflows -s STATE</p>
+<p>or</p>
+<p>lpad get_wflows -q &#8216;{&#8220;state&#8221;:STATE}&#8217; &#8211;sort created_on</p>
+<p class="last">where STATE = &#8220;READY&#8221;, &#8220;WAITING&#8221;, &#8220;RUNNING&#8221;, &#8220;FIZZLED&#8221; or &#8220;DEFUSED&#8221;</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>delete workflows:</dt>
+<dd><dl class="first last docutils">
+<dt>example:</dt>
+<dd><p class="first last">lpad delete_wflows -n Ag_100</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="fireworks">
+<h1>Fireworks<a class="headerlink" href="#fireworks" title="Permalink to this headline">¶</a></h1>
+<ul>
+<li><dl class="first docutils">
+<dt>query by state</dt>
+<dd><p class="first">lpad get_fws -s STATE</p>
+<p>or</p>
+<p>lpad get_fws -q &#8216;{&#8220;state&#8221;:STATE}&#8217; &#8211;sort created_on</p>
+<p class="last">where STATE = &#8220;READY&#8221;, &#8220;WAITING&#8221;, &#8220;RUNNING&#8221;, &#8220;FIZZLED&#8221;, &#8220;DEFUSED&#8221;</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>query fireworks by name or id:</dt>
+<dd><dl class="first last docutils">
+<dt>example:</dt>
+<dd><p class="first">lpad get_fws -n &#8220;solvation&#8221;</p>
+<p class="last">lpad get_fws -i 102 -d all</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>re-run firework with id, fw_id. Same as marking the firework as ready</dt>
+<dd><p class="first last">lpad rerun_fws -i fw_id</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>re-run a finished or fizzled firework with updated specs:</dt>
+<dd><dl class="first last docutils">
+<dt>example: update the sol_params of the first task of the firework with id 102</dt>
+<dd><p class="first">lpad rerun_fws -i 102</p>
+<p class="last">lpad update_fws -i 102 -u &#8216;{&#8220;_tasks.0.other_params.sol_params.NELECT&#8221;:[-1,-0.5,0,0.5,1]}&#8217;</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Workflows</a></li>
+<li><a class="reference internal" href="#fireworks">Fireworks</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/launchpad_queries.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">mpinterfaces alpha documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

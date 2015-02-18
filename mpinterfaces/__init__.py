@@ -1,5 +1,9 @@
 from __future__ import division, unicode_literals, print_function
 
+__author__ = ", ".join(["Kiran Mathew", "Joshua Gabriel"])
+__date__ = "Feb 18 2015"
+__version__ = "0.1"
+
 from pymatgen.matproj.rest import MPRester
 
 def get_struct_from_mp(formula, MAPI_KEY="dwvz2XCFUEI9fJiR"):

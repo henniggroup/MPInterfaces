@@ -1,18 +1,34 @@
-.. mpinterfaces documentation master file, created by
-   sphinx-quickstart on Wed Feb 18 09:22:28 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
-Welcome to mpinterfaces's documentation!
-========================================
+Introduction
+=============
 
-Contents:
+Mpinterfaces is a python package that enables high throughput analysis
+of interfaces(=surface+ligand+solvent) using VASP_, VASPsol_ and
+materialsproject_ tools.
 
 .. toctree::
    :maxdepth: 4
 
    mpinterfaces
 
+Usage
+======
+
+.. toctree::
+   :maxdepth: 2
+
+   usage
+
+Examples
+=========
+
+See the scripts folder
+
+API documentation
+==================
+
+For detailed documentation of all modules and classes, please refer to the
+:doc:`API docs </modules>`.
 
 Indices and tables
 ==================
@@ -21,3 +37,8 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+.. _materialsproject: https://github.com/materialsproject
+
+.. _VASPsol: http://vaspsol.mse.ufl.edu/
+
+.. _VASP: http://www.vasp.at/

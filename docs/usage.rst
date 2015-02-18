@@ -1,5 +1,9 @@
+Launchpad queries
+==================
+
 Workflows
-==========
+----------
+
 - query by name:
       example:
 	lpad get_wflows -n "Ag_100"
@@ -19,7 +23,8 @@ Workflows
     
 
 Fireworks
-==========
+----------
+
 - query by state
       lpad get_fws -s STATE
       

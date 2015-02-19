@@ -32,28 +32,31 @@ def present_id(job_id, fname, search_string=b"Execution terminated"):
             return job_id == jid
         else:
             return False
-def run():
+def launch():
     parser = ArgumentParser(description='smart rocket launcher')
     parser.add_argument('-f', '--fw_id', help='specific fw_id to run', default=None, type=int)
     args = parser.parse_args()
     job_ids = None
-    lp = LaunchPad.from_file(CONFIG_FILE_DIR)
-    m_fw = lp._get_a_fw_to_run(fw_id=args.fw_id)
+    lp = LaunchPad.from_file(LAUNCHPAD_LOC)
+    m_fw = lp._get_a_fw_to_run(fw_id=args.fw_id, checkout=False)
     if m_fw is None:
-        print('no firework wiht that id')
+        print('no firework with that id')
         return
     fw_spec = dict(m_fw.spec)
     #done = [False]*len(fw_spec['cal_objs'])
     done = []
-    if fw_spec.get('cal_objs'),None is not None:
+    if fw_spec.get('cal_objs',None) is not None:
         for calparams in fw_spec['cal_objs']:
-            if calparms.get('job_ids'):
-                job_ids = d.get('job_ids')
-                for jid in job_ids:
-                    done.append(check_done(jid))
+            if calparms.get('job_ids', None) is not None:
+                job_ids = d.get('job_ids', None)
+                if job_ids is not None:
+                    for jid in job_ids:
+                        done.append(check_done(jid))
+                else:
+                    print('job_ids not set')
     else:
         print('this firework doesnt have any cal_objs')
-        return
+        done.append(True)
     if done and all(done):
         with settings(host_string='km468@hipergator.rc.ufl.edu'):
             run("ssh dev1 rlaunch singleshot -f "+str(args.fw_id))
@@ -65,6 +68,6 @@ if __name__ == '__main__':
     #print(check_done('10995522.moab.ufhpc'))
     #print(check_done('10995523.moab.ufhpc'))
     #print(check_done('10995520.moab.ufhpc'))
-    run()
+    launch()
 
     

@@ -162,6 +162,7 @@ class MPINTVaspJob(Job):
             cmd = [submit_cmd, self.vis.script_name]
             with open(self.output_file, 'w') as f:            
                 p = subprocess.Popen(cmd, stdout=f, stderr=f)
+            self.job_id = open(self.output_file,'r').read()
             #reservation_id = self.vis.qadapter.\
             #submit_to_queue(self.vis.script_name)
             #cmd = ['echo', str(reservation_id)]
@@ -171,6 +172,7 @@ class MPINTVaspJob(Job):
             cmd = list(self.job_cmd)
             with open(self.output_file, 'w') as f:
                 p = subprocess.Popen(cmd, stdout=f, stderr=f)
+            self.job_id = 0 #None
         os.chdir(self.parent_job_dir)
         if self.wait:
             return p

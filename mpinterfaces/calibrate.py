@@ -107,6 +107,7 @@ class Calibrate(object):
         self.qadapter = qadapter
         self.job_dir_list = []
         self.jobs = []
+        self.job_ids = []        
         #example:- handlers = [VaspErrorHandler(),
         #FrozenJobErrorHandler(),
         #MeshSymmetryErrorHandler(), NonConvergingErrorHandler()]
@@ -429,6 +430,8 @@ class Calibrate(object):
                 'max_errors': 5}
         c = Custodian(self.handlers, self.jobs, max_errors=5)
         c.run()
+        for j in self.jobs:
+            self.job_ids.append(j.job_id)
 
     def set_knob_responses(self):
         """
@@ -571,6 +574,7 @@ class Calibrate(object):
         d['kpoints'] = self.kpoints_orig
         d['turn_knobs'] = self.turn_knobs
         d['job_dir_list'] = self.job_dir_list
+        d['job_ids'] = self.job_ids        
         if self.system is not None:
             d['system'] = self.system
         return d
@@ -837,6 +841,7 @@ if __name__ == '__main__':
                          turn_knobs = turn_knobs )
     cal.setup()     
     cal.run(job_cmd)
+    #print(cal.job_ids)
 
     
     # to use the next after the calibrate jobs are done

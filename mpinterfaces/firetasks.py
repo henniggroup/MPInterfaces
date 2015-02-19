@@ -44,8 +44,6 @@ def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
                  job_bin=None):
     d = {}
     #hipergator
-    #'email': 'mpinterfaces@gmail.com',
-    #'notification_options': 'ae',
     if 'ufhpc' in socket.gethostname():
         if job_bin is None:
             job_bin='/home/km468/Software/VASP/vasp.5.3.5/vasp'
@@ -58,6 +56,8 @@ def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
                 'ppnode': str(int(nprocs/nnodes)),
                 'walltime': walltime,
                 'job_name': 'vasp_job',
+                'email': 'mpinterfaces@gmail.com',
+                'notification_options': 'ae',
                 'pre_rocket': '#PBS -l pmem=1000mb',
                 'rocket_launch': 'mpirun '+job_bin
                 }
@@ -127,6 +127,8 @@ def get_cal_obj(d):
                                       **d.get("other_params", {}))
     if d.get('job_dir_list'):
         cal.job_dir_list = d.get('job_dir_list')
+    if d.get('job_ids'):
+        cal.job_ids = d.get('job_ids')        
     return cal
 
 @explicit_serialize

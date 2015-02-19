@@ -44,6 +44,8 @@ def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
                  job_bin=None):
     d = {}
     #hipergator
+    #'email': 'mpinterfaces@gmail.com',
+    #'notification_options': 'ae',
     if 'ufhpc' in socket.gethostname():
         if job_bin is None:
             job_bin='/home/km468/Software/VASP/vasp.5.3.5/vasp'

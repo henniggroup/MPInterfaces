@@ -12,15 +12,15 @@ from fireworks.core.rocket import Rocket
 
 from fabric.api import settings, run
 
-#MAILDIR = '/home/km468/.fireworks/mail/hipergator/'
-MAILDIR = '/home/matk/Documents/mail/hipergator/'
+
+MAILDIR = os.path.join(os.path.expanduser('~'), ".fireworks/mail/hipergator/")
 
 
 def check_done(job_id):
     for fname in os.listdir(MAILDIR):
         #print fname, os.path.getmtime(MAILDIR+fname) - time.time()
         if present_id(job_id, MAILDIR+fname):
-            print('id in mail {0} = {1}'.format(fname, job_id))            
+            print('id in mail {0} = {1}'.format(fname, job_id)) 
             return True
 
         
@@ -62,14 +62,14 @@ def launch():
         fw_ids += range(args.r_fw_ids[0], args.r_fw_ids[1])
     job_ids = None
     lp = LaunchPad.from_file(LAUNCHPAD_LOC)
-    print(fw_ids)
+    print('Firework ids: ',fw_ids)
     if fw_ids is None:
-        print('now fw ids given')
+        print('No fw ids given')
         return
     for fid in fw_ids:
         m_fw = lp._get_a_fw_to_run(fw_id=fid, checkout=False)
         if m_fw is None:
-            print('no firework with that id')
+            print('No firework with that id')
             return
         fw_spec = dict(m_fw.spec)
         done = []
@@ -77,16 +77,17 @@ def launch():
             for calparams in fw_spec['cal_objs']:
                 if calparams.get('job_ids', None) is not None:
                     job_ids = calparams.get('job_ids', None)
-                    print('depends on jobs with ids : ',job_ids)
+                    print(fid,' depends on jobs with ids : ',job_ids)
                     if job_ids is not None:
                         for jid in job_ids:
                             done.append(check_done(jid))
                     else:
                         print('job_ids not set')
         else:
-            print('this firework doesnt have any cal_objs')
+            print('This firework doesnt depend on any other fireworks.')
             done.append(True)
         if done and all(done):
+            print('Launching ', fid, ' ...')
             with settings(host_string='km468@hipergator.rc.ufl.edu'):
                 run("ssh dev1 rlaunch singleshot -f "+str(fid))
         else:

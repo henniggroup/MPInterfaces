@@ -15,6 +15,7 @@ from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 
+from fireworks.fw_config import LAUNCHPAD_LOC
 from fireworks import Firework, Workflow, LaunchPad
 from fireworks.core.rocket_launcher import launch_rocket
 
@@ -58,8 +59,7 @@ caltask1 = MPINTCalibrateTask(calparams1)
 fw_calibrate = Firework([caltask1], spec={'_launch_dir':'$FW_JOB_DIR'}, name="fw_test")
 wf = Workflow([fw_calibrate], name="mpint_wf_test")
 
-lp = LaunchPad(host='localhost', port=27017, name='fireworks',
-                          username="km468", password="km468")
+lp = LaunchPad.from_file(LAUNCHPAD_LOC)
 
 print('fireworks in the database before adding the workflow: \n',
       lp.get_fw_ids())

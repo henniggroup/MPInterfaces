@@ -18,6 +18,7 @@ from pymatgen.io.vaspio.vasp_input import Incar, Poscar
 from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+from fireworks.fw_config import LAUNCHPAD_LOC
 from fireworks import Firework, Workflow, LaunchPad
 from fireworks.core.rocket_launcher import launch_rocket
 
@@ -60,9 +61,7 @@ def get_workflow(name, lp, fw_id):
 
     
 if __name__=='__main__':
-    lp = LaunchPad(host='localhost', port=27017,
-                          name='fireworks', username="km468",
-                          password="km468" )
+    lp = LaunchPad.from_file(LAUNCHPAD_LOC)
 
     print('fireworks in the database(before): \n', lp.get_fw_ids())
             

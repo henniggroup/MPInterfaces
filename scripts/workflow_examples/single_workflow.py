@@ -64,6 +64,7 @@ from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 
+from fireworks.fw_config import LAUNCHPAD_LOC
 from fireworks import Firework, Workflow, LaunchPad
 from fireworks.core.rocket_launcher import launch_rocket
 
@@ -159,13 +160,7 @@ wf = Workflow([fw_calibrate, fw_measure], name="mpint_workflow")
 # connect to the fireworks database and add workflow to it
 # use your own account
 #---------------------------------------------------------------------
-if len(sys.argv)>1:
-    launchpad = LaunchPad(host='localhost', port=int(sys.argv[1]), 
-                          name='fireworks', username="km468", 
-                          password="km468")
-else:
-    launchpad = LaunchPad(host='localhost', port=27017, name='fireworks',
-                          username="km468", password="km468")
+launchpad = LaunchPad.from_file(LAUNCHPAD_LOC)
 
 print('fireworks in the database before adding the workflow: \n',
       launchpad.get_fw_ids())

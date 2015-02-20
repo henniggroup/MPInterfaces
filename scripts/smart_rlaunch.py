@@ -49,10 +49,9 @@ def launch():
         for calparams in fw_spec['cal_objs']:
             if calparams.get('job_ids', None) is not None:
                 job_ids = calparams.get('job_ids', None)
-                print(job_ids)
+                print('job ids : 'job_ids)
                 if job_ids is not None:
                     for jid in job_ids:
-                        print(jid)
                         done.append(check_done(jid))
                 else:
                     print('job_ids not set')

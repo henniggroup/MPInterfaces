@@ -89,14 +89,12 @@ class MPINTVaspInputSet(DictVaspInputSet):
             with open(os.path.join(d, self.script_name), 'w') as f:
                 queue_script = self.qadapter.get_script_str(job_dir)
                 f.write(queue_script)           
-
-                
+            
     def as_dict(self):
         d = super(MPINTVaspInputSet, self).as_dict()
         return d
 
-
-
+    
 class MPINTVaspJob(Job):
     """
     defines a vasp job i.e setup the required input files and lanuch the job
@@ -105,9 +103,8 @@ class MPINTVaspJob(Job):
        job_cmd : a list, the command to be issued in each job_dir
        eg: ['qsub', 'submit_job']
        setup_dir : directory that has the setup files for creating the
-        rest of the vasp inputs
+       rest of the vasp inputs
        job_dir : the directory from which the jobs will be launched
-    
     """
     def __init__(self, job_cmd, name='noname',output_file="job.out", setup_dir='.',
                  parent_job_dir='.', job_dir='untitled', suffix="",

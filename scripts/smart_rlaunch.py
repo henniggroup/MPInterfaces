@@ -1,10 +1,11 @@
 from __future__ import division, unicode_literals, print_function
 
 import os
+import time
 import mmap
 from argparse import ArgumentParser
 
-from fireworks.fw_config import LAUNCHPAD_LOC, FWORKER_LOC, CONFIG_FILE_DIR
+from fireworks.fw_config import LAUNCHPAD_LOC
 from fireworks import Firework, Workflow, LaunchPad
 from fireworks.core.fworker import FWorker
 from fireworks.core.rocket import Rocket
@@ -32,43 +33,60 @@ def present_id(job_id, fname, search_string=b"Execution terminated"):
             return job_id == jid
         else:
             return False
+
 def launch():
-    parser = ArgumentParser(description='smart rocket launcher')
-    parser.add_argument('-f', '--fw_id', help='specific fw_id to run', default=None, type=int)
+    descr  = "Smart rocket launcher."\
+        "Uses the execution termination emails send by the batch system to "\
+        "launch fireworks that depend on other fireworks."\
+        "Also takes range of firework ids to launch"
+    parser = ArgumentParser(description=descr)
+    parser.add_argument('-f', '--fw_ids', help='one or more of fw_ids to run', 
+                        default=None, type=int, nargs='+')
+    parser.add_argument('-r', '--r_fw_ids', 
+                        help='start and end fw_ids of the range of fw_ids to run', 
+                        default=None, type=int, nargs=2)
     args = parser.parse_args()
+    fw_ids = args.fw_ids
+    if args.r_fw_ids is not None:
+        fw_ids += range(args.r_fw_ids[0], args.r_fw_ids[1])
     job_ids = None
     lp = LaunchPad.from_file(LAUNCHPAD_LOC)
-    m_fw = lp._get_a_fw_to_run(fw_id=args.fw_id, checkout=False)
-    if m_fw is None:
-        print('no firework with that id')
+    if fw_ids is None:
+        print('now fw ids given')
         return
-    fw_spec = dict(m_fw.spec)
-    #done = [False]*len(fw_spec['cal_objs'])
-    done = []
-    if fw_spec.get('cal_objs',None) is not None:
-        for calparams in fw_spec['cal_objs']:
-            if calparams.get('job_ids', None) is not None:
-                job_ids = calparams.get('job_ids', None)
-                print('job ids : ',job_ids)
-                if job_ids is not None:
-                    for jid in job_ids:
-                        done.append(check_done(jid))
+    for fid in fw_ids:
+        m_fw = lp._get_a_fw_to_run(fw_id=fid, checkout=False)
+        if m_fw is None:
+            print('no firework with that id')
+        fw_spec = dict(m_fw.spec)
+        done = []
+        if fw_spec.get('cal_objs',None) is not None:
+            for calparams in fw_spec['cal_objs']:
+                if calparams.get('job_ids', None) is not None:
+                    job_ids = calparams.get('job_ids', None)
+                    print('job ids : ',job_ids)
+                    if job_ids is not None:
+                        for jid in job_ids:
+                            done.append(check_done(jid))
+                    else:
+                        print('job_ids not set')
                 else:
-                    print('job_ids not set')
-    else:
-        print('this firework doesnt have any cal_objs')
-        done.append(True)
-    if done and all(done):
-        with settings(host_string='km468@hipergator.rc.ufl.edu'):
-            run("ssh dev1 rlaunch singleshot -f "+str(args.fw_id))
-    else:
-        print('Havent recieved execution termination confirmation from all the jobs in the firework')
+                    print('this firework doesnt have any cal_objs')
+                    done.append(True)
+            if done and all(done):
+                with settings(host_string='km468@hipergator.rc.ufl.edu'):
+                    run("ssh dev1 rlaunch singleshot -f "+str(fid))
+            else:
+                print("Haven't recieved execution termination confirmation from the jobs in the firework")
+        time.sleep(3)
+    return
         
 if __name__ == '__main__':
+    launch()
     ##test
     #print(check_done('10995522.moab.ufhpc'))
     #print(check_done('10995523.moab.ufhpc'))
     #print(check_done('10995520.moab.ufhpc'))
-    launch()
+
 
     

@@ -6,7 +6,7 @@ __version__ = "0.1"
 
 from pymatgen.matproj.rest import MPRester
 
-def get_struct_from_mp(formula, MAPI_KEY="dwvz2XCFUEI9fJiR"):
+def get_struct_from_mp(formula, MAPI_KEY="dwvz2XCFUEI9fJiR", all_structs=False):
     """
     fetches the structure corresponding to the given formula
     from the materialsproject database
@@ -17,12 +17,17 @@ def get_struct_from_mp(formula, MAPI_KEY="dwvz2XCFUEI9fJiR"):
     """
     with MPRester(MAPI_KEY) as m:
         data = m.get_data(formula)
+        structures = []
         print("\nnumber of structures matching the chemical formula {0} = {1}".format(formula, len(data)) )
         for d in data:
             x = {}
             x['material_id'] = str(d['material_id'])
             structure = m.get_structure_by_material_id(x['material_id'])
-            return structure
+            if all_structs:
+                structures.append(structure)
+            else:
+                return structure
+        return structures
 
 
 from .calibrate import Calibrate, CalibrateBulk, CalibrateSlab, CalibrateMolecule

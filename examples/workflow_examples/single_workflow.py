@@ -10,17 +10,20 @@ Note 1:
       contact me(km468@cornell.edu) to create a database account
       
 Note 2:
-        Since hydrogen is part of the hermes subnetwork, direct
-        connection to the database is not possible. So tunell 
-        port number 27017 from your local machine to port 27017 
-        on hydrogen via ssh:
+        Since hydrogen is part of the  uf network any machine on
+        the uf network(inlcuding hipergator) should be able to access
+        hydrogen at 10.5.46.101
+        
+        To connect to the database from outside uf network( for
+        example from stampede), tunnel port number 27017 from that
+        machine to port 27017 on hydrogen via ssh:
 
-        ssh -N -f -L 27017:10.1.255.101:27017 username@hermes.mse.ufl.edu
+        ssh -N -f -L 27017:10.5.46.101:27017 username@hipergator.rc.ufl.edu
 
         if port 27017 on the machine that you are running is 
         not available, use another port number for tunneling. example:-
 
-        ssh -N -f -L 27030:10.1.255.101:27017 username@hermes.mse.ufl.edu
+        ssh -N -f -L 27030:10.5.46.101:27017 username@hipergator.rc.ufl.edu
 
         mind: if the tunneled port is changed, the port number
         in the launchpad initialization should also be changed

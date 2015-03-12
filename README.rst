@@ -1,7 +1,7 @@
 About:
 ========
 
-Python package that enables high throughput analysis of interfaces(=surface+ligand+solvent) using VASP_, VASPsol_ and materialsproject_ tools
+Python package that enables high throughput analysis of interfaces(ligands/solvent/hetero-structures) using VASP_, VASPsol_ and materialsproject_ tools
 
 .. _materialsproject: https://github.com/materialsproject
 
@@ -14,7 +14,7 @@ Packages:
 
 - mpinterfaces
 
-Scripts:
+Examples:
 ==========
 
 - sample scripts that demonstrate the usage of mpinterfaces as well as materialsproject packages

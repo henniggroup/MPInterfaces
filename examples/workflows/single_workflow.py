@@ -3,60 +3,6 @@ from __future__ import division, unicode_literals, print_function
 """
 Create a workflow and submit it to the 'fireworks' database on hydrogen
 
-Note 1:
-      the database for job submission('fireworks') is
-      on the mongodb server running on hydrogen.
-      use own account to run the script.
-      contact me(km468@cornell.edu) to create a database account
-      
-Note 2:
-        Since hydrogen is part of the  uf network any machine on
-        the uf network(inlcuding hipergator) should be able to access
-        hydrogen at 10.5.46.101
-        
-        To connect to the database from outside uf network( for
-        example from stampede), tunnel port number 27017 from that
-        machine to port 27017 on hydrogen via ssh:
-
-        ssh -N -f -L 27017:10.5.46.101:27017 username@hipergator.rc.ufl.edu
-
-        if port 27017 on the machine that you are running is 
-        not available, use another port number for tunneling. example:-
-
-        ssh -N -f -L 27030:10.5.46.101:27017 username@hipergator.rc.ufl.edu
-
-        mind: if the tunneled port is changed, the port number
-        in the launchpad initialization should also be changed
-
-Note 3:
-     to submit workflow to the database:
-
-         python submit_workflow.py
- 
-     Fireworks package has some nice utility scripts for 
-     launching fireworks and checking job status. If the 
-     fireworks package is installed then those scripts are already
-     in your PATH. Some examples are given below
-
-     initialize database connection(writes a yaml file with the 
-     database settings in the directory where it is called).
-     Tip: dont have to do this again if you create a ~/.fireworks
-     folder and the generated yaml file there:
-
-         lpad init
-
-     CAUTION: Be careful when using the following command as it will 
-     erase all workflows from the database:
-
-         lpad reset
-
-     launch a single firework:
-
-         rlaunch singleshot
-
-     get all fireworks info:
-
-         lpad get_fws
 """
 
 import sys

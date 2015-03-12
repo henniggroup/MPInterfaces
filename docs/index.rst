@@ -22,7 +22,7 @@ Usage
 Examples
 =========
 
-See the scripts folder
+See the examples folder
 
 API documentation
 ==================

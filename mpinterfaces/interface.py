@@ -243,28 +243,32 @@ class Interface(Slab):
         have enough ligands to satify the surface coverage criterion
         also sets the slab on which the ligand is adsorbed
         """
-        nlig, uv = self.get_reduced_scell()
-        self.n_ligands = nlig        
-        logger.info(
+        if self.ligand is not None:
+            nlig, uv = self.get_reduced_scell()
+            self.n_ligands = nlig        
+            logger.info(
                 '\nusing ... {0} ligands on a supercell with in-plane lattice vectors {1}'
                 .format(self.n_ligands, uv))
-        new_latt_matrix = [ uv[0][:], uv[1][:], self.lattice.matrix[2,:]]
-        new_latt = Lattice(new_latt_matrix)
-        _, __, scell = self.lattice.find_mapping(new_latt) #ltol = 0.01, atol=1)
-        #self.scell = self.possible_scells[opt_lig_scell_index]
-        self.make_supercell(scell)
-        self.set_slab()
-        self.set_top_atoms()
-        self.adsorb_sites = [ self.top_atoms[i]
+            new_latt_matrix = [ uv[0][:], uv[1][:], self.lattice.matrix[2,:]]
+            new_latt = Lattice(new_latt_matrix)
+            _, __, scell = self.lattice.find_mapping(new_latt) #ltol = 0.01, atol=1)
+            #self.scell = self.possible_scells[opt_lig_scell_index]
+            self.make_supercell(scell)
+            self.set_slab()
+            self.set_top_atoms()
+            self.adsorb_sites = [ self.top_atoms[i]
                                   for i in range(self.n_ligands)]
-        logger.info('ligands will be adsorbed on these sites on the slab {}'.format(self.adsorb_sites))
-        self.cover_surface(self.adsorb_sites)
-#        else:
-#            logger.critical('none of the combinations of number of ligands')
-#            logger.critical(' and supercell sizes matches the requested surface coverage')
-#            logger.critical('try increasing the tolerance or ')
-#            logger.critical('increase the maximum number of cells in the supercell')
-#            sys.exit()
+            logger.info('ligands will be adsorbed on these sites on the slab {}'.format(self.adsorb_sites))
+            self.cover_surface(self.adsorb_sites)
+            #        else:
+            #            logger.critical('none of the combinations of number of ligands')
+            #            logger.critical(' and supercell sizes matches the requested surface coverage')
+            #            logger.critical('try increasing the tolerance or ')
+            #            logger.critical('increase the maximum number of cells in the supercell')
+            #            sys.exit()
+        else:
+            logger.info('no ligands. just the bare slab')
+            
 
     def set_slab(self):
         """ set the slab on to which the ligand is adsorbed"""

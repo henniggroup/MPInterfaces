@@ -31,7 +31,60 @@ logger.addHandler(sh)
 class Interface(Slab):
     """
     Interface = slab + ligand + environment(solvent)
-    
+    Creates a Slab - Ligand Interface of given coverage and given slab - ligand dis\
+    placement
+       
+        Args:
+		strt: Starting Structure Object for Slab of the Interface 
+		
+		hkl: Miller Index of Slab 
+		
+		min_thick: Minimum Slab Thickness in Angstroms desired 
+		
+		min_vac: Minimum Vacuum Spacing (Padding top and bottom, each) in Angstroms desired 
+		
+		supercell: Trial supercell to start with to enforce coverage, default 1x1x1
+		
+		name: System name to specify database entry
+		(can be a combination of miller indices of slab and ligand and solvent) 
+		eg: "PbS [1,1,1] + Hydrazine in DMF (epsilon = 37.5)"
+		
+		adsorb_on_species: Reference atom on slab to create adsorption upon 
+		
+		adatom_on_lig: bonding atom on ligand 
+		
+		ligand: structure object for ligand 
+		
+		displacement: initial adsorption distance desired above the adsorb_on_species 
+		
+		surface_coverage: Number of ligands desired per surface area of slab, 
+			in ligands per square angstroms
+	
+		scell_max: Maximum number of supercells to create (used for finding supercell 
+			for the given coverage requirement
+		
+		coverage_tol: Tolerance for coverage calculation in Ligands per square Angstroms
+		
+		solvent: Name of solvent to be added for the run 
+
+		start_from_slab: Whether slab is given as input. Useful when custom reconstructed 
+			slabs are to be used 
+
+		validate_proximity: Check whether any atoms are too close (using pymatgen default
+			of 0.01 Angstroms
+		
+		to_unit_cell: Pymatgen Slab routine to find unit cell
+
+		coords_are_cartesian: Whether the input coordinates are in cartesian, use default 
+			False (Extended variable from Pymatgen Slab) 
+
+		from_ase: Whether to create Slab using python-ase (RECOMMENDED) for producing 
+			slabs that have orthogonal lattice vectors
+
+  	NOTE:	
+	if starting from the bulk structure, create slab
+        note: if the starting structure is a slab, the vaccum extension
+        is not possible
     """
     def __init__(self, strt, hkl=[1,1,1], min_thick=10, min_vac=10,
                  supercell=[1,1,1], name=None, adsorb_on_species=None,
@@ -40,11 +93,6 @@ class Interface(Slab):
                  solvent=None, start_from_slab=False, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False, primitive = True,
                  from_ase=False):
-        """
-        if starting from the bulk structure, create slab
-        note: if the starting structure is a slab, the vaccum extension
-        is not possible
-        """
         self.from_ase = from_ase
         vac_extension = 0
         if ligand is not None:

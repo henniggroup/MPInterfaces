@@ -17,6 +17,12 @@ def get_ase_slab(pmg_struct, hkl=(1,1,1), min_thick=10, min_vac=10):
     takes in the intial structure as pymatgen Structure object
     uses ase to generate the slab
     returns pymatgen Slab object
+    
+    Args:
+	pmg_struct: pymatgen structure object
+	hkl: hkl index of surface of slab to be created
+	min_thick: minimum thickness of slab in Angstroms
+	min_vac: minimum vacuum spacing 
     """
     ase_atoms = AseAtomsAdaptor().get_atoms(pmg_struct)
     pmg_slab_gen = SlabGenerator(pmg_struct, hkl, min_thick, min_vac)

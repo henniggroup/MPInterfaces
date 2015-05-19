@@ -244,7 +244,7 @@ class Calibrate(object):
                 representation
             
         Returns:
-            a string
+            a string filename for the value 
         """
         if type(val) == float:
             return re.sub('\.','_',str(val))
@@ -266,7 +266,8 @@ class Calibrate(object):
             grid_type: grid_type used for the KPOINTS
         
         Returns:    
-            string
+            string representation for kpoint eg: Monkhorst Pack
+	    2 2 2 will be named 2x2x2
         """
         if grid_type == 'M':
             return str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' \
@@ -284,7 +285,7 @@ class Calibrate(object):
                  'Si':'Si_GW'} then the name will be Pt_pvSi_GW
                  
         Returns:
-            tring
+            string 
         """
         l = [v for k,v in mapping.items()]
         return ''.join(l)
@@ -298,7 +299,15 @@ class Calibrate(object):
 
     def set_poscar(self, scale=None, poscar=None):
         """
-        set the poscar: volume scaled by the scale factor
+        perturbs given structure by volume scaling factor 
+	or takes user defined variants of Poscar 
+	
+	Args:
+	   scale : Volume Scaling parameter
+
+	   poscar : Poscar object of user defined structure
+
+	   set the poscar: volume scaled by the scale factor
         """
         if scale is not None:
             structure = Poscar.from_dict(self.poscar_orig).structure
@@ -335,7 +344,12 @@ class Calibrate(object):
                                         
     def setup_incar_jobs(self, param, val_list):
         """
-        set up incar jobs
+        set up incar jobs, called through a dictionary of {param: val_list} 
+	by turn_knobs, calls set_incar to set the value to param
+
+	Args:
+	    param: Name of INCAR parameter
+	    val_list: List of values to vary for the param
         """
         if val_list:
             for val in val_list:

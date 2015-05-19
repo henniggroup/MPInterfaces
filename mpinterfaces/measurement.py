@@ -39,7 +39,19 @@ class Measurement(object):
     default behaviour is to setup and run static calculations for all
     the given calibrate jobs
 
-    Override this class for custom measurements
+    Serves as Base Class. Override this class for custom measurements using
+    MeasurementSolvation, MeasurementStatic, MeasurementInterface
+    
+    Args:
+	cal_objs: List of Calibration Object Names
+
+	setup_dir: Directory into which Measurement Directory to be setup in
+		defaults to present working directory
+	
+	parent_job_dir: Directory (Redundant?) 
+
+	job_dir: Path name to directory for running the Measurement modules
+
     """
     def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.',
                  job_dir='./Measurement'):
@@ -125,6 +137,8 @@ class Measurement(object):
 class MeasurementSolvation(Measurement):
     """
     Solvation with poisson-boltzmann(test verison)
+    Args:
+	
     """
     def __init__(self, cal_obj, setup_dir='.', parent_job_dir='.', 
                  job_dir='./MeasurementSolvation',
@@ -193,6 +207,13 @@ class MeasurementSolvation(Measurement):
 class MeasurementInterface(Measurement):
     """
     Interface
+    
+    Takes list of Calibration Objects of Interface, Slab and Ligand and separates
+    them 
+
+    Args:
+	cal_objs: List of Calibration Objects
+	
     """
     def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.',
                  job_dir='./MeasurementInterface'):

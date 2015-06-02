@@ -54,6 +54,16 @@ Install Instructions:
 	
 - python setup.py install(or develop)
 
+- to get the documentation (sphinx package must be available)
+
+  * html format
+    
+    - cd docs; make html
+
+  * pdf
+
+    - cd docs; make latexpdf
+
 Status:
 =======================
 

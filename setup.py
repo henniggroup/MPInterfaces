@@ -13,7 +13,8 @@ setup(
     extras_require={"plotting": ["matplotlib>=1.1"],
                     "ase": ["ase>=3.3"],
                     "babel": ["openbabel", "pybel"],
-                    "remote_launch": ["fabric"]
+                    "remote_launch": ["fabric"],
+                    "documentation": ["sphinx"]
                    },    
     author = "Kiran Mathew, Joshua Gabriel",
     author_email = "km468@cornell.edu",

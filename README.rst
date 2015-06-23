@@ -38,19 +38,9 @@ Requirements:
 Install Instructions:
 =======================
 
-- get the latest version from bitbucket
+- get the latest version from github
   
-  if starting from scratch:
-	
-  * git clone https://username@bitbucket.org/matk86/vasp_automation.git
-
-  else:
-
-  * cd vasp_automation
-
-  * git pull
-	
-- cd vasp_automation
+- cd MPInterfaces
 	
 - python setup.py install(or develop)
 

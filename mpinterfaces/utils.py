@@ -1,7 +1,9 @@
 from __future__ import division, unicode_literals, print_function
 
 """
-Utility functions
+Utility functions:
+Currently creates an ASE slab from a pymatgen input 
+structure
 """
 
 import math

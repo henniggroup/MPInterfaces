@@ -2,8 +2,18 @@ from __future__ import division, unicode_literals, print_function
 
 """
 Calibration module:  
-TODO: slab convergence, add method of creating reconstructed 111
-based on that calibrate slab
+
+This module contains the classes for 
+1. Calibrate: Base class for specifying the parameters for 
+calibration and setting up the VASP jobs in directory 
+structure 
+2. CalibrateBulk: calibrating a periodic bulk structure,
+3. CalibrateSlab: creating a slab of given crystallographic facet, 
+thickness and vacuum spacing, 
+3. CalibrateMolecule: creating a molecule 
+4. CalibrateInterface: creating an interface composed of slab plus 
+molecule
+
 """
 
 import sys
@@ -624,7 +634,7 @@ class CalibrateMolecule(Calibrate):
 class CalibrateBulk(Calibrate):
     """
     
-    Calibrate paramters for Bulk calculations
+    Calibrate parameters for Bulk calculations
     
     """
     def __init__(self, incar, poscar, potcar, kpoints, system=None,

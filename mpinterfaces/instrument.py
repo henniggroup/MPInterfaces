@@ -18,7 +18,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio_set import DictVaspInputSet #MPGGAVaspInputSet
 
-from custodian.custodian import Job, gzip_dir
+from custodian.custodian import Job, gzip_dir, ErrorHandler
 from custodian.vasp.interpreter import VaspModder
 
 logger = logging.getLogger(__name__)
@@ -185,3 +185,19 @@ class MPINTVaspJob(Job):
     def name(self):
          return self.__class__.__name__
 
+class MPINTVaspErrors(ErrorHandler):
+    """
+    handles restarting of jobs that exceed the walltime
+    employs the check + correct method of custodian ErrorHandler
+    """
+    def check():
+        """
+        method to check completion of the job
+        """
+        pass
+
+    def correct():
+        """
+        method to correct the error or restart the job
+        """
+        pass 

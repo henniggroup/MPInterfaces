@@ -39,8 +39,8 @@ class ColoumbEnergy(EnergyModel):
 	"""
 	use bader charges on atoms to compute the coloumbic energy
 	"""
-	energy = 0
-	force = np.zeros((len(structure), 3))
+        energy = 0
+        force = np.zeros((len(structure), 3))
         a = -1
         b = -1
         for i, sitei in enumerate(structure.as_dict()['sites']):
@@ -60,12 +60,12 @@ class ColoumbEnergy(EnergyModel):
 	return energy
 
     def get_ewald_sum(self,structure):
-	e = EwaldSummation(structure, real_space_cut=None,
+        e = EwaldSummation(structure, real_space_cut=None,
                            recip_space_cut=None,
                            eta=None,
                            acc_factor=8.0)
         return e.total_energy
-    
+ 
     def as_dict(self):
         return {"version": __version__,
                 "@module": self.__class__.__module__,
@@ -78,7 +78,7 @@ class Bader_Analysis(object):
     """
     """
     def __init__(self, acf_path= './ACF.dat', chgcar_filename= "./CHGCAR", aecar0 = "./AECCAR0", aecar2 = "./AECCAR2", potcar_filename="./POTCAR", bader_path= "./bader CHGCAR -ref Charge_sum"):
-	print "Reading CHGCAR"
+        print "Reading CHGCAR"
         self.chgcar = Chgcar.from_file(chgcar_filename)
 	##uncomment if you have to run from scratch##
 
@@ -144,7 +144,7 @@ class Bader_Analysis(object):
     def get_charge(self, atom_index_list= None):
         if atom_index_list:
             for i in atom_index_list:
-                print "Charge at atom index ", i, " is ", self.data[i]["charge"]
+                 print "Charge at atom index ", i, " is ", self.data[i]["charge"]
     
     def get_oxidation_state_decorated_structure(self):
         structure = self.chgcar.structure
@@ -180,7 +180,7 @@ class Scan_Interface(Structure):
             		for k in range(0,int(-1*limit_c)):
                 		vec.append([i*step, j*step, k*step])
 
-	return vec
+        return vec
 
     def get_struct_energy(self,structure):
 	ce = ColoumbEnergy()
@@ -243,7 +243,6 @@ if __name__=='__main__':
 			lig_part_charge.append(sitei['species'][0]['oxidation_state']) 
 		else:
 			slab_part_charges.append(sitei['species'][0]['oxidation_state'])
-
 	#calculate total charge transfers from bader
 	print "total sum: ", np.sum(total)
 	print "ligand sum: ", np.sum(lig_part_charge)

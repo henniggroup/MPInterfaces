@@ -6,13 +6,16 @@ Calibration module:
 This module contains the classes for 
 1. Calibrate: Base class for specifying the parameters for 
 calibration and setting up the VASP jobs in directory 
-structure 
+structure according to 
 2. CalibrateBulk: calibrating a periodic bulk structure,
-3. CalibrateSlab: creating a slab of given crystallographic facet, 
+3. CalibrateSlab: creates a slab of given crystallographic facet, 
 thickness and vacuum spacing, 
-3. CalibrateMolecule: creating a molecule 
-4. CalibrateInterface: creating an interface composed of slab plus 
+3. CalibrateMolecule: creates a molecule in a box 
+4. CalibrateInterface: calibrates an interface composed of slab plus 
 molecule
+
+The attribute turn_knobs controls the parameters to be calibrated
+for a given structure 
 
 """
 
@@ -38,7 +41,7 @@ from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Outcar
 from pymatgen.apps.borg.queen import BorgQueen
 
-#from custodian.vasp.handlers import VaspErrorHandler
+from custodian.vasp.handlers import VaspErrorHandler
 #from custodian.vasp.handlers import FrozenJobErrorHandler
 #from custodian.vasp.handlers import MeshSymmetryErrorHandler
 #from custodian.vasp.handlers import NonConvergingErrorHandler
@@ -121,7 +124,7 @@ class Calibrate(object):
         #example:- handlers = [VaspErrorHandler(),
         #FrozenJobErrorHandler(),
         #MeshSymmetryErrorHandler(), NonConvergingErrorHandler()]
-        self.handlers = [ ]
+        self.handlers = [] #[VaspErrorHandler("stdout")]
         self.job_cmd = job_cmd
         self.n_atoms = 0
         self.turn_knobs = turn_knobs

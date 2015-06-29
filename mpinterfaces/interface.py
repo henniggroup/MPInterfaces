@@ -92,7 +92,7 @@ class Interface(Slab):
                  surface_coverage=None, scell_nmax=10, coverage_tol=0.25,
                  solvent=None, start_from_slab=False, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False, primitive = True,
-                 from_ase=False):
+                 from_ase=False, x_shift= 0, y_shift= 0):
         self.from_ase = from_ase
         vac_extension = 0
         if ligand is not None:
@@ -131,6 +131,8 @@ class Interface(Slab):
         self.adatom_on_lig = adatom_on_lig
         self.scell_nmax = scell_nmax
         self.coverage_tol = coverage_tol
+        self.x_shift = x_shift
+        self.y_shift = y_shift
 
     def set_top_atoms(self):
         """
@@ -161,10 +163,12 @@ class Interface(Slab):
         returns the number of ligands  and the supercell size  that
         satisfies the criterion
         """
+        print (self.surface_area)
         n_atoms = len(self.frac_coords[:,0])
         self.top_bot_dist = np.max(self.distance_matrix.reshape(n_atoms*n_atoms, 1))
         self.set_top_atoms()        
         n_top_atoms =  len(self.top_atoms)
+        print (n_top_atoms)
         max_coverage = n_top_atoms/self.surface_area
         m = self.lattice.matrix
         surface_area = np.linalg.norm(np.cross(m[0], m[1]))        
@@ -244,7 +248,7 @@ class Interface(Slab):
             # displace the ligand by the given amount in the direction
             # normal to surface
             self.ligand.translate_sites(list(range(num_atoms)), mov_vec)
-            # vector pointing from the adatom_on_log to the
+	    # vector pointing from the adatom_on_lig to the
             # ligand center of mass
             vec_adatom_cm = self.ligand.center_of_mass - \
               self.ligand[adatom_index].coords
@@ -267,6 +271,13 @@ class Interface(Slab):
                 for i in range(len(self.ligand)):
                         self.ligand[i] = (self.ligand[i].species_and_occu,
                                        origin - (self.ligand[i].coords - origin))
+            # x - y - shifts
+            if self.x_shift:
+                 self.ligand.translate_sites(list(range(num_atoms)),\
+                  np.array([self.x_shift,0,0]))
+            if self.y_shift:
+                 self.ligand.translate_sites(list(range(num_atoms)),\
+                  np.array([0,self.y_shift,0]))
             adsorbed_ligands_coords.append(self.ligand.cart_coords) #3d numpy array
         #extend the slab structure with the adsorbant atoms
         adsorbed_ligands_coords = np.array(adsorbed_ligands_coords)

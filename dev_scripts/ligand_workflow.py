@@ -35,19 +35,22 @@ from mpinterfaces.firetasks import MPINTDatabaseTask
 from mpinterfaces.interface import Ligand, Interface
 
 def get_calibration_task(structure, phase="CalibrateBulk", \
-                         slab_interface_params={'hkl':[1,0,0], 'thickness': 10,
-                         'vacuum': 10}, turn_knobs={}, incar_params={}, other_params={}):
+                         slab_interface_params={'hkl':[1,0,0], 'ligand': None},\
+                         turn_knobs={}, incar_params={}, other_params={}):
     """
-    returns relaxation calibration task for hkl surface of
-    the given structure
+    returns general calibration task for a structure
+    
     Args:
-        structure    : pymatgen structure to be calibrated 
+        structure    : pymatgen structure to be calibrated (can be a bulk, ligand, slab
+                       or interface)  
         phase        : calibration type, viz. CalibrateBulk, CalibrateMolecule,
-                      CalibrateSlab, CalibrateInterface
-        type         : Relaxation
+                       CalibrateSlab, CalibrateInterface
         hkl          : in case of Slab and Interface miller indices of facet 
         turn_knobs   : specifies the parameters to be calibrated 
-        incar_params : dictionary of additional incar parameters 
+        incar_params : dictionary of additional incar parameters, refer defined 
+                       incar_dict for defaults 
+        other_params : other parameters for calibration, viz. job_dir, is_matrix, etc. 
+                       described in the calibrate module
     """
     #structure definition 
     
@@ -80,8 +83,8 @@ def get_calibration_task(structure, phase="CalibrateBulk", \
     calparams['que_params'] = que
     calparams['turn_knobs'] = turn_knobs
     if phase == 'CalibrateSlab':
-         calparams['system'] = {'hkl':hkl,
-                                'ligand':None
+         calparams['system'] = {'hkl':slab_interface_params['hkl'],
+                                'ligand':slab_interface_params['ligand']
                                }
     elif phase == 'CalibrateInterface':
          calparams['system'] = {'hkl':hkl,

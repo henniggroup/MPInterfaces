@@ -92,7 +92,7 @@ class Interface(Slab):
                  surface_coverage=None, scell_nmax=10, coverage_tol=0.25,
                  solvent=None, start_from_slab=False, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False, primitive = True,
-                 from_ase=False, x_shift= 0, y_shift= 0):
+                 from_ase=False, x_shift= 0, y_shift= 0, center_slab=True):
         self.from_ase = from_ase
         vac_extension = 0
         if ligand is not None:
@@ -105,7 +105,7 @@ class Interface(Slab):
                                     min_vac=min_vac + vac_extension)
             else:
                 strt = SlabGenerator(strt, hkl, min_thick, min_vac + vac_extension,
-                                    center_slab=True, primitive = primitive).get_slab()
+                                    center_slab=center_slab, primitive = primitive).get_slab()
             strt.make_supercell(supercell)
         else:
             self.min_vac = min_vac

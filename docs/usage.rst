@@ -1,19 +1,17 @@
-General Usage
-=============
+Overview
+========
 
 The MPInterfaces package contains python modules that enable the creation of 
-fireworks workflows for ligand-slab interface and slab-slab interface
+FireWorks workflows for ligand-slab interface and slab-slab interface
 calculations with VASP.
 
 The package is structured as python modules (listed in modules section 
-of docs), examples notebooks (ipython notebooks) and workflows scripts to be 
-used with a locally set up fireworks database called the launchpad
-(explained further in section on Launchpad queries) 
+of docs and contained in mpinterfaces folder), examples notebooks 
+(ipython notebooks) and workflows scripts to be 
+used with a locally set up FireWorks database. 
 
-The examples folder provides scripts 
-1. for the creation of ligand-slab interface (create_interface.py)
-2. heterostructure between two slabs (hetero_interface.py)
-3. for creation of nanoparticle based on Wulff construction (nanoparticle.py)
+The examples folder contains scripts for interface creation and utility post processing and 
+ipython notebook examples and workflow submission scripts. 
 
 Apart from these, there are utility scripts for the plotting of band structures, 
 density of states and equations of state. 
@@ -21,59 +19,85 @@ density of states and equations of state.
 The example folder "notebooks" also provides example calculations of Pourbaix diagrams, 
 and Phase diagrams based on the method implemented in pymatgen/examples
 
+Functions
+========= 
 
-Launchpad queries
-==================
+MPInterfaces extends object oriented definitions of materialsproject pymatgen to 
+interfaces and features:  
 
-Connecting to the Database
----------------------------
+Interface Creation 
+------------------
+extended object oriented definitions to 
+the pymatgen Slab called "Interface" and an 
+adsorbate extension of pymatgen Molecule 
+called "Ligand" and scripts to create Interfaces. 
 
-The mongo database for job submission('fireworks') is set up on the
-machine 'hydrogen'.
-Please use your own account to connect to the databse
-Contact me (km468@cornell.edu) to create a database account
+Example scripts: 
+    - create_interface.py : creates an example ligand + slab interface illustrating
+    - ligand_interface.py : creates a list of ligand + slab interfaces with pre-configuration
+    - hetero_interface.py : creates a slab – slab heterostructure interface 
+    - nanoparticle.py     : creates a nanoparticle based on Wulff Construction
 
-Since hydrogen is part of the  uf network any machine on the uf
-network(inlcuding hipergator) should be able to access hydrogen
-at 10.5.46.101
-        
-To connect to the database from outside uf network (for example from
-stampede), tunnel port number 27017 from that machine to port 27017
-on hydrogen via ssh:
+High throughput VASP workflows with FireWorks  
+---------------------------------------------
 
-   ssh -N -f -L 27017:10.5.46.101:27017 username@hipergator.rc.ufl.edu
+High throughput VASP workflows can be handled by creating your own FireWorks database server. 
+The FireWorks package from the materialsproject is installed at the time of installation. 
+We have defined FireTasks customized to Interface studies as follows: 
 
-if port 27017 on the machine that you are running is not available,
-use another port number for tunneling. example:-
+Calibrate, Measurement and DatabaseSubmit. 
+    -  Calibrate Task: 
+       Defines all tasks that involve the calibration of  
+       VASP input parameters. For example, energy cutoff convergence, 
+       kpoints convergence,vacuum convergence, thickness convergence in case of slabs 
+       Calibrate module defined in calibrate.py provides customized 
+       Bulk, Molecule, Slab and Interface objects for the Calibrate Task
 
-   ssh -N -f -L 27030:10.5.46.101:27017 username@hipergator.rc.ufl.edu
+    -  Measurement Task: 
+       Tasks for VASP jobs dependent on a previous calculation. Currently implemented 
+       tasks include Static calculation following a Calibrate Task and Solvation calculation following a Calibrate Task 
+       Measurement tasks are linked to calibrate tasks and are capable of copying 
+       the necessary files from the previous calculation to restart the calculation.
+       for example, CONTCAR from a Relaxation for a Static calculation, CONTCAR and WAVECAR for a Solvation calculation
 
-mind: if the tunneled port is changed, the port number in the
-launchpad initialization should also be changed
+    -  Database Task: 
+       Submits data to a MongoDB database similar to VasptoDBtaskDrone 
+       of pymatgen extended to use Interface specific keys of miller index of slab 
+       and ligand chemical formula in .json format
+
+Refer examples/Workflows for example workflow submission scripts. 
+
+Example of FireWorks Database Queries
+=====================================
+
+After installation and setup of your database according to 
+FireWorks documentation, create your own my_launchpad.yaml using
+
+lpad init
+
+Set the path to this file to LAUNCHPAD_LOC in 
+the fw_config.py found in your installation directory.  
+
+TIP: create the my_launchpad.yaml in the directory
+     ~/.fireworks
+
+Make sure to configure your my_launchpad.yaml file to your local 
+database settings (host name, database name, etc.)
 
 
-
-Workflows
-----------
+Workflow submission and launching
+---------------------------------
 
 Refer examples folder for simple workflow scripts
 
-- general info:
-      to submit workflow to the database:
+      -> general submission of workflow to the database:
 
-         python workflow_script.py
+      python workflow_script.py
  
       Fireworks package has some nice utility scripts for launching
       fireworks and checking job status. If the fireworks package is
       installed then those scripts are already in your PATH. Some
       examples are given below:
-
-      -> initialize database connection(writes a yaml file with the 
-         database settings in the directory where it is called).
-         Tip: dont have to do this again if you create a ~/.fireworks
-         folder and the generated yaml file there:
-
-         lpad init
 
       -> reset database to erase all workflows
 
@@ -94,51 +118,73 @@ Refer examples folder for simple workflow scripts
 
          lpad get_wflows
 
+      -> reset database to erase all workflows
+
+         CAUTION: Be careful when using the following command as it will
+         erase all workflows from the database:
+
+         lpad reset
+
+
 
 Workflow query examples
 ------------------------
 
-- query by name:
-      example:
-	lpad get_wflows -n "Ag_100"
+      -> query by name:
+           
+           example:
+	   lpad get_wflows -n "Ag_100"
 
-- query by state
-      lpad get_wflows -s STATE
+      -> query by state
+           
+           lpad get_wflows -s STATE
       
-      or
+           or
       
-      lpad get_wflows -q '{"state":STATE}' --sort created_on
+           lpad get_wflows -q '{"state":STATE}' --sort created_on
 
-      where STATE = "READY", "WAITING", "RUNNING", "FIZZLED" or "DEFUSED"
+           where STATE = "READY", "WAITING", "RUNNING", "FIZZLED" or "DEFUSED"
 
-- delete workflows:
-      example:
-          lpad delete_wflows -n Ag_100
+      -> delete workflows:
+           
+           example:
+           lpad delete_wflows -n Ag_100
     
 
-Fireworks
-----------
+Query for individual Fireworks
+------------------------------
 
-- query by state
-      lpad get_fws -s STATE
+      -> query by state
+           lpad get_fws -s STATE
       
       or
       
-      lpad get_fws -q '{"state":STATE}' --sort created_on
+           lpad get_fws -q '{"state":STATE}' --sort created_on
 
-      where STATE = "READY", "WAITING", "RUNNING", "FIZZLED", "DEFUSED"
+           where STATE = "READY", "WAITING", "RUNNING", "FIZZLED", "DEFUSED"
 
-- query fireworks by name or id:
-      example:
+      -> query fireworks by name or id:
+           
+           example:
            lpad get_fws -n "solvation"
 	   
 	   lpad get_fws -i 102 -d all
 
-- re-run firework with id, fw_id. Same as marking the firework as ready
-     lpad rerun_fws -i fw_id
+      -> re-run firework with id, fw_id. Same as marking the firework as ready
+           lpad rerun_fws -i fw_id
 
-- re-run a finished or fizzled firework with updated specs:
-       example: update the sol_params of the first task of the firework with id 102
-		lpad rerun_fws -i 102
+      -> re-run a finished or fizzled firework with updated specs:
+           example: update the sol_params of the first task of the firework with id 102
+	   lpad rerun_fws -i 102
 		
-  		lpad update_fws -i 102 -u '{"_tasks.0.other_params.sol_params.NELECT":[-1,-0.5,0,0.5,1]}'
+           lpad update_fws -i 102 -u '{"_tasks.0.other_params.sol_params.NELECT":[-1,-0.5,0,0.5,1]}'
+
+
+Connecting to our local Database
+--------------------------------
+
+The mongo database for job submission('fireworks') is set up on the
+machine 'hydrogen'.
+Please use your own account to connect to the database
+Contact me (km468@cornell.edu) to create a database account
+

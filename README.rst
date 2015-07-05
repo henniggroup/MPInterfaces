@@ -65,6 +65,5 @@ Authors
 	Kiran Mathew
 	
 	Joshua Gabriel
-	
 
-	
+	Richard G. Hennig

@@ -92,7 +92,7 @@ class Interface(Slab):
                  surface_coverage=None, scell_nmax=10, coverage_tol=0.25,
                  solvent=None, start_from_slab=False, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False, primitive = True,
-                 from_ase=False, x_shift= 0, y_shift= 0, center_slab=True):
+                 from_ase=False, x_shift= 0, y_shift= 0, rot=[0,0,0], center_slab=True):
         self.from_ase = from_ase
         vac_extension = 0
         if ligand is not None:
@@ -118,6 +118,7 @@ class Interface(Slab):
                            coords_are_cartesian=coords_are_cartesian,
                            site_properties=strt.site_properties,
                            energy=strt.energy )
+        self.strt= strt
         self.name = name
         self.hkl = hkl
         self.min_thick = min_thick
@@ -133,6 +134,7 @@ class Interface(Slab):
         self.coverage_tol = coverage_tol
         self.x_shift = x_shift
         self.y_shift = y_shift
+        self.rot = rot
 
     def set_top_atoms(self):
         """
@@ -163,7 +165,7 @@ class Interface(Slab):
         returns the number of ligands  and the supercell size  that
         satisfies the criterion
         """
-        print (self.surface_area)
+        #print (self.surface_area)
         n_atoms = len(self.frac_coords[:,0])
         self.top_bot_dist = np.max(self.distance_matrix.reshape(n_atoms*n_atoms, 1))
         self.set_top_atoms()        
@@ -272,12 +274,27 @@ class Interface(Slab):
                         self.ligand[i] = (self.ligand[i].species_and_occu,
                                        origin - (self.ligand[i].coords - origin))
             # x - y - shifts
-            if self.x_shift:
+            x = self.x_shift
+            y = self.y_shift
+            rot = self.rot
+            if x: 
                  self.ligand.translate_sites(list(range(num_atoms)),\
-                  np.array([self.x_shift,0,0]))
-            if self.y_shift:
+                  np.array([x,0,0]))
+            if y: 
                  self.ligand.translate_sites(list(range(num_atoms)),\
-                  np.array([0,self.y_shift,0]))
+                  np.array([0,y,0]))
+            if rot:
+                self.ligand.apply_operation(SymmOp.from_axis_angle_and_translation((1,0,0),\
+                                            rot[0], angle_in_radians=False,\
+                                            translation_vec=(0, 0, 0)))
+                self.ligand.apply_operation(SymmOp.from_axis_angle_and_translation((0,1,0), \
+                                            rot[1], angle_in_radians=False,\
+                                            translation_vec=(0, 0, 0)))
+                self.ligand.apply_operation(SymmOp.from_axis_angle_and_translation((0,0,1),\
+                                            rot[2], angle_in_radians=False,\
+                                            translation_vec=(0, 0, 0)))
+
+
             adsorbed_ligands_coords.append(self.ligand.cart_coords) #3d numpy array
         #extend the slab structure with the adsorbant atoms
         adsorbed_ligands_coords = np.array(adsorbed_ligands_coords)
@@ -304,6 +321,7 @@ class Interface(Slab):
         """
         if self.ligand is not None:
             nlig, uv = self.get_reduced_scell()
+            print (nlig,uv)
             self.n_ligands = nlig        
             logger.info(
                 '\nusing ... {0} ligands on a supercell with in-plane lattice vectors {1}'
@@ -348,6 +366,29 @@ class Interface(Slab):
     def copy(self):
         return Structure.from_sites(self)
 
+    def calc_energy(self, model='Coulomb'):
+       """
+       calculates energy of the interface according to a 
+       defined energy model, useful for pre-screening 
+       candidate structures, returns 5 lowest energy 
+       structures
+       Args: 
+           model: energy model to compute according to, default is
+                  Coulomb 
+       Returns: energy of structure according to model
+       """        
+
+       energy = 0
+       for i, sitei in enumerate(self):
+           for j, sitej in enumerate(self):
+               if i != j:
+                   dij = self.get_distance(i,j)
+                   Zi = sitei.species_and_occu.items()[0][0].Z
+                   Zj = sitej.species_and_occu.items()[0][0].Z
+                   energy += 0.5 * Zi*Zj/dij
+       return energy
+ 
+            
             
 class Ligand(Molecule):
     """

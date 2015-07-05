@@ -4,21 +4,32 @@ from __future__ import division, unicode_literals, print_function
 This script demonstrates the usage of the module mpinterfaces/interface.py
 
 Also, demonstrates how to fetch data from the materialsproject database using their API
-Note: Before using the script, make sure that you do have a valid api key obtained from the materialsproject website. Use that to set the MAPI_KEY variable below
-"""
+Note: Before using the script, make sure that you do have a valid api key obtained 
+from the materialsproject website. 
+Use that to set the MAPI_KEY variable below
 
+"""
+MAPI_KEY = MAPI_KEY
 import sys
 
 from pymatgen.matproj.rest import MPRester
-from pymatgen.core import Molecule
+from pymatgen.core import Molecule, Structure
+from pymatgen.io.vaspio import Poscar
 
 from mpinterfaces import *
 
  
 if __name__=='__main__':
     # PbS 100 surface with single hydrazine as ligand
-    strt= Structure.from_file("POSCAR_PbS") 
-    mol_struct= Structure.from_file("POSCAR_Hydrazine")
+    #### uncomment once you have set your own key ####
+    # strt=get_struct_from_mp("PbS",MAPI_KEY=MAPI_KEY) 
+    # using smiles_to_xyz.py you can obtain molecule xyz
+    # using openbabel.  
+    ###################################################
+
+    #### example structure files are provided and set in dev_scripts ####
+    strt= Structure.from_file("dev_scripts/POSCAR_PbS") #bulk structure of slab 
+    mol_struct= Structure.from_file("dev_scripts/POSCAR_TCPO") # pre-relaxed Ligand in a box
     mol= Molecule(mol_struct.species, mol_struct.cart_coords)
     hydrazine= Ligand([mol])
 

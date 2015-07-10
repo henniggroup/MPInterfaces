@@ -6,6 +6,8 @@ interfaces as described in the paper by Zur and McGill:
 Journal of Applied Physics 55, 378 (1984); doi: 10.1063/1.333084
 """
 
+__author__="Kiran Mathew, Arunima Singh"
+
 import sys
 from math import sqrt
 from copy import copy

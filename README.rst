@@ -1,7 +1,6 @@
-About:
-========
-
-Python package that enables high throughput analysis of interfaces(ligands/solvent/hetero-structures) using VASP_, VASPsol_ and materialsproject_ tools
+MPinterfaces is a python package that enables high throughput analysis
+of interfaces(ligands/solvent/hetero-structures) using VASP_, VASPsol_
+and materialsproject_ tools.
 
 .. _materialsproject: https://github.com/materialsproject
 
@@ -9,61 +8,80 @@ Python package that enables high throughput analysis of interfaces(ligands/solve
 
 .. _VASP: http://www.vasp.at/
 
-Packages:
-==========
-
-- mpinterfaces
-
-Examples:
-==========
-
-- sample scripts that demonstrate the usage of mpinterfaces as well as materialsproject packages
-- start from here
 
 Requirements:
 ==============
 
-- python>=2.7
-- numpy
-- scipy
-- pymatgen
-- custodian
-- fireworks
-- pymatgen-db
+1. Make sure that you are using python>=2.7 (do a "python --version")
 
-..
+2. It is highly recommended that you use gcc compiler. So type
 
-	It is highly recommended that you install this package and all the required packages in a virtual environment( http://virtualenv.readthedocs.org/en/latest/virtualenv.html)
+   export CC=gcc
 
-Install Instructions:
-=======================
+3. Unless you have admin privilege on the machine you are installing, it is
+   better to install this package and all its dependencies in a virtual environment
+   See http://virtualenv.readthedocs.org/en/latest/installation.html for
+   virtualenv install instructions.
 
-- get the latest version from github
+4. Install numpy
+
+   pip install numpy
+
+   
+Installation:
+==============
+
+Using pip
+----------
+
+pip install mpinterfaces
+
+
+Bleeding edge
+-------------
+
+- Clone the latest version from github
   
 - cd MPInterfaces
 	
 - python setup.py install(or develop)
 
-- to get the documentation (sphinx package must be available)
+  
+Documentation
+==============
+
+A very minimal documentation is avaiable at the moment and work in underway
+to improve it. We use the sphinx package to generate the documentation.
+First install the package 'sphinx' and the theme package 'sphinx-rtd-theme'
+using pip and then to generate the documentation either in html or pdf format
+do the following:
 
   * html format
     
     - cd docs; make html
 
+    - open _build/html/index.html in a webbrowser to see the documentation
+
   * pdf
 
     - cd docs; make latexpdf
 
-Status:
-=======================
+    - The pdf will be in the _build/latex folder 
 
-	Alpha testing phase.
+      
+Examples
+==========
+
+The examples folder contain some sample scripts that demonstrate the
+usage of mpinterfaces as well as materialsproject packages
+
 
 Authors
-=======================
+=========
    
-	Kiran Mathew
+Kiran Mathew
 	
-	Joshua Gabriel
+Joshua Gabriel
 
-	Richard G. Hennig
+Richard G. Hennig
+

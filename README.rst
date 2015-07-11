@@ -32,6 +32,10 @@ Requirements
    - setup the virtual environment in ~/myvenv (or set to some other path and folder name)
      
      * python virtualenv.py ~/myvenv
+       
+   -  activate the virtual environment
+
+      * source ~/myvenv/bin/activate
    
    For detailed instructions and documentaion see
    http://virtualenv.readthedocs.org/en/latest/installation.html

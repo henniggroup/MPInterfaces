@@ -1,20 +1,22 @@
-MPinterfaces is a python package that enables high throughput analysis
-of interfaces(ligands/solvent/hetero-structures) using VASP_, VASPsol_
-and materialsproject_ tools.
+MPinterfaces is a python package that enables high throughput Density
+Functional Theory(DFT) analysis of arbitrary material interfaces(ligand capped
+nanoparticles, surfaces in the presence of solvents and hetero-structure
+interfaces) using VASP_, VASPsol_ and materialsproject_ database as well
+as their open source tools.
 
 .. _materialsproject: https://github.com/materialsproject
 
-.. _VASPsol: http://vaspsol.mse.ufl.edu/
+.. _VASPsol: https://github.com/henniggroup/VASPsol
 
 .. _VASP: http://www.vasp.at/
 
 
-Requirements:
+Requirements
 ==============
 
 1. Make sure that you are using python>=2.7 (do a "python --version")
 
-2. It is highly recommended that you use gcc compiler. So type
+2. It is highly recommended that you use gcc compiler. So type::
 
    export CC=gcc
 
@@ -23,12 +25,12 @@ Requirements:
    See http://virtualenv.readthedocs.org/en/latest/installation.html for
    virtualenv install instructions.
 
-4. Install numpy
+4. Install numpy::
 
    pip install numpy
 
    
-Installation:
+Installation
 ==============
 
 Using pip

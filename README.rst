@@ -14,7 +14,8 @@ as their open source tools.
 Requirements
 ==============
 
-1. Make sure that you are using python>=2.7 (do a "python --version")
+1. Make sure that you are using python>=2.7 (do a "python --version").
+   Note: ASE does not work with python3
 
 2. It is highly recommended that you use gcc compiler. So type::
 

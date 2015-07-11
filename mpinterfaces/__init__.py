@@ -1,8 +1,8 @@
 from __future__ import division, unicode_literals, print_function
 
 __author__ = ", ".join(["Kiran Mathew", "Joshua Gabriel", "Richard G. Hennig"])
-__date__ = "Feb 18 2015"
-__version__ = "0.1"
+__date__ = "Jul 11 2015"
+__version__ = "1.1.1"
 
 from pymatgen.matproj.rest import MPRester
 
@@ -10,8 +10,10 @@ def get_struct_from_mp(formula, MAPI_KEY="dwvz2XCFUEI9fJiR", all_structs=False):
     """
     fetches the structure corresponding to the given formula
     from the materialsproject database
-    Note: get the api key from materialsproject website
-    provide the api key here os set the environment variable "MAPI_KEY"
+    Note: Get the api key from materialsproject website. The one used
+    here is nolonger valid.
+    Note: The api key can passed to the function or set to the
+    environment variable "MAPI_KEY"
     Note: for the given formula there are many structures available, this
     function returns the first one of those structures
     """

@@ -21,9 +21,20 @@ Requirements
    export CC=gcc
 
 3. Unless you have admin privilege on the machine you are installing, it is
-   better to install this package and all its dependencies in a virtual environment
-   See http://virtualenv.readthedocs.org/en/latest/installation.html for
-   virtualenv install instructions.
+   better to install this package and all its dependencies in a virtual environment.
+
+   - get the latest version from https://pypi.python.org/pypi/virtualenv#downloads
+   
+   - tar xvfz virtualenv-X.X.X.tar.gz
+   
+   - cd virtualenv-X.X.X
+   
+   - setup the virtual environment in ~/myvenv (or set to some other path and folder name)
+     
+     * python virtualenv.py ~/myvenv
+   
+   For detailed instructions and documentaion see
+   http://virtualenv.readthedocs.org/en/latest/installation.html
 
 4. Install numpy::
 

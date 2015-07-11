@@ -6,7 +6,7 @@ MPINT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 setup(
     name = "mpinterfaces",
-    version = "1.01",
+    version = "1.1.1",
     install_requires=["numpy>=1.8", "scipy>=0.10",
                       "pymatgen>=3.1.0", "fireworks>=1.07",
                       "custodian>=0.8.2", "pymatgen-db>=0.4.6",

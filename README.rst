@@ -10,9 +10,14 @@ as their open source tools.
 
 .. _VASP: http://www.vasp.at/
 
-
-Requirements
+   
+Installation
 ==============
+
+The following steps applies only to linux and OSX(with xcode) operating systems.
+
+Prepping
+-------------
 
 1. Make sure that you are using python>=2.7 (do a "python --version").
    Note: ASE does not work with python3
@@ -45,12 +50,9 @@ Requirements
 
    pip install numpy
 
-   
-Installation
-==============
 
-Using pip
-----------
+Install from PyPI
+-------------------
 
 pip install mpinterfaces
 

@@ -20,6 +20,7 @@ Prepping
 -------------
 
 1. Make sure that you are using python>=2.7 (do a "python --version").
+
    Note: ASE does not work with python3
 
 2. It is highly recommended that you use gcc compiler. So type::
@@ -43,7 +44,8 @@ Prepping
 
       * source ~/myvenv/bin/activate
    
-   For detailed instructions and documentaion see
+   For detailed instructions and documentation see
+
    http://virtualenv.readthedocs.org/en/latest/installation.html
 
 4. Install numpy::
@@ -70,7 +72,7 @@ Bleeding edge
 Documentation
 ==============
 
-A very minimal documentation is avaiable at the moment and work in underway
+A very minimal documentation is avaiable at the moment and work is underway
 to improve it. We use the sphinx package to generate the documentation.
 First install the package 'sphinx' and the theme package 'sphinx-rtd-theme'
 using pip and then to generate the documentation either in html or pdf format

@@ -4,32 +4,42 @@ __author__ = ", ".join(["Kiran Mathew", "Joshua Gabriel", "Richard G. Hennig"])
 __date__ = "Jul 11 2015"
 __version__ = "1.1.1"
 
+import operator
 from pymatgen.matproj.rest import MPRester
 
 def get_struct_from_mp(formula, MAPI_KEY="dwvz2XCFUEI9fJiR", all_structs=False):
     """
     fetches the structure corresponding to the given formula
-    from the materialsproject database
+    from the materialsproject database.
+    
     Note: Get the api key from materialsproject website. The one used
     here is nolonger valid.
-    Note: The api key can passed to the function or set to the
-    environment variable "MAPI_KEY"
+    
     Note: for the given formula there are many structures available, this
-    function returns the first one of those structures
+    function returns the one with the lowest energy above the hull
+    unless all_structs is set to True
     """
     with MPRester(MAPI_KEY) as m:
         data = m.get_data(formula)
         structures = []
+        x = {}
         print("\nnumber of structures matching the chemical formula {0} = {1}".format(formula, len(data)) )
+        print("The one with the the lowest energy above the hull is returned, unless all_structs is set to True")
         for d in data:
-            x = {}
-            x['material_id'] = str(d['material_id'])
-            structure = m.get_structure_by_material_id(x['material_id'])
+            mpid = str(d['material_id'])
+            x[mpid] = d['e_above_hull']
             if all_structs:
+                structure = m.get_structure_by_material_id(mpid)
                 structures.append(structure)
+        if all_structs:
+            return structures
+        else:
+            mineah_key = sorted(x.items(), key=operator.itemgetter(1))[0][0]
+            print("The id of the material corresponding to the lowest energy above the hull = {0}".format(mineah_key))
+            if mineah_key:
+                return m.get_structure_by_material_id(mineah_key)
             else:
-                return structure
-        return structures
+                return None
 
 
 from .calibrate import Calibrate, CalibrateBulk, CalibrateSlab, CalibrateMolecule

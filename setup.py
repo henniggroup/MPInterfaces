@@ -20,7 +20,7 @@ setup(
     author_email = "km468@cornell.edu",
     description = ("High throughput analysis of interfaces using VASP and Materials Project tools"),
     license = "GPL",
-    url = "https://matk86@bitbucket.org/matk86/vasp_automation.git",
+    url = "https://github.com/henniggroup/MPInterfaces",
     packages=find_packages(),
     long_description=open(os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
     classifiers=[

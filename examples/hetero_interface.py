@@ -106,12 +106,12 @@ substrate.to(fmt='poscar', filename='POSCAR_final.vasp')
     
 
 #structure from materials project, use your own key
-#gaas = get_struct_from_mp('GaAs', MAPI_KEY="dwvz2XCFUEI9fJiR")
+#gaas = get_struct_from_mp('GaAs', MAPI_KEY="")
 #sa_gaas = SpacegroupAnalyzer(gaas)
 #gaas_cvn = sa_gaas.get_conventional_standard_structure()
 #gaas_cvn.to(fmt='poscar', filename='POSCAR_GaAs.vasp')
 
-#cdte = get_struct_from_mp('CdTe', MAPI_KEY="dwvz2XCFUEI9fJiR")
+#cdte = get_struct_from_mp('CdTe', MAPI_KEY="")
 #sa_cdte = SpacegroupAnalyzer(cdte)
 #cdte_cvn = sa_cdte.get_conventional_standard_structure()
 #cdte_cvn.to(fmt='poscar', filename='POSCAR_CdTe.vasp')    

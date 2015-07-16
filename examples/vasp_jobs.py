@@ -34,7 +34,7 @@ from mpinterfaces.calibrate import CalibrateInterface
 # STRUCTURE
 #--------------------------------------------------------------------
 #get structure from materialsproject, use your own key       
-strt = get_struct_from_mp('PbS', MAPI_KEY="dwvz2XCFUEI9fJiR")
+strt = get_struct_from_mp('PbS', MAPI_KEY="")
 #convert from fcc primitive to conventional cell
 #the conventional unit cell is used to create the slab
 #this is important becasue the hkl specification for the required slab

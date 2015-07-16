@@ -9,7 +9,7 @@ from the materialsproject website.
 Use that to set the MAPI_KEY variable below
 
 """
-MAPI_KEY = MAPI_KEY
+
 import sys
 
 from pymatgen.matproj.rest import MPRester
@@ -18,6 +18,7 @@ from pymatgen.io.vaspio import Poscar
 
 from mpinterfaces import *
 
+MAPI_KEY = MAPI_KEY
  
 if __name__=='__main__':
     # PbS 100 surface with single hydrazine as ligand

@@ -187,8 +187,9 @@ if __name__=='__main__':
     workflows = []
     bulk_fireworks = [] 
     bulk_firetasks = []
-    bulk = get_struct_from_mp('PbS', MAPI_KEY="2hnLK7D14uWUHoJs") #pull from matproj, use your own key 
-#    primitive --> conventional cell
+    #pull from matproj, use your own key 
+    bulk = get_struct_from_mp('PbS', MAPI_KEY="") 
+    #    primitive --> conventional cell
     sa = SpacegroupAnalyzer(bulk)
     structure_conventional = sa.get_conventional_standard_structure()
     bulk = structure_conventional.copy()

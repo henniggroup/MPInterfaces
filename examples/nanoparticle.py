@@ -24,7 +24,7 @@ surface_energies = [28,25]
 #-----------------------------------
 #caution: set the structure wrt which the the miller indices are
 #specified. use your own key
-structure = get_struct_from_mp('PbS', MAPI_KEY="dwvz2XCFUEI9fJiR")
+structure = get_struct_from_mp('PbS', MAPI_KEY="")
 #primitve ---> conventional cell
 sa = SpacegroupAnalyzer(structure)
 structure_conventional = sa.get_conventional_standard_structure()

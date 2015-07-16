@@ -18,7 +18,7 @@ def get_grain_boundary_interface(structure=None, hkl_pair= {'hkl': [[1,0,0],[1,1
     """
 
 
-    structure = get_struct_from_mp(structure, MAPI_KEY="DTSNc7PRtb0pnld5")
+    structure = get_struct_from_mp(structure, MAPI_KEY="")
     sa = SpacegroupAnalyzer(structure)
     structure_conventional = sa.get_conventional_standard_structure()
     structure = structure_conventional.copy()

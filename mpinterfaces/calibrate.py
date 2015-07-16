@@ -469,7 +469,7 @@ class Calibrate(object):
           MPINTVaspDrone(inc_structure=True, inc_incar_n_kpoints=True)
         bg =  BorgQueen(drone)
         for k, v in self.response_to_knobs.items():
-            rootpath = self.job_dir+ os.sep + k
+            rootpath = self.job_dir+ os.sep + self.key_to_name(k)
             logger.info('rootpath = '+rootpath)
             #bg.parallel_assimilate(rootpath)        
             bg.serial_assimilate(rootpath)

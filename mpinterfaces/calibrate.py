@@ -507,15 +507,16 @@ class Calibrate(object):
                 = self.enforce_cutoff(sorted_knob_responses)
             self.sorted_response_to_knobs[k] \
                 = OrderedDict(sorted_knob_responses)
+            logger.info('for key = {0}, the sorted responses after enforcing the cutoff = {1}'.format(k, self.sorted_response_to_knobs[k]))
             if matching_knob_responses:
                 if k == "KPOINTS" and self.Grid_type == 'M':
                     nkpt = matching_knob_responses[0][0] * \
                       matching_knob_responses[0][1] * matching_knob_responses[0][2]
-                    for i, val in enumerate(matching_knob_responses):
-                        if i < len(matching_kpt)-1:
-                            nkpt1 = val[i+1][0] * val[i+1][1] * val[i+1][2]
-                            if nkpt1<nktp:
-                                self.optimum_knob_responses[k] = val
+                    for i, val in enumerate(matching_knob_responses[1:]):
+                        nkpt1 = val[0] * val[1] * val[2]
+                        if nkpt1 < nkpt:
+                            self.optimum_knob_responses[k] = val
+                            nkpt = nkpt1
                 else:
                     self.optimum_knob_responses[k] = min(matching_knob_responses)
                         
@@ -526,6 +527,8 @@ class Calibrate(object):
         
         returns a list of the parameters that satisfy the criterion
         """
+        logger.warn('default delta_E for convergence = 0.001eV per atom')
+        logger.info('number of atoms = {0}'.format(self.n_atoms))
         matching_list = []
         for i, e in enumerate(input_list):
             if i < len(input_list)-1:
@@ -537,8 +540,7 @@ class Calibrate(object):
             if '[[' in matching_list[0]:
                 for ml in matching_list:
                     if '[[' in ml:
-                        m = re.search(r"\[\[(\d+)\,(\d+)\,(\d+)\]\]",
-                                       ml)
+                        m = re.search(r"\[\[ *(\d+) *\, *(\d+) *\, *(\d+) *\]\]", ml)
                         matching_kpt_list.append( [ int(m.group(1)),
                                                     int(m.group(2)),
                                                      int(m.group(3))])

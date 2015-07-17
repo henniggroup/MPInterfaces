@@ -4,6 +4,7 @@ __author__ = ", ".join(["Kiran Mathew", "Joshua Gabriel", "Richard G. Hennig"])
 __date__ = "Jul 11 2015"
 __version__ = "1.1.1"
 
+import os
 import operator
 from pymatgen.matproj.rest import MPRester
 
@@ -20,9 +21,9 @@ def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
     unless all_structs is set to True
     """
     if not MAPI_KEY:
-        print('API key not provided')
         MAPI_KEY = os.environ.get("MAPI_KEY", "")
         if not MAPI_KEY:
+            print('API key not provided')
             print('get API KEY from materialsproject and set it to the MAPI_KEY environment variable. aborting ... ')
             sys.exit()                            
     with MPRester(MAPI_KEY) as m:

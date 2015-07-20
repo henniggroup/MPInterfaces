@@ -62,11 +62,17 @@ pip install mpinterfaces
 Bleeding edge
 -------------
 
-- Clone the latest version from github
+If you already have a local copy, steps 1 and 2 of the following instructions
+can be skipped. Just do a "git pull" from the MPInterfaces folder and go to
+step 3(if the local copy was installed in the develop mode this step can be skipped too).
+
+1. Clone the latest version from github
+
+  - git clone https://github.com/henniggroup/MPInterfaces.git
   
-- cd MPInterfaces
+2. cd MPInterfaces
 	
-- python setup.py install(or develop)
+3. python setup.py install(or develop)
 
   
 Documentation

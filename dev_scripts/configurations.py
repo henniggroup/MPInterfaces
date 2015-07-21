@@ -70,8 +70,7 @@ seperation=5
 
 #array index of top two layers of the substrate
 
-B = numpy.zeros(3, int)
 coor_substrate=(numpy.array([site.coords for site in pos_sub]))
-for i in xrange(3):
-	idx = numpy.argmax(coor_substrate)
+indices = np.where( a == np.max(a) )
+
 	

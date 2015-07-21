@@ -798,7 +798,7 @@ class CalibrateInterface(CalibrateSlab):
         self.interface_setup(turn_knobs=turn_knobs)        
 
     def interface_setup(self, turn_knobs=None):
-        if self.system['ligand'] is None:
+        if not self.system.get('ligand'):
             return
         else:
             if turn_knobs is None:

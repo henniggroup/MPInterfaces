@@ -471,18 +471,24 @@ class Calibrate(object):
         for k, v in self.response_to_knobs.items():
             rootpath = self.job_dir+ os.sep + self.key_to_name(k)
             logger.info('rootpath = '+rootpath)
+            logger.warn('for the POSCAR knob responses, the key to the response dictionary is the length of the c lattice vector of the structure. This assumes that the only paramter that varies from one structure to another is the c lattice vector, which is usually the case for slab vacuum and thickness calibrations')
             #bg.parallel_assimilate(rootpath)        
             bg.serial_assimilate(rootpath)
             allentries =  bg.get_data()
             for e in allentries:
                 if e:
                     self.n_atoms = len(e.structure)
+                    #logger.info('number of atoms = '+str(self.n_atoms))
                     if k == 'KPOINTS':
                         self.response_to_knobs[k][str(e.kpoints.kpts)] \
-                           = e.energy
+                           = e.energy/self.n_atoms
+                    elif k == 'POSCAR':
+                        self.response_to_knobs[k][str(e.structure.lattice.c)] \
+                           = e.energy/self.n_atoms
+
                     else:
                         self.response_to_knobs[k][str(e.incar[k])] \
-                          = e.energy
+                          = e.energy/self.n_atoms
 
     def set_sorted_optimum_params(self):
         """
@@ -507,6 +513,7 @@ class Calibrate(object):
                 = self.enforce_cutoff(sorted_knob_responses)
             self.sorted_response_to_knobs[k] \
                 = OrderedDict(sorted_knob_responses)
+            logger.info('The energy values in following reports are normalized wrt the number of atoms')
             logger.info('for key = {0}, the sorted responses after enforcing the cutoff = {1}'.format(k, self.sorted_response_to_knobs[k]))
             if matching_knob_responses:
                 if k == "KPOINTS" and self.Grid_type == 'M':
@@ -528,11 +535,10 @@ class Calibrate(object):
         returns a list of the parameters that satisfy the criterion
         """
         logger.warn('default delta_E for convergence = 0.001eV per atom')
-        logger.info('number of atoms = {0}'.format(self.n_atoms))
         matching_list = []
         for i, e in enumerate(input_list):
             if i < len(input_list)-1:
-                if np.abs(input_list[i+1][1] - e[1])/self.n_atoms <= \
+                if np.abs(input_list[i+1][1] - e[1]) <= \
                   delta_e_peratom:
                     matching_list.append(input_list[i+1][0])
         if matching_list:

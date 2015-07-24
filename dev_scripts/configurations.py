@@ -32,7 +32,7 @@ def get_all_config_pos( mat2d,substrate ):
 	"""
 
 	if mat2d is None and substrate is None:
-		pos_2D=Structure.from_file('POSCAR_2D')
+		pos_2d=Structure.from_file('POSCAR_2D')
 		pos_sub=Structure.from_file('POSCAR_substrate')
 	else:
 		pos_2d=mat2d
@@ -41,7 +41,7 @@ def get_all_config_pos( mat2d,substrate ):
 	"""
 	Identify the non equivalent atomic positions of the 2 POSCARs
 	Extract the non equivalent atomic positions of top 2 layers of substrate
-	and bottom 2 layers of 2D material (curently only top 1 layer)
+	and bottom 2 layers of 2D material 
 	"""
 	finder2d = SpacegroupAnalyzer(pos_2d)
 	finderbulk= SpacegroupAnalyzer(pos_sub) 
@@ -60,11 +60,11 @@ def get_all_config_pos( mat2d,substrate ):
 	
 	#assuming that the POSCARs are created with z positions in ascending order
 	#identify array number of top two layers of substrate
-	# and bottom 2 layers of 2D material
-	# for each materials, check "equivalent_atoms" array number and delete 
-	#dupplicates
+	#and bottom 2 layers of 2D material
+	#for each materials, check "equivalent_atoms" array number and delete 
+	#duplicates
 	#save the atomic positions for each material in 2 seperate arrays
-	#shift the atomic positions of the 2D material as all combinations of
+	#shift the atomic positions of the 2D material, by identifying all combinations of
 	#substrate and 2D materials resultant atomic locations
 
 	#coordinates of the substrate atoms
@@ -75,21 +75,24 @@ def get_all_config_pos( mat2d,substrate ):
 	
 	z=coor_substrate[:,2]
 	
-	#array of indices of the topmost layer of the substrate poscar
+	#array of indices of the top two layers of the substrate poscar
 	
 	indices_top=np.where(z==max(z))
 	indices_top=indices_top[0]
+        np.place(z,z==np.max(z),[-1000])
+        indices_top2=np.where(z==max(z))
+        indices_top=np.concatenate((indices_top, indices_top2[0]),axis=1)
 
-	#equivalent positions list for the top most layers of atoms in substrate
+	#equivalent positions list for the top two layers of atoms in substrate
 	
 	short_set_subs=[set_subs[i] for i in indices_top]
 
-	#all unique atoms in the top most layer of the substrate
+	#all unique atoms in the top two layer of the substrate
 	
 	u,indices_unique=np.unique(short_set_subs,return_index=True)
 	indices_true=[indices_top[i] for i in indices_unique]
 
-	# coordinates of the unique atoms in the top most layer
+	# coordinates of the unique atoms in the top two layers of the substrat
 	
 	coor_unique_sub=coor_substrate[indices_true]
 
@@ -101,28 +104,29 @@ def get_all_config_pos( mat2d,substrate ):
 	
 	z=coor_2d[:,2]
 
-	#array of indices of the bottom most layer of the substrate poscar
+	#array of indices of bottom two layer of the 2D material poscar
 	
 	indices_bottom=np.where(z==min(z))
 	indices_bottom=indices_bottom[0]
-
-	#equivalent positions list for the top most layers of atoms in substrate
+	np.place(z,z==np.min(z),[1000])
+	indices_bottom2=np.where(z==min(z))
+	indices_bottom=np.concatenate((indices_bottom, indices_bottom2[0]),axis=1)
+	#equivalent positions list for bottom two layers of atoms in 2D material
 	
 	short_set_2d=[set_2d[i] for i in indices_bottom]
-
-	#all unique atoms in the top most layer of the substrate
+	#all unique atoms in the bottom two layers of the 2D material
 	
 	u,indices_unique=np.unique(short_set_2d,return_index=True)
 	indices_true=[indices_bottom[i] for i in indices_unique]
 
-	# coordinates of the unique atoms in the top most layer
+	# coordinates of the unique atoms in the bottom two layers of the 2D material
 	
 	coor_unique_2d=coor_2d[indices_true]
 
 	#create the POSCARs of 2D material on the substrate
 	
 	for i in range(0,coor_unique_sub.ndim-1) :
-		for j in range(0,coor_unique_2d.ndim-1) :
+		for j in range(0,coor_unique_2d.ndim) :
 			shift_position=coor_unique_sub[i]-coor_unique_2d[j]
 			shift_position[2]=0
 			substrate_top_z = np.max(np.array([site.coords for site in substrate])[:,2])
@@ -131,20 +135,15 @@ def get_all_config_pos( mat2d,substrate ):
 			shift = substrate.lattice.matrix[2,:]
 			shift = shift/np.linalg.norm(shift) * seperation
 			origin = np.array([0,0,substrate_top_z])
-			print origin
-			print shift
 			for site in mat2d:
 				new_coords=site.coords
 				new_coords[2]=site.coords[2]-mat_2d_bottom
-				new_coords = new_coords + origin  +  shift #-shift_position
+				new_coords = new_coords + origin  +  shift -shift_position
 				substrate.append(site.specie, new_coords, coords_are_cartesian=True)
-        		substrate.to(fmt='poscar', filename='POSCAR_final_'+str(i)+'_'+str(j)+'.vasp')
-			return None
-
-
+			substrate.to(fmt='poscar', filename='POSCAR_final_'+str(i)+'_'+str(j)+'.vasp')
 """
 An example
 """
-pos_2D=Structure.from_file('POSCAR_2D')
+pos_2d=Structure.from_file('POSCAR_2D')
 pos_sub=Structure.from_file('POSCAR_substrate')
-a=get_all_config_pos(pos_2D,pos_sub)
+a=get_all_config_pos(pos_2d,pos_sub)

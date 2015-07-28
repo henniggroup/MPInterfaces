@@ -91,8 +91,8 @@ if __name__ == '__main__':
     # initial structure
     # example: GaAs used as the substrate and
     # CdTe used as the 2d material. Both conventional unit cells
-    substrate_bulk = Structure.from_file('POSCAR.mp-2534_GaAs')
-    mat2d_bulk = Structure.from_file('POSCAR.mp-406_CdTe')    
+    substrate_bulk = Structure.from_file('POSCAR_sub')
+    mat2d_bulk = Structure.from_file('POSCAR_2D')    
     # initialize the substrate and 2d material slabs, constructed
     # from the respective bulk unit cells
     # notes:
@@ -104,13 +104,13 @@ if __name__ == '__main__':
     #      So ensure that the substrate vacuum spacing is sufficietly
     #      large enough to contain the 2d material
     substrate = Interface(substrate_bulk,
-                          hkl = [1,1,0],
+                          hkl = [1,1,1],
                           min_thick = 10,
                           min_vac = 25,
                           primitive = False, from_ase = True)
     mat2d = Interface(mat2d_bulk,
-                      hkl = [1,1,0],
-                      min_thick = 2,
+                      hkl = [0,0,1],
+                      min_thick = 3,
                       min_vac = 0,
                       primitive = False, from_ase = True)
     substrate.to(fmt='poscar',
@@ -119,10 +119,10 @@ if __name__ == '__main__':
              filename='POSCAR_mat2d_initial.vasp')
     # get the matching substrate and 2D material lattices
     uv_substrate, uv_mat2d = get_matching_lattices(substrate, mat2d,
-                                              max_area = 200,
-                                              max_mismatch = 0.01,
+                                              max_area = 2000,
+                                              max_mismatch = 0.050,
                                               max_angle_diff = 1,
-                                              r1r2_tol = 0.02)
+                                              r1r2_tol = 0.2)
     # map the intial slabs to the newly found matching lattices
     substrate_latt = Lattice( np.array(
                                     [
@@ -136,13 +136,15 @@ if __name__ == '__main__':
                                    uv_mat2d[1][:],
                                    mat2d.lattice.matrix[2,:]
                                    ] ))
+    
+    print mat2d_latt
     _, __, scell = substrate.lattice.find_mapping(substrate_latt,
-                                              ltol = 0.01,
-                                              atol = 1)
+                                              ltol = 0.05,
+                                              atol = 2)
     substrate.make_supercell(scell)
     _, __, scell = mat2d.lattice.find_mapping(mat2d_latt,
-                                            ltol = 0.01,
-                                            atol = 1)
+                                            ltol = 0.05,
+                                            atol = 0)
     mat2d.make_supercell(scell)
     substrate.to(fmt='poscar', filename='POSCAR_substrate_matching.vasp')
     mat2d.to(fmt='poscar', filename='POSCAR_mat2d_matching.vasp')

@@ -6,6 +6,8 @@ interfaces as described in the paper by Zur and McGill:
 Journal of Applied Physics 55, 378 (1984); doi: 10.1063/1.333084
 """
 
+__author__="Kiran Mathew, Arunima Singh"
+
 import sys
 from math import sqrt
 from copy import copy
@@ -183,3 +185,44 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
                         print('angle1, angle diff', angle1, abs(angle1 - angle2))
                         print('uv1, uv2', uv1, uv2)
                         return uv1, uv2
+    
+def get_uniq_layercoords(struct, nlayers, top=True):
+    """
+    returns the coordinates of unique sites in the top or bottom
+    nlayers of the given structure.
+
+    Args:
+        struct: input structure
+        nlayers: number of layers
+        top: top or bottom layers, default is top layer
+
+    Return:
+        numpy array of unique coordinates
+    """
+    coords = np.array([site.coords for site in struct])
+    z = coords[:,2]
+    zu, zuind, = np.unique(z, return_index=True)
+    if top:
+        z_nthlayer = z[zuind[-nlayers]]
+        zfilter = (z >= z_nthlayer)
+    else:
+        z_nthlayer = z[zuind[nlayers - 1]]
+        zfilter = (z <= z_nthlayer)
+    # site indices in the layers        
+    indices_layers = np.argwhere(zfilter).ravel()
+    sa = SpacegroupAnalyzer(struct)
+    symm_data = sa.get_symmetry_dataset()
+    # equivalency mapping for the structure
+    # i'th site in the struct equivalent to eq_struct[i]'th site
+    eq_struct = symm_data["equivalent_atoms"]
+    # equivalency mapping for the layers
+    eq_layers = eq_struct[indices_layers]
+    #print(eq_layers)
+    # site indices of unique atoms in the layers
+    __, ueq_layers_indices = np.unique(eq_layers, return_index=True)
+    #print(ueq_layers_indices) 
+    indices_uniq = indices_layers[ueq_layers_indices]
+    #print(indices_uniq)
+    # coordinates of the unique atoms in the layers
+    #print(coords[indices_uniq])
+    return coords[indices_uniq]

@@ -48,12 +48,12 @@ def generate_all_configs(mat2d, substrate,
     # immediate exit if no structures
     if not(mat2d and substrate):
         print("no structures. aborting ...")
-        sys.exit()    
+        sys.exit()
     # unique site coordinates in the substrate top layers
     coords_uniq_sub = get_uniq_layercoords(substrate,
                                            nlayers_substrate,
                                            top=True)
-    # unique site coordinates in the 2D material bottom layers    
+    # unique site coordinates in the 2D material bottom layers
     coords_uniq_2d = get_uniq_layercoords(mat2d,
                                           nlayers_2d,
                                           top=False)
@@ -65,7 +65,6 @@ def generate_all_configs(mat2d, substrate,
     surface_normal = substrate.lattice.matrix[2,:]
     origin = np.array([0,0,substrate_top_z])
     shift_normal = surface_normal/np.linalg.norm(surface_normal) * seperation
-
     #generate all possible interfaces, one for each combination of
     # unique substrate and unique 2d materials site in the layers .i.e
     # an interface structure for each parallel shift
@@ -83,55 +82,25 @@ def generate_all_configs(mat2d, substrate,
                 interface.append(site.specie, new_coords,
                                  coords_are_cartesian=True)
             interface.to(fmt='poscar',
-                         filename='POSCAR_final_'+str(i)+'_'+str(j)+'.vasp')
-            
-if __name__ == '__main__':
-    # BULK
-    # mind: the hkl specification in the slab generation is wrt the
-    #       initial structure
-    #structure from materials project, use your own key
-    substrate_bulk = get_struct_from_mp('Al')
-    sa_sub = SpacegroupAnalyzer(substrate_bulk)
-    substrate_bulk = sa_sub.get_conventional_standard_structure()
-    substrate_bulk.to(fmt='poscar', filename='POSCAR_Al.vasp')
+                         filename='POSCAR_final_{0}_{1}.vasp'.format(i,j))
 
-    mat2d_bulk = get_struct_from_mp('AlN')
-    sa_mat2d = SpacegroupAnalyzer(mat2d_bulk)
-    mat2d_bulk = sa_mat2d.get_conventional_standard_structure()
-    mat2d_bulk.to(fmt='poscar', filename='POSCAR_AlN.vasp')    
-    #
-    # SLABS
-    #
-    # initialize the substrate and 2d material slabs, constructed
-    # from the respective bulk unit cells
-    # notes:
-    #      ase backend used to ensure that the generated slabs have
-    #      orthogonal z axis
-    #      2d material vacuum spacing = 0
-    #      keep in mind that the 2d material will be put on top of
-    #      the subtrate in the substrate's vacuum space.
-    #      So ensure that the substrate vacuum spacing is sufficietly
-    #      large enough to contain the 2d material
-    substrate = Interface(substrate_bulk,
-                          hkl = [0,0,1],
-                          min_thick = 10,
-                          min_vac = 25,
-                          primitive = False, from_ase = True)
-    mat2d = Interface(mat2d_bulk,
-                          hkl = [0,0,1],
-                          min_thick = 3,
-                          min_vac = 0,
-                          primitive = False, from_ase = True)
-    substrate.to(fmt='poscar',
-                 filename='POSCAR_substrate_initial.vasp')
-    mat2d.to(fmt='poscar',
-             filename='POSCAR_mat2d_initial.vasp')
+            
+def get_aligned_lattices(slab_sub, slab_2d, max_area = 200,
+                         max_mismatch = 0.05,
+                         max_angle_diff = 1, r1r2_tol = 0.2):
+    """
+    given the 2 slab structures and the alignment paramters, return
+    slab structures with lattices that are aligned with respect to each
+    other
+    """
     # get the matching substrate and 2D material lattices
-    uv_substrate, uv_mat2d = get_matching_lattices(substrate, mat2d,
-                                              max_area = 200,
-                                              max_mismatch = 0.06,
-                                              max_angle_diff = 1,
-                                              r1r2_tol = 0.2)
+    uv_substrate, uv_mat2d = get_matching_lattices(slab_sub, slab_2d,
+                                              max_area = max_area,
+                                              max_mismatch = max_mismatch,
+                                              max_angle_diff = max_angle_diff,
+                                              r1r2_tol = r1r2_tol)
+    substrate = slab_sub.copy()
+    mat2d = slab_2d.copy()
     # map the intial slabs to the newly found matching lattices
     substrate_latt = Lattice( np.array(
                                     [
@@ -163,8 +132,6 @@ if __name__ == '__main__':
                                             atol = 1)
     scell[2] = np.array([0,0,1]) 
     mat2d.make_supercell(scell)
-    substrate.to(fmt='poscar', filename='POSCAR_substrate_matching.vasp')
-    mat2d.to(fmt='poscar', filename='POSCAR_mat2d_matching.vasp')
     # modify the substrate lattice so that the 2d material can be
     # grafted on top of it
     lmap = Lattice( np.array(
@@ -174,14 +141,74 @@ if __name__ == '__main__':
             substrate.lattice.matrix[2,:]
         ] ) )    
     substrate.modify_lattice(lmap)
-    # put the 2d material on top of the substrate
-    # seperation between the 2dmaterial and the substrate in angstroms
-    # generate all configurations for each unique atom in the
-    # specified layers of the 2d material and the substrate
-    seperation = 5
+    return substrate, mat2d
+    
+
+if __name__ == '__main__':
+    #
+    # BULK
+    #
+    # mind:
+    #     the hkl specification in the slab generation is wrt the
+    #     initial structure
+    #structure from materials project, use your own key
+    substrate_bulk = get_struct_from_mp('Al')
+    sa_sub = SpacegroupAnalyzer(substrate_bulk)
+    substrate_bulk = sa_sub.get_conventional_standard_structure()
+    mat2d_bulk = get_struct_from_mp('AlN')
+    sa_mat2d = SpacegroupAnalyzer(mat2d_bulk)
+    mat2d_bulk = sa_mat2d.get_conventional_standard_structure()
+    substrate_bulk.to(fmt='poscar', filename='POSCAR_substarte_bulk.vasp')    
+    mat2d_bulk.to(fmt='poscar', filename='POSCAR_mat2d_bulk.vasp')    
+    #
+    # SLABS
+    #
+    # initialize the substrate and 2d material slabs, constructed
+    # from the respective bulk unit cells
+    # notes:
+    #      ase backend used to ensure that the generated slabs have
+    #      orthogonal z axis
+    #      2d material vacuum spacing = 0
+    #      keep in mind that the 2d material will be put on top of
+    #      the subtrate in the substrate's vacuum space.
+    #      So ensure that the substrate vacuum spacing is sufficietly
+    #      large enough to contain the 2d material
+    # Al 111 substrate with thickness 10 A
+    substrate_slab = Interface(substrate_bulk,
+                          hkl = [1,1,1],
+                          min_thick = 10,
+                          min_vac = 25,
+                          primitive = False, from_ase = True)
+    # AlN 001 substrate with thickness 3 A and no vacuum
+    mat2d_slab = Interface(mat2d_bulk,
+                          hkl = [0,0,1],
+                          min_thick = 3,
+                          min_vac = 0,
+                          primitive = False, from_ase = True)
+    substrate_slab.to(fmt='poscar', filename='POSCAR_substrate_slab.vasp')
+    mat2d_slab.to(fmt='poscar', filename='POSCAR_mat2d_slab.vasp')
+    #
+    # LATTICE ALIGNMENT
+    #
+    # get the in-plane lattice aligned slabs
+    substrate_slab_aligned, mat2d_slab_aligned = get_aligned_lattices(substrate_slab,
+                                                                      mat2d_slab,
+                                                                      max_area = 100,
+                                                                      max_mismatch = 0.06,
+                                                                      max_angle_diff = 1,
+                                                                      r1r2_tol = 0.2)
+
+    substrate_slab_aligned.to(fmt='poscar',
+                              filename='POSCAR_substrate_aligned.vasp')
+    mat2d_slab_aligned.to(fmt='poscar',
+                          filename='POSCAR_mat2d_aligned.vasp')
+    #
+    # JOINT SUPERCELL
+    #
+    # merge substrate and mat2d in all possible ways
+    seperation = 5 # in angstroms
     nlayers_2d = 2
     nlayers_substrate = 2
-    generate_all_configs(mat2d, substrate,
+    generate_all_configs(mat2d_slab_aligned, substrate_slab_aligned,
                          nlayers_2d, nlayers_substrate,
                          seperation )
-    

@@ -141,10 +141,12 @@ if __name__ == '__main__':
     _, __, scell = substrate.lattice.find_mapping(substrate_latt,
                                               ltol = 0.05,
                                               atol = 2)
+    scell[2] = np.array([0,0,1]) 
     substrate.make_supercell(scell)
     _, __, scell = mat2d.lattice.find_mapping(mat2d_latt,
                                             ltol = 0.05,
                                             atol = 0)
+    scell[2] = np.array([0,0,1]) 
     mat2d.make_supercell(scell)
     substrate.to(fmt='poscar', filename='POSCAR_substrate_matching.vasp')
     mat2d.to(fmt='poscar', filename='POSCAR_mat2d_matching.vasp')

@@ -134,16 +134,21 @@ if __name__ == '__main__':
                                    [
                                    uv_mat2d[0][:],
                                    uv_mat2d[1][:],
-                                   mat2d.lattice.matrix[2,:]
+                                   5.0
                                    ] ))
-    
+    mat2d_latt_fake = Lattice( np.array(
+                                   [
+                                   mat2d.lattice.matrix[0,:],
+                                   mat2d.lattice.matrix[1,:],
+                                   5.0
+                                   ] ))    
     print mat2d_latt
     _, __, scell = substrate.lattice.find_mapping(substrate_latt,
                                               ltol = 0.05,
                                               atol = 2)
     scell[2] = np.array([0,0,1]) 
     substrate.make_supercell(scell)
-    _, __, scell = mat2d.lattice.find_mapping(mat2d_latt,
+    _, __, scell = mat2d_latt_fake.find_mapping(mat2d_latt,
                                             ltol = 0.05,
                                             atol = 0)
     scell[2] = np.array([0,0,1]) 

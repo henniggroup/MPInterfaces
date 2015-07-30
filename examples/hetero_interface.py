@@ -129,18 +129,20 @@ if __name__ == '__main__':
                                     uv_substrate[0][:],
                                     uv_substrate[1][:],
                                     substrate.lattice.matrix[2,:]
-                                    ] ))    
+                                    ] ))
+    # to avoid numerical issues with find_mapping
+    mat2d_fake_c = mat2d.lattice.matrix[2,:] / np.linalg.norm(mat2d.lattice.matrix[2,:]) * 5.0
     mat2d_latt = Lattice( np.array(
                                    [
                                    uv_mat2d[0][:],
                                    uv_mat2d[1][:],
-                                   5.0
+                                   mat2d_fake_c
                                    ] ))
     mat2d_latt_fake = Lattice( np.array(
                                    [
                                    mat2d.lattice.matrix[0,:],
                                    mat2d.lattice.matrix[1,:],
-                                   5.0
+                                   mat2d_fake_c
                                    ] ))    
     print mat2d_latt
     _, __, scell = substrate.lattice.find_mapping(substrate_latt,

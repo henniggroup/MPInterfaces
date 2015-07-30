@@ -201,11 +201,11 @@ def get_uniq_layercoords(struct, nlayers, top=True):
     """
     coords = np.array([site.coords for site in struct])
     z = coords[:,2]
-    zu, zuind, = np.unique(z, return_index=True)
-    if top:
-        z_nthlayer = z[zuind[-nlayers]]
-        zfilter = (z >= z_nthlayer)
-    else:
+    z = np.around(z, decimals=4)
+    zu, zuind = np.unique(z, return_index=True)
+    z_nthlayer = z[zuind[-nlayers]]
+    zfilter = (z >= z_nthlayer)
+    if not top:
         z_nthlayer = z[zuind[nlayers - 1]]
         zfilter = (z <= z_nthlayer)
     # site indices in the layers        
@@ -217,12 +217,9 @@ def get_uniq_layercoords(struct, nlayers, top=True):
     eq_struct = symm_data["equivalent_atoms"]
     # equivalency mapping for the layers
     eq_layers = eq_struct[indices_layers]
-    #print(eq_layers)
     # site indices of unique atoms in the layers
     __, ueq_layers_indices = np.unique(eq_layers, return_index=True)
     #print(ueq_layers_indices) 
     indices_uniq = indices_layers[ueq_layers_indices]
-    #print(indices_uniq)
     # coordinates of the unique atoms in the layers
-    #print(coords[indices_uniq])
     return coords[indices_uniq]

@@ -86,13 +86,22 @@ def generate_all_configs(mat2d, substrate,
                          filename='POSCAR_final_'+str(i)+'_'+str(j)+'.vasp')
             
 if __name__ == '__main__':
-    # initial bulk unit cells
+    # BULK
     # mind: the hkl specification in the slab generation is wrt the
-    # initial structure
-    # example: GaAs used as the substrate and
-    # CdTe used as the 2d material. Both conventional unit cells
-    substrate_bulk = Structure.from_file('POSCAR_sub')
-    mat2d_bulk = Structure.from_file('POSCAR_2D')    
+    #       initial structure
+    #structure from materials project, use your own key
+    substrate_bulk = get_struct_from_mp('Al')
+    sa_sub = SpacegroupAnalyzer(substrate_bulk)
+    substrate_bulk = sa_sub.get_conventional_standard_structure()
+    substrate_bulk.to(fmt='poscar', filename='POSCAR_Al.vasp')
+
+    mat2d_bulk = get_struct_from_mp('AlN')
+    sa_mat2d = SpacegroupAnalyzer(mat2d_bulk)
+    mat2d_bulk = sa_mat2d.get_conventional_standard_structure()
+    mat2d_bulk.to(fmt='poscar', filename='POSCAR_AlN.vasp')    
+    #
+    # SLABS
+    #
     # initialize the substrate and 2d material slabs, constructed
     # from the respective bulk unit cells
     # notes:
@@ -104,23 +113,23 @@ if __name__ == '__main__':
     #      So ensure that the substrate vacuum spacing is sufficietly
     #      large enough to contain the 2d material
     substrate = Interface(substrate_bulk,
-                          hkl = [1,1,1],
+                          hkl = [0,0,1],
                           min_thick = 10,
                           min_vac = 25,
                           primitive = False, from_ase = True)
     mat2d = Interface(mat2d_bulk,
-                      hkl = [0,0,1],
-                      min_thick = 3,
-                      min_vac = 0,
-                      primitive = False, from_ase = True)
+                          hkl = [0,0,1],
+                          min_thick = 3,
+                          min_vac = 0,
+                          primitive = False, from_ase = True)
     substrate.to(fmt='poscar',
                  filename='POSCAR_substrate_initial.vasp')
     mat2d.to(fmt='poscar',
              filename='POSCAR_mat2d_initial.vasp')
     # get the matching substrate and 2D material lattices
     uv_substrate, uv_mat2d = get_matching_lattices(substrate, mat2d,
-                                              max_area = 2000,
-                                              max_mismatch = 0.050,
+                                              max_area = 200,
+                                              max_mismatch = 0.06,
                                               max_angle_diff = 1,
                                               r1r2_tol = 0.2)
     # map the intial slabs to the newly found matching lattices
@@ -175,13 +184,4 @@ if __name__ == '__main__':
     generate_all_configs(mat2d, substrate,
                          nlayers_2d, nlayers_substrate,
                          seperation )
-    #structure from materials project, use your own key
-    #gaas = get_struct_from_mp('GaAs', MAPI_KEY="")
-    #sa_gaas = SpacegroupAnalyzer(gaas)
-    #gaas_cvn = sa_gaas.get_conventional_standard_structure()
-    #gaas_cvn.to(fmt='poscar', filename='POSCAR_GaAs.vasp')
-    #cdte = get_struct_from_mp('CdTe', MAPI_KEY="")
-    #sa_cdte = SpacegroupAnalyzer(cdte)
-    #cdte_cvn = sa_cdte.get_conventional_standard_structure()
-    #cdte_cvn.to(fmt='poscar', filename='POSCAR_CdTe.vasp')    
     

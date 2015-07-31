@@ -3,7 +3,9 @@ from __future__ import division, unicode_literals, print_function
 """
 reads in KPOINTS(with labels) and vasprun.xml files and plots the band structure
 """
-
+#FOR USE ON HIPERGATOR matplotlib plotting, uncomment:
+#import matplotlib
+#matplotlib.use('Agg')
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.electronic_structure.plotter import BSPlotterProjected, BSPlotter 
 

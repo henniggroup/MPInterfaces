@@ -3,6 +3,9 @@ from __future__ import division, unicode_literals, print_function
 """
 reads in vasprun.xml file and plots the density of states 
 """
+#FOR USE ON HIPERGATOR matplotlib plotting, uncomment:
+#import matplotlib
+#matplotlib.use('Agg')
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.electronic_structure.plotter import DosPlotter
 

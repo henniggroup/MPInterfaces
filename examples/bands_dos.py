@@ -5,7 +5,9 @@ reads in KPOINTS(with labels) and vasprun.xml files and
 plots band diagram and density of states 
 from http://gvallver.perso.univ-pau.fr/?p=587
 """
-
+#FOR USE ON HIPERGATOR matplotlib plotting, uncomment:
+#import matplotlib
+#matplotlib.use('Agg')
 import sys
 import numpy as np
 

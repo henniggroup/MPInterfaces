@@ -282,7 +282,7 @@ class Calibrate(object):
             string representation for kpoint eg: Monkhorst Pack
 	    2 2 2 will be named 2x2x2
         """
-        if grid_type == 'M':
+        if grid_type == 'M' or grid_type == 'G':
             return str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' \
                 + str(kpoint[2])
         elif grid_type == 'A':    
@@ -349,6 +349,8 @@ class Calibrate(object):
             self.kpoints = Kpoints.monkhorst_automatic(kpts = kpoint)
         elif self.Grid_type == 'A':
             self.kpoints = Kpoints.automatic(subdivisions = kpoint)
+        elif self.Grid_type == 'G': 
+            self.kpoints = Kpoints.gamma_automatic(kpts = kpoint)
         name = self.kpoint_to_name(kpoint, self.Grid_type)
         logger.info('KPOINTS = '+name)
         job_dir = self.job_dir +os.sep+ self.key_to_name('KPOINTS') \

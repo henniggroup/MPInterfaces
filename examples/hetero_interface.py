@@ -152,13 +152,15 @@ if __name__ == '__main__':
     #     the hkl specification in the slab generation is wrt the
     #     initial structure
     #structure from materials project, use your own key
-    substrate_bulk = get_struct_from_mp('Al')
+    substrate_bulk = get_struct_from_mp('Ag', MAPI_KEY="UeMAESPag6qztoGV")
+    #substrate_bulk = get_struct_from_mp('Al')
     sa_sub = SpacegroupAnalyzer(substrate_bulk)
     substrate_bulk = sa_sub.get_conventional_standard_structure()
-    mat2d_bulk = get_struct_from_mp('AlN')
-    sa_mat2d = SpacegroupAnalyzer(mat2d_bulk)
-    mat2d_bulk = sa_mat2d.get_conventional_standard_structure()
-    substrate_bulk.to(fmt='poscar', filename='POSCAR_substarte_bulk.vasp')    
+    #mat2d_bulk = get_struct_from_mp('AlN')
+    #sa_mat2d = SpacegroupAnalyzer(mat2d_bulk)
+    #mat2d_bulk = sa_mat2d.get_conventional_standard_structure()
+    #substrate_bulk.to(fmt='poscar', filename='POSCAR_substarte_bulk.vasp')    
+    mat2d_bulk = Structure.from_file('POSCAR_2D')
     mat2d_bulk.to(fmt='poscar', filename='POSCAR_mat2d_bulk.vasp')    
     #
     # SLABS
@@ -183,7 +185,7 @@ if __name__ == '__main__':
     mat2d_slab = Interface(mat2d_bulk,
                           hkl = [0,0,1],
                           min_thick = 3,
-                          min_vac = 0,
+                          min_vac = 1,
                           primitive = False, from_ase = True)
     substrate_slab.to(fmt='poscar', filename='POSCAR_substrate_slab.vasp')
     mat2d_slab.to(fmt='poscar', filename='POSCAR_mat2d_slab.vasp')
@@ -194,9 +196,9 @@ if __name__ == '__main__':
     substrate_slab_aligned, mat2d_slab_aligned = get_aligned_lattices(substrate_slab,
                                                                       mat2d_slab,
                                                                       max_area = 100,
-                                                                      max_mismatch = 0.06,
+                                                                      max_mismatch = 0.6,
                                                                       max_angle_diff = 1,
-                                                                      r1r2_tol = 0.2)
+                                                                      r1r2_tol = 20)
 
     substrate_slab_aligned.to(fmt='poscar',
                               filename='POSCAR_substrate_aligned.vasp')

@@ -152,7 +152,7 @@ if __name__ == '__main__':
     #     the hkl specification in the slab generation is wrt the
     #     initial structure
     #structure from materials project, use your own key
-    substrate_bulk = get_struct_from_mp('Ag', MAPI_KEY="UeMAESPag6qztoGV")
+    substrate_bulk = get_struct_from_mp('Ag')
     #substrate_bulk = get_struct_from_mp('Al')
     sa_sub = SpacegroupAnalyzer(substrate_bulk)
     substrate_bulk = sa_sub.get_conventional_standard_structure()

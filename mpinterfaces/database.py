@@ -25,7 +25,7 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
     """
     subclassing VaspToDbTaskDrone
     """
-    def __init__(self, host="10.5.46.101", port=27017, database="vasp",
+    def __init__(self, host="127.0.0.1", port=27017, database="vasp",
                  user=None, password=None, collection="nanoparticles",
                  parse_dos=False, compress_dos=False, simulate_mode=False,
                  additional_fields=None, update_duplicates=True,
@@ -57,10 +57,14 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
         logger.info("Post-processing dir:{}".format(dir_name))
         fullpath = os.path.abspath(dir_name)
         filename = os.path.join(fullpath, "system.json")
-        with open(filename, "r") as f:
-            system = json.load(f)
-            d["hkl"] = system["hkl"]
-            d["ligand"] = system["ligand"]
+        if os.path.exists(filename):
+            with open(filename, "r") as f:
+                system = json.load(f)
+                d["hkl"] = system.get("hkl")
+                d["ligand"] = system.get("ligand")
+        if self.use_full_uri:
+            d["dir_name"] = get_uri(dir_name)
+        logger.info("Post-processed " + fullpath)                
         #try:
         #    run_stats = {}
         #    outcar = Outcar("OUTCAR")
@@ -81,6 +85,3 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
         #    logger.error("Bad run stats for {}.".format(fullpath))
         #d["run_stats"] = run_stats
         #Convert to full uri path.
-        if self.use_full_uri:
-            d["dir_name"] = get_uri(dir_name)
-        logger.info("Post-processed " + fullpath)

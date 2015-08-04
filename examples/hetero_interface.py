@@ -16,6 +16,7 @@ import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from mpinterfaces import get_struct_from_mp
@@ -99,8 +100,8 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area = 200,
                                               max_mismatch = max_mismatch,
                                               max_angle_diff = max_angle_diff,
                                               r1r2_tol = r1r2_tol)
-    substrate = slab_sub.copy()
-    mat2d = slab_2d.copy()
+    substrate = Structure.from_sites(slab_sub)
+    mat2d = Structure.from_sites(slab_2d)
     # map the intial slabs to the newly found matching lattices
     substrate_latt = Lattice( np.array(
                                     [
@@ -153,15 +154,13 @@ if __name__ == '__main__':
     #     initial structure
     #structure from materials project, use your own key
     substrate_bulk = get_struct_from_mp('Ag')
-    #substrate_bulk = get_struct_from_mp('Al')
     sa_sub = SpacegroupAnalyzer(substrate_bulk)
     substrate_bulk = sa_sub.get_conventional_standard_structure()
-    #mat2d_bulk = get_struct_from_mp('AlN')
+    #mat2d_bulk = get_struct_from_mp('GaN')
     #sa_mat2d = SpacegroupAnalyzer(mat2d_bulk)
     #mat2d_bulk = sa_mat2d.get_conventional_standard_structure()
     #substrate_bulk.to(fmt='poscar', filename='POSCAR_substarte_bulk.vasp')    
-    mat2d_bulk = Structure.from_file('POSCAR_2D')
-    mat2d_bulk.to(fmt='poscar', filename='POSCAR_mat2d_bulk.vasp')    
+    #mat2d_bulk.to(fmt='poscar', filename='POSCAR_mat2d_bulk.vasp')    
     #
     # SLABS
     #
@@ -175,18 +174,30 @@ if __name__ == '__main__':
     #      the subtrate in the substrate's vacuum space.
     #      So ensure that the substrate vacuum spacing is sufficietly
     #      large enough to contain the 2d material
-    # Al 111 substrate with thickness 10 A
+    # substrate of minimum thickness 10 A and 25 A minimum vacuum
     substrate_slab = Interface(substrate_bulk,
                           hkl = [1,1,1],
                           min_thick = 10,
                           min_vac = 25,
                           primitive = False, from_ase = True)
-    # AlN 001 substrate with thickness 3 A and no vacuum
-    mat2d_slab = Interface(mat2d_bulk,
-                          hkl = [0,0,1],
-                          min_thick = 3,
-                          min_vac = 1,
-                          primitive = False, from_ase = True)
+    # GaN 001 substrate structure read from file and converted to slab object
+    # Note: must specify the read in slab's hkl
+    mat2d_input = Structure.from_file('POSCAR_2D')
+    mat2d_hkl = [0,0,1]
+    mat2d_slab = Slab(mat2d_input.lattice,
+                      mat2d_input.species_and_occu,
+                      mat2d_input.frac_coords,
+                      mat2d_hkl,
+                      Structure.from_sites(mat2d_input,to_unit_cell=True),
+                      shift=0,
+                      scale_factor=np.eye(3, dtype=np.int),
+                      site_properties=mat2d_input.site_properties)
+    # create from bulk a substrate with thickness 3 A and no vacuum
+    #mat2d_slab = Interface(mat2d_bulk,
+    #                      hkl = [0,0,1],
+    #                      min_thick = 3,
+    #                      min_vac = 1,
+    #                      primitive = False, from_ase = True)
     substrate_slab.to(fmt='poscar', filename='POSCAR_substrate_slab.vasp')
     mat2d_slab.to(fmt='poscar', filename='POSCAR_mat2d_slab.vasp')
     #
@@ -196,9 +207,9 @@ if __name__ == '__main__':
     substrate_slab_aligned, mat2d_slab_aligned = get_aligned_lattices(substrate_slab,
                                                                       mat2d_slab,
                                                                       max_area = 100,
-                                                                      max_mismatch = 0.6,
+                                                                      max_mismatch = 0.05,
                                                                       max_angle_diff = 1,
-                                                                      r1r2_tol = 20)
+                                                                      r1r2_tol = 0.1)
 
     substrate_slab_aligned.to(fmt='poscar',
                               filename='POSCAR_substrate_aligned.vasp')

@@ -164,9 +164,10 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
         print('r_list is empty. Try increasing the max surface area or/and the other tolerance paramaters')
         sys.exit()
     for r1r2 in r_list:
-        #print('r1, r2', r1r2, '\n')
         uv1_list = reduced_supercell_vectors(ab1, r1r2[0])
         uv2_list = reduced_supercell_vectors(ab2, r1r2[1])
+        if not uv1_list and not uv2_list:
+            continue
         for uv1 in uv1_list:
             for uv2 in uv2_list:                
                 u_mismatch = get_mismatch(uv1[0], uv2[0])
@@ -178,13 +179,20 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
                 print('angle1, angle2', angle1, angle2)
                 print('u and v mismatches', u_mismatch, v_mismatch)
                 if  abs(u_mismatch) < max_mismatch and abs(v_mismatch) < max_mismatch:
-                    if  abs(angle1 - angle2) < max_angle_diff:
+                    max_angle = max(angle1,angle2)
+                    min_angle = min(angle1,angle2)
+                    mod_angle = max_angle%min_angle
+                    is_angle_factor = False
+                    if abs(mod_angle) < 0.001 or abs(mod_angle-min_angle) < 0.001:
+                        is_angle_factor = True
+                    if  abs(angle1 - angle2) < max_angle_diff or is_angle_factor:
                         print('\n FOUND ONE')
                         print('u mismatch in percentage = ', u_mismatch)
                         print('v mismatch in percentage = ', v_mismatch)
                         print('angle1, angle diff', angle1, abs(angle1 - angle2))
                         print('uv1, uv2', uv1, uv2)
                         return uv1, uv2
+        return None, None
     
 def get_uniq_layercoords(struct, nlayers, top=True):
     """

@@ -100,6 +100,9 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area = 200,
                                               max_mismatch = max_mismatch,
                                               max_angle_diff = max_angle_diff,
                                               r1r2_tol = r1r2_tol)
+    if not uv_substrate and not uv_mat2d:
+        print("no matching u and v, trying adjusting the parameters")
+        sys.exit()
     substrate = Structure.from_sites(slab_sub)
     mat2d = Structure.from_sites(slab_2d)
     # map the intial slabs to the newly found matching lattices
@@ -207,10 +210,9 @@ if __name__ == '__main__':
     substrate_slab_aligned, mat2d_slab_aligned = get_aligned_lattices(substrate_slab,
                                                                       mat2d_slab,
                                                                       max_area = 100,
-                                                                      max_mismatch = 0.05,
+                                                                      max_mismatch = 0.06,
                                                                       max_angle_diff = 1,
                                                                       r1r2_tol = 0.1)
-
     substrate_slab_aligned.to(fmt='poscar',
                               filename='POSCAR_substrate_aligned.vasp')
     mat2d_slab_aligned.to(fmt='poscar',

@@ -18,7 +18,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.io.vaspio import Poscar
 
+from mpinterfaces.calibrate import CalibrateSlab
 from mpinterfaces import get_struct_from_mp
 from mpinterfaces.interface import Interface
 from mpinterfaces.transformations import *
@@ -82,8 +84,10 @@ def generate_all_configs(mat2d, substrate,
                 new_coords = new_coords + origin + shift_net
                 interface.append(site.specie, new_coords,
                                  coords_are_cartesian=True)
-            interface.to(fmt='poscar',
-                         filename='POSCAR_final_{0}_{1}.vasp'.format(i,j))
+            #top n_layers set to relax via selective dynamics
+            sd_flags = CalibrateSlab.set_sd_flags2d(interface=interface, n_layers=3)
+            poscar = Poscar(interface, selective_dynamics=sd_flags)
+            poscar.write_file(filename='POSCAR_final_{0}_{1}.vasp'.format(i,j))   
 
             
 def get_aligned_lattices(slab_sub, slab_2d, max_area = 200,

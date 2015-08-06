@@ -13,7 +13,7 @@ import logging
 
 from monty.json import MontyEncoder, MontyDecoder
 
-from pymatgen.io.vaspio.vasp_output import Vasprun
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \

@@ -572,7 +572,7 @@ class Ligand(Molecule):
 
 #test
 if __name__=='__main__':
-    from pymatgen.io.vaspio.vasp_input import Poscar    
+    from pymatgen.io.vasp.inputs import Poscar    
     ########################################
     #create lead acetate ligand
     #from 3 molecules: 2 acetic acid + 1 Pb

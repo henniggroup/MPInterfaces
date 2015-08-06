@@ -10,8 +10,8 @@ import socket
 import copy
 import logging
 
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar
-from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
+from pymatgen.io.vasp.inputs import Incar, Poscar
+from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.apps.borg.queen import BorgQueen
 
 from fireworks.core.firework import FireTaskBase, Firework, FWAction

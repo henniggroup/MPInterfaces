@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib.gridspec import GridSpec
 
-from pymatgen.io.vaspio.vasp_output import Vasprun
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.electronic_structure.core import Spin
 
 def rgbline(ax, k, e, red, green, blue, alpha=1.):

@@ -5,7 +5,7 @@ from __future__ import division, unicode_literals, print_function
 import sys
 
 from pymatgen.core import Structure
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 
 from mpinterfaces.interface import Interface
 

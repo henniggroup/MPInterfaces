@@ -10,7 +10,7 @@ import math
 
 from pymatgen.core.surface import Slab
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.io.aseio import AseAtomsAdaptor
+from pymatgen.io.ase import AseAtomsAdaptor
 
 from ase.lattice.surface import surface
 

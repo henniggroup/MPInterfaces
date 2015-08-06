@@ -14,7 +14,7 @@ import sys
 
 from pymatgen.matproj.rest import MPRester
 from pymatgen.core import Molecule, Structure
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 
 from mpinterfaces import *
 

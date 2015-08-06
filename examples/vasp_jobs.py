@@ -17,8 +17,8 @@ from collections import OrderedDict
 import numpy as np
 
 from pymatgen.matproj.rest import MPRester
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar
-from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
+from pymatgen.io.vasp.inputs import Incar, Poscar
+from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

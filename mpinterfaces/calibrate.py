@@ -36,9 +36,9 @@ import numpy as np
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import Slab, SlabGenerator
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar
-from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
-from pymatgen.io.vaspio.vasp_output import Outcar
+from pymatgen.io.vasp.inputs import Incar, Poscar
+from pymatgen.io.vasp.inputs import Potcar, Kpoints
+from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.apps.borg.queen import BorgQueen
 
 from custodian.vasp.handlers import VaspErrorHandler

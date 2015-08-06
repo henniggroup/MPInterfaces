@@ -5,6 +5,7 @@ __date__ = "Jul 11 2015"
 __version__ = "1.1.1"
 
 import os
+import sys
 import operator
 from pymatgen.matproj.rest import MPRester
 

@@ -171,7 +171,7 @@ class mpint(object):
                     self.poscar = Poscar(strt)
             elif from_mp:
                 logger.info("neither poscar nor slab creation setup provided, getting the bulk structure for the given formula from the materialsproject database")
-                strt = get_struct()
+                strt = self.get_struct()
                 self.poscar = Poscar(strt)
             logger.info("setting potcar from poscar symbols")
             self.potcar = Potcar(self.poscar.site_symbols)

@@ -48,9 +48,9 @@ from pymatgen.matproj.rest import MPRester
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar
-from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
-from pymatgen.io.vaspio.vasp_output import Outcar
+from pymatgen.io.vasp.inputs import Incar, Poscar
+from pymatgen.io.vasp.inputs import Potcar, Kpoints
+from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.apps.borg.queen import BorgQueen
 
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
@@ -167,7 +167,7 @@ class mpint(object):
                 self.slab = update['SLAB']
                 if len(self.slab)>2:
                     logger.info("creating slab")
-                    strt = get_slab_struct(*self.slab)
+                    strt = self.get_slab_struct(*self.slab)
                     self.poscar = Poscar(strt)
             elif from_mp:
                 logger.info("neither poscar nor slab creation setup provided, getting the bulk structure for the given formula from the materialsproject database")

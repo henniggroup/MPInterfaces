@@ -19,8 +19,8 @@ density of states and equations of state.
 The example folder "notebooks" also provides example calculations of Pourbaix diagrams, 
 and Phase diagrams based on the method implemented in pymatgen/examples
 
-Functions
-========= 
+Capabilities
+============
 
 MPInterfaces extends object oriented definitions of materialsproject pymatgen to 
 interfaces and features:  
@@ -37,6 +37,40 @@ Example scripts:
     - ligand_interface.py : creates a list of ligand + slab interfaces with pre-configuration
     - hetero_interface.py : creates a slab – slab heterostructure interface 
     - nanoparticle.py     : creates a nanoparticle based on Wulff Construction
+
+
+Offline vasp project management
+--------------------------------
+
+The script, **mpint**, in the scripts folder serves as a management
+tool for vasp projects, starting from encut, kpoint or other parameter
+optimization till the solvation calculations. Just define all types of
+calculations with their corresponding specifications needed for the
+project in a yaml file and run or rerun calculaitons as required.
+
+it takes 3 arguments: input yaml file, type of calculation and the
+run mode
+
+example:
+
+   ```
+   mpint -i naf.yaml -t bulk_calibrate run
+   ```
+   
+   this will read in the specifications for 'bulk_calibrate' job
+   from the input yaml file, naf.yaml(in examples folder), and
+   runs the job i.e submits to the PBS que.
+   
+   run modes supported:
+   
+   1. run : submits job to the que
+   2. check: check whether the job is finished or not
+   3. energies: get the energies and the optimum parameter values
+      
+   Everytime jobs are submitted or its status queried, information
+   such as job ids, job folders etc are written to the log file
+   'mpint.log'. This makes it easier to identify job ids and their
+   corresponding job folders.
 
 High throughput VASP workflows with FireWorks  
 ---------------------------------------------

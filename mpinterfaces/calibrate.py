@@ -330,14 +330,17 @@ class Calibrate(object):
         elif poscar is not None:
             self.poscar = poscar
 
-    def set_potcar(self, mapping):
+    def set_potcar(self, mapping=None):
         """
         set the potcar: symbol to potcar type mapping
         """
         symbols = self.poscar.site_symbols
         mapped_symbols = []
-        for sym in symbols:
-            mapped_symbols.append(mapping[sym])
+        if mapping:
+            for sym in symbols:
+                mapped_symbols.append(mapping[sym])
+        else:
+            mapped_symbols = symbols
         self.potcar = Potcar(symbols=mapped_symbols)
         pass
 
@@ -379,7 +382,7 @@ class Calibrate(object):
         	logger.warn('incar list empty')
                     
             
-    def setup_kpoints_jobs(self, kpoints_list = []):
+    def setup_kpoints_jobs(self, kpoints_list = None):
         """
         setup the kpoint jobs
         
@@ -392,7 +395,7 @@ class Calibrate(object):
         else:
         	logger.warn('kpoints_list empty')
             
-    def setup_poscar_jobs(self, scale_list=[], poscar_list=[]):
+    def setup_poscar_jobs(self, scale_list=None, poscar_list=None):
         """
         for scaling the latice vectors of the original structure,
         scale_list is volume scaling factor list
@@ -400,6 +403,7 @@ class Calibrate(object):
         if scale_list:
             for scale in scale_list:
                 self.set_poscar(scale=scale)
+                self.set_potcar()
                 job_dir  = self.job_dir+ os.sep + 'POS' +\
                         os.sep + 'VOLUME_'+str(scale)
                 if not self.is_matrix:
@@ -407,6 +411,7 @@ class Calibrate(object):
         elif poscar_list:
             for poscar in poscar_list:
                 self.set_poscar(poscar=poscar)
+                self.set_potcar()
                 job_dir  = self.job_dir+ os.sep +'POS' +\
                   os.sep + poscar.comment
                 if not self.is_matrix:

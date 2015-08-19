@@ -41,8 +41,10 @@ import shutil
 import datetime
 import yaml
 import logging
+import socket
 from collections import OrderedDict
 from argparse import ArgumentParser
+import numpy as np
 
 from pymatgen.matproj.rest import MPRester
 from pymatgen.core.structure import Structure
@@ -76,6 +78,7 @@ class mpint(object):
         def __init__(self):
             self.formula = None
             self.qadapter = None
+            self.job_cmd = None
             self.cal_job_dir = None
             self.turn_knobs = OrderedDict(
                 [
@@ -132,10 +135,13 @@ class mpint(object):
             if not MAPI_KEY:
                 print('get API KEY from materialsproject and set it to the MAPI_KEY environment variable')
                 sys.exit()
-            strt = get_struct_from_mp(self.formula, MAPI_KEY=MAPI_KEY)
-            sa = SpacegroupAnalyzer(strt) 
-            structure_conventional = sa.get_conventional_standard_structure()
-            strt = structure_conventional.copy()
+            if self.formula:
+                    strt = get_struct_from_mp(self.formula, MAPI_KEY=MAPI_KEY)
+                    sa = SpacegroupAnalyzer(strt) 
+                    structure_conventional = sa.get_conventional_standard_structure()
+                    strt = structure_conventional.copy()
+            else:
+                    strt = None
             return strt
 
 
@@ -157,7 +163,7 @@ class mpint(object):
             logger.info("note: using monkhorst automatic kpoints")
             nprocs = 32
             nnodes = 1
-            bin = '/home/km468/Software/VASP/vaspsol_nln_kappa.5.3.5/vasp'
+            bin = '/home/km468/Software/VASP/vasp.5.3.5/vasp'
             mem = 1000
             walltime = '04:00:00'
             if update.get('POSCAR'):
@@ -172,7 +178,10 @@ class mpint(object):
             elif from_mp:
                 logger.info("neither poscar nor slab creation setup provided, getting the bulk structure for the given formula from the materialsproject database")
                 strt = self.get_struct()
-                self.poscar = Poscar(strt)
+                if strt:
+                        self.poscar = Poscar(strt)
+                else:
+                        logger.warn("No formula or poscar file provided")
             logger.info("setting potcar from poscar symbols")
             self.potcar = Potcar(self.poscar.site_symbols)
             logger.info("updating INCAR")
@@ -195,8 +204,16 @@ class mpint(object):
                     walltime = str(update['QUE']['TIME'])+':00:00'
                 if update['QUE'].get('BIN'):
                     bin = update['QUE']['BIN']
-                d = self.get_d(nnodes, nprocs, walltime, bin, mem)
-                self.qadapter = CommonAdapter(d['type'], **d['params'])
+                if socket.gethostname() in ['hydrogen',
+                                            'helium',
+                                            'lithium',
+                                            'beryllium',
+                                            'carbon']:
+                        # submit_vasp_job script must be in the path
+                        self.job_cmd = ['submit_vasp_job', bin ]
+                else:
+                        d = self.get_d(nnodes, nprocs, walltime, bin, mem)
+                        self.qadapter = CommonAdapter(d['type'], **d['params'])
             if update.get('WAVECAR') :
                 wavecar_file = update['WAVECAR']
                 if os.path.isfile(wavecar_file):
@@ -213,12 +230,18 @@ class mpint(object):
             if args.input:
                 f = open(args.input)
                 update = yaml.load(f)
-                self.formula = update['FORMULA']
+                self.formula = update.get('FORMULA')
                 f.close()
-                self.cal_job_dir = self.formula+'_single'
+                if self.formula:
+                        self.cal_job_dir = self.formula+'_single'
+                else:
+                        self.cal_job_dir = 'vasp_job'
                 if args.type:
-                    self.cal_job_dir = self.formula+'_'+args.type
-                    logger.info("{0} type job for {1} system".format(args.type, self.formula))
+                        if self.formula:
+                                self.cal_job_dir = self.formula+'_'+args.type
+                        else:
+                                self.cal_job_dir = args.type
+                logger.info("{0} type job for {1} system".format(args.type, self.formula))
                 logger.info("job folder: {0}".format(self.cal_job_dir))
 		# initial input set
                 if args.command == 'run':
@@ -238,8 +261,11 @@ class mpint(object):
                             paramlist = []
                             if key == 'KPOINTS':
                                 paramlist = [[k,k,k] for k in range(knobset['KPOINTS'][0], knobset['KPOINTS'][1], knobset['KPOINTS'][2])]
+                            elif key == 'POSCAR':
+                                for pfile in val:
+                                        paramlist.append(Poscar.from_file(str(pfile)))
                             else:
-                                paramlist = range(knobset[key][0], knobset[key][1], knobset[key][2])
+                                paramlist = np.arange(knobset[key][0], knobset[key][1], knobset[key][2])
                             self.turn_knobs.update({key:paramlist})
 
 
@@ -258,7 +284,7 @@ class mpint(object):
                                     Grid_type='M', 
                                     qadapter = self.qadapter,
                                     job_dir = self.cal_job_dir, 
-                                    job_cmd = None, wait = False, 
+                                    job_cmd = self.job_cmd, wait = False, 
                                     system = system, from_ase = True)
             else:
                 cal = Calibrate(self.incar, self.poscar, 
@@ -267,7 +293,7 @@ class mpint(object):
                                 Grid_type='M', 
                                 qadapter = self.qadapter,
                                 job_dir = self.cal_job_dir, 
-                                job_cmd = None, wait=False)
+                                job_cmd = self.job_cmd, wait=False)
                 
             cal.setup()
             return cal

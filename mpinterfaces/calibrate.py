@@ -412,8 +412,12 @@ class Calibrate(object):
             for poscar in poscar_list:
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
+                poskey = str(poscar.structure.composition.reduced_formula) \
+                                 + '_'+ str(int(poscar.structure.lattice.volume)) \
+                                 + '_' + poscar.comment
+                
                 job_dir  = self.job_dir+ os.sep +'POS' +\
-                  os.sep + poscar.comment
+                  os.sep + poskey
                 if not self.is_matrix:
                     self.add_job(name=job_dir, job_dir=job_dir)
                     
@@ -478,9 +482,7 @@ class Calibrate(object):
         for k, v in self.response_to_knobs.items():
             rootpath = self.job_dir+ os.sep + self.key_to_name(k)
             logger.info('rootpath = '+rootpath)
-            logger.warn('for the POSCAR knob responses, the key to the
-            response dictionary is a combination of the formula and
-            the volume of the structure')
+            logger.warn('for the POSCAR knob responses, the key to the response dictionary is a combination of the formula and the volume of the structure')
             #bg.parallel_assimilate(rootpath)        
             bg.serial_assimilate(rootpath)
             allentries =  bg.get_data()
@@ -492,10 +494,10 @@ class Calibrate(object):
                         self.response_to_knobs[k][str(e.kpoints.kpts)] \
                            = e.energy/self.n_atoms
                     elif k == 'POSCAR':
-                        #self.response_to_knobs[k][] \
                         poskey = str(e.structure.composition.reduced_formula) \
-                                 + '_'+ str(e.structure.lattice.volume)
-                        self.response_to_knobs[k][poskey] \                          
+                                 + '_'+ str(int(e.structure.lattice.volume)) \
+                                 + '_' + poscar.comment
+                        self.response_to_knobs[k][poskey] \
                            = e.energy/self.n_atoms
 
                     else:
@@ -859,7 +861,7 @@ class CalibrateInterface(CalibrateSlab):
                           from_ase=self.from_ase)
         iface.sort()
         sd = self.set_sd_flags(iface, n_layers=2)
-        #if theer are other paramters that are being varied
+        #if there are other paramters that are being varied
         #change the comment accordingly
         comment = self.system['hkl']+self.system['ligand']['name']
         return Poscar(slab_struct, comment=comment,

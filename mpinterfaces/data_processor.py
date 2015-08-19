@@ -181,8 +181,7 @@ class MPINTVaspDrone(VaspToComputedEntryDrone):
         try:
             vasprun = MPINTVasprun(filepath)
         except Exception as ex:
-            logger.info("error in {}: {}".format(filepath, ex))
-            #logger.debug("error in {}: {}".format(filepath, ex))
+            logger.error("vasprun read error in {}: {}".format(filepath, ex))
             return None
 
         entry = vasprun.get_computed_entry(self._inc_structure,

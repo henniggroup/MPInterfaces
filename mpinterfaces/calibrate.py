@@ -478,7 +478,9 @@ class Calibrate(object):
         for k, v in self.response_to_knobs.items():
             rootpath = self.job_dir+ os.sep + self.key_to_name(k)
             logger.info('rootpath = '+rootpath)
-            logger.warn('for the POSCAR knob responses, the key to the response dictionary is the length of the c lattice vector of the structure. This assumes that the only paramter that varies from one structure to another is the c lattice vector, which is usually the case for slab vacuum and thickness calibrations')
+            logger.warn('for the POSCAR knob responses, the key to the
+            response dictionary is a combination of the formula and
+            the volume of the structure')
             #bg.parallel_assimilate(rootpath)        
             bg.serial_assimilate(rootpath)
             allentries =  bg.get_data()
@@ -490,7 +492,10 @@ class Calibrate(object):
                         self.response_to_knobs[k][str(e.kpoints.kpts)] \
                            = e.energy/self.n_atoms
                     elif k == 'POSCAR':
-                        self.response_to_knobs[k][str(e.structure.lattice.c)] \
+                        #self.response_to_knobs[k][] \
+                        poskey = str(e.structure.composition.reduced_formula) \
+                                 + '_'+ str(e.structure.lattice.volume)
+                        self.response_to_knobs[k][poskey] \                          
                            = e.energy/self.n_atoms
 
                     else:

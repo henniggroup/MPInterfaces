@@ -85,12 +85,14 @@ class MPINTVasprun(Vasprun):
     """
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
-                 parse_eigen=True, parse_projected_eigen=False):
+                 parse_eigen=True, parse_projected_eigen=False,
+                 parse_potcar_file=True):
         
         Vasprun.__init__(self, filename, ionic_step_skip=ionic_step_skip,
                  ionic_step_offset=ionic_step_offset, 
                  parse_dos=parse_dos, parse_eigen=parse_eigen, 
-                 parse_projected_eigen=parse_projected_eigen)
+                 parse_projected_eigen=parse_projected_eigen,
+                 parse_potcar_file=parse_potcar_file)
             
     def get_computed_entry(self, inc_structure=False, 
                            inc_incar_n_kpoints=False,

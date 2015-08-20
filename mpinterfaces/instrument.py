@@ -188,15 +188,17 @@ class MPINTVaspJob(Job):
          return self.__class__.__name__
 
     def get_final_energy(self):
+        vasprun_file_path = self.job_dir + os.sep + 'vasprun.xml'
         try:
-            vasprun = MPINTVasprun(self.job_dir)
+            vasprun = MPINTVasprun(vasprun_file_path, parse_potcar_file=False)
             if vasprun.converged:
+                logger.info("job {} converged".format(self.job_id))
                 return vasprun.final_energy
             else:
-                logger.info("not done yet")
+                logger.info("job {} NOT converged".format(self.job_id))
                 return None
         except Exception as ex:
-            logger.info("not done yet")
+            logger.info("error reading vasprun.xml, probably the job {0} is not done yet. {1}".format(self.job_id, ex))
             return None
 
         

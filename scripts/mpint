@@ -323,6 +323,8 @@ class mpint(object):
                 cal.set_sorted_optimum_params()        
                 logger.info('optium values for the knob parameters based on the cutoff criterion : {0}'.format(cal.optimum_knob_responses))
 
+	def update(self, args):
+            Calibrate.update_checkpoint()
 
         def main(self):
             m_description = """
@@ -363,6 +365,9 @@ Note: this script submits jobs only to the PBS ques such as hipergator
 
             check_parser = subparsers.add_parser('energies', help='get energies for the given system and calculation type')
             check_parser.set_defaults(func=self.get_energies)
+
+            update_parser = subparsers.add_parser('update', help='update/rerun the checkpoint file calibrate.json ')
+            update_parser.set_defaults(func=self.update)
 
             args = parser.parse_args()
             args.func(args) 

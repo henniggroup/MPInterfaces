@@ -48,6 +48,9 @@ from custodian.vasp.handlers import VaspErrorHandler
 from custodian.custodian import Custodian, gzip_dir
 from custodian.vasp.interpreter import VaspModder
 
+from monty.json import MSONable, MontyEncoder, MontyDecoder
+from monty.serialization import loadfn, dumpfn
+
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
 from mpinterfaces.interface import Interface, Ligand
@@ -67,6 +70,8 @@ class Calibrate(object):
     calibrating the input parameters for different systems
     
     """
+    LOG_FILE = "calibrate.json"
+
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.',job_dir='Job',
@@ -136,6 +141,7 @@ class Calibrate(object):
         self.is_matrix = is_matrix
         self.Grid_type = Grid_type
         self.wait = wait
+        self.cal_log = []
     
     def setup(self):
         """
@@ -469,7 +475,47 @@ class Calibrate(object):
         c = Custodian(self.handlers, self.jobs, max_errors=5)
         c.run()
         for j in self.jobs:
+            self.cal_log.append({"job": j.as_dict(), 
+                                 'job_id': j.job_id, 
+                                 "corrections": [], 
+                                 'final_energy': None})
             self.job_ids.append(j.job_id)
+        dumpfn(self.cal_log, Calibrate.LOG_FILE, cls=MontyEncoder,
+               indent=4)
+
+    @staticmethod
+    def update_checkpoint(job_ids=None):
+        """
+        rerun the jobs with job ids in the job_ids list. The jobs are
+        read from the calibrate.json checkpoint file. If no job_ids 
+        is given then the checkpoint file will be updated with 
+        corresponding final energy
+        """
+        #shutil.copy(Calibrate.LOG_FILE, "{}.orig".format(Calibrate.LOG_FILE))
+        cal_log = loadfn(Calibrate.LOG_FILE, cls=MontyDecoder)
+        cal_log_new = []
+        all_jobs = []
+        run_jobs = []
+        handlers = []
+        final_energy = None
+        for j in cal_log:
+            job = j["job"] 
+            job.job_id = j['job_id']
+            all_jobs.append(job)
+            if job_ids and j['job_id'] in job_ids:
+                run_jobs.append(job)
+        if run_jobs:
+            c = Custodian(handlers, run_jobs, max_errors=5)
+            c.run()
+        for j in all_jobs:
+            final_energy = j.get_final_energy()
+            cal_log_new.append({"job": j.as_dict(), 
+                                 'job_id': j.job_id, 
+                                 "corrections": [], 
+                                 'final_energy': final_energy})
+        dumpfn(cal_log_new, Calibrate.LOG_FILE, cls=MontyEncoder,
+               indent=4)
+
 
     def set_knob_responses(self):
         """

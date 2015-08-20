@@ -21,6 +21,8 @@ from pymatgen.io.vasp.sets import DictVaspInputSet
 from custodian.custodian import Job, gzip_dir, ErrorHandler
 from custodian.vasp.interpreter import VaspModder
 
+from mpinterfaces.data_processor import MPINTVasprun
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
@@ -185,6 +187,19 @@ class MPINTVaspJob(Job):
     def name(self):
          return self.__class__.__name__
 
+    def get_final_energy(self):
+        try:
+            vasprun = MPINTVasprun(self.job_dir)
+            if vasprun.converged:
+                return vasprun.final_energy
+            else:
+                logger.info("not done yet")
+                return None
+        except Exception as ex:
+            logger.info("not done yet")
+            return None
+
+        
 class MPINTVaspErrors(ErrorHandler):
     """
     handles restarting of jobs that exceed the walltime

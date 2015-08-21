@@ -6,9 +6,10 @@ from pymatgen.apps.borg.queen import BorgQueen
 
 additional_fields = {"author":"kiran"}
 drone = MPINTVaspToDbTaskDrone(host="127.0.0.1", port=27017,
-                               database="vasp", collection="nanoparticles",
-                               user="km468", password="password",
+                               database="vasp", collection="collection_name",
+                               user="username", password="password",
                                additional_fields=additional_fields)
-#ncpus = multiprocessing.cpu_count()
-queen = BorgQueen(drone)#, number_of_drones=ncpus)
-queen.serial_assimilate('/home/matk/Software/vasp_automation/test/Li2O')
+
+ncpus = 4 #multiprocessing.cpu_count()
+queen = BorgQueen(drone, number_of_drones=ncpus)
+queen.parallel_assimilate('path_to_vasp_calculation_folders')

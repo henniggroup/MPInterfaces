@@ -420,7 +420,7 @@ class Calibrate(object):
                 self.set_potcar()
                 poskey = str(poscar.structure.composition.reduced_formula) \
                                  + '_'+ str(int(poscar.structure.lattice.volume)) \
-                                 + '_' + poscar.comment
+                                 + '_' + ''.join((poscar.comment).split())
                 
                 job_dir  = self.job_dir+ os.sep +'POS' +\
                   os.sep + poskey
@@ -542,7 +542,7 @@ class Calibrate(object):
                     elif k == 'POSCAR':
                         poskey = str(e.structure.composition.reduced_formula) \
                                  + '_'+ str(int(e.structure.lattice.volume)) \
-                                 + '_' + poscar.comment
+                                 + '_' + ''.join((poscar.comment).split())
                         self.response_to_knobs[k][poskey] \
                            = e.energy/self.n_atoms
 

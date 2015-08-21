@@ -21,6 +21,10 @@ from pymatgen.io.vasp.sets import DictVaspInputSet
 from custodian.custodian import Job, gzip_dir, ErrorHandler
 from custodian.vasp.interpreter import VaspModder
 
+from monty.json import MontyDecoder
+
+from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
+
 from mpinterfaces.data_processor import MPINTVasprun
 
 logger = logging.getLogger(__name__)
@@ -43,7 +47,6 @@ class MPINTVaspInputSet(DictVaspInputSet):
     """
     def __init__(self, name, incar, poscar, potcar, kpoints,
                  qadapter=None, **kwargs ):
-        #config_dict, user_incar_settings=None, **kwargs):
         """
         default INCAR from config_dict
         
@@ -53,6 +56,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         self.poscar = Poscar.from_dict(poscar.as_dict())
         self.potcar = Potcar.from_dict(potcar.as_dict())
         self.kpoints = Kpoints.from_dict(kpoints.as_dict())
+        self.extra = kwargs
         if qadapter is not None:
             self.qadapter = qadapter.from_dict(qadapter.to_dict())
         else:
@@ -60,15 +64,15 @@ class MPINTVaspInputSet(DictVaspInputSet):
         
         config_dict = {}
         config_dict['INCAR'] = self.incar.as_dict()
-         #caution the key and the value are not always the same        
-        config_dict['POTCAR'] = dict(zip(self.potcar.as_dict()['symbols'],
-                                         self.potcar.as_dict()['symbols']))
-        config_dict['KPOINTS'] = self.kpoints #kpoints.as_dict()
+        config_dict['POSCAR'] = self.poscar.as_dict() 
+        #caution the key and the value are not always the same        
+        config_dict['POTCAR'] = self.potcar.as_dict() 
+        #dict(zip(self.potcar.as_dict()['symbols'],
+        #self.potcar.as_dict()['symbols']))
+        config_dict['KPOINTS'] = self.kpoints.as_dict()
         #self.user_incar_settings = self.incar.as_dict()        
-        
         DictVaspInputSet.__init__(self, name, config_dict,
                                    ediff_per_atom=False, **kwargs)
-
         
     def write_input(self, job_dir, make_dir_if_not_present=True,
                      write_cif=False):
@@ -93,8 +97,29 @@ class MPINTVaspInputSet(DictVaspInputSet):
                 f.write(queue_script)           
             
     def as_dict(self):
-        d = super(MPINTVaspInputSet, self).as_dict()
+        qadapter = None
+        if self.qadapter:
+            qadapter = self.qadapter.to_dict()
+        d = dict(name=self.name, incar=self.incar.as_dict(), 
+                 poscar=self.poscar.as_dict(), 
+                 potcar=self.potcar.as_dict(), 
+                 kpoints=self.kpoints.as_dict(),
+                 qadapter=qadapter, kwargs=self.extra )
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
+
+    @classmethod
+    def from_dict(cls,d):
+        incar = Incar.from_dict(d["incar"])
+        poscar = Poscar.from_dict(d["poscar"])
+        potcar = Potcar.from_dict(d["potcar"])
+        kpoints = Kpoints.from_dict(d["kpoints"])
+        qadapter = None
+        if d["qadapter"] is not None:
+            qadapter = CommonAdapter.from_dict(d["qadapter"])
+        return MPINTVaspInputSet(d["name"], incar, poscar, potcar,
+                                 kpoints, qadapter, **d["kwargs"])
 
     
 class MPINTVaspJob(Job):
@@ -108,7 +133,8 @@ class MPINTVaspJob(Job):
        rest of the vasp inputs
        job_dir : the directory from which the jobs will be launched
     """
-    def __init__(self, job_cmd, name='noname',output_file="job.out", setup_dir='.',
+    def __init__(self, job_cmd, name='noname',output_file="job.out", 
+                 setup_dir='.',
                  parent_job_dir='.', job_dir='untitled', suffix="",
                  final=True, gzipped=False, backup=False,
                  vis=None, auto_npar=True,
@@ -200,6 +226,39 @@ class MPINTVaspJob(Job):
         except Exception as ex:
             logger.info("error reading vasprun.xml, probably the job {0} is not done yet. {1}".format(self.job_id, ex))
             return None
+
+    def as_dict(self):
+        d = dict(job_cmd=self.job_cmd, name=self.name, 
+                 output_file=self.output_file, setup_dir=self.setup_dir,
+                 parent_job_dir=self.parent_job_dir, 
+                 job_dir=self.job_dir, suffix=self.suffix, 
+                 final=self.final, gzipped=self.gzipped, 
+                 backup=self.backup, vis=self.vis.as_dict(), 
+                 auto_npar=self.auto_npar, auto_gamma=self.auto_gamma, 
+                 settings_override=self.settings_override,
+                 gamma_vasp_cmd=self.gamma_vasp_cmd, 
+                 copy_magmom=self.copy_magmom, wait=self.wait)
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        vis = MontyDecoder().process_decoded(d["vis"])
+        return MPINTVaspJob(d["job_cmd"], name=d["name"], 
+                            output_file=d["output_file"], 
+                            setup_dir=d["setup_dir"],
+                            parent_job_dir=d["parent_job_dir"], 
+                            job_dir=d["job_dir"], 
+                            suffix=d["suffix"], final=d["final"], 
+                            gzipped=d["gzipped"], 
+                            backup=d["backup"], vis=vis, 
+                            auto_npar=d["auto_npar"], 
+                            auto_gamma=d["auto_gamma"], 
+                            settings_override=d["settings_override"],
+                            gamma_vasp_cmd=d["gamma_vasp_cmd"], 
+                            copy_magmom=d["copy_magmom"], 
+                            wait=d["wait"])
 
         
 class MPINTVaspErrors(ErrorHandler):

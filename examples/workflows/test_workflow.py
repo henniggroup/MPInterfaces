@@ -13,7 +13,7 @@ import numpy as np
 
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 
 from fireworks.fw_config import LAUNCHPAD_LOC
 from fireworks import Firework, Workflow, LaunchPad
@@ -58,8 +58,8 @@ cal = Calibrate(incar, poscar, potcar, kpoints,
 caltask = MPINTCalibrateTask(cal.as_dict())
 
 #firework with launch directory set to $FW_JOB_DIR, an environment variable
+#spec={'_launch_dir':'$FW_JOB_DIR'}, 
 fw_calibrate = Firework([caltask], 
-                        spec={'_launch_dir':'$FW_JOB_DIR'}, 
                         name="fw_test")
 wf = Workflow([fw_calibrate], name="mpint_wf_test")
 lp = LaunchPad.from_file(LAUNCHPAD_LOC)

@@ -46,15 +46,20 @@ turn_knobs = { 'ENCUT' : range(400, 500, 100),
                'KPOINTS': [k for k in range(20, 30, 10)]
              }
 job_dir = 'calBulk'
+job_cmd = ['mpirun', '/home/km468/Software/VASP/vasp.5.3.5/vasp']
 qparams= dict(nnodes='1', ppnode='16', 
               job_name='vasp_job', pmem='1000mb',
               walltime='24:00:00',
-              rocket_launch='mpirun /home/km468/Software/VASP/vasp.5.3.5/vasp')
-qadapter = CommonAdapter(q_type="PBS",**qparams)
+              rocket_launch=''.join(job_cmd))
+# set qadapter to None to launch via qlaunch
+# reserve and launch offline
+# qlaunch -r singleshot
+# lpad recover_offline
+qadapter = None #CommonAdapter(q_type="PBS",**qparams)
 cal = Calibrate(incar, poscar, potcar, kpoints,
                 turn_knobs = turn_knobs,
                 qadapter = qadapter,
-                job_dir = job_dir)
+                job_dir = job_dir, job_cmd=job_cmd)
 caltask = MPINTCalibrateTask(cal.as_dict())
 
 #firework with launch directory set to $FW_JOB_DIR, an environment variable

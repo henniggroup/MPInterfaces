@@ -110,18 +110,19 @@ def get_cal_obj(d):
     """
     cal = MontyDecoder().process_decoded(d)
     # default
-    if not d.get("qadapter"):
-        qadapter, job_cmd = get_run_cmmnd(**d.get('que_params', {}))
-        cal.qadapter = qadapter
-        cal.job_cmd = job_cmd
+    #if not d.get("qadapter"):
+    #    qadapter, job_cmd = get_run_cmmnd(**d.get('que_params', {}))
+    #    cal.qadapter = qadapter
+    #    cal.job_cmd = job_cmd
     return cal
 
 
 @explicit_serialize
-class MPINTCalibrateTask(FireTaskBase, FWSerializable):
+class MPINTCalibrateTask(FireTaskBase):
     """
     Calibration Task
     """
+
     optional_params = ["que_params"]
 
     def run_task(self, fw_spec):

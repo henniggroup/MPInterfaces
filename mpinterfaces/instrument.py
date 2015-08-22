@@ -218,10 +218,10 @@ class MPINTVaspJob(Job):
         try:
             vasprun = MPINTVasprun(vasprun_file_path, parse_potcar_file=False)
             if vasprun.converged:
-                logger.info("job {} converged".format(self.job_id))
+                logger.info("job {0} in {1} converged".format(self.job_id, self.job_dir))
                 return vasprun.final_energy
             else:
-                logger.info("job {} NOT converged".format(self.job_id))
+                logger.info("job {0} in {1} NOT converged".format(self.job_id, self.job_dir))
                 return None
         except Exception as ex:
             logger.info("error reading vasprun.xml, probably the job {0} is not done yet. {1}".format(self.job_id, ex))

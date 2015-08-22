@@ -110,7 +110,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         return d
 
     @classmethod
-    def from_dict(cls,d):
+    def from_dict(cls, d):
         incar = Incar.from_dict(d["incar"])
         poscar = Poscar.from_dict(d["poscar"])
         potcar = Potcar.from_dict(d["potcar"])

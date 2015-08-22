@@ -14,6 +14,8 @@ from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.apps.borg.queen import BorgQueen
 
+from monty.json import MontyDecoder
+
 from fireworks.core.firework import FireTaskBase, Firework, FWAction
 from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable
@@ -32,6 +34,7 @@ sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
+
 def load_class(mod, name):
     """
     load class named name from module mod
@@ -40,11 +43,14 @@ def load_class(mod, name):
     mod = __import__(mod, globals(), locals(), [name], 0)
     return getattr(mod, name)
 
-def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
-                 job_bin=None):
+
+def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
+                  job_bin=None):
     d = {}
+    job_cmd = None
+    hostname = socket.gethostname()
     #hipergator
-    if 'ufhpc' in socket.gethostname():
+    if 'ufhpc' in hostname:
         if job_bin is None:
             job_bin='/home/km468/Software/VASP/vasp.5.3.5/vasp'
         else:
@@ -63,7 +69,7 @@ def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
                 }
              }
     #stampede
-    elif 'stampede' in socket.gethostname():
+    elif 'stampede' in hostname:
         if job_bin is None:
             job_bin='/home1/01682/km468/Software/VASP/vasp.5.3.5/vasp'
         else:
@@ -80,65 +86,43 @@ def get_qadapter(nnodes=1, nprocs=16, walltime='24:00:00',
                 'rocket_launch': 'ibrun '+job_bin
                 }
              }
-    if d:
-        return CommonAdapter(d['type'], **d['params'])
+    # running henniggroup machines
+    elif hostname in ['hydrogen', 'helium',
+                      'lithium', 'beryllium',
+                      'carbon']:
+        job_cmd = ['nohup', '/opt/openmpi_intel/bin/mpirun',
+                   '-n', '24',
+                   '/home/km468/Software/VASP/vasp.5.3.5/vasp']
+    # test
     else:
-        return None
+        job_cmd=['ls', '-lt']
+    if d:
+        return (CommonAdapter(d['type'], **d['params']), job_cmd) 
+    else:
+        return (None, job_cmd)
     
+
 def get_cal_obj(d):
     """
     construct a calibration object from the input dictionary, d
 
     returns a calibration object
     """
-    incar = Incar.from_dict(d["incar"])
-    poscar = Poscar.from_dict(d["poscar"])
-    symbols = poscar.site_symbols
-    potcar = Potcar(symbols)
-    kpoints = Kpoints.from_dict(d["kpoints"])
-    turn_knobs = d["turn_knobs"]
-    #if running on hipergator or stampede, will return a qadapter
-    #with default values even if que_params is not set
-    qadapter = get_qadapter(**d.get('que_params', {}))
-    job_cmd = None
-    #running henniggroup machines
-    if qadapter is None and  socket.gethostname() in ['hydrogen',
-                                                      'helium',
-                                                      'lithium',
-                                                      'beryllium',
-                                                      'carbon']:
-        job_cmd = ['nohup', '/opt/openmpi_intel/bin/mpirun',
-                   '-n', '24',
-                   '/home/km468/Software/VASP/vasp.5.3.5/vasp']
-        if d.get("other_params") is not None:
-            d.get("other_params").update({'wait':False})
-        else:
-            d["other_params"] = {'wait':False}
-    #if running on your desktop or laptop
-    else:
-        job_cmd=['ls', '-lt']
-    if d.get('job_cmd'):
-        job_cmd = d.get('job_cmd')
-    cal =  load_class("mpinterfaces.calibrate",
-                      d["calibrate"])(incar, poscar, potcar, kpoints,
-                                      system = d.get("system", None),
-                                      qadapter=qadapter, job_cmd=job_cmd,
-                                      turn_knobs=turn_knobs,
-                                      **d.get("other_params", {}))
-    if d.get('job_dir_list'):
-        cal.job_dir_list = d.get('job_dir_list')
-    if d.get('job_ids'):
-        cal.job_ids = d.get('job_ids')        
+    cal = MontyDecoder().process_decoded(d)
+    # default
+    if not d.get("qadapter"):
+        qadapter, job_cmd = get_run_cmmnd(**d.get('que_params', {}))
+        cal.qadapter = qadapter
+        cal.job_cmd = job_cmd
     return cal
+
 
 @explicit_serialize
 class MPINTCalibrateTask(FireTaskBase, FWSerializable):
     """
     Calibration Task
     """
-    required_params = ["incar", "poscar", "kpoints", "calibrate",
-                        "turn_knobs"]
-    optional_params = ["que_params", "job_cmd", "system", "other_params"]
+    optional_params = ["que_params"]
 
     def run_task(self, fw_spec):
         """
@@ -151,6 +135,7 @@ class MPINTCalibrateTask(FireTaskBase, FWSerializable):
         d.update({'que_params':self.get('que_params')})
         return FWAction(mod_spec=[{'_push': {'cal_objs':d}}])
         
+
 @explicit_serialize
 class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     """
@@ -193,8 +178,8 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             #    
             #return FWAction(detours=new_fw)
         else:
-            measure = load_class("mpinterfaces.measurement",self['measurement'])(cal_objs,
-                                                                                 **self.get("other_params", {}))
+            measure = load_class("mpinterfaces.measurement",
+                                 self['measurement'])(cal_objs, **self.get("other_params", {}))
             job_cmd = None
             if self.get("job_cmd", None) is not None:
                 job_cmd = self.get("job_cmd")
@@ -206,6 +191,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
                 d.update({'que_params':self.get('que_params')})
                 cal_list.append(d)
             return FWAction(update_spec={'cal_objs':cal_list})
+
 
 @explicit_serialize
 class MPINTDatabaseTask(FireTaskBase, FWSerializable):

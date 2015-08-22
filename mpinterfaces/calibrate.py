@@ -40,6 +40,7 @@ from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.apps.borg.queen import BorgQueen
+from pymatgen.serializers.json_coders import PMGSONable
 
 from custodian.vasp.handlers import VaspErrorHandler
 #from custodian.vasp.handlers import FrozenJobErrorHandler
@@ -50,6 +51,8 @@ from custodian.vasp.interpreter import VaspModder
 
 from monty.json import MSONable, MontyEncoder, MontyDecoder
 from monty.serialization import loadfn, dumpfn
+
+from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
@@ -64,7 +67,7 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 
 
-class Calibrate(object):    
+class Calibrate(PMGSONable):    
     """
     The base class for creating vasp work flows for
     calibrating the input parameters for different systems
@@ -661,19 +664,44 @@ class Calibrate(object):
             return False
     
     def as_dict(self):
-        d = {}
-        d['calibrate'] = self.__class__.__name__
-        d['name'] = self.name
-        d['incar'] = self.incar_orig
-        d['poscar'] = self.poscar_orig
-        d['kpoints'] = self.kpoints_orig
-        d['turn_knobs'] = self.turn_knobs
-        d['job_dir_list'] = self.job_dir_list
-        d['job_ids'] = self.job_ids        
+        qadapter = None
+        system = None
+        if self.qadapter:
+            qadapter = self.qadapter.to_dict()
         if self.system is not None:
-            d['system'] = self.system
+            system = self.system
+        d = dict(incar=self.incar.as_dict(), poscar=self.poscar.as_dict(), 
+                 potcar=self.potcar.as_dict(), kpoints=self.kpoints.as_dict(), 
+                 system=system, is_matrix = self.is_matrix, 
+                 Grid_type = self.Grid_type, setup_dir=self.setup_dir, 
+                 parent_job_dir=self.parent_job_dir, job_dir=self.job_dir,
+                 qadapter=qadapter, job_cmd=self.job_cmd, wait=self.wait,
+                 turn_knobs=self.turn_knobs, job_dir_list=self.job_dir_list,
+                 job_ids = self.job_ids)
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        #d['calibrate'] = self.__class__.__name__
         return d
         
+    @classmethod
+    def from_dict(cls, d):
+        incar = Incar.from_dict(d["incar"])
+        poscar = Poscar.from_dict(d["poscar"])
+        potcar = Potcar.from_dict(d["potcar"])
+        kpoints = Kpoints.from_dict(d["kpoints"])
+        cal =  Calibrate(incar, poscar, potcar, kpoints, 
+                         system=d["system"], is_matrix = d["is_matrix"], 
+                         Grid_type = d["Grid_type"], 
+                         setup_dir=d["setup_dir"], 
+                         parent_job_dir=d["parent_job_dir"], 
+                         job_dir=d["job_dir"], qadapter=d.get("qadapter"), 
+                         job_cmd=d["job_cmd"], wait=d["wait"],
+                         turn_knobs=d["turn_knobs"])
+        cal.job_dir_list = d["job_dir_list"]
+        cal.job_ids = d["job_ids"]
+        return cal
+
+
 class CalibrateMolecule(Calibrate):
     """
     

@@ -2,6 +2,8 @@ from __future__ import division, unicode_literals, print_function
 
 import os
 from matgendb.query_engine import QueryEngine
+from monty.json import MontyDecoder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 # from config file db.json
 DB_CONFIG = os.path.join(os.path.expanduser('~'), ".mongodb/db.json")
@@ -20,4 +22,8 @@ results = qe.query(criteria = {"pretty_formula": 'InSb'},
 for r in results:
     for k, v in r.items():
         print('{0} : \n{1}\n'.format(k,v))
-
+# convert to pymatgen structure and get the spacegroup
+        if k == "output":
+            structure = MontyDecoder().process_decoded(v["crystal"])
+            sga = SpacegroupAnalyzer(structure)
+            print("Final structure space group: {}".format(sga.get_spacegroup_symbol()))

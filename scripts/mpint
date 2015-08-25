@@ -57,6 +57,7 @@ import logging
 import socket
 from collections import OrderedDict
 from argparse import ArgumentParser
+from fnmatch import fnmatch
 import numpy as np
 
 from pymatgen.matproj.rest import MPRester
@@ -85,6 +86,15 @@ logger.addHandler(fh)
 logger.addHandler(sh)
 
 MAPI_KEY = os.environ.get("MAPI_KEY", "")
+
+def process_dir(val):
+	poscar_list = []
+	if os.path.isdir(val):
+           for f in os.listdir(val):
+               if os.path.isfile(f) and fnmatch(f, "*POSCAR*"): 
+                  poscar_list.append(Poscar.from_file(str(f)))
+	return poscar_list
+	
 
 class mpint(object):
     
@@ -275,8 +285,14 @@ class mpint(object):
                             if key == 'KPOINTS':
                                 paramlist = [[k,k,k] for k in range(knobset['KPOINTS'][0], knobset['KPOINTS'][1], knobset['KPOINTS'][2])]
                             elif key == 'POSCAR':
-                                for pfile in val:
-                                        paramlist.append(Poscar.from_file(str(pfile)))
+				if type(val) == list:
+                                   for pfile in val:
+                                       if os.path.isdir(pfile):
+                                          paramlist = process_dir(pfile)
+				       else:
+                                          paramlist.append(Poscar.from_file(str(pfile)))
+				else:
+					paramlist = process_dir(val)
                             else:
                                 paramlist = np.arange(knobset[key][0], knobset[key][1], knobset[key][2])
                             self.turn_knobs.update({key:paramlist})

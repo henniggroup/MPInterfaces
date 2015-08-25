@@ -288,7 +288,7 @@ class mpint(object):
 				if type(val) == list:
                                    for pfile in val:
                                        if os.path.isdir(pfile):
-                                          paramlist = process_dir(pfile)
+                                          paramlist += process_dir(pfile)
 				       else:
                                           paramlist.append(Poscar.from_file(str(pfile)))
 				else:

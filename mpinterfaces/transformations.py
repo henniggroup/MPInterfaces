@@ -102,7 +102,7 @@ def get_r_list(area1, area2, max_area, tol=0.02):
     print('a2/a1', area2/area1)
     for r1 in range(1, rmax1+1):
         for r2 in range(1, rmax2+1):
-            if abs(float(r1)/float(r2) - area2/area1) < tol:
+            if abs(float(r1)*area1 - float(r2)*area2) < tol:
                 r_list.append([r1, r2])
     return r_list
 
@@ -138,13 +138,11 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
         ab2 = [ [0, a2/2, -a2/2], [0, a2/2,a2/2]]
         area1 = a1**2 / 2
         area2 = a2**2 / 2
-    
         #for 110 plane
         ab1 = [ [a1/2,-a1/2,0], [0, 0,a1]]
         ab2 = [ [a2/2,-a2/2,0], [0, 0,a2]]    
         area1 = a1**2 / sqrt(2)
         area2 = a2**2 / sqrt(2)
-    
         #for 111 surface
         #ab1 = [ [a1/2, 0, a1/2], [a1/2, a1/2, 0]]
         #ab2 = [ [a2/2, 0, a2/2], [a2/2, a2/2, 0]]
@@ -153,7 +151,6 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
     else:
         area1 = iface1.surface_area
         area2 = iface2.surface_area
-    
         #a, b vectors that define the surface    
         ab1 = [ iface1.lattice.matrix[0,:] , iface1.lattice.matrix[1,:] ]
         ab2 = [ iface2.lattice.matrix[0,:] , iface2.lattice.matrix[1,:] ]

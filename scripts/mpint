@@ -91,8 +91,9 @@ def process_dir(val):
 	poscar_list = []
 	if os.path.isdir(val):
            for f in os.listdir(val):
-               if os.path.isfile(f) and fnmatch(f, "*POSCAR*"): 
-                  poscar_list.append(Poscar.from_file(str(f)))
+               fname = os.path.join(val,f)
+               if os.path.isfile(fname) and fnmatch(fname, "*POSCAR*"): 
+                  poscar_list.append(Poscar.from_file(fname))
 	return poscar_list
 	
 

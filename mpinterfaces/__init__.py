@@ -1,10 +1,11 @@
 from __future__ import division, unicode_literals, print_function
 
-__author__ = ", ".join(["Kiran Mathew", "Joshua Gabriel", "Richard G. Hennig"])
-__date__ = "Jul 11 2015"
-__version__ = "1.1.1"
+__author__ = ", ".join(["Kiran Mathew", "Joshua Gabriel", "Arunima Singh", "Richard G. Hennig"])
+__date__ = "Aug 10 2015"
+__version__ = "1.1.2"
 
 import os
+import sys
 import operator
 from pymatgen.matproj.rest import MPRester
 

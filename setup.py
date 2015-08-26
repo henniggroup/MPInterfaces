@@ -6,17 +6,17 @@ MPINT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 setup(
     name = "mpinterfaces",
-    version = "1.1.1",
+    version = "1.1.2",
     install_requires=["numpy>=1.8", "scipy>=0.10",
-                      "pymatgen>=3.1.0", "fireworks>=1.07",
-                      "custodian>=0.8.2", "pymatgen-db>=0.4.6",
+                      "pymatgen>=3.1.5", "fireworks>=1.07",
+                      "custodian>=0.8.2", "pymatgen-db>=0.4.8",
                       "ase>=3.9.0"],
     extras_require={"plot": ["matplotlib>=1.4.2"],
                     "babel": ["openbabel", "pybel"],
                     "remote": ["fabric"],
                     "doc": ["sphinx>=1.3.1", "sphinx-rtd-theme>=0.1.8"]
                    },    
-    author = "Kiran Mathew, Joshua Gabriel, Richard G. Hennig",
+    author = "Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig",
     author_email = "km468@cornell.edu",
     description = ("High throughput analysis of interfaces using VASP and Materials Project tools"),
     license = "GPL",

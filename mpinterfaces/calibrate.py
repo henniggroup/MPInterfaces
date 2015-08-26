@@ -36,10 +36,11 @@ import numpy as np
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import Slab, SlabGenerator
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar
-from pymatgen.io.vaspio.vasp_input import Potcar, Kpoints
-from pymatgen.io.vaspio.vasp_output import Outcar
+from pymatgen.io.vasp.inputs import Incar, Poscar
+from pymatgen.io.vasp.inputs import Potcar, Kpoints
+from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.apps.borg.queen import BorgQueen
+from pymatgen.serializers.json_coders import PMGSONable
 
 from custodian.vasp.handlers import VaspErrorHandler
 #from custodian.vasp.handlers import FrozenJobErrorHandler
@@ -47,6 +48,11 @@ from custodian.vasp.handlers import VaspErrorHandler
 #from custodian.vasp.handlers import NonConvergingErrorHandler
 from custodian.custodian import Custodian, gzip_dir
 from custodian.vasp.interpreter import VaspModder
+
+from monty.json import MSONable, MontyEncoder, MontyDecoder
+from monty.serialization import loadfn, dumpfn
+
+from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
@@ -61,12 +67,14 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 
 
-class Calibrate(object):    
+class Calibrate(PMGSONable):    
     """
     The base class for creating vasp work flows for
     calibrating the input parameters for different systems
     
     """
+    LOG_FILE = "calibrate.json"
+
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.',job_dir='Job',
@@ -136,6 +144,7 @@ class Calibrate(object):
         self.is_matrix = is_matrix
         self.Grid_type = Grid_type
         self.wait = wait
+        self.cal_log = []
     
     def setup(self):
         """
@@ -330,14 +339,17 @@ class Calibrate(object):
         elif poscar is not None:
             self.poscar = poscar
 
-    def set_potcar(self, mapping):
+    def set_potcar(self, mapping=None):
         """
         set the potcar: symbol to potcar type mapping
         """
         symbols = self.poscar.site_symbols
         mapped_symbols = []
-        for sym in symbols:
-            mapped_symbols.append(mapping[sym])
+        if mapping:
+            for sym in symbols:
+                mapped_symbols.append(mapping[sym])
+        else:
+            mapped_symbols = symbols
         self.potcar = Potcar(symbols=mapped_symbols)
         pass
 
@@ -379,7 +391,7 @@ class Calibrate(object):
         	logger.warn('incar list empty')
                     
             
-    def setup_kpoints_jobs(self, kpoints_list = []):
+    def setup_kpoints_jobs(self, kpoints_list = None):
         """
         setup the kpoint jobs
         
@@ -392,7 +404,7 @@ class Calibrate(object):
         else:
         	logger.warn('kpoints_list empty')
             
-    def setup_poscar_jobs(self, scale_list=[], poscar_list=[]):
+    def setup_poscar_jobs(self, scale_list=None, poscar_list=None):
         """
         for scaling the latice vectors of the original structure,
         scale_list is volume scaling factor list
@@ -400,6 +412,7 @@ class Calibrate(object):
         if scale_list:
             for scale in scale_list:
                 self.set_poscar(scale=scale)
+                self.set_potcar()
                 job_dir  = self.job_dir+ os.sep + 'POS' +\
                         os.sep + 'VOLUME_'+str(scale)
                 if not self.is_matrix:
@@ -407,8 +420,13 @@ class Calibrate(object):
         elif poscar_list:
             for poscar in poscar_list:
                 self.set_poscar(poscar=poscar)
+                self.set_potcar()
+                poskey = str(poscar.structure.composition.reduced_formula) \
+                                 + '_'+ str(int(poscar.structure.lattice.volume)) \
+                                 + '_' + ''.join((poscar.comment).split())
+                
                 job_dir  = self.job_dir+ os.sep +'POS' +\
-                  os.sep + poscar.comment
+                  os.sep + poskey
                 if not self.is_matrix:
                     self.add_job(name=job_dir, job_dir=job_dir)
                     
@@ -460,7 +478,47 @@ class Calibrate(object):
         c = Custodian(self.handlers, self.jobs, max_errors=5)
         c.run()
         for j in self.jobs:
+            self.cal_log.append({"job": j.as_dict(), 
+                                 'job_id': j.job_id, 
+                                 "corrections": [], 
+                                 'final_energy': None})
             self.job_ids.append(j.job_id)
+        dumpfn(self.cal_log, Calibrate.LOG_FILE, cls=MontyEncoder,
+               indent=4)
+
+    @staticmethod
+    def update_checkpoint(job_ids=None):
+        """
+        rerun the jobs with job ids in the job_ids list. The jobs are
+        read from the calibrate.json checkpoint file. If no job_ids 
+        is given then the checkpoint file will be updated with 
+        corresponding final energy
+        """
+        #shutil.copy(Calibrate.LOG_FILE, "{}.orig".format(Calibrate.LOG_FILE))
+        cal_log = loadfn(Calibrate.LOG_FILE, cls=MontyDecoder)
+        cal_log_new = []
+        all_jobs = []
+        run_jobs = []
+        handlers = []
+        final_energy = None
+        for j in cal_log:
+            job = j["job"] 
+            job.job_id = j['job_id']
+            all_jobs.append(job)
+            if job_ids and j['job_id'] in job_ids:
+                run_jobs.append(job)
+        if run_jobs:
+            c = Custodian(handlers, run_jobs, max_errors=5)
+            c.run()
+        for j in all_jobs:
+            final_energy = j.get_final_energy()
+            cal_log_new.append({"job": j.as_dict(), 
+                                 'job_id': j.job_id, 
+                                 "corrections": [], 
+                                 'final_energy': final_energy})
+        dumpfn(cal_log_new, Calibrate.LOG_FILE, cls=MontyEncoder,
+               indent=4)
+
 
     def set_knob_responses(self):
         """
@@ -473,7 +531,7 @@ class Calibrate(object):
         for k, v in self.response_to_knobs.items():
             rootpath = self.job_dir+ os.sep + self.key_to_name(k)
             logger.info('rootpath = '+rootpath)
-            logger.warn('for the POSCAR knob responses, the key to the response dictionary is the length of the c lattice vector of the structure. This assumes that the only paramter that varies from one structure to another is the c lattice vector, which is usually the case for slab vacuum and thickness calibrations')
+            logger.warn('for the POSCAR knob responses, the key to the response dictionary is a combination of the formula and the volume of the structure')
             #bg.parallel_assimilate(rootpath)        
             bg.serial_assimilate(rootpath)
             allentries =  bg.get_data()
@@ -485,7 +543,10 @@ class Calibrate(object):
                         self.response_to_knobs[k][str(e.kpoints.kpts)] \
                            = e.energy/self.n_atoms
                     elif k == 'POSCAR':
-                        self.response_to_knobs[k][str(e.structure.lattice.c)] \
+                        poskey = str(e.structure.composition.reduced_formula) \
+                                 + '_'+ str(int(e.structure.lattice.volume)) \
+                                 + '_' + ''.join((poscar.comment).split())
+                        self.response_to_knobs[k][poskey] \
                            = e.energy/self.n_atoms
 
                     else:
@@ -603,19 +664,44 @@ class Calibrate(object):
             return False
     
     def as_dict(self):
-        d = {}
-        d['calibrate'] = self.__class__.__name__
-        d['name'] = self.name
-        d['incar'] = self.incar_orig
-        d['poscar'] = self.poscar_orig
-        d['kpoints'] = self.kpoints_orig
-        d['turn_knobs'] = self.turn_knobs
-        d['job_dir_list'] = self.job_dir_list
-        d['job_ids'] = self.job_ids        
+        qadapter = None
+        system = None
+        if self.qadapter:
+            qadapter = self.qadapter.to_dict()
         if self.system is not None:
-            d['system'] = self.system
+            system = self.system
+        d = dict(incar=self.incar.as_dict(), poscar=self.poscar.as_dict(), 
+                 potcar=self.potcar.as_dict(), kpoints=self.kpoints.as_dict(), 
+                 system=system, is_matrix = self.is_matrix, 
+                 Grid_type = self.Grid_type, setup_dir=self.setup_dir, 
+                 parent_job_dir=self.parent_job_dir, job_dir=self.job_dir,
+                 qadapter=qadapter, job_cmd=self.job_cmd, wait=self.wait,
+                 turn_knobs=self.turn_knobs, job_dir_list=self.job_dir_list,
+                 job_ids = self.job_ids)
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        #d['calibrate'] = self.__class__.__name__
         return d
         
+    @classmethod
+    def from_dict(cls, d):
+        incar = Incar.from_dict(d["incar"])
+        poscar = Poscar.from_dict(d["poscar"])
+        potcar = Potcar.from_dict(d["potcar"])
+        kpoints = Kpoints.from_dict(d["kpoints"])
+        cal =  Calibrate(incar, poscar, potcar, kpoints, 
+                         system=d["system"], is_matrix = d["is_matrix"], 
+                         Grid_type = d["Grid_type"], 
+                         setup_dir=d["setup_dir"], 
+                         parent_job_dir=d["parent_job_dir"], 
+                         job_dir=d["job_dir"], qadapter=d.get("qadapter"), 
+                         job_cmd=d["job_cmd"], wait=d["wait"],
+                         turn_knobs=d["turn_knobs"])
+        cal.job_dir_list = d["job_dir_list"]
+        cal.job_ids = d["job_ids"]
+        return cal
+
+
 class CalibrateMolecule(Calibrate):
     """
     
@@ -849,7 +935,7 @@ class CalibrateInterface(CalibrateSlab):
                           from_ase=self.from_ase)
         iface.sort()
         sd = self.set_sd_flags(iface, n_layers=2)
-        #if theer are other paramters that are being varied
+        #if there are other paramters that are being varied
         #change the comment accordingly
         comment = self.system['hkl']+self.system['ligand']['name']
         return Poscar(slab_struct, comment=comment,

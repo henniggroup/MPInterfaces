@@ -9,7 +9,7 @@ import os
 import json
 import logging
 
-from pymatgen.io.vaspio import Outcar
+from pymatgen.io.vasp.outputs import Outcar
 
 from matgendb.creator import VaspToDbTaskDrone, get_uri
 

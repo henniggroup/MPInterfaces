@@ -1,0 +1,40 @@
+#
+# input file for running vasp jobs for all the hexagonal 2d materials
+# the structures read from the the poscar files
+# 
+# To run:
+# mpint -i hex.yaml -t all_poscars run
+#
+INCAR:
+ PREC: Accurate
+ ENCUT: 400
+ ISIF: 3
+ NSW: 50
+ IBRION: 2
+ NFREE: 2
+ ISMEAR: 0
+ EDIFF: 1E-6
+ NPAR: 4
+ LWAVE: .FALSE.
+ LCHARG: .FALSE.
+ GGA: BO
+ PARAM1: 0.1833333333
+ PARAM2: 0.2200000000
+ LUSE_VDW: .TRUE.
+ AGGAC: 0.0000
+
+KPOINTS: [12, 12, 1]
+
+# binary compiled with x-y constraints and 
+# with the path to vdw_kernel.bindat file hardcoded in vdw_nl.F
+QUE: 
+ NPROCS: 32
+ NNODES: 1
+ TIME: 4
+ BIN: /home/km468/Software/VASP/vasp.5.3.5/vasp_noz
+
+# list of poscar file paths
+# or path to the directory with poscar files
+all_poscars:
+ KNOBS:
+  POSCAR: [InSbPOSCAR, InPPOSCAR, InNPOSCAR, InAsPOSCAR, GaSbPOSCAR, GaPPOSCAR, GaNPOSCAR, GaAsPOSCAR, AlSbPOSCAR, AlPPOSCAR, AlNPOSCAR, AlAsPOSCAR ]

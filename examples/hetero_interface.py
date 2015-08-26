@@ -18,7 +18,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 
 from mpinterfaces.calibrate import CalibrateSlab
 from mpinterfaces import get_struct_from_mp

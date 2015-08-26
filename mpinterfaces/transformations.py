@@ -104,6 +104,7 @@ def get_r_list(area1, area2, max_area, tol=0.02):
         for r2 in range(1, rmax2+1):
             if abs(float(r1)/float(r2) - area2/area1) < tol:
                 r_list.append([r1, r2])
+    print('rlist',r_list)
     return r_list
 
 def get_mismatch(a, b):

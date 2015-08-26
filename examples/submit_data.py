@@ -4,7 +4,7 @@ from mpinterfaces.database import MPINTVaspToDbTaskDrone
 from pymatgen.apps.borg.queen import BorgQueen
 #import multiprocessing
 
-additional_fields = {"author":"kiran"}
+additional_fields = {"author":"kiran"} #"doi":"10.1063/1.4865107"
 drone = MPINTVaspToDbTaskDrone(host="127.0.0.1", port=27017,
                                database="vasp", collection="collection_name",
                                user="username", password="password",

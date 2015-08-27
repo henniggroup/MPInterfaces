@@ -841,7 +841,7 @@ class CalibrateSlab(Calibrate):
                       selective_dynamics=sd)    
 
     @staticmethod
-    def set_sd_flags(interface=None, n_layers=2):
+    def set_sd_flags(interface=None, n_layers=2, top=True, bottom=True):
         """
         set the relaxation flags for top and bottom layers of interface.
         
@@ -856,34 +856,17 @@ class CalibrateSlab(Calibrate):
         else:
             slab = interface
         z_coords = slab.frac_coords[:,2]
-        z_lower_bound = np.unique(z_coords)[n_layers-1]
-        z_upper_bound = np.unique(z_coords)[-n_layers]
-        sd_flags[ [i for i, coords in enumerate(slab.frac_coords)
-                  if coords[2]>=z_upper_bound or coords[2]<=z_lower_bound] ] \
-                  = np.ones((1,3))
+        z_lower_bound = None
+        z_upper_bound = None
+        if bottom:
+            z_lower_bound = np.unique(z_coords)[n_layers-1]
+            sd_flags[ [i for i, coords in enumerate(slab.frac_coords)
+                       if coords[2]<=z_lower_bound] ] = np.ones((1,3))
+        if top:
+            z_upper_bound = np.unique(z_coords)[-n_layers]
+            sd_flags[ [i for i, coords in enumerate(slab.frac_coords)
+                       if coords[2]>=z_upper_bound ] ] = np.ones((1,3))
         return sd_flags
-
-    @staticmethod
-    def set_sd_flags2d(interface=None, n_layers=4):
-        """
-        set the relaxation flags for top layers of 2D material and substrate interface
-
-        The upper bounds of the z coordinate are determined
-        based on the slab. All layers above the bounds will
-        be relaxed. 
-        """
-        sd_flags = np.zeros_like(interface.frac_coords)
-        if isinstance(interface, Interface):
-            slab = interface.slab
-        else:
-            slab = interface
-        z_coords = slab.frac_coords[:,2]
-        z_upper_bound = np.unique(z_coords)[-n_layers]
-        sd_flags[ [i for i, coords in enumerate(slab.frac_coords)
-                  if coords[2]>=z_upper_bound ] ] \
-                  = np.ones((1,3))
-        return sd_flags
-
 
     def set_reconstructed_surface(self, sites_to_add):
         """

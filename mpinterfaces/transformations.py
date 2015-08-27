@@ -38,7 +38,7 @@ def get_uv(ab, t_mat):
     return u and v, the supercell lattice vectors obtained through the
     transformation matrix
     """
-    print('\ntransformation matrix : ', t_mat)
+    #print('\ntransformation matrix : ', t_mat)
     u = np.array(ab[0])*t_mat[0][0] + np.array(ab[1])*t_mat[0][1] 
     v = np.array(ab[1])*t_mat[1][1] 
     return [u, v]
@@ -53,7 +53,7 @@ def get_reduced_uv(uv):
     v = np.array(uv[1])
     u1 = copy(u)
     v1 = copy(v)
-    print('original u, v', [u1, v1])
+    #print('original u, v', [u1, v1])
     while is_not_reduced:
         if np.dot(u, v) <0:
             v = -v
@@ -72,7 +72,7 @@ def get_reduced_uv(uv):
             is_not_reduced = False
         u = copy(u1)
         v = copy(v1)
-    print('reduced u, v', [u, v])
+    #print('reduced u, v', [u, v])
     return [u, v]
 
 
@@ -130,6 +130,15 @@ def get_angle(a, b):
     return np.arccos(np.dot(a,b)/np.linalg.norm(a)/np.linalg.norm(b)) * 180 / np.pi
 
 
+def get_area(uv):
+    """
+    area of the parallelogram
+    """
+    a = uv[0]
+    b = uv[1]
+    return np.linalg.norm(np.cross(a,b))
+
+
 def get_matching_lattices(iface1, iface2, max_area = 100,
                           max_mismatch = 0.01, max_angle_diff = 1,
                           r1r2_tol= 0.02):
@@ -168,7 +177,9 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
     if not r_list:
         print('r_list is empty. Try increasing the max surface area or/and the other tolerance paramaters')
         sys.exit()
+    found = []        
     for r1r2 in r_list:
+        print('searching ...')        
         uv1_list = reduced_supercell_vectors(ab1, r1r2[0])
         uv2_list = reduced_supercell_vectors(ab2, r1r2[1])
         if not uv1_list and not uv2_list:
@@ -179,10 +190,9 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
                 v_mismatch = get_mismatch(uv1[1], uv2[1])
                 angle1 = get_angle(uv1[0], uv1[1])
                 angle2 = get_angle(uv2[0], uv2[1])
-                print('\nu1, u2', np.linalg.norm(uv1[0]), np.linalg.norm(uv2[0]))
-                print('v1, v2', np.linalg.norm(uv1[1]), np.linalg.norm(uv2[1]))
-                print('angle1, angle2', angle1, angle2)
-                print('u and v mismatches', u_mismatch, v_mismatch)
+                angle_mismatch = abs(angle1 - angle2)                
+                area1 = get_area(uv1)
+                area2 = get_area(uv2)
                 if  abs(u_mismatch) < max_mismatch and abs(v_mismatch) < max_mismatch:
                     max_angle = max(angle1,angle2)
                     min_angle = min(angle1,angle2)
@@ -190,14 +200,17 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
                     is_angle_factor = False
                     if abs(mod_angle) < 0.001 or abs(mod_angle-min_angle) < 0.001:
                         is_angle_factor = True
-                    if  abs(angle1 - angle2) < max_angle_diff or is_angle_factor:
-                        print('\n FOUND ONE')
-                        print('u mismatch in percentage = ', u_mismatch)
-                        print('v mismatch in percentage = ', v_mismatch)
-                        print('angle1, angle diff', angle1, abs(angle1 - angle2))
-                        print('uv1, uv2', uv1, uv2)
-                        return uv1, uv2
-    return None, None
+                    if  angle_mismatch < max_angle_diff or is_angle_factor:
+                        found.append((uv1,uv2,min(area1,area2),u_mismatch, v_mismatch, angle_mismatch))
+    if found:
+        print('\nMATCH FOUND\n')
+        uv_opt = sorted(found,key=lambda x: x[2])[0]
+        print('optimum values\nuv1: {0}\n uv2: {1}\n area : {2}\n'.format(uv_opt[0], uv_opt[1], uv_opt[2]))
+        print('u,v & angle mismatches: {0}, {1}, {2}'.format(uv_opt[3],uv_opt[4], uv_opt[5]))
+        return uv_opt[0], uv_opt[1]
+    else:
+        print('\n NO MATCH FOUND')        
+        return None, None
 
 
 def get_uniq_layercoords(struct, nlayers, top=True):

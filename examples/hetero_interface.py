@@ -44,9 +44,10 @@ hetero_interfaces = generate_all_configs(mat2d_slab_aligned,
                                          seperation )
 # generate all poscars
 for i, iface in enumerate(hetero_interfaces):
-    sd_flags = CalibrateSlab.set_sd_flags2d(
+    sd_flags = CalibrateSlab.set_sd_flags(
         interface=iface,
-        n_layers=nlayers_2d+nlayers_substrate)
+        n_layers=nlayers_2d+nlayers_substrate,
+        top=True, bottom=False)
     poscar = Poscar(iface, selective_dynamics=sd_flags)
     poscar.write_file(
         filename='POSCAR_final_{}.vasp'.format(i))   

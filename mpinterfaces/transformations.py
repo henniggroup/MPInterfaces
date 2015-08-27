@@ -102,7 +102,7 @@ def get_r_list(area1, area2, max_area, tol=0.02):
     print('a2/a1', area2/area1)
     for r1 in range(1, rmax1+1):
         for r2 in range(1, rmax2+1):
-            if abs(float(r1)*area1 - float(r2)*area2) <= tol:
+            if abs(float(r1)*area1 - float(r2)*area2)/max_area <= tol:
                 r_list.append([r1, r2])
     return r_list
 

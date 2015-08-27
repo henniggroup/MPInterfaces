@@ -192,10 +192,6 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
                 angle_mismatch = abs(angle1 - angle2)                
                 area1 = get_area(uv1)
                 area2 = get_area(uv2)
-                #print('\nu1, u2', np.linalg.norm(uv1[0]), np.linalg.norm(uv2[0]))
-                #print('v1, v2', np.linalg.norm(uv1[1]), np.linalg.norm(uv2[1]))
-                #print('angle1, angle2', angle1, angle2)
-                #print('u and v mismatches', u_mismatch, v_mismatch)
                 if  abs(u_mismatch) < max_mismatch and abs(v_mismatch) < max_mismatch:
                     max_angle = max(angle1,angle2)
                     min_angle = min(angle1,angle2)

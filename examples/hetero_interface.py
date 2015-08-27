@@ -13,9 +13,12 @@ import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import Slab
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.vasp.inputs import Poscar
 
 from mpinterfaces.calibrate import CalibrateSlab
+from mpinterfaces import get_struct_from_mp
+from mpinterfaces.interface import Interface
 from mpinterfaces.transformations import *
 from mpinterfaces.utils import *
 
@@ -23,7 +26,15 @@ seperation = 5 # in angstroms
 nlayers_2d = 2
 nlayers_substrate = 2
 
-substrate_slab = slab_from_file([0,0,1], 'POSCAR_substrate')
+substrate_bulk = get_struct_from_mp('Ag')
+sa_sub = SpacegroupAnalyzer(substrate_bulk)
+substrate_bulk = sa_sub.get_conventional_standard_structure()
+substrate_slab = Interface(substrate_bulk,
+                           hkl = [1,1,1],
+                           min_thick = 10,
+                           min_vac = 25,
+                           primitive = False, from_ase = True)
+#substrate_slab = slab_from_file([0,0,1], 'POSCAR_substrate')
 mat2d_slab = slab_from_file([0,0,1], 'POSCAR_2D')
 # get the in-plane lattice aligned slabs
 substrate_slab_aligned, mat2d_slab_aligned = get_aligned_lattices(

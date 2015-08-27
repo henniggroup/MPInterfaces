@@ -1,5 +1,5 @@
 from __future__ import division, unicode_literals, print_function
-1;2802;0c
+
 """
 Utility functions
 """

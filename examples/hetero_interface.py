@@ -22,11 +22,12 @@ from mpinterfaces.interface import Interface
 from mpinterfaces.transformations import *
 from mpinterfaces.utils import *
 
-seperation = 5 # in angstroms
+seperation = 3 # in angstroms
 nlayers_2d = 2
 nlayers_substrate = 2
 
-substrate_bulk = get_struct_from_mp('Ag')
+substrate_bulk = Structure.from_file('POSCAR_substrate')
+#substrate_bulk = get_struct_from_mp('Ag')
 sa_sub = SpacegroupAnalyzer(substrate_bulk)
 substrate_bulk = sa_sub.get_conventional_standard_structure()
 substrate_slab = Interface(substrate_bulk,
@@ -37,6 +38,18 @@ substrate_slab = Interface(substrate_bulk,
 #substrate_slab = slab_from_file([0,0,1], 'POSCAR_substrate')
 mat2d_slab = slab_from_file([0,0,1], 'POSCAR_2D')
 # get the in-plane lattice aligned slabs
+#substrate_slab.to(fmt='poscar', filename='POSCAR_substrate_slab.vasp')
+mat2d_slab.to(fmt='poscar', filename='POSCAR_mat2d_slab.vasp')
+
+sd_flags = CalibrateSlab.set_sd_flags(
+        interface=substrate_slab,
+        n_layers=nlayers_substrate,
+        top=True, bottom=False)
+poscar = Poscar(substrate_slab, selective_dynamics=sd_flags)
+poscar.write_file(filename='POSCAR_substrate_slab.vasp')
+
+
+
 substrate_slab_aligned, mat2d_slab_aligned = get_aligned_lattices(
     substrate_slab,
     mat2d_slab,

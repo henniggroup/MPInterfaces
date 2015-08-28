@@ -368,9 +368,9 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area = 200,
     # grafted on top of it
     lmap = Lattice( np.array(
         [
-            mat2d.lattice.matrix[0,:],
-            mat2d.lattice.matrix[1,:],
-            substrate.lattice.matrix[2,:]
+            substrate.lattice.matrix[0,:],
+            substrate.lattice.matrix[1,:],
+            mat2d.lattice.matrix[2,:]
         ] ) )    
-    substrate.modify_lattice(lmap)
+    mat2d.modify_lattice(lmap)
     return substrate, mat2d

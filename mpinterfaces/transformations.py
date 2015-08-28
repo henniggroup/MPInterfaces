@@ -310,7 +310,6 @@ def generate_all_configs(mat2d, substrate,
                 new_coords = new_coords + origin + shift_net
                 interface.append(site.specie, new_coords,
                                  coords_are_cartesian=True)
-            #top n_layers set to relax via selective dynamics
             hetero_interfaces.append(interface)
     return hetero_interfaces
 

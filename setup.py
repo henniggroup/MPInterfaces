@@ -8,7 +8,7 @@ setup(
     name = "mpinterfaces",
     version = "1.1.2",
     install_requires=["numpy>=1.8", "scipy>=0.10",
-                      "pymatgen>=3.1.5", "fireworks>=1.07",
+                      "pymatgen>=3.1.5", "Fireworks>=1.07",
                       "custodian>=0.8.2", "pymatgen-db>=0.4.8",
                       "ase>=3.9.0"],
     extras_require={"plot": ["matplotlib>=1.4.2"],

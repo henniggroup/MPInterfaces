@@ -224,7 +224,7 @@ class MPINTVaspJob(Job):
                 logger.info("job {0} in {1} NOT converged".format(self.job_id, self.job_dir))
                 return None
         except Exception as ex:
-            logger.info("error reading vasprun.xml, probably the job {0} is not done yet. {1}".format(self.job_id, ex))
+            logger.info("error reading vasprun.xml, probably the job {0} is not done yet.".format(self.job_id))
             return None
 
     def as_dict(self):

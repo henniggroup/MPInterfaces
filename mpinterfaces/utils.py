@@ -16,6 +16,7 @@ from pymatgen.io.ase import AseAtomsAdaptor
 
 from ase.lattice.surface import surface
 
+
 def get_ase_slab(pmg_struct, hkl=(1,1,1), min_thick=10, min_vac=10):
     """
     takes in the intial structure as pymatgen Structure object
@@ -74,10 +75,10 @@ def add_vacuum_padding(slab, vacuum):
     Returns:
          Structure object
     """
-    min_c = np.min([c[2] for c in slab.frac_coords])
-    slab.translate_sites(list(range(len(slab))), [0, 0, -min_c])
+    min_z = np.min([fcoord[2] for fcoord in slab.frac_coords])
+    slab.translate_sites(list(range(len(slab))), [0, 0, -min_z])
     a, b, c = slab.lattice.matrix
-    z = [c[2] for c in slab.cart_coords]
+    z = [coord[2] for coord in slab.cart_coords]
     zmax = np.max(z)
     zmin = np.min(z)
     thickness = zmax - zmin

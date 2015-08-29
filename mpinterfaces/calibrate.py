@@ -79,6 +79,7 @@ class Calibrate(PMGSONable):
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.',job_dir='Job',
                  qadapter=None, job_cmd='qsub', wait=True,
+                 mappings_override = None,
                  turn_knobs=OrderedDict( [ ('ENCUT',[]),
                                            ('KPOINTS',[])] ) ):
         """
@@ -145,6 +146,7 @@ class Calibrate(PMGSONable):
         self.Grid_type = Grid_type
         self.wait = wait
         self.cal_log = []
+        self.mappings_override = mappings_override
     
     def setup(self):
         """
@@ -348,6 +350,12 @@ class Calibrate(PMGSONable):
         if mapping:
             for sym in symbols:
                 mapped_symbols.append(mapping[sym])
+        elif self.mappings_override:
+            for sym in symbols:
+                if sym in self.mappings_override.keys():
+                    mapped_symbols.append(self.mappings_override[sym])
+                else:
+                    mapped_symbols.append(sym)     
         else:
             mapped_symbols = symbols
         self.potcar = Potcar(symbols=mapped_symbols)

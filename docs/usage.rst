@@ -70,25 +70,25 @@ converged final energies.in one place.
 update the calibrate.json checkpoint file with the final energies(if converged):
 
    ```
-       mpint update
+   mpint update
    ```
        
 update calibrate.json and rerun jobs with the given ids:
 
    ```
-       mpint update 14692739.moab.ufhpc 14692740.moab.ufhpc
+   mpint update 14692739.moab.ufhpc 14692740.moab.ufhpc
    ```
        
 update calibrate.json and rerun jobs in the given folders:
 
    ```
-       mpint update all_poscars/POS/CBr2_294_C1Br2 all_poscars/POS/CoBr2_294_Co1Br2
+   mpint update all_poscars/POS/CBr2_294_C1Br2 all_poscars/POS/CoBr2_294_Co1Br2
    ```
        
 update calibrate.json and rerun jobs in the given folders with incar or kpoints or que parameters overridden by the parmaters in the override_input.yaml file:
 
    ```
-       mpint -i override_input.yaml update all_poscars/POS/CBr2_294_C1Br2 all_poscars/POS/CoBr2_294_Co1Br2
+   mpint -i override_input.yaml update all_poscars/POS/CBr2_294_C1Br2 all_poscars/POS/CoBr2_294_Co1Br2
    ```       
 
 High throughput VASP workflows with FireWorks  

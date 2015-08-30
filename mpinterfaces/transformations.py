@@ -21,8 +21,9 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 def get_trans_matrices(n):
     """
-    yields a list of 2x2 transformation matrices for the given supercell
-    size n
+    yields a list of 2x2 transformation matrices for the 
+    given supercell
+    n: size
     """
     def factors(n0):
         for i in range(1, n0+1):
@@ -38,7 +39,6 @@ def get_uv(ab, t_mat):
     return u and v, the supercell lattice vectors obtained through the
     transformation matrix
     """
-    #print('\ntransformation matrix : ', t_mat)
     u = np.array(ab[0])*t_mat[0][0] + np.array(ab[1])*t_mat[0][1] 
     v = np.array(ab[1])*t_mat[1][1] 
     return [u, v]
@@ -53,26 +53,20 @@ def get_reduced_uv(uv):
     v = np.array(uv[1])
     u1 = copy(u)
     v1 = copy(v)
-    #print('original u, v', [u1, v1])
     while is_not_reduced:
         if np.dot(u, v) <0:
             v = -v
-        #print 'v after dot', v
         if np.linalg.norm(u) > np.linalg.norm(v):
-            #print 'norm u and v', np.linalg.norm(u), np.linalg.norm(v)
             u1 = copy(v)
             v1 = copy(u)
         elif np.linalg.norm(v) > np.linalg.norm(u+v):
-            #print 'norm v and v+u', np.linalg.norm(v), np.linalg.norm(v+u)
             v1 =  v+u
         elif np.linalg.norm(v) > np.linalg.norm(u-v):
-            #print 'norm v and u-v', np.linalg.norm(v), np.linalg.norm(u-v)
             v1 = v-u
         else:
             is_not_reduced = False
         u = copy(u1)
         v = copy(v1)
-    #print('reduced u, v', [u, v])
     return [u, v]
 
 
@@ -102,13 +96,11 @@ def get_r_list(area1, area2, max_area, tol=0.02):
     r_list = []
     rmax1 = int(max_area/area1)
     rmax2 = int(max_area/area2)
-    print('rmax1, rmax2', rmax1, rmax2)
-    print('a2/a1', area2/area1)
+    print('rmax1, rmax2: {0}, {1}\n'.format(rmax1, rmax2))
     for r1 in range(1, rmax1+1):
         for r2 in range(1, rmax2+1):
             if abs(float(r1)*area1 - float(r2)*area2)/max_area <= tol:
                 r_list.append([r1, r2])
-    print('rlist',r_list)
     return r_list
 
 
@@ -137,6 +129,28 @@ def get_area(uv):
     a = uv[0]
     b = uv[1]
     return np.linalg.norm(np.cross(a,b))
+
+
+def get_proj(ab, v):
+    """ 
+    return normalized projection of vector v along ab[0] and ab[1]
+    """
+    return np.dot(ab[0],v)/np.linalg.norm(ab[0]), np.dot(ab[1],v)/np.linalg.norm(ab[1])
+
+
+def get_shortvec_proj(ab, uv):
+    """
+    return the projections of shortest vector in uv along the 
+    vectors in ab
+    """
+    if np.linalg.norm(uv[0]) <= np.linalg.norm(uv[1]):
+        x, y = get_proj(ab, uv[0])
+    else:
+        x, y = get_proj(ab, uv[1])
+    norm_factor = min(abs(x),abs(y))
+    if norm_factor <= 1e-5:
+        norm_factor = max(abs(x),abs(y))
+    return round(x/norm_factor,1), round(y/norm_factor,1)
 
 
 def get_matching_lattices(iface1, iface2, max_area = 100,
@@ -171,8 +185,7 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
         #a, b vectors that define the surface    
         ab1 = [ iface1.lattice.matrix[0,:] , iface1.lattice.matrix[1,:] ]
         ab2 = [ iface2.lattice.matrix[0,:] , iface2.lattice.matrix[1,:] ]
-    
-    print('area1, area2', area1, area2)
+    print('initial values:\nuv1:\n{0}\nuv2:\n{1}\n '.format(ab1, ab2))
     r_list = get_r_list(area1, area2, max_area, tol=r1r2_tol)
     if not r_list:
         print('r_list is empty. Try increasing the max surface area or/and the other tolerance paramaters')
@@ -205,8 +218,10 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
     if found:
         print('\nMATCH FOUND\n')
         uv_opt = sorted(found,key=lambda x: x[2])[0]
-        print('optimum values\nuv1: {0}\n uv2: {1}\n area : {2}\n'.format(uv_opt[0], uv_opt[1], uv_opt[2]))
-        print('u,v & angle mismatches: {0}, {1}, {2}'.format(uv_opt[3],uv_opt[4], uv_opt[5]))
+        print('optimum values:\nuv1:\n{0}\nuv2:\n{1}\narea:\n{2}\n'.format(uv_opt[0], uv_opt[1], uv_opt[2]))
+        print('u,v & angle mismatches:\n{0}, {1}, {2}\n'.format(uv_opt[3],uv_opt[4], uv_opt[5]))
+        print('slab 1: projection of shortest uv along inital uv {}'.format(get_shortvec_proj(ab1,uv_opt[0])))
+        print('slab 2: projection of shortest uv along inital uv {}'.format(get_shortvec_proj(ab2,uv_opt[1])))
         return uv_opt[0], uv_opt[1]
     else:
         print('\n NO MATCH FOUND')        

@@ -40,16 +40,14 @@ mat2d_slab = slab_from_file([0,0,1], 'POSCAR_2D')
 # get the in-plane lattice aligned slabs
 #substrate_slab.to(fmt='poscar', filename='POSCAR_substrate_slab.vasp')
 mat2d_slab.to(fmt='poscar', filename='POSCAR_mat2d_slab.vasp')
-
+# selective dynamics flag
 sd_flags = CalibrateSlab.set_sd_flags(
         interface=substrate_slab,
         n_layers=nlayers_substrate,
         top=True, bottom=False)
 poscar = Poscar(substrate_slab, selective_dynamics=sd_flags)
 poscar.write_file(filename='POSCAR_substrate_slab.vasp')
-
-
-
+# get aligned lattices
 substrate_slab_aligned, mat2d_slab_aligned = get_aligned_lattices(
     substrate_slab,
     mat2d_slab,

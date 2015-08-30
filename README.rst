@@ -95,7 +95,8 @@ Examples
 ==========
 
 The examples folder contain some sample scripts that demonstrate the
-usage of mpinterfaces as well as materialsproject packages
+usage of mpinterfaces as well as materialsproject packages. For basic
+usage please see **docs/usage.rst**.
 
 
 Authors

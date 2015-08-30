@@ -12,7 +12,7 @@ qe = QueryEngine.from_config(DB_CONFIG)
 #                 database="vasp", collection="collection_name",
 #                 user="username", password="password")
 
-results = qe.query(criteria = {"chemsys": 'In-P'},
+results = qe.query(criteria = {"normalized_formula": 'GaSb'},
                    properties = ['pretty_formula','author', 'spacegroup', 
                                  'output', 'analysis', 'last_updated', 
                                  'dir_name'])

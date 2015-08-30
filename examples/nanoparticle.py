@@ -9,6 +9,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from mpinterfaces import get_struct_from_mp
 from mpinterfaces.nanopartcle import Nanoparticle
 
+
 #-----------------------------------
 #nanopartcle specifications
 #-----------------------------------

@@ -53,14 +53,8 @@ Prepping
    pip install numpy
 
 
-Install from PyPI
--------------------
-
-pip install mpinterfaces
-
-
-Bleeding edge
--------------
+Get the latest version
+-----------------------
 
 If you already have a local copy, steps 1 and 2 of the following instructions
 can be skipped. Just do a "git pull" from the MPInterfaces folder and go to

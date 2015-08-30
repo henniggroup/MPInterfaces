@@ -16,10 +16,11 @@ from ase.utils.eosase2 import *
 from pymatgen.apps.borg.queen import BorgQueen
 from mpinterfaces import MPINTVaspDrone
 
+
 def get_e_v(path):
     """
-    uses pymatgen drone and borgqueen classes to get energy and volume data
-    from the given directory path.
+    uses pymatgen drone and borgqueen classes to get energy and 
+    volume data from the given directory path.
     """
     volumes = []
     energies = []
@@ -34,11 +35,14 @@ def get_e_v(path):
             volumes.append(e.structure.lattice.volume)
     return (volumes, energies)
 
+
 def custom_plot(volumes, energies, eos):
     plot.plot(volumes,energies,'ro')
     x = np.linspace(min(eos.v), max(eos.v), 100)
-    y = eval(eos.eos_string)(x, eos.eos_parameters[0], eos.eos_parameters[1],
-                             eos.eos_parameters[2], eos.eos_parameters[3] )
+    y = eval(eos.eos_string)(x, eos.eos_parameters[0],
+                             eos.eos_parameters[1],
+                             eos.eos_parameters[2],
+                             eos.eos_parameters[3] )
     plot.plot(x, y, label='fit')
     plot.xlabel('Volume ($\AA^3$)')
     plot.ylabel('Energy (eV)')

@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
+
 """
 reads in KPOINTS(with labels) and vasprun.xml files and
 plots band diagram and density of states 
 from http://gvallver.perso.univ-pau.fr/?p=587
 """
-#FOR USE ON HIPERGATOR matplotlib plotting, uncomment:
-#import matplotlib
-#matplotlib.use('Agg')
+
 import sys
+
 import numpy as np
 
+#To use matplotlib on Hipergator, uncomment the following 2 lines:
+#import matplotlib
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib.gridspec import GridSpec

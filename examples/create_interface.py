@@ -1,18 +1,18 @@
 from __future__ import division, unicode_literals, print_function
 
 """
-This script demonstrates the usage of the module mpinterfaces/interface.py
+This script demonstrates the usage of the module interface.py
 
-Also, demonstrates how to fetch data from the materialsproject database using their API
-Note: Before using the script, make sure that you do have a valid api key obtained 
-from the materialsproject website. 
+Also, demonstrates how to fetch data from the materialsproject 
+database using their API
+
+Note: Before using the script, make sure that you do have a valid 
+api key obtained  from the materialsproject website. 
 Use that to set the MAPI_KEY variable below
-
 """
 
 import sys
 
-from pymatgen.matproj.rest import MPRester
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.vasp.inputs import Poscar
 
@@ -22,20 +22,19 @@ MAPI_KEY = MAPI_KEY
  
 if __name__=='__main__':
     # PbS 100 surface with single hydrazine as ligand
-    #### uncomment once you have set your own key ####
     # strt=get_struct_from_mp("PbS",MAPI_KEY=MAPI_KEY) 
     # using smiles_to_xyz.py you can obtain molecule xyz
     # using openbabel.  
-    ###################################################
-
-    #### example structure files are provided and set in dev_scripts ####
-    strt= Structure.from_file("dev_scripts/POSCAR_PbS") #bulk structure of slab 
-    mol_struct= Structure.from_file("dev_scripts/POSCAR_TCPO") # pre-relaxed Ligand in a box
+    #example structure files are provided and set in dev_scripts
+    #bulk structure of slab     
+    strt= Structure.from_file("dev_scripts/POSCAR_PbS")
+    # pre-relaxed Ligand in a box
+    mol_struct= Structure.from_file("dev_scripts/POSCAR_TCPO") 
     mol= Molecule(mol_struct.species, mol_struct.cart_coords)
     hydrazine= Ligand([mol])
 
-    #intital supercell, this wont be the final supercell if surface coverage
-    #is specified
+    #intital supercell, this wont be the final supercell if
+    #surface coverage is specified
     supercell = [1,1,1]
 
     #miller index
@@ -70,11 +69,10 @@ if __name__=='__main__':
     #on the slab
     #in Angstrom
     displacement = 3.0
-
-    #
+    
     #here we create the interface
-    #
-    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=min_vac,
+    iface = Interface(strt, hkl=hkl,
+                      min_thick=min_thick, min_vac=min_vac,
                       supercell=supercell, surface_coverage=0.01,
                       ligand=hydrazine, displacement=displacement,
                       adatom_on_lig='N', adsorb_on_species= 'Pb',

@@ -1,18 +1,14 @@
 from __future__ import division, unicode_literals, print_function
 
 """
-This script demonstrates the creation of ligand interfaces and preoptimization 
-screening of possible interfaces using the calc_energy function of  
-
-Also, demonstrates how to fetch data from the materialsproject database using their API
-Note: Before using the script, make sure that you do have a valid api key obtained from the materialsproject website. Use that to set the MAPI_KEY variable below
+This script demonstrates the creation of ligand interfaces and 
+preoptimization screening of possible interfaces.
 """
 
 MAPI_KEY = MAPI_KEY
 
 import sys
 
-from pymatgen.matproj.rest import MPRester
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.operations import SymmOp
@@ -21,19 +17,23 @@ from mpinterfaces import *
 import numpy as np 
 
 
-def coloumb_configured_interface(iface, random=True, translations= None,\
-                               rotations=None, samples=10, lowest=5, ecut=None):
+def coloumb_configured_interface(iface, random=True,
+                                 translations= None,
+                                 rotations=None,
+                                 samples=10, lowest=5, ecut=None):
     """
-    Creates Ligand Slab interfaces of user specified translations and rotations 
-    away from the initial guess of binding site configuration, returns lowest 
-    energy structure according to Coulomb model
+    Creates Ligand Slab interfaces of user specified translations 
+    and rotations away from the initial guess of binding site 
+    configuration, returns lowest energy structure according to 
+    Coulomb model
     
     Args:
          Interface: Interface object: initial interface object 
          random: True for using Gaussian sampled random numbers for 
                  rotations and translations 
          translations: list of [x,y,z] translations to be performed
-         rotation: list of [a,b,c] rotations to be performed w.r.t Ligand axis
+         rotation: list of [a,b,c] rotations to be performed w.r.t 
+                   Ligand axis
          samples: number of interfaces to create
          lowest: number of structures to return according to order of 
                  minimum energies
@@ -59,19 +59,23 @@ def coloumb_configured_interface(iface, random=True, translations= None,\
             ligand.apply_operation(b)
             ligand.apply_operation(c)
                
-        # check if created interface maintains the ligand adsorbed over the surface 
+        # check if created interface maintains the ligand adsorbed
+        # over the surface 
         for j in iface.top_atoms: 
             if not iface.cart_coords[j][2] + iface.displacement > \
                                min(ligand.cart_coords[:,2]):
                 transform.append(True)
         if all(transform): 
-            iface= Interface(iface.strt, hkl=iface.hkl, min_thick=iface.min_thick,\
-                         min_vac=iface.min_vac,supercell=iface.supercell,\
-                         surface_coverage=iface.surface_coverage,\
-                         ligand=iface.ligand, displacement=z,\
-                         adatom_on_lig=iface.adatom_on_lig, 
-                         adsorb_on_species=iface.adsorb_on_species, \
-                         primitive= False, from_ase=True,x_shift=x, y_shift=y)
+            iface= Interface(iface.strt, hkl=iface.hkl,
+                             min_thick=iface.min_thick,
+                             min_vac=iface.min_vac,
+                             supercell=iface.supercell,
+                             surface_coverage=iface.surface_coverage,
+                             ligand=iface.ligand, displacement=z,
+                             adatom_on_lig=iface.adatom_on_lig, 
+                             adsorb_on_species=iface.adsorb_on_species,
+                             primitive= False, from_ase=True,
+                             x_shift=x, y_shift=y)
             iface.create_interface()
             energy= iface.calc_energy()
             iface.sort()
@@ -79,6 +83,7 @@ def coloumb_configured_interface(iface, random=True, translations= None,\
                 ifaces.append((energy,iface))
            # ifaces.zip(energy, iface)
     return ifaces 
+
 
 if __name__=='__main__':
     # PbS 100 surface with single hydrazine as ligand
@@ -88,8 +93,8 @@ if __name__=='__main__':
     mol= Molecule(mol_struct.species, mol_struct.cart_coords)
     hydrazine= Ligand([mol])
 
-    #intital supercell, this wont be the final supercell if surface coverage
-    #is specified
+    #intital supercell, this wont be the final supercell if
+    #surface coverage is specified
     supercell = [1,1,1]
 
     #miller index
@@ -125,11 +130,10 @@ if __name__=='__main__':
     #in Angstrom
     displacement = 3.0
 
-    #
     #here we create the adsorbate slab Interface
-    #
-    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=min_vac,
-                      supercell=supercell, surface_coverage=surface_coverage,
+    iface = Interface(strt, hkl=hkl, min_thick=min_thick,
+                      min_vac=min_vac, supercell=supercell,
+                      surface_coverage=surface_coverage,
                       ligand=hydrazine, displacement=displacement,
                       adatom_on_lig=adatom_on_lig, 
                       adsorb_on_species= adsorb_on_species,
@@ -138,9 +142,11 @@ if __name__=='__main__':
     iface.sort()
     energy=iface.calc_energy()
     iface.to('poscar','POSCAR_interface.vasp')
-
-    interfaces= coloumb_configured_interface(iface, random=True, translations= None,\
-                               rotations=None, samples=20, lowest=5, ecut=energy)
+    interfaces= coloumb_configured_interface(iface, random=True,
+                                             translations= None,
+                                             rotations=None,
+                                             samples=20, lowest=5,
+                                             ecut=energy)
     for i, iface in enumerate(interfaces): 
        print ("Coloumb Energy")
        print (i, iface[0])
@@ -158,8 +164,10 @@ if __name__=='__main__':
        #selective dynamics flags for the bare slab
        for i in iface_slab.sites:
           sd_flag_slab.append(false_site)
-          interface_poscar = Poscar(iface[1], selective_dynamics= sd_flag_iface)
-          slab_poscar = Poscar(iface_slab, selective_dynamics= sd_flag_slab)
+          interface_poscar = Poscar(iface[1],
+                                    selective_dynamics= sd_flag_iface)
+          slab_poscar = Poscar(iface_slab,
+                               selective_dynamics= sd_flag_slab)
        #slab poscars without selective dynamics flag
           iface_slab.to('poscar', 'POSCAR_slab'+str(iface[0])+'.vasp')
        #poscars with selective dynamics flag    

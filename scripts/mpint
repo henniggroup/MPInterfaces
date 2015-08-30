@@ -9,43 +9,11 @@ solvation. Just define all types of calculations with their
 corresponding specifications needed for the project in a yaml file 
 and run or rerun calculaitons as required.
 
-it takes 3 arguments: input yaml file, type of calculation and the 
-run mode
-
-example:
-   mpint -i naf.yaml -t bulk_calibrate run
-
-this will read in the specifications for 'bulk_calibrate' job from the 
-input yaml file, naf.yaml(in examples folder), and runs the job i.e 
-submits to the PBS que.
-
-run modes supported:
-  1. run : submits job to the que
-  2. check: check whether the job is finished or not
-  3. energies: get the energies and the optimum parameter values
-
-Everytime jobs are submitted or its sttaus queried, information such 
-as job ids, job folders etc are written to the log file 'mpint.log'. 
-This makes it easier to identify job ids and their corresponding job 
-folders.
-
-Instead of using the check and energies run modes as mentioned above, 
-the following can also be used for checking job status and for getting 
-the final energies.
-example:
-update the calibrate.json checkpoint file and rerun the jobs with 
-the given ids(if you want to rerun with changed parameters, set them in
-the calibrate.json file before running). 
-If no ids are given it will report whether the 
-jobs in the  checkpoint files are done or not. For the done jobs 
-checkpoint file will be updated with the converged final energies.
-
-       mpint update 14692739.moab.ufhpc 14692740.moab.ufhpc
- 
 Note: use your own materials project key to download the required 
 structure
 
 Note: this script submits jobs only to the PBS ques such as hipergator
+
 """
 
 import os
@@ -154,18 +122,20 @@ class mpint(object):
 
 
         def get_struct(self):
-            logger.info("obtaining structure from materialsproject and coverting it to conventional cell..should verify")
-            logger.info("the structure obtained from the materials project correspond to the one with the lowest energy above the hull")
-            if not MAPI_KEY:
-                print('get API KEY from materialsproject and set it to the MAPI_KEY environment variable')
-                sys.exit()
             if self.formula:
+               if MAPI_KEY:
                     strt = get_struct_from_mp(self.formula, MAPI_KEY=MAPI_KEY)
                     sa = SpacegroupAnalyzer(strt) 
                     structure_conventional = sa.get_conventional_standard_structure()
                     strt = structure_conventional.copy()
+		    logger.info("obtaining structure from materialsproject and coverting it to conventional cell..should verify")
+		    logger.info("the structure obtained from the materials project correspond to the one with the lowest energy above the hull")
+
+	       else:
+                   print('get API KEY from materialsproject and set it to the MAPI_KEY environment variable')
+		   sys.exit()
             else:
-                    strt = None
+                   strt = None
             return strt
 
 
@@ -200,7 +170,7 @@ class mpint(object):
                     strt = self.get_slab_struct(*self.slab)
                     self.poscar = Poscar(strt)
             elif from_mp:
-                logger.info("neither poscar nor slab creation setup provided, getting the bulk structure for the given formula from the materialsproject database")
+                logger.info("neither poscar nor slab creation setup provided, will try to get the bulk structure from the materialsproject database(if FORMULA is set)")
                 strt = self.get_struct()
                 if strt:
                         self.poscar = Poscar(strt)
@@ -208,9 +178,9 @@ class mpint(object):
                         logger.warn("No formula or poscar file provided")
             logger.info("setting potcar from poscar symbols")
             self.potcar = Potcar(self.poscar.site_symbols)
-            logger.info("updating INCAR")
             self.incar_dict['SYSTEM'] = self.formula
             if update.get('INCAR'):
+                logger.info("updating INCAR")
                 self.incar_dict.update(update['INCAR'])
                 self.incar = Incar.from_dict(self.incar_dict)
             if update.get('KPOINTS'):
@@ -354,8 +324,12 @@ class mpint(object):
                 logger.info('optium values for the knob parameters based on the cutoff criterion : {0}'.format(cal.optimum_knob_responses))
 
 	def update(self, args):
+            if args.input:
+                f = open(args.input)
+                update = yaml.load(f)
+		self.update_inputset(update, from_mp=False)
             if args.jids:
-               Calibrate.update_checkpoint(job_ids=args.jids)
+               Calibrate.update_checkpoint(job_ids=args.jids, incar=self.incar, kpoints=self.kpoints, que=self.qadapter)
 	    else:
                Calibrate.update_checkpoint()
 

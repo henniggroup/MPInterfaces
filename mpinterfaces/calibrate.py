@@ -495,7 +495,7 @@ class Calibrate(PMGSONable):
                indent=4)
 
     @staticmethod
-    def update_checkpoint(job_ids=None):
+    def update_checkpoint(job_ids=None, **kwargs):
         """
         rerun the jobs with job ids in the job_ids list. The jobs are
         read from the calibrate.json checkpoint file. If no job_ids 
@@ -509,21 +509,46 @@ class Calibrate(PMGSONable):
         run_jobs = []
         handlers = []
         final_energy = None
+        incar = None
+        kpoints = None
+        qadater = None
+        for k, v in kwargs.items():
+            if k == 'incar':
+                incar = v
+            if k == 'kpoints':
+                kpoints = v
+            if k == 'que':
+                qadapter = v  
         for j in cal_log:
             job = j["job"] 
             job.job_id = j['job_id']
             all_jobs.append(job)
-            if job_ids and j['job_id'] in job_ids:
+            if job_ids and (j['job_id'] in job_ids or job.job_dir in job_ids):
+                logger.info('setting job {0} in {1} to rerun'.format(j['job_id'], job.job_dir))
+                contcar_file = job.job_dir+os.sep+'CONTCAR'
+                if os.path.isfile(contcar_file):
+                    logger.info('setting poscar file from {}'
+                                .format(contcar_file))
+                    job.vis.poscar = Poscar.from_file(contcar_file)
+                    if incar:
+                        logger.info('incar overridden')
+                        job.vis.incar = incar
+                    if kpoints:
+                        logger.info('kpoints overridden')
+                        job.vis.kpoints = kpoints
+                    if qadapter:
+                        logger.info('qadapter overridden')
+                        job.vis.qadapter = qadapter
                 run_jobs.append(job)
-        if run_jobs:
-            c = Custodian(handlers, run_jobs, max_errors=5)
-            c.run()
         for j in all_jobs:
             final_energy = j.get_final_energy()
             cal_log_new.append({"job": j.as_dict(), 
                                  'job_id': j.job_id, 
                                  "corrections": [], 
                                  'final_energy': final_energy})
+        if run_jobs:
+            c = Custodian(handlers, run_jobs, max_errors=5)
+            c.run()
         dumpfn(cal_log_new, Calibrate.LOG_FILE, cls=MontyEncoder,
                indent=4)
 

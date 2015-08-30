@@ -61,16 +61,26 @@ example:
    from the input yaml file, naf.yaml(in examples folder), and
    runs the job i.e submits to the PBS que.
    
-   run modes supported:
-   
-   1. run : submits job to the que
-   2. check: check whether the job is finished or not
-   3. energies: get the energies and the optimum parameter values
-      
-   Everytime jobs are submitted or its status queried, information
-   such as job ids, job folders etc are written to the log file
-   'mpint.log'. This makes it easier to identify job ids and their
-   corresponding job folders.
+Everytime jobs are submitted or its status queried, information
+such as job ids, job folders etc are written to the calibrate.json 
+checkpoint file. This makes it easier to identify job ids and their
+corresponding job folders. Also provides all job info including 
+converged final energies.in one place.
+
+update the calibrate.json checkpoint file with the final energies(if converged):
+
+       mpint update
+
+update calibrate.json and rerun jobs with the given ids:
+
+       mpint update 14692739.moab.ufhpc 14692740.moab.ufhpc
+
+update calibrate.json and rerun jobs in the given folders:
+
+       mpint update all_poscars/POS/CBr2_294_C1Br2 all_poscars/POS/CoBr2_294_Co1Br2
+
+update calibrate.json and rerun jobs in the given folders with incar or kpoints or que parameters overridden by the parmaters in the override_input.yaml file:
+       mpint -i override_input.yaml update all_poscars/POS/CBr2_294_C1Br2 all_poscars/POS/CoBr2_294_Co1Br2
 
 High throughput VASP workflows with FireWorks  
 ---------------------------------------------

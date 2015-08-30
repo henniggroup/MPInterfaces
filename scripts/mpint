@@ -11,9 +11,6 @@ and run or rerun calculaitons as required.
 
 Note: use your own materials project key to download the required 
 structure
-
-Note: this script submits jobs only to the PBS ques such as hipergator
-
 """
 
 import os
@@ -22,26 +19,19 @@ import shutil
 import datetime
 import yaml
 import logging
-import socket
 from collections import OrderedDict
 from argparse import ArgumentParser
 from fnmatch import fnmatch
 import numpy as np
 
-from pymatgen.matproj.rest import MPRester
 from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
-from pymatgen.io.vasp.outputs import Outcar
-from pymatgen.apps.borg.queen import BorgQueen
-
-from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from mpinterfaces import get_struct_from_mp, Interface
 from mpinterfaces.calibrate import Calibrate, CalibrateSlab
-from mpinterfaces.data_processor import MPINTVaspDrone
+from mpinterfaces.utils import get_run_cmmnd
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -103,22 +93,6 @@ class mpint(object):
             self.kpoints = Kpoints.monkhorst_automatic(kpts=(8, 8, 8))
             self.potcar = Potcar(self.poscar.site_symbols)
             self.slab = {}
-
-
-        def get_d(self, nnodes=1, nprocs=32, walltime=4,
-                  bin='/home/km468/Software/VASP/vaspsol_nln_kappa.5.3.5/vasp',
-                  mem=1000):
-            return {'type':'PBS',
-                    'params':
-                        {
-                    'nnodes': str(nnodes),
-                    'ppnode': str(int(nprocs/nnodes)),
-                    'walltime': walltime,
-                    'job_name': 'vasp_job',
-                    'pre_rocket': '#PBS -l pmem='+str(mem)+'mb',
-                    'rocket_launch': 'mpirun '+bin
-                    }
-                    }
 
 
         def get_struct(self):
@@ -198,16 +172,10 @@ class mpint(object):
                     walltime = str(update['QUE']['TIME'])+':00:00'
                 if update['QUE'].get('BIN'):
                     bin = update['QUE']['BIN']
-                if socket.gethostname() in ['hydrogen',
-                                            'helium',
-                                            'lithium',
-                                            'beryllium',
-                                            'carbon']:
-                        # submit_vasp_job script must be in the path
-                        self.job_cmd = ['submit_vasp_job', bin ]
-                else:
-                        d = self.get_d(nnodes, nprocs, walltime, bin, mem)
-                        self.qadapter = CommonAdapter(d['type'], **d['params'])
+                self.qadapter, self.job_cmd = get_run_cmmnd(nnodes, 
+							    nprocs, 
+							    walltime, 
+							    bin, mem)
             if update.get('WAVECAR') :
                 wavecar_file = update['WAVECAR']
                 if os.path.isfile(wavecar_file):

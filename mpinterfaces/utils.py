@@ -6,6 +6,7 @@ Utility functions
 
 import sys
 import math
+import socket
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
@@ -13,6 +14,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.io.ase import AseAtomsAdaptor
+
+from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from ase.lattice.surface import surface
 
@@ -92,3 +95,61 @@ def add_vacuum_padding(slab, vacuum):
                                       properties=site.properties,
                                       coords_are_cartesian=True))
     return Structure.from_sites(new_sites)
+
+
+def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
+                  job_bin=None, mem='1000'):
+    d = {}
+    job_cmd = None
+    hostname = socket.gethostname()
+    #hipergator
+    if 'ufhpc' in hostname:
+        if job_bin is None:
+            job_bin='/home/km468/Software/VASP/vasp.5.3.5/vasp'
+        else:
+            job_bin = job_bin
+        d = {'type':'PBS',
+             'params':
+                 {
+                'nnodes': str(nnodes),
+                'ppnode': str(int(nprocs/nnodes)),
+                'walltime': walltime,
+                'job_name': 'vasp_job',
+                'email': 'mpinterfaces@gmail.com',
+                'notification_options': 'ae',
+                'pre_rocket': '#PBS -l pmem='+str(mem)+'mb',
+                'rocket_launch': 'mpirun '+job_bin
+                }
+             }
+    #stampede
+    elif 'stampede' in hostname:
+        if job_bin is None:
+            job_bin='/home1/01682/km468/Software/VASP/vasp.5.3.5/vasp'
+        else:
+            job_bin = job_bin
+        d = {'type':'SLURM',
+             'params':
+                 {
+                'nodes': str(nnodes),
+                'ntasks': str(nprocs),
+                'walltime': walltime,
+                'queue':'normal',
+                'account':'TG-DMR050028N',
+                'job_name': 'vasp_job',
+                'rocket_launch': 'ibrun '+job_bin
+                }
+             }
+    # running henniggroup machines
+    elif hostname in ['hydrogen', 'helium',
+                      'lithium', 'beryllium',
+                      'carbon']:
+        job_cmd = ['nohup', '/opt/openmpi_intel/bin/mpirun',
+                   '-n', '16',
+                   '/home/km468/Software/VASP/vasp.5.3.5/vasp']
+    # test
+    else:
+        job_cmd=['ls', '-lt']
+    if d:
+        return (CommonAdapter(d['type'], **d['params']), job_cmd) 
+    else:
+        return (None, job_cmd)

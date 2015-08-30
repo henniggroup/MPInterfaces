@@ -6,7 +6,6 @@ Defines various firetasks
 
 import sys
 import re
-import socket
 import copy
 import logging
 
@@ -20,12 +19,12 @@ from fireworks.core.firework import FireTaskBase, Firework, FWAction
 from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import explicit_serialize
-from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from mpinterfaces.calibrate import CalibrateMolecule, CalibrateSlab
 from mpinterfaces.calibrate import CalibrateBulk
 from mpinterfaces.measurement import Measurement
 from mpinterfaces.database import MPINTVaspToDbTaskDrone
+from mpinterfaces.utils import get_run_cmmnd
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -43,64 +42,6 @@ def load_class(mod, name):
     mod = __import__(mod, globals(), locals(), [name], 0)
     return getattr(mod, name)
 
-
-def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
-                  job_bin=None):
-    d = {}
-    job_cmd = None
-    hostname = socket.gethostname()
-    #hipergator
-    if 'ufhpc' in hostname:
-        if job_bin is None:
-            job_bin='/home/km468/Software/VASP/vasp.5.3.5/vasp'
-        else:
-            job_bin = job_bin
-        d = {'type':'PBS',
-             'params':
-                 {
-                'nnodes': str(nnodes),
-                'ppnode': str(int(nprocs/nnodes)),
-                'walltime': walltime,
-                'job_name': 'vasp_job',
-                'email': 'mpinterfaces@gmail.com',
-                'notification_options': 'ae',
-                'pre_rocket': '#PBS -l pmem=1000mb',
-                'rocket_launch': 'mpirun '+job_bin
-                }
-             }
-    #stampede
-    elif 'stampede' in hostname:
-        if job_bin is None:
-            job_bin='/home1/01682/km468/Software/VASP/vasp.5.3.5/vasp'
-        else:
-            job_bin = job_bin
-        d = {'type':'SLURM',
-             'params':
-                 {
-                'nodes': str(nnodes),
-                'ntasks': str(nprocs),
-                'walltime': walltime,
-                'queue':'normal',
-                'account':'TG-DMR050028N',
-                'job_name': 'vasp_job',
-                'rocket_launch': 'ibrun '+job_bin
-                }
-             }
-    # running henniggroup machines
-    elif hostname in ['hydrogen', 'helium',
-                      'lithium', 'beryllium',
-                      'carbon']:
-        job_cmd = ['nohup', '/opt/openmpi_intel/bin/mpirun',
-                   '-n', '24',
-                   '/home/km468/Software/VASP/vasp.5.3.5/vasp']
-    # test
-    else:
-        job_cmd=['ls', '-lt']
-    if d:
-        return (CommonAdapter(d['type'], **d['params']), job_cmd) 
-    else:
-        return (None, job_cmd)
-    
 
 def get_cal_obj(d):
     """

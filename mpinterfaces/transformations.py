@@ -10,7 +10,6 @@ __author__="Kiran Mathew, Arunima Singh"
 
 import sys
 from math import sqrt
-from copy import copy
 
 import numpy as np
 
@@ -44,30 +43,36 @@ def get_uv(ab, t_mat):
     return [u, v]
 
 
-def get_reduced_uv(uv):
+def get_reduced_uv(uv,tm):
     """
     returns reduced lattice vectors
     """
     is_not_reduced =  True
     u = np.array(uv[0])
     v = np.array(uv[1])
-    u1 = copy(u)
-    v1 = copy(v)
+    tm1 = np.array(tm)
+    u1 = u.copy()
+    v1 = v.copy()
     while is_not_reduced:
         if np.dot(u, v) <0:
             v = -v
+            tm1[1] = -tm1[1]
         if np.linalg.norm(u) > np.linalg.norm(v):
-            u1 = copy(v)
-            v1 = copy(u)
+            u1 = v.copy()
+            v1 = u.copy()
+            tm1c = tm1.copy()
+            tm1[0], tm1[1] = tm1c[1], tm1c[0]
         elif np.linalg.norm(v) > np.linalg.norm(u+v):
             v1 =  v+u
+            tm1[1] = tm1[1]+tm1[0]
         elif np.linalg.norm(v) > np.linalg.norm(u-v):
             v1 = v-u
+            tm1[1] = tm1[1]-tm1[0]            
         else:
             is_not_reduced = False
-        u = copy(u1)
-        v = copy(v1)
-    return [u, v]
+        u = u1.copy()
+        v = v1.copy()
+    return [u, v],tm1
 
 
 def reduced_supercell_vectors(ab, n):
@@ -77,12 +82,14 @@ def reduced_supercell_vectors(ab, n):
     supercell size n
     """
     uv_list = []
+    tm_list = []
     for r_tm in get_trans_matrices(n):
         for tm in r_tm:
             uv = get_uv(ab, tm)
-            uv = get_reduced_uv(uv)
+            uv, tm1 = get_reduced_uv(uv, tm)
             uv_list.append(uv)
-    return uv_list
+            tm_list.append(tm1)            
+    return uv_list, tm_list
 
 
 def get_r_list(area1, area2, max_area, tol=0.02):
@@ -131,28 +138,6 @@ def get_area(uv):
     return np.linalg.norm(np.cross(a,b))
 
 
-def get_proj(ab, v):
-    """ 
-    return normalized projection of vector v along ab[0] and ab[1]
-    """
-    return np.dot(ab[0],v)/np.linalg.norm(ab[0]), np.dot(ab[1],v)/np.linalg.norm(ab[1])
-
-
-def get_shortvec_proj(ab, uv):
-    """
-    return the projections of shortest vector in uv along the 
-    vectors in ab
-    """
-    if np.linalg.norm(uv[0]) <= np.linalg.norm(uv[1]):
-        x, y = get_proj(ab, uv[0])
-    else:
-        x, y = get_proj(ab, uv[1])
-    norm_factor = min(abs(x),abs(y))
-    if norm_factor <= 1e-5:
-        norm_factor = max(abs(x),abs(y))
-    return round(x/norm_factor,1), round(y/norm_factor,1)
-
-
 def get_matching_lattices(iface1, iface2, max_area = 100,
                           max_mismatch = 0.01, max_angle_diff = 1,
                           r1r2_tol= 0.02):
@@ -193,12 +178,12 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
     found = []        
     for r1r2 in r_list:
         print('searching ...')        
-        uv1_list = reduced_supercell_vectors(ab1, r1r2[0])
-        uv2_list = reduced_supercell_vectors(ab2, r1r2[1])
+        uv1_list, tm1_list = reduced_supercell_vectors(ab1, r1r2[0])
+        uv2_list, tm2_list = reduced_supercell_vectors(ab2, r1r2[1])
         if not uv1_list and not uv2_list:
             continue
-        for uv1 in uv1_list:
-            for uv2 in uv2_list:                
+        for i,uv1 in enumerate(uv1_list):
+            for j,uv2 in enumerate(uv2_list): 
                 u_mismatch = get_mismatch(uv1[0], uv2[0])
                 v_mismatch = get_mismatch(uv1[1], uv2[1])
                 angle1 = get_angle(uv1[0], uv1[1])
@@ -214,14 +199,13 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
                     if abs(mod_angle) < 0.001 or abs(mod_angle-min_angle) < 0.001:
                         is_angle_factor = True
                     if  angle_mismatch < max_angle_diff or is_angle_factor:
-                        found.append((uv1,uv2,min(area1,area2),u_mismatch, v_mismatch, angle_mismatch))
+                        found.append((uv1,uv2,min(area1,area2),u_mismatch, v_mismatch, angle_mismatch,tm1_list[i],tm2_list[j]))
     if found:
         print('\nMATCH FOUND\n')
         uv_opt = sorted(found,key=lambda x: x[2])[0]
         print('optimum values:\nuv1:\n{0}\nuv2:\n{1}\narea:\n{2}\n'.format(uv_opt[0], uv_opt[1], uv_opt[2]))
+        print('optimum transition matrices:\ntm1:\n{0}\ntm2:\n{1}\n'.format(uv_opt[6], uv_opt[7]))        
         print('u,v & angle mismatches:\n{0}, {1}, {2}\n'.format(uv_opt[3],uv_opt[4], uv_opt[5]))
-        print('slab 1: projection of shortest uv along inital uv {}'.format(get_shortvec_proj(ab1,uv_opt[0])))
-        print('slab 2: projection of shortest uv along inital uv {}'.format(get_shortvec_proj(ab2,uv_opt[1])))
         return uv_opt[0], uv_opt[1]
     else:
         print('\n NO MATCH FOUND')        

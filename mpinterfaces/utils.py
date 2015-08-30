@@ -144,8 +144,8 @@ def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
                       'lithium', 'beryllium',
                       'carbon']:
         job_cmd = ['nohup', '/opt/openmpi_intel/bin/mpirun',
-                   '-n', '16',
-                   '/home/km468/Software/VASP/vasp.5.3.5/vasp']
+                   '-n', str(nprocs),
+                   job_bin]
     # test
     else:
         job_cmd=['ls', '-lt']

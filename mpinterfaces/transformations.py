@@ -199,6 +199,13 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
                     if abs(mod_angle) < 0.001 or abs(mod_angle-min_angle) < 0.001:
                         is_angle_factor = True
                     if  angle_mismatch < max_angle_diff or is_angle_factor:
+                        if angle_mismatch > max_angle_diff:
+                            if angle1 > angle2:
+                                uv1[1] = uv1[0] + uv1[1]
+                                tm1_list[i][1] = tm1_list[i][0] + tm1_list[i][1]
+                            else:
+                                uv2[1] = uv2[0] + uv2[1]
+                                tm2_list[j][1] = tm2_list[j][0] + tm2_list[j][1]
                         found.append((uv1,uv2,min(area1,area2),u_mismatch, v_mismatch, angle_mismatch,tm1_list[i],tm2_list[j]))
     if found:
         print('\nMATCH FOUND\n')

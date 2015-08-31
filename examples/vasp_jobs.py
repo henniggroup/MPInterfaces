@@ -33,6 +33,8 @@ strt = structure_conventional.copy()
 iface = Interface(strt, hkl=[1,1,1],
                   min_thick=10, min_vac=10,
                   supercell=[1,1,1])
+# sort structure into groups of elements atoms for Potcar mapping 
+iface.sort() 
 # vasp input
 incar_dict = {
                  'SYSTEM': 'test', 

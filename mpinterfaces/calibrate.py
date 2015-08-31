@@ -296,7 +296,7 @@ class Calibrate(PMGSONable):
         if grid_type == 'M' or grid_type == 'G':
             return str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' \
                 + str(kpoint[2])
-        elif grid_type == 'A':    
+        else:    
             return str(kpoint)
 
     def potcar_to_name(self, mapping):
@@ -371,6 +371,9 @@ class Calibrate(PMGSONable):
             self.kpoints = Kpoints.automatic(subdivisions = kpoint)
         elif self.Grid_type == 'G': 
             self.kpoints = Kpoints.gamma_automatic(kpts = kpoint)
+        elif self.Grid_type == '3DD':
+            self.kpoints = Kpoints.automatic_density_by_vol(structure=\
+                           self.poscar.structure, kppvol=kpoint)
         name = self.kpoint_to_name(kpoint, self.Grid_type)
         logger.info('KPOINTS = '+name)
         job_dir = self.job_dir +os.sep+ self.key_to_name('KPOINTS') \

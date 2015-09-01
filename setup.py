@@ -7,9 +7,8 @@ MPINT_DIR = os.path.dirname(os.path.abspath(__file__))
 setup(
     name = "mpinterfaces",
     version = "1.1.2",
-    install_requires=["numpy>=1.8", "scipy>=0.10",
-                      "pymatgen>=3.1.5", "FireWorks>=1.1",
-                      "custodian>=0.8.2", "pymatgen-db>=0.4.8",
+    install_requires=["pymatgen>=3.1.9", "FireWorks>=1.1",
+                      "custodian>=0.8.2", "pymatgen-db>=0.5",
                       "ase>=3.9.0"],
     extras_require={"plot": ["matplotlib>=1.4.2"],
                     "babel": ["openbabel", "pybel"],

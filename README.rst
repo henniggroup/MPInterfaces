@@ -91,12 +91,25 @@ do the following:
     - The pdf will be in the _build/latex folder 
 
       
-Examples
+Usage
 ==========
+
+We use pymatgen tools for all structure manipulation tasks, so it would
+be a good idea to start from here:
+
+http://pymatgen.org/#using-pymatgen
 
 The examples folder contain some sample scripts that demonstrate the
 usage of mpinterfaces as well as materialsproject packages. For basic
 usage please see **docs/usage.rst**.
+
+
+Contributing
+=============
+
+We try to follow the coding style used by pymatgen(PEP8):
+
+http://pymatgen.org/contributing.html#coding-guidelines
 
 
 Authors
@@ -109,4 +122,3 @@ Joshua Gabriel
 Arunima Singh
 
 Richard G. Hennig
-

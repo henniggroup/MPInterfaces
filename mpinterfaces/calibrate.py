@@ -555,7 +555,6 @@ class Calibrate(PMGSONable):
         dumpfn(cal_log_new, Calibrate.LOG_FILE, cls=MontyEncoder,
                indent=4)
 
-
     def set_knob_responses(self):
         """
         set up a dictionary that maps the turn knob keys and
@@ -736,6 +735,22 @@ class Calibrate(PMGSONable):
         cal.job_dir_list = d["job_dir_list"]
         cal.job_ids = d["job_ids"]
         return cal
+
+    @staticmethod
+    def jobs_from_file(filename='calibrate.json'):
+        """
+        read in json file of format caibrate.json(the default logfile
+        created when jobs are run through calibrate) and return the
+        list of job objects.
+        """
+        caljobs = loadfn(filename, cls=MontyDecoder)
+        all_jobs = []
+        for j in caljobs:
+            job = j["job"]
+            job.job_id = j['job_id']
+            job.final_energy = job.get_final_energy()
+            all_jobs.append(job)
+        return all_jobs
 
 
 class CalibrateMolecule(Calibrate):

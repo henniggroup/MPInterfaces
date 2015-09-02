@@ -41,6 +41,7 @@ from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.serializers.json_coders import PMGSONable
+from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 from custodian.vasp.handlers import VaspErrorHandler
 #from custodian.vasp.handlers import FrozenJobErrorHandler
@@ -380,6 +381,9 @@ class Calibrate(PMGSONable):
         elif self.Grid_type == '3DD':
             self.kpoints = Kpoints.automatic_density_by_vol(structure=\
                            self.poscar.structure, kppvol=kpoint)
+        elif self.Grid_type == 'band':
+            self.kpoints = Kpoints.automatic_linemode(divisions=kpoint,\
+                           ibz=HighSymmKpath(self.poscar.structure))
         name = self.kpoint_to_name(kpoint, self.Grid_type)
         logger.info('KPOINTS = '+name)
         job_dir = self.job_dir +os.sep+ self.key_to_name('KPOINTS') \

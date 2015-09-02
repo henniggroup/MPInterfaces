@@ -60,32 +60,51 @@ example:
    this will read in the specifications for 'bulk_calibrate' job
    from the input yaml file, naf.yaml(in examples folder), and
    runs the job i.e submits to the PBS que.
-   
+
+**Job Monitoring**:
+
 Everytime jobs are submitted or its status queried, information
-such as job ids, job folders etc are written to the calibrate.json 
+such as job ids, job folders etc are written to the calibrate.json(the default name) 
 checkpoint file. This makes it easier to identify job ids and their
 corresponding job folders. Also provides all job info including 
-converged final energies.in one place.
+converged final energies in one place, in the checkpoint file.
 
-update the calibrate.json checkpoint file with the final energies(if converged):
+update the calibrate.json(default name) checkpoint file with the final
+energies(if converged):
 
    ```
    mpint update
    ```
-       
-update calibrate.json and rerun jobs with the given ids:
+
+update custom name(example:- step1.json) checkpoint file with the
+final energies(if converged):
+
+   ```
+   mpint update step1.json
+   ```
+
+update checkpoint files from calibrate runs:
+
+   ```
+   mpint update step1.json step2.json
+   ```
+
+update calibrate.json and rerun jobs(will reset the poscar from the contcar
+file if one exists) with the given ids:
 
    ```
    mpint update 14692739.moab.ufhpc 14692740.moab.ufhpc
    ```
        
-update calibrate.json and rerun jobs in the given folders:
+update calibrate.json and rerun jobs in the given job directory paths:
 
    ```
    mpint update all_poscars/POS/CBr2_294_C1Br2 all_poscars/POS/CoBr2_294_Co1Br2
    ```
        
-update calibrate.json and rerun jobs in the given folders with incar or kpoints or que parameters overridden by the parmaters in the override_input.yaml file:
+update calibrate.json and rerun jobs in the given folders(job ids are also accepted)
+with incar or kpoints or que parameters overridden by the parmaters in
+the override_input.yaml file:
 
    ```
    mpint -i override_input.yaml update all_poscars/POS/CBr2_294_C1Br2 all_poscars/POS/CoBr2_294_Co1Br2

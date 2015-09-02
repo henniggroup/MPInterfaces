@@ -48,7 +48,6 @@ from custodian.vasp.handlers import VaspErrorHandler
 #from custodian.vasp.handlers import NonConvergingErrorHandler
 from custodian.custodian import Custodian, gzip_dir
 from custodian.vasp.interpreter import VaspModder
-from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 from monty.json import MSONable, MontyEncoder, MontyDecoder
 from monty.serialization import loadfn, dumpfn
@@ -121,12 +120,18 @@ class Calibrate(PMGSONable):
         self.job_dir = job_dir
         self.incar = incar               
         self.poscar = poscar
-        self.potcar = Potcar(poscar.site_symbols)
+        self.potcar = potcar
+        if poscar:
+            self.potcar = Potcar(poscar.site_symbols)
         self.kpoints = kpoints
-        self.incar_orig = incar.as_dict()
-        self.poscar_orig = poscar.as_dict()
-        self.potcar_orig = potcar.as_dict()
-        self.kpoints_orig = kpoints.as_dict()
+        if incar:
+            self.incar_orig = incar.as_dict()
+        if poscar:
+            self.poscar_orig = poscar.as_dict()
+        if self.potcar:
+            self.potcar_orig = self.potcar.as_dict()
+        if kpoints:
+            self.kpoints_orig = kpoints.as_dict()
         self.qadapter = qadapter
         self.job_dir_list = []
         self.jobs = []
@@ -375,10 +380,6 @@ class Calibrate(PMGSONable):
         elif self.Grid_type == '3DD':
             self.kpoints = Kpoints.automatic_density_by_vol(structure=\
                            self.poscar.structure, kppvol=kpoint)
-        elif self.Grid_type == 'band':
-            self.kpoints = Kpoints.automatic_linemode(divisions= kpoint,\
-                           ibz= HighSymmKpath(self.poscar.structure))
- 
         name = self.kpoint_to_name(kpoint, self.Grid_type)
         logger.info('KPOINTS = '+name)
         job_dir = self.job_dir +os.sep+ self.key_to_name('KPOINTS') \
@@ -503,14 +504,16 @@ class Calibrate(PMGSONable):
                indent=4)
 
     @staticmethod
-    def update_checkpoint(job_ids=None, **kwargs):
+    def update_checkpoint(job_ids=None, jfile=None, **kwargs):
         """
         rerun the jobs with job ids in the job_ids list. The jobs are
-        read from the calibrate.json checkpoint file. If no job_ids 
-        is given then the checkpoint file will be updated with 
-        corresponding final energy
+        read from the calibrate.json or custom json checkpoint file, 
+        jfile. If no job_ids are given then the checkpoint file will 
+        be updated with corresponding final energy
         """
         #shutil.copy(Calibrate.LOG_FILE, "{}.orig".format(Calibrate.LOG_FILE))
+        if jfile:
+            Calibrate.LOG_FILE = jfile
         cal_log = loadfn(Calibrate.LOG_FILE, cls=MontyDecoder)
         cal_log_new = []
         all_jobs = []
@@ -559,7 +562,6 @@ class Calibrate(PMGSONable):
             c.run()
         dumpfn(cal_log_new, Calibrate.LOG_FILE, cls=MontyEncoder,
                indent=4)
-
 
     def set_knob_responses(self):
         """
@@ -742,6 +744,22 @@ class Calibrate(PMGSONable):
         cal.job_ids = d["job_ids"]
         return cal
 
+    @staticmethod
+    def jobs_from_file(filename='calibrate.json'):
+        """
+        read in json file of format caibrate.json(the default logfile
+        created when jobs are run through calibrate) and return the
+        list of job objects.
+        """
+        caljobs = loadfn(filename, cls=MontyDecoder)
+        all_jobs = []
+        for j in caljobs:
+            job = j["job"]
+            job.job_id = j['job_id']
+            job.final_energy = j['final_energy']
+            all_jobs.append(job)
+        return all_jobs
+
 
 class CalibrateMolecule(Calibrate):
     """
@@ -907,7 +925,7 @@ class CalibrateSlab(Calibrate):
             z_upper_bound = np.unique(z_coords)[-n_layers]
             sd_flags[ [i for i, coords in enumerate(slab.frac_coords)
                        if coords[2]>=z_upper_bound ] ] = np.ones((1,3))
-        return sd_flags
+        return sd_flags.tolist()
 
     def set_reconstructed_surface(self, sites_to_add):
         """

@@ -175,9 +175,9 @@ def get_matching_lattices(iface1, iface2, max_area = 100,
     if not r_list:
         print('r_list is empty. Try increasing the max surface area or/and the other tolerance paramaters')
         sys.exit()
-    found = []        
+    found = []
+    print('searching ...')
     for r1r2 in r_list:
-        print('searching ...')        
         uv1_list, tm1_list = reduced_supercell_vectors(ab1, r1r2[0])
         uv2_list, tm2_list = reduced_supercell_vectors(ab2, r1r2[1])
         if not uv1_list and not uv2_list:

@@ -297,7 +297,19 @@ class mpint(object):
                 update = yaml.load(f)
 		self.update_inputset(update, from_mp=False)
             if args.jids:
-               Calibrate.update_checkpoint(job_ids=args.jids, incar=self.incar, kpoints=self.kpoints, que=self.qadapter)
+               json_files = []
+               for i in args.jids:
+                   if '.json' in i:
+                       json_files.append(i)
+               if json_files:
+                  for jf in json_files:
+                      Calibrate.update_checkpoint(job_ids=args.jids,
+                                                  jfile = jf,
+                                                  incar=self.incar,
+                                                  kpoints=self.kpoints,
+                                                  que=self.qadapter)
+               else:
+                    Calibrate.update_checkpoint(job_ids=args.jids, incar=self.incar, kpoints=self.kpoints, que=self.qadapter)
 	    else:
                Calibrate.update_checkpoint()
 

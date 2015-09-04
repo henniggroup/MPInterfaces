@@ -252,29 +252,31 @@ def step4():
     return [name+'.json']
 
 
-def launch_daemon(steps):
+def launch_daemon(steps, interval):
     """
-    run all th steps in daemon mode
+    run all the steps in daemon mode
     """
     for step in steps:
+        chkpt_files = globals()[step]()        
         while True:
-            chkpt_files = globals()[step]()
             done = []            
             for cf in chkpt_files:
                 time.sleep(3)                
                 Calibrate.update_checkpoint(jfile=cf)
                 all_jobs = Calibrate.jobs_from_file(cf)
-                # test: done = [True]
-                done = done + [(True if job.final_energy else False)
-                               for job in all_jobs]
+                # test:
+                done = [True, False]
+                #done = done + [(True if job.final_energy else False)
+                #               for job in all_jobs]
             if all(done):
                 print('all jobs in {} done. Proceeding to the next one'.format(step))
                 time.sleep(5)
                 break
             # update and check every 5 mins
-            time.sleep(300)
+            print('all jobs in {0} NOT done. Next update in {1} seconds'.format(step,interval))
+            time.sleep(interval)
                     
 
 if __name__ == '__main__':
     steps = ['step1', 'step2', 'step4']
-    launch_daemon(steps)           
+    launch_daemon(steps,300)

@@ -35,6 +35,7 @@ incar_dict = dict(
     PARAM2 = 0.2200000000,
     LUSE_VDW = '.TRUE.',
     AGGAC = 0.0000 )
+# INCAR
 incar_sub = Incar.from_dict(incar_dict)
 incar_sub['ISMEAR'] = 1
 incar_2d = Incar.from_dict(incar_dict)
@@ -119,7 +120,7 @@ def step2():
     ionic positions, top 2 layers
 
     - uses info from step1_sub.json step1_2d.json
-    - creates required input files and submits the jobs to the que	(9 jobs)
+    - creates required input files and submits the jobs to the que(9 jobs)
     - returns: step2.json    
     """
     hkl = [1,1,1]
@@ -166,12 +167,13 @@ def step2():
 
 def step4():
     """
-    put relaxed 2d materials in all possible ways on the relaxed slab and
-   relax the interface structure, relax interface ionic positions
+    put relaxed 2d materials in all possible ways on the relaxed slab 
+    and relax the interface structure, relax interface ionic positions
 
     merged step3 and 4
     - uses info from step2.json and step1_2d.json
-    - creates required input files and submits the jobs to the que (around 40 jobs)   
+    - creates required input files and submits the jobs to the que 
+      (around 40 jobs)   
     - returns: step4.json     
     """
     seperation = 3 # in angstroms
@@ -255,6 +257,7 @@ def step4():
 def launch_daemon(steps, interval):
     """
     run all the steps in daemon mode
+    checks job status every 'interval' seconds
     """
     for step in steps:
         chkpt_files = globals()[step]()        
@@ -265,18 +268,22 @@ def launch_daemon(steps, interval):
                 Calibrate.update_checkpoint(jfile=cf)
                 all_jobs = Calibrate.jobs_from_file(cf)
                 # test:
-                done = [True, False]
-                #done = done + [(True if job.final_energy else False)
-                #               for job in all_jobs]
+                #done = [True, False]
+                done = done + [(True if job.final_energy else False)
+                               for job in all_jobs]
             if all(done):
                 print('all jobs in {} done. Proceeding to the next one'.format(step))
                 time.sleep(5)
                 break
-            # update and check every 5 mins
+            # update and check every 'interval' seconds
             print('all jobs in {0} NOT done. Next update in {1} seconds'.format(step,interval))
             time.sleep(interval)
                     
 
 if __name__ == '__main__':
+    # name of functions to be run.
+    # functions will be run in the order given in the list
     steps = ['step1', 'step2', 'step4']
-    launch_daemon(steps,300)
+    # update interval
+    interval = 300
+    launch_daemon(steps,interval)

@@ -18,17 +18,16 @@ from mpinterfaces.transformations import *
 from mpinterfaces.utils import *
 
 
-# default incar settings
+# default incar settings, with vdw
 incar_dict = dict(
     PREC = 'Accurate',
     ENCUT = 400,
     ISMEAR = 0,
     EDIFF = '1E-6',
     ISIF = 3,
-    NSW = 500,
     IBRION = 2,
+    NSW = 500,
     NPAR = 4,
-    LWAVE = '.FALSE.',
     LCHARG = '.FALSE.',
     GGA = 'BO',
     PARAM1 = 0.1833333333,
@@ -69,14 +68,15 @@ def run_cal(turn_knobs, qadapter, job_cmd, job_dir, name,
     
 def step1():
     """
-    get substrate bulk structures from materialsproject for Pt, Ag, Cu, Ni,
-    Al, Au, Pd, Ir and do 3d relax
+    get substrate bulk structures from materialsproject for
+    Pt, Ag, Cu, Ni, Al, Au, Pd, Ir and do 3d relaxation(ISIF=3)
     
     get 2d structures from the provided poscars(just poscar_graphene)
-    and relax in x and y only
+    and relax in x and y only(vasp_noz bin)
     
-    - POSCAR_graphene must be made avialable in the directory
-    - creates required input files and submits the jobs to the que (9 jobs)
+    - POSCAR_graphene must be made available in the directory
+    - creates required input files and submits the jobs to the que
+    - 8 + 1 jobs
     - returns: step1_sub.json step1_2d.json 
     """
     #job directory for the runs
@@ -85,11 +85,13 @@ def step1():
     # create list of all substrate poscars
     poscars_sub = []
     poscars_2d = []
+    # substrate structures
     for sub in substrates:
         struct_sub = get_struct_from_mp(sub)
         sa_sub = SpacegroupAnalyzer(struct_sub)
         struct_sub = sa_sub.get_conventional_standard_structure()
         poscars_sub.append(Poscar(struct_sub))
+    # 2d structures
     for td in mat2ds:
         poscars_2d.append(Poscar.from_file(td))
     # setup calibrate and run'em
@@ -101,9 +103,11 @@ def step1():
         [
             ('POSCAR', poscars_2d)
         ])
+    # normal binary
     qadapter_sub, job_cmd_sub = get_run_cmmnd(nnodes=nnodes, nprocs=nprocs,
                                             walltime=walltime,
                                             job_bin=bin_sub, mem=mem)
+    # binary with z constraint
     qadapter_2d, job_cmd_2d = get_run_cmmnd(nnodes=nnodes, nprocs=nprocs,
                                             walltime=walltime,
                                             job_bin=bin_2d, mem=mem)
@@ -116,79 +120,30 @@ def step1():
 
 def step2():
     """
-    read in relaxed bulk substrate, construct 111 slabs and relax only
-    ionic positions, top 2 layers
+    read in the realxed bulk substrates and relaxed 2d,
+    create substrate slab,
+    get aligned substrates and 2d,
+    relax the aligned structures seperatly(only ionic positions, ISIF=2)
 
-    - uses info from step1_sub.json step1_2d.json
-    - creates required input files and submits the jobs to the que(9 jobs)
-    - returns: step2.json    
+    - input from step1_sub.json and step1_2d.json
+    - 8(pairs) * 2 = 16 jobs
+    - returns step2.json
     """
-    hkl = [1,1,1]
-    min_thick = 10
-    min_vac = 18
-    n_layers = 2
-    #job directory for the runs
-    name = 'step2'
-    job_dir = 'step2'
-    # incar & kpoints
-    incar = Incar.from_dict(incar_dict)
-    incar['ISMEAR'] = 1
-    incar['IBRION'] = 2
-    kpoints = Kpoints.monkhorst_automatic(kpts=(18, 18, 1))    
-    # create list of all substrate poscars
-    all_poscars = []
-    # load in previous jobs
-    all_jobs = Calibrate.jobs_from_file('step1_sub.json')    
-    for job in all_jobs:
-        job_dir = os.path.join(job.parent_job_dir, job.job_dir)
-        contcar_file = os.path.join(job_dir, 'CONTCAR')
-        relaxed_struct = Structure.from_file(contcar_file)
-        substrate_slab = Interface(relaxed_struct,
-                                hkl = hkl,
-                                min_thick = min_thick,
-                                min_vac = min_vac,
-                                primitive = False, from_ase = True)
-        sd_flags = CalibrateSlab.set_sd_flags(interface=substrate_slab,
-                                            n_layers=n_layers)
-        poscar = Poscar(substrate_slab, selective_dynamics=sd_flags)
-        all_poscars.append(poscar)
-    # setup calibrate and run'em
-    turn_knobs = OrderedDict(
-        [
-            ('POSCAR', all_poscars)
-        ])
-    qadapter, job_cmd = get_run_cmmnd(nnodes=nnodes, nprocs=nprocs,
-                                      walltime=walltime,
-                                      job_bin=bin_sub, mem=mem)
-    run_cal(turn_knobs, qadapter, job_cmd, job_dir,
-            name, incar=incar, kpoints=kpoints)
-    return [name+'.json']
-
-
-def step4():
-    """
-    put relaxed 2d materials in all possible ways on the relaxed slab 
-    and relax the interface structure, relax interface ionic positions
-
-    merged step3 and 4
-    - uses info from step2.json and step1_2d.json
-    - creates required input files and submits the jobs to the que 
-      (around 40 jobs)   
-    - returns: step4.json     
-    """
-    seperation = 3 # in angstroms
     nlayers_2d = 1
     nlayers_sub = 2
     hkl_sub = [1,1,1]
+    min_thick = 10.0
+    min_vac = 18.0
     hkl_2d = [0,0,1]
     #job directory for the runs
-    name = 'step4'    
-    job_dir = 'step4'
-    # incar & kpoints
-    incar = Incar.from_dict(incar_dict)
-    incar['ISMEAR'] = 1
-    incar['ISIF'] = 2
-    kpoints = Kpoints.monkhorst_automatic(kpts=(18, 18, 1))
+    job_dir_sub = 'step2_sub'
+    job_dir_2d = 'step2_2d'
+    # isif = 2
+    incar_sub['ISIF'] = 2
+    incar_2d['ISIF'] = 2
+    # kpoints
+    kpoints_sub = Kpoints.monkhorst_automatic(kpts=(18, 18, 1))
+    kpoints_2d = Kpoints.monkhorst_automatic(kpts=(18, 18, 1))    
     # CSL settings for each substrate
     alignment_settings = { 'Pt': [120, 0.10, 1, 0.5],
                         'Ag': [120, 0.10, 1, 0.5],
@@ -199,48 +154,122 @@ def step4():
                         'Cu': [50, 0.06, 1, 0.5],
                         'Ni': [50, 0.06, 1, 0.5] }
     # load in previous jobs
-    relaxed_sub_jobs = Calibrate.jobs_from_file('step2.json')
+    relaxed_sub_jobs = Calibrate.jobs_from_file('step1_sub.json')
     relaxed_2d_jobs = Calibrate.jobs_from_file('step1_2d.json')
+    poscars_sub = []
+    poscars_2d = []
+    # create list of all aligned substrate and 2d slabs
+    for jsub in relaxed_sub_jobs:
+        jdir = os.path.join(jsub.parent_job_dir, jsub.job_dir)
+        contcar_file = os.path.join(jdir, 'CONTCAR')
+        relaxed_struct_sub = Structure.from_file(contcar_file)
+        # create slab
+        slab_sub = Interface(relaxed_struct_sub,  hkl = hkl_sub,
+                             min_thick = min_thick, min_vac = min_vac,
+                             primitive = False, from_ase = True)
+        species_sub = ''.join([tos.symbol for tos in slab_sub.types_of_specie])
+        # loop over 2d
+        for j2d in relaxed_2d_jobs:    
+            jdir = os.path.join(j2d.parent_job_dir, j2d.job_dir)
+            contcar_file = os.path.join(jdir, 'CONTCAR')
+            slab_2d = slab_from_file(hkl_2d, contcar_file)
+            species_2d = ''.join([tos.symbol for tos in slab_2d.types_of_specie])
+            print(species_sub, species_2d)
+            # align
+            slab_sub_aligned, slab_2d_aligned = get_aligned_lattices(
+                slab_sub,
+                slab_2d,
+                *alignment_settings[species_sub])
+            # aligned sub poscar
+            sd_flags = CalibrateSlab.set_sd_flags(interface=slab_sub_aligned,
+                                                  n_layers=nlayers_sub)
+            poscar = Poscar(slab_sub_aligned, selective_dynamics=sd_flags)
+            poscar.comment = '_'.join([species_sub,species_2d,'sub'])            
+            poscars_sub.append(poscar)
+            # aligned 2d slab
+            sd_flags = CalibrateSlab.set_sd_flags(interface=slab_2d_aligned,
+                                                  n_layers=nlayers_2d)
+            poscar = Poscar(slab_2d_aligned, selective_dynamics=sd_flags)
+            poscar.comment = '_'.join([species_sub,species_2d,'2d'])
+            poscars_2d.append(poscar)
+    # setup calibrate and run'em
+    turn_knobs_sub = OrderedDict(
+        [
+            ('POSCAR', poscars_sub)
+        ])
+    turn_knobs_2d = OrderedDict(
+        [
+            ('POSCAR', poscars_2d)
+        ])
+    qadapter, job_cmd = get_run_cmmnd(nnodes=nnodes, nprocs=nprocs,
+                                            walltime=walltime,
+                                            job_bin=bin_sub, mem=mem)
+    run_cal(turn_knobs_sub, qadapter, job_cmd, job_dir_sub,
+            'step2_sub', incar=incar_sub, kpoints=kpoints_sub)
+    run_cal(turn_knobs_2d, qadapter, job_cmd, job_dir_2d,
+            'step2_2d', incar=incar_2d, kpoints=kpoints_2d)
+    return ['step2_sub.json', 'step2_2d.json']
+
+
+def step3():
+    """
+    put aligned & relaxed 2d materials in all possible ways on the
+    aligned & relaxed slab,
+    relax interface ionic positions(ISIF=2)
+
+    - uses info from step2_sub.json and step2_2d.json
+    - creates required input files and submits the jobs to the que
+    - 8(pairs) * 2(atoms in graphene basis) = 16 jobs
+    - returns: step3.json     
+    """
+    seperation = 3 # in angstroms
+    nlayers_2d = 1
+    nlayers_sub = 2
+    hkl_sub = [1,1,1]
+    hkl_2d = [0,0,1]
+    #job directory for the runs
+    name = 'step3'    
+    job_dir = 'step3'
+    # incar
+    incar = Incar.from_dict(incar_dict)
+    incar['ISMEAR'] = 1
+    incar['ISIF'] = 2
+    # kpoints
+    kpoints = Kpoints.monkhorst_automatic(kpts=(18, 18, 1))
+    # load in previous jobs
+    relaxed_sub_jobs = Calibrate.jobs_from_file('step2_sub.json')
+    relaxed_2d_jobs = Calibrate.jobs_from_file('step2_2d.json')
     # create list of all substrate poscars
     all_poscars = []
-    for jsub in relaxed_sub_jobs:
+    # loop over aligned & relaxed substrates and 2d
+    for jsub, j2d in zip(relaxed_sub_jobs,relaxed_2d_jobs):
+        # substrate
         job_dir_sub = os.path.join(jsub.parent_job_dir, jsub.job_dir)
         contcar_file = os.path.join(job_dir_sub, 'CONTCAR')
-        relaxed_struct_sub = slab_from_file(hkl_sub, contcar_file)
-        species_sub = ''.join([tos.symbol for tos in relaxed_struct_sub.types_of_specie])
-        for j2d in relaxed_2d_jobs:    
-            job_dir_2d = os.path.join(j2d.parent_job_dir, j2d.job_dir)
-            contcar_file = os.path.join(job_dir_2d, 'CONTCAR')
-            relaxed_struct_2d = slab_from_file(hkl_2d, contcar_file)
-            species_2d = ''.join([tos.symbol for tos in relaxed_struct_2d.types_of_specie])
-            print(species_sub, species_2d)
-            substrate_slab_aligned, mat2d_slab_aligned = get_aligned_lattices(
-                relaxed_struct_sub,
-                relaxed_struct_2d,
-                *alignment_settings[species_sub])
-            sd_flags = CalibrateSlab.set_sd_flags(interface=mat2d_slab_aligned,
-                                                n_layers=nlayers_2d)
-            poscar = Poscar(mat2d_slab_aligned, selective_dynamics=sd_flags)
-            poscar.comment = '_'.join([species_sub,species_2d,'2d'])
+        # read in as structure object
+        substrate_slab_aligned = Structure.from_file(contcar_file)
+        species_sub = ''.join([tos.symbol for tos in substrate_slab_aligned.types_of_specie])
+        # 2d
+        job_dir_2d = os.path.join(j2d.parent_job_dir, j2d.job_dir)
+        contcar_file = os.path.join(job_dir_2d, 'CONTCAR')
+        # read in as structure object        
+        mat2d_slab_aligned = Structure.from_file(contcar_file)
+        species_2d = ''.join([tos.symbol for tos in mat2d_slab_aligned.types_of_specie])
+        print(species_sub, species_2d)
+        # position the aligned materials in all possible ways
+        hetero_interfaces = generate_all_configs(mat2d_slab_aligned,
+                                                 substrate_slab_aligned,
+                                                 nlayers_2d,
+                                                 nlayers_sub,
+                                                 seperation )
+        # loop over all hetero-interfaces
+        for i, iface in enumerate(hetero_interfaces):
+            sd_flags = CalibrateSlab.set_sd_flags(interface=iface,
+                                                  n_layers=nlayers_2d+nlayers_sub,
+                                                  top=True, bottom=False)
+            poscar = Poscar(iface, selective_dynamics=sd_flags)
+            poscar.comment = '_'.join([species_sub,species_2d,str(i)])
             all_poscars.append(poscar)
-            sd_flags = CalibrateSlab.set_sd_flags(interface=substrate_slab_aligned,
-                                                n_layers=nlayers_sub)
-            poscar = Poscar(substrate_slab_aligned, selective_dynamics=sd_flags)
-            poscar.comment = '_'.join([species_sub,species_2d,'sub'])
-            all_poscars.append(poscar)        
-            hetero_interfaces = generate_all_configs(mat2d_slab_aligned,
-                                                    substrate_slab_aligned,
-                                                    nlayers_2d,
-                                                    nlayers_sub,
-                                                    seperation )
-            for i, iface in enumerate(hetero_interfaces):
-                sd_flags = CalibrateSlab.set_sd_flags(
-                    interface=iface,
-                    n_layers=nlayers_2d+nlayers_sub,
-                    top=True, bottom=False)
-                poscar = Poscar(iface, selective_dynamics=sd_flags)
-                poscar.comment = '_'.join([species_sub,species_2d,str(i)])
-                all_poscars.append(poscar)
     # setup calibrate and run'em
     turn_knobs = OrderedDict(
         [
@@ -268,7 +297,7 @@ def launch_daemon(steps, interval):
                 Calibrate.update_checkpoint(jfile=cf)
                 all_jobs = Calibrate.jobs_from_file(cf)
                 # test:
-                #done = [True, False]
+                #done = [True, True]
                 done = done + [(True if job.final_energy else False)
                                for job in all_jobs]
             if all(done):
@@ -283,7 +312,7 @@ def launch_daemon(steps, interval):
 if __name__ == '__main__':
     # name of functions to be run.
     # functions will be run in the order given in the list
-    steps = ['step1', 'step2', 'step4']
+    steps = ['step1', 'step2', 'step3']
     # update interval
     interval = 300
     launch_daemon(steps,interval)

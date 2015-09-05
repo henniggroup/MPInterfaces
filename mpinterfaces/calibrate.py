@@ -80,7 +80,7 @@ class Calibrate(PMGSONable):
                  is_matrix = False, Grid_type = 'A',
                  setup_dir='.', parent_job_dir='.',job_dir='Job',
                  qadapter=None, job_cmd='qsub', wait=True,
-                 mappings_override = None,
+                 mappings_override = None, functional="PBE",
                  turn_knobs=OrderedDict( [ ('ENCUT',[]),
                                            ('KPOINTS',[])] ) ):
         """
@@ -110,6 +110,9 @@ class Calibrate(PMGSONable):
                 waiting
             turn_knobs: an ordered dictionary of parmaters and the 
                 corresponding values
+            mappings_override: override symbol mapping in potcar
+                               eg:- {'S':'S_sv'}
+            functional: exchange-correlation functional
 
         Note: input structure if needed will be obtained from the
             provided poscar object
@@ -123,7 +126,8 @@ class Calibrate(PMGSONable):
         self.poscar = poscar
         self.potcar = potcar
         if poscar:
-            self.potcar = Potcar(poscar.site_symbols)
+            self.potcar = Potcar(symbols=poscar.site_symbols,
+                                 functional=functional)
         self.kpoints = kpoints
         if incar:
             self.incar_orig = incar.as_dict()
@@ -154,6 +158,7 @@ class Calibrate(PMGSONable):
         self.wait = wait
         self.cal_log = []
         self.mappings_override = mappings_override
+        self.functional = functional
     
     def setup(self):
         """
@@ -308,18 +313,19 @@ class Calibrate(PMGSONable):
 
     def potcar_to_name(self, mapping):
         """
-        convert a symbol mapping to a name that can be used for
-        setting up the potcar jobs
+        convert a symbol mapping and functional to a name that 
+        can be used for setting up the potcar jobs
          
          Args:
              mapping: example:- if mapping = {'Pt':'Pt_pv', 
-                 'Si':'Si_GW'} then the name will be Pt_pvSi_GW
+                 'Si':'Si_GW'} then the name will be PBE_Pt_pv_Si_GW
+                  with self.functional="PBE"
                  
         Returns:
             string 
         """
         l = [v for k,v in mapping.items()]
-        return ''.join(l)
+        return '_'.join(self.functional, l)
         
 
     def set_incar(self, param, val):
@@ -365,7 +371,8 @@ class Calibrate(PMGSONable):
                     mapped_symbols.append(sym)     
         else:
             mapped_symbols = symbols
-        self.potcar = Potcar(symbols=mapped_symbols)
+        self.potcar = Potcar(symbols=mapped_symbols,
+                             functional=self.functional)
         pass
 
     def set_kpoints(self, kpoint):

@@ -72,13 +72,14 @@ class Calibrate(PMGSONable):
     """
     The base class for creating vasp work flows for
     calibrating the input parameters for different systems
-    
+
+    A wrapper around Custodian
     """
     LOG_FILE = "calibrate.json"
 
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
-                 setup_dir='.', parent_job_dir='.',job_dir='Job',
+                 parent_job_dir='.',job_dir='Job',
                  qadapter=None, job_cmd='qsub', wait=True,
                  mappings_override = None, functional="PBE",
                  turn_knobs=OrderedDict( [ ('ENCUT',[]),
@@ -97,8 +98,6 @@ class Calibrate(PMGSONable):
             is_matrix (bool): whether the jobs are dependent on each
                 other
             Grid_type: kpoints grid_type
-            setup_dir: directory from which the intial setup files
-                will be copied from
             parent_job_dir: the directory from which all the jobs are
                 launched
             job_dir: job directory
@@ -120,7 +119,6 @@ class Calibrate(PMGSONable):
         self.name = datetime.datetime.now().isoformat()
         self.system = system
         self.parent_job_dir = os.path.abspath(parent_job_dir)
-        self.setup_dir = os.path.abspath(setup_dir)
         self.job_dir = job_dir
         self.incar = incar               
         self.poscar = poscar
@@ -399,8 +397,7 @@ class Calibrate(PMGSONable):
                                         
     def setup_incar_jobs(self, param, val_list):
         """
-        set up incar jobs, called through a dictionary of {param: val_list} 
-	by turn_knobs, calls set_incar to set the value to param
+        set up incar jobs,, calls set_incar to set the value to param
 
 	Args:
 	    param: Name of INCAR parameter
@@ -482,7 +479,6 @@ class Calibrate(PMGSONable):
                                 self.qadapter)
         #the job command can be overrridden in the run method
         job = MPINTVaspJob(self.job_cmd, name=name, final = True,
-                           setup_dir=self.setup_dir,
                            parent_job_dir=self.parent_job_dir,
                            job_dir=job_dir, vis=vis, auto_npar=False,
                             auto_gamma=False, wait=self.wait)
@@ -646,7 +642,7 @@ class Calibrate(PMGSONable):
                         
     def enforce_cutoff(self, input_list, delta_e_peratom=0.001):
         """
-        enfore convergence criterion: energy difference of 1meV per
+        enforce convergence criterion: energy difference of 1meV per
         atom.
         
         returns a list of the parameters that satisfy the criterion
@@ -724,13 +720,18 @@ class Calibrate(PMGSONable):
             qadapter = self.qadapter.to_dict()
         if self.system is not None:
             system = self.system
-        d = dict(incar=self.incar.as_dict(), poscar=self.poscar.as_dict(), 
-                 potcar=self.potcar.as_dict(), kpoints=self.kpoints.as_dict(), 
+        d = dict(incar=self.incar.as_dict(),
+                 poscar=self.poscar.as_dict(), 
+                 potcar=self.potcar.as_dict(),
+                 kpoints=self.kpoints.as_dict(), 
                  system=system, is_matrix = self.is_matrix, 
-                 Grid_type = self.Grid_type, setup_dir=self.setup_dir, 
-                 parent_job_dir=self.parent_job_dir, job_dir=self.job_dir,
-                 qadapter=qadapter, job_cmd=self.job_cmd, wait=self.wait,
-                 turn_knobs=self.turn_knobs, job_dir_list=self.job_dir_list,
+                 Grid_type = self.Grid_type,
+                 parent_job_dir=self.parent_job_dir,
+                 job_dir=self.job_dir,
+                 qadapter=qadapter, job_cmd=self.job_cmd,
+                 wait=self.wait,
+                 turn_knobs=self.turn_knobs,
+                 job_dir_list=self.job_dir_list,
                  job_ids = self.job_ids)
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -746,7 +747,6 @@ class Calibrate(PMGSONable):
         cal =  Calibrate(incar, poscar, potcar, kpoints, 
                          system=d["system"], is_matrix = d["is_matrix"], 
                          Grid_type = d["Grid_type"], 
-                         setup_dir=d["setup_dir"], 
                          parent_job_dir=d["parent_job_dir"], 
                          job_dir=d["job_dir"], qadapter=d.get("qadapter"), 
                          job_cmd=d["job_cmd"], wait=d["wait"],
@@ -780,14 +780,14 @@ class CalibrateMolecule(Calibrate):
     """
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
-                 setup_dir='.', parent_job_dir='.',
+                 parent_job_dir='.',
                  job_dir='./Molecule', qadapter=None,
                  job_cmd='qsub', wait=True,
                  turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
         Calibrate.__init__(self, incar, poscar, potcar, kpoints, 
                            system=system, is_matrix = is_matrix, 
-                           Grid_type = Grid_type, setup_dir=setup_dir,
+                           Grid_type = Grid_type,
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd, wait=wait,
@@ -808,14 +808,14 @@ class CalibrateBulk(Calibrate):
     """
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
-                  setup_dir='.', parent_job_dir='.',
-                  job_dir='./Bulk', qadapter=None,
-                  job_cmd='qsub', wait=True,
-                  turn_knobs={'ENCUT':[],'KPOINTS':[]}): 
+                 parent_job_dir='.',
+                 job_dir='./Bulk', qadapter=None,
+                 job_cmd='qsub', wait=True,
+                 turn_knobs={'ENCUT':[],'KPOINTS':[]}): 
             
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
                            system=system, is_matrix = is_matrix,
-                           Grid_type = Grid_type, setup_dir=setup_dir,
+                           Grid_type = Grid_type,
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd,wait=wait,
@@ -828,9 +828,10 @@ class CalibrateSlab(Calibrate):
     """
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
-                 setup_dir='.', parent_job_dir='.', job_dir='./Slab',
+                 parent_job_dir='.', job_dir='./Slab',
                  qadapter=None, job_cmd='qsub', wait=True,
-                 turn_knobs={'VACUUM':[],'THICKNESS':[]}, from_ase=False):
+                 turn_knobs={'VACUUM':[],'THICKNESS':[]},
+                 from_ase=False):
         self.from_ase = from_ase
         self.is_matrix = is_matrix
         self.system = system
@@ -838,7 +839,7 @@ class CalibrateSlab(Calibrate):
         self.slab_setup(turn_knobs=turn_knobs)
         Calibrate.__init__(self, incar, poscar, potcar, kpoints, 
                            system=system, is_matrix = is_matrix,
-                           Grid_type = Grid_type,setup_dir=setup_dir,
+                           Grid_type = Grid_type,
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd, wait=wait,
@@ -954,12 +955,13 @@ class CalibrateInterface(CalibrateSlab):
     """
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
                  is_matrix = False, Grid_type = 'A',
-                 setup_dir='.', parent_job_dir='.', job_dir='./Interface',
+                 parent_job_dir='.', job_dir='./Interface',
                  qadapter=None, job_cmd='qsub', wait=True,
-                 turn_knobs={'VACUUM':[],'THICKNESS':[]}, from_ase=False):
+                 turn_knobs={'VACUUM':[],'THICKNESS':[]},
+                 from_ase=False):
         CalibrateSlab.__init__(self, incar, poscar, potcar, kpoints, 
                            system=system, is_matrix = is_matrix, 
-                           Grid_type = Grid_type, setup_dir=setup_dir,
+                           Grid_type = Grid_type,
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd, wait=wait,

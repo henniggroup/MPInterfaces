@@ -31,55 +31,42 @@ logger.addHandler(sh)
 class Interface(Slab):
     """
     Interface = slab + ligand + environment(solvent)
-    Creates a Slab - Ligand Interface of given coverage and given slab - ligand dis\
-    placement
+    Creates a Slab - Ligand Interface of given coverage and given 
+    slab-ligand displacement
        
-        Args:
-		strt: Starting Structure Object for Slab of the Interface 
-		
-		hkl: Miller Index of Slab 
-		
-		min_thick: Minimum Slab Thickness in Angstroms desired 
-		
-		min_vac: Minimum Vacuum Spacing (Padding top and bottom, each) in Angstroms desired 
-		
-		supercell: Trial supercell to start with to enforce coverage, default 1x1x1
-		
-		name: System name to specify database entry
-		(can be a combination of miller indices of slab and ligand and solvent) 
-		eg: "PbS [1,1,1] + Hydrazine in DMF (epsilon = 37.5)"
-		
-		adsorb_on_species: Reference atom on slab to create adsorption upon 
-		
-		adatom_on_lig: bonding atom on ligand 
-		
-		ligand: structure object for ligand 
-		
-		displacement: initial adsorption distance desired above the adsorb_on_species 
-		
-		surface_coverage: Number of ligands desired per surface area of slab, 
-			in ligands per square angstroms
-	
-		scell_max: Maximum number of supercells to create (used for finding supercell 
-			for the given coverage requirement
-		
-		coverage_tol: Tolerance for coverage calculation in Ligands per square Angstroms
-		
-		solvent: Name of solvent to be added for the run 
-
-		start_from_slab: Whether slab is given as input. Useful when custom reconstructed 
-			slabs are to be used 
-
-		validate_proximity: Check whether any atoms are too close (using pymatgen default
-			of 0.01 Angstroms
-		
-		to_unit_cell: Pymatgen Slab routine to find unit cell
-
-		coords_are_cartesian: Whether the input coordinates are in cartesian, use default 
-			False (Extended variable from Pymatgen Slab) 
-
-		from_ase: Whether to create Slab using python-ase (RECOMMENDED) for producing 
-			slabs that have orthogonal lattice vectors
+    Args:
+        strt: Starting Structure Object for Slab of the Interface 
+        hkl: Miller Index of Slab 
+        min_thick: Minimum Slab Thickness in Angstroms desired 
+        min_vac: Minimum Vacuum Spacing (Padding top and bottom, each) 
+                 in Angstroms
+        supercell: Trial supercell to start with to enforce coverage, 
+                   default 1x1x1
+        name: System name to specify database entry
+              (can be a combination of miller indices of slab and 
+              ligand and solvent) 
+	      eg: "PbS [1,1,1] + Hydrazine in DMF (epsilon = 37.5)"
+        adsorb_on_species: Reference atom on slab to adsorb on 
+        adatom_on_lig: bonding atom on ligand 
+        ligand: structure object for ligand 
+        displacement: initial adsorption distance desired above the 
+                      adsorb_on_species 
+        surface_coverage: Number of ligands desired per surface area 
+                          of slab, in ligands per square angstroms
+        scell_max: Maximum number of supercells to create (used for 
+                   finding supercell for the given coverage requirement
+        coverage_tol: Tolerance for coverage calculation in Ligands 
+                      per square Angstroms
+        solvent: Name of solvent to be added for the run 
+        start_from_slab: Whether slab is given as input. Useful when 
+                         custom reconstructed slabs are to be used 
+        validate_proximity: Check whether any atoms are too close 
+                            (using pymatgen default of 0.01 Angstroms)
+        to_unit_cell: Pymatgen Slab routine to find unit cell
+        coords_are_cartesian: Whether the input coordinates are in 
+                              cartesian
+        from_ase: Whether to create Slab using python-ase for producing 
+                  slabs that have orthogonal lattice vectors
 
   	NOTE:	
 	if starting from the bulk structure, create slab
@@ -89,35 +76,41 @@ class Interface(Slab):
     def __init__(self, strt, hkl=[1,1,1], min_thick=10, min_vac=10,
                  supercell=[1,1,1], name=None, adsorb_on_species=None,
                  adatom_on_lig=None, ligand=None, displacement=1.0,
-                 surface_coverage=None, scell_nmax=10, coverage_tol=0.25,
-                 solvent=None, start_from_slab=False, validate_proximity=False,
-                 to_unit_cell=False, coords_are_cartesian=False, primitive = True,
-                 from_ase=False, x_shift= 0, y_shift= 0, rot=[0,0,0], center_slab=True):
+                 surface_coverage=None, scell_nmax=10,
+                 coverage_tol=0.25,
+                 solvent=None, start_from_slab=False,
+                 validate_proximity=False,
+                 to_unit_cell=False, coords_are_cartesian=False,
+                 primitive = True,
+                 from_ase=False, x_shift= 0, y_shift= 0, rot=[0,0,0],
+                 center_slab=True):
         self.from_ase = from_ase
         vac_extension = 0
         if ligand is not None:
             vac_extension = ligand.max_dist
-
         if isinstance(strt, Structure) and not isinstance(strt, Slab):
             self.min_vac = min_vac + vac_extension
             if self.from_ase:
                 strt = get_ase_slab(strt, hkl=hkl,min_thick=min_thick,
                                     min_vac=min_vac + vac_extension)
             else:
-                strt = SlabGenerator(strt, hkl, min_thick, min_vac + vac_extension,
-                                    center_slab=center_slab, primitive = primitive).get_slab()
+                strt = SlabGenerator(strt, hkl, min_thick,
+                                     min_vac + vac_extension,
+                                    center_slab=center_slab,
+                                     primitive = primitive).get_slab()
             strt.make_supercell(supercell)
         else:
             self.min_vac = min_vac
         Slab.__init__(self, strt.lattice, strt.species_and_occu,
-                           strt.frac_coords, miller_index=strt.miller_index,
-                           oriented_unit_cell=strt.oriented_unit_cell,
-                           shift=strt.shift, scale_factor=strt.scale_factor,
-                           validate_proximity=validate_proximity,
-                           to_unit_cell=to_unit_cell,
-                           coords_are_cartesian=coords_are_cartesian,
-                           site_properties=strt.site_properties,
-                           energy=strt.energy )
+                      strt.frac_coords,
+                      miller_index=strt.miller_index,
+                      oriented_unit_cell=strt.oriented_unit_cell,
+                      shift=strt.shift, scale_factor=strt.scale_factor,
+                      validate_proximity=validate_proximity,
+                      to_unit_cell=to_unit_cell,
+                      coords_are_cartesian=coords_are_cartesian,
+                      site_properties=strt.site_properties,
+                      energy=strt.energy )
         self.strt= strt
         self.name = name
         self.hkl = hkl
@@ -240,7 +233,8 @@ class Interface(Slab):
         # ligand will be adsorbed
         adatom_index = self.get_index(self.adatom_on_lig)
         adsorbed_ligands_coords = []
-        # set the ligand coordinates for each adsorption site on the surface
+        # set the ligand coordinates for each adsorption site on
+        # the surface
         for sindex in site_indices:
             # align the ligand wrt the site on the surface to which
             # it will be adsorbed
@@ -278,29 +272,32 @@ class Interface(Slab):
             y = self.y_shift
             rot = self.rot
             if x: 
-                 self.ligand.translate_sites(list(range(num_atoms)),\
-                  np.array([x,0,0]))
+                 self.ligand.translate_sites(list(range(num_atoms)),
+                                             np.array([x,0,0]))
             if y: 
-                 self.ligand.translate_sites(list(range(num_atoms)),\
-                  np.array([0,y,0]))
+                 self.ligand.translate_sites(list(range(num_atoms)),
+                                             np.array([0,y,0]))
             if rot:
-                self.ligand.apply_operation(SymmOp.from_axis_angle_and_translation((1,0,0),\
-                                            rot[0], angle_in_radians=False,\
-                                            translation_vec=(0, 0, 0)))
-                self.ligand.apply_operation(SymmOp.from_axis_angle_and_translation((0,1,0), \
-                                            rot[1], angle_in_radians=False,\
-                                            translation_vec=(0, 0, 0)))
-                self.ligand.apply_operation(SymmOp.from_axis_angle_and_translation((0,0,1),\
-                                            rot[2], angle_in_radians=False,\
-                                            translation_vec=(0, 0, 0)))
-
-
-            adsorbed_ligands_coords.append(self.ligand.cart_coords) #3d numpy array
+                self.ligand.apply_operation(
+                    SymmOp.from_axis_angle_and_translation(
+                        (1,0,0), rot[0], angle_in_radians=False,
+                        translation_vec=(0, 0, 0) ) )
+                self.ligand.apply_operation(
+                    SymmOp.from_axis_angle_and_translation(
+                        (0,1,0), rot[1], angle_in_radians=False,
+                        translation_vec=(0, 0, 0) ) )
+                self.ligand.apply_operation(
+                    SymmOp.from_axis_angle_and_translation(
+                        (0,0,1), rot[2], angle_in_radians=False,
+                        translation_vec=(0, 0, 0) ) )
+            #3d numpy array                
+            adsorbed_ligands_coords.append(self.ligand.cart_coords) 
         #extend the slab structure with the adsorbant atoms
         adsorbed_ligands_coords = np.array(adsorbed_ligands_coords)
         for j in range(len(site_indices)):
             [self.append(self.ligand.species_and_occu[i],
-                         adsorbed_ligands_coords[j,i,:], coords_are_cartesian=True)
+                         adsorbed_ligands_coords[j,i,:],
+                         coords_are_cartesian=True)
             for i in range(num_atoms)]
         
     def get_index(self, species_string):
@@ -310,7 +307,6 @@ class Interface(Slab):
         for i in range(len(self.ligand)):
              if self.ligand[i].species_string == species_string:
                  return i
-
                         
     def create_interface(self):
         """
@@ -328,7 +324,7 @@ class Interface(Slab):
                 .format(self.n_ligands, uv))
             new_latt_matrix = [ uv[0][:], uv[1][:], self.lattice.matrix[2,:]]
             new_latt = Lattice(new_latt_matrix)
-            _, __, scell = self.lattice.find_mapping(new_latt) #ltol = 0.01, atol=1)
+            _, __, scell = self.lattice.find_mapping(new_latt) 
             #self.scell = self.possible_scells[opt_lig_scell_index]
             self.make_supercell(scell)
             self.set_slab()
@@ -337,26 +333,19 @@ class Interface(Slab):
                                   for i in range(self.n_ligands)]
             logger.info('ligands will be adsorbed on these sites on the slab {}'.format(self.adsorb_sites))
             self.cover_surface(self.adsorb_sites)
-            #        else:
-            #            logger.critical('none of the combinations of number of ligands')
-            #            logger.critical(' and supercell sizes matches the requested surface coverage')
-            #            logger.critical('try increasing the tolerance or ')
-            #            logger.critical('increase the maximum number of cells in the supercell')
-            #            sys.exit()
         else:
             logger.info('no ligands. just the bare slab')
             
-
     def set_slab(self):
         """ set the slab on to which the ligand is adsorbed"""
         self.slab = Slab.from_dict(self.as_dict())
         
-    def to_dict(self):
+    def as_dict(self):
         d = self.as_dict()
         d['hkl'] = list(self.miller_index)
         d['ligand'] = None
         if self.ligand is not None:
-            d['ligand'] = self.ligand.to_dict()
+            d['ligand'] = self.ligand.as_dict()
         if d['ligand'] is not None:
             d['num_ligands'] = self.n_ligands
         else:
@@ -377,7 +366,6 @@ class Interface(Slab):
                   Coulomb 
        Returns: energy of structure according to model
        """        
-
        energy = 0
        for i, sitei in enumerate(self):
            for j, sitej in enumerate(self):
@@ -387,18 +375,20 @@ class Interface(Slab):
                    Zj = sitej.species_and_occu.items()[0][0].Z
                    energy += 0.5 * Zi*Zj/dij
        return energy
- 
             
             
 class Ligand(Molecule):
     """
     Construct ligand from  molecules
     """
-    def __init__(self, mols, cm_dist=[], angle={}, link={}, remove=[],
+    def __init__(self, mols, cm_dist=[],
+                 angle={}, link={}, remove=[],
                  charge=0, spin_multiplicity=None,
                  validate_proximity=False):
-        Molecule.__init__(self, mols[0].species_and_occu, mols[0].cart_coords,
-                          charge=charge, spin_multiplicity=spin_multiplicity,
+        Molecule.__init__(self, mols[0].species_and_occu,
+                          mols[0].cart_coords,
+                          charge=charge,
+                          spin_multiplicity=spin_multiplicity,
                           validate_proximity=validate_proximity,
                           site_properties=mols[0].site_properties)
         self._sites = list(self._sites)
@@ -426,8 +416,9 @@ class Ligand(Molecule):
         sets the distance matrix for the molecule
         """
         nsites = len(mol.sites)
-        self.d_mat =  np.array([mol.get_distance(i,j) for i in range(nsites) \
-                         for j in range(nsites)]).reshape(nsites, nsites)
+        self.d_mat =  np.array([mol.get_distance(i,j)
+                                for i in range(nsites)
+                                for j in range(nsites)]).reshape(nsites, nsites)
         self.max_dist = np.max(self.d_mat.reshape(nsites*nsites, 1))
 
     def set_mol_vecs(self):
@@ -463,16 +454,19 @@ class Ligand(Molecule):
             #cm1 = new_mol.center_of_mass
             new_cm = new_mol.center_of_mass        
             #cm2 = self.mols[i+1].center_of_mass
-            new_cm = new_cm + self.cm_dist[i] * mov_vec #+ np.random.rand(1,3)
+            new_cm = new_cm + self.cm_dist[i] * mov_vec
             mov_vec = self.get_perp_vec(self.mol_vecs[i], mov_vec)
             mov_vec = mov_vec / np.linalg.norm(mov_vec)
             new_coords = self.mols[i+1].cart_coords + new_cm
-            self.mols[i+1] = Molecule(self.mols[i+1].species_and_occu, new_coords,
-                          charge=self.mols[i+1]._charge,
-                          spin_multiplicity=self.mols[i+1]._spin_multiplicity,
-                          site_properties=self.mols[i+1].site_properties)
-            new_mol = Molecule.from_sites(self.mols[i].sites + self.mols[i+1].sites,
-                                           validate_proximity=True)
+            self.mols[i+1] = Molecule(
+                self.mols[i+1].species_and_occu,
+                new_coords,
+                charge=self.mols[i+1]._charge,
+                spin_multiplicity=self.mols[i+1]._spin_multiplicity,
+                site_properties=self.mols[i+1].site_properties)
+            new_mol = Molecule.from_sites(
+                self.mols[i].sites + self.mols[i+1].sites,
+                validate_proximity=True)
 
     def rotate_mols(self):
         """
@@ -546,8 +540,8 @@ class Ligand(Molecule):
 
     def create_ligand(self):
         """
-        create the ligand by assembling the provided individual molecules
-        and removeing the specified atoms from the molecules
+        create the ligand by assembling the provided individual 
+        molecules and removeing the specified atoms from the molecules
         """
         self.set_mol_vecs()
         self.position_mols()
@@ -562,7 +556,7 @@ class Ligand(Molecule):
         self._sites = combine_mol_sites
         self.set_distance_matrix(self)
         
-    def to_dict(self) :
+    def as_dict(self) :
         d = self.as_dict()
         d['name'] = self.composition.formula
         return d
@@ -570,6 +564,7 @@ class Ligand(Molecule):
     def copy(self):
         return Structure.from_sites(self)
 
+    
 #test
 if __name__=='__main__':
     from pymatgen.io.vasp.inputs import Poscar    

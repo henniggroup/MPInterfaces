@@ -35,25 +35,18 @@ class Measurement(object):
     """
     Takes in calibrate objects and use that to perform various 
     measurement calculations such as solvation, ligand binding energy 
-    etc
-    default behaviour is to setup and run static calculations for all
-    the given calibrate jobs
+    etc. The default behaviour is to setup and run static calculations 
+    for all the given calibrate jobs.
 
-    Serves as Base Class. Override this class for custom measurements using
-    MeasurementSolvation, MeasurementStatic, MeasurementInterface
+    Serves as Base Class. Override this class for custom measurements.
     
     Args:
 	cal_objs: List of Calibration Object Names
-
-	setup_dir: Directory into which Measurement Directory to be setup in
-		defaults to present working directory
-	
-	parent_job_dir: Directory (Redundant?) 
-
-	job_dir: Path name to directory for running the Measurement modules
-
+	parent_job_dir: Directory in which measuremnt is setup 
+	job_dir: Path name to directory for running the Measurement 
+                 modules
     """
-    def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.',
+    def __init__(self, cal_objs, parent_job_dir='.',
                  job_dir='./Measurement'):
         self.jobs = []
         self.handlers = []
@@ -137,17 +130,15 @@ class Measurement(object):
 class MeasurementSolvation(Measurement):
     """
     Solvation with poisson-boltzmann(test verison)
-    Args:
 	
     """
-    def __init__(self, cal_obj, setup_dir='.', parent_job_dir='.', 
+    def __init__(self, cal_obj, parent_job_dir='.', 
                  job_dir='./MeasurementSolvation',
                  sol_params={'EB_K':[78.4], 
                              'TAU':[0],
                              'LAMBDA_D_K':[3.0],
                              'NELECT':[]}):
         Measurement.__init__(self, cal_objs=cal_obj, 
-                            setup_dir=setup_dir, 
                             parent_job_dir=parent_job_dir, 
                             job_dir=job_dir)
         self.sol_params = sol_params
@@ -208,17 +199,16 @@ class MeasurementInterface(Measurement):
     """
     Interface
     
-    Takes list of Calibration Objects of Interface, Slab and Ligand and separates
-    them 
+    Takes list of Calibration Objects of Interface, Slab and 
+    Ligand and separates them 
 
     Args:
 	cal_objs: List of Calibration Objects
 	
     """
-    def __init__(self, cal_objs, setup_dir='.', parent_job_dir='.',
+    def __init__(self, cal_objs, parent_job_dir='.',
                  job_dir='./MeasurementInterface'):
         Measurement.__init__(self, cal_objs=cal_objs,
-                            setup_dir=setup_dir, 
                             parent_job_dir=parent_job_dir,
                             job_dir=job_dir)
         self.cal_slabs = []
@@ -302,6 +292,7 @@ class MeasurementInterface(Measurement):
               - cal.system['num_ligands'] * E_ligands[key_ligand]
         logger.info('Binding energy = {}'.format(E_binding))
 
+        
 #test
 if __name__=='__main__':
     from pymatgen.core.structure import Structure, Molecule
@@ -342,7 +333,7 @@ if __name__=='__main__':
     kpoints = Kpoints.monkhorst_automatic(kpts=(16, 16, 16), 
                                           shift=(0, 0, 0))
     cal = CalibrateInterface(incar, poscar, potcar, kpoints, 
-                             system=iface.to_dict(),
+                             system=iface.as_dict(),
                              job_dir='test', job_cmd=['ls','-lt'])
     cal.setup()
     cal.run()

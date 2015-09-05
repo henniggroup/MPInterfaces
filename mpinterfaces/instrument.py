@@ -39,11 +39,6 @@ class MPINTVaspInputSet(DictVaspInputSet):
     """
     defines the set of input required for a vasp job i.e
     create INCAR, POSCAR, POTCAR & KPOINTS files
-    
-    subcalss DictVaspInputSet and customize write_input method
-    myVIS.yaml should be in the MODULE_DIR(if thats being used)
-    use user_incar_settings to override the defaults in myVIS.yaml
-    
     """
     def __init__(self, name, incar, poscar, potcar, kpoints,
                  qadapter=None, **kwargs ):
@@ -80,7 +75,6 @@ class MPINTVaspInputSet(DictVaspInputSet):
         the input files are written to the job_dir
         process(if needed) and write the input files in each directory
         structures read from the poscar files in the directory
-        
         """
         d = job_dir
         if make_dir_if_not_present and not os.path.exists(d):
@@ -124,14 +118,15 @@ class MPINTVaspInputSet(DictVaspInputSet):
     
 class MPINTVaspJob(Job):
     """
-    defines a vasp job i.e setup the required input files and lanuch the job
+    defines a vasp job i.e setup the required input files and 
+    launch the job
     
     Args:
-       job_cmd : a list, the command to be issued in each job_dir
-       eg: ['qsub', 'submit_job']
-       setup_dir : directory that has the setup files for creating the
-       rest of the vasp inputs
-       job_dir : the directory from which the jobs will be launched
+       job_cmd: a list, the command to be issued in each job_dir
+                 eg: ['qsub', 'submit_job']
+       setup_dir: directory that has the setup files for creating the
+                   rest of the vasp inputs
+       job_dir: the directory from which the jobs will be launched
     """
     def __init__(self, job_cmd, name='noname',output_file="job.out", 
                  setup_dir='.',
@@ -161,9 +156,11 @@ class MPINTVaspJob(Job):
 
     def setup(self):
         """
-        looks for the set up files(POSCAR, submit_job etc) in the setup_dir
-        uses those files to create the vasp input set in the job_dir
-        the current setup looks only for the poscar file in the setup directory
+        looks for the set up files(POSCAR, submit_job etc) in the 
+        setup_dir and uses those files to create the vasp input set 
+        in the job_dir.
+        The current setup looks only for the poscar file in the setup 
+        directory
         """
         self.vis.write_input(self.job_dir)
         if self.backup:
@@ -175,7 +172,7 @@ class MPINTVaspJob(Job):
     def run(self):
         """
         move to the job_dir, launch the job and back to the
-         parent job directory
+        parent job directory
         """
         os.chdir(os.path.abspath(self.job_dir))
         logger.info('running in : '+self.job_dir)
@@ -191,11 +188,6 @@ class MPINTVaspJob(Job):
                 stdout, stderr= p.communicate() 
                 self.job_id = stdout.rstrip('\n')
                 f.write(self.job_id)
-            #reservation_id = self.vis.qadapter.\
-            #submit_to_queue(self.vis.script_name)
-            #cmd = ['echo', str(reservation_id)]
-            #with open(self.output_file, 'w') as f:
-            #    p = subprocess.Popen(cmd, stdout=f)
         else:
             cmd = list(self.job_cmd)
             with open(self.output_file, 'w') as f:

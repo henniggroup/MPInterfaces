@@ -74,7 +74,7 @@ qadapter, job_cmd = get_run_cmmnd(nnodes=nnodes, nprocs=nprocs,
                                   job_bin=job_bin, mem=mem)
 # setup calibration jobs and run
 cal = CalibrateSlab(incar, poscar, potcar, kpoints,
-                    system=iface.to_dict(),
+                    system=iface.as_dict(),
                     turn_knobs=turn_knobs, qadapter=qadapter,
                     job_cmd = job_cmd, job_dir=job_dir)
 cal.setup()

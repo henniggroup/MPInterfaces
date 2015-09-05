@@ -2,7 +2,7 @@ from __future__ import division, unicode_literals, print_function
 
 """
 process vasprun.xml file by walking through the enitre directory tree
- in the parent directory
+in the parent directory
 """
 
 import sys
@@ -78,21 +78,20 @@ class MPINTComputedEntry(ComputedEntry):
 
 
 class MPINTVasprun(Vasprun):        
-    """
-        
+    """        
     Extend Vasprun to use custom ComputedEntry: MPINTComputedEntry
-    
     """
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False,
                  parse_potcar_file=True):
         
-        Vasprun.__init__(self, filename, ionic_step_skip=ionic_step_skip,
-                 ionic_step_offset=ionic_step_offset, 
-                 parse_dos=parse_dos, parse_eigen=parse_eigen, 
-                 parse_projected_eigen=parse_projected_eigen,
-                 parse_potcar_file=parse_potcar_file)
+        Vasprun.__init__(self, filename,
+                         ionic_step_skip=ionic_step_skip,
+                         ionic_step_offset=ionic_step_offset, 
+                         parse_dos=parse_dos, parse_eigen=parse_eigen, 
+                         parse_projected_eigen=parse_projected_eigen,
+                         parse_potcar_file=parse_potcar_file)
             
     def get_computed_entry(self, inc_structure=False, 
                            inc_incar_n_kpoints=False,
@@ -134,18 +133,19 @@ class MPINTVasprun(Vasprun):
         
         elif inc_structure:
             return ComputedStructureEntry(self.final_structure,
-                                          self.final_energy, parameters=params,
+                                          self.final_energy,
+                                          parameters=params,
                                           data=data)
         else:
             return ComputedEntry(self.final_structure.composition,
                                  self.final_energy, parameters=params,
                                  data=data)
 
+        
 class MPINTVaspDrone(VaspToComputedEntryDrone):        
     """
-    
-    extend VaspToComputedEntryDrone to use the custom Vasprun: MPINTVasprun
-        
+    extend VaspToComputedEntryDrone to use the custom 
+    Vasprun: MPINTVasprun    
     """
     def __init__(self, inc_structure=False,  inc_incar_n_kpoints=False,
                  parameters=None, data=None):
@@ -179,19 +179,16 @@ class MPINTVaspDrone(VaspToComputedEntryDrone):
                         filepath = fname
                         break
                     filepath = fname
-
         try:
             vasprun = MPINTVasprun(filepath)
         except Exception as ex:
             logger.error("vasprun read error in {}: {}".format(filepath, ex))
             return None
-
         entry = vasprun.get_computed_entry(self._inc_structure,
                                             self._inc_incar_n_kpoints,
                                            parameters=self._parameters,
                                            data=self._data)
         entry.parameters["history"] = _get_transformation_history(path)
-
         return entry
 
     def __str__(self):

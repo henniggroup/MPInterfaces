@@ -783,6 +783,7 @@ class CalibrateMolecule(Calibrate):
                  parent_job_dir='.',
                  job_dir='./Molecule', qadapter=None,
                  job_cmd='qsub', wait=True,
+                 mappings_override = None, functional="PBE",
                  turn_knobs={'ENCUT':[],'KPOINTS':[]}):
         
         Calibrate.__init__(self, incar, poscar, potcar, kpoints, 
@@ -791,6 +792,8 @@ class CalibrateMolecule(Calibrate):
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd, wait=wait,
+                           mappings_override = mappings_override,
+                           functional = functional,
                            turn_knobs = turn_knobs)
         
     def setup_kpoints_jobs(self, Grid_type = 'M',
@@ -811,6 +814,7 @@ class CalibrateBulk(Calibrate):
                  parent_job_dir='.',
                  job_dir='./Bulk', qadapter=None,
                  job_cmd='qsub', wait=True,
+                 mappings_override = None, functional="PBE",
                  turn_knobs={'ENCUT':[],'KPOINTS':[]}): 
             
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
@@ -819,6 +823,8 @@ class CalibrateBulk(Calibrate):
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd,wait=wait,
+                           mappings_override = mappings_override,
+                           functional = functional,
                            turn_knobs = OrderedDict(turn_knobs))
         
 
@@ -830,6 +836,7 @@ class CalibrateSlab(Calibrate):
                  is_matrix = False, Grid_type = 'A',
                  parent_job_dir='.', job_dir='./Slab',
                  qadapter=None, job_cmd='qsub', wait=True,
+                 mappings_override = None, functional="PBE",
                  turn_knobs={'VACUUM':[],'THICKNESS':[]},
                  from_ase=False):
         self.from_ase = from_ase
@@ -843,6 +850,8 @@ class CalibrateSlab(Calibrate):
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd, wait=wait,
+                           mappings_override = mappings_override,
+                           functional = functional,
                            turn_knobs = turn_knobs)
 
     def slab_setup(self, turn_knobs=None):
@@ -957,6 +966,7 @@ class CalibrateInterface(CalibrateSlab):
                  is_matrix = False, Grid_type = 'A',
                  parent_job_dir='.', job_dir='./Interface',
                  qadapter=None, job_cmd='qsub', wait=True,
+                 mappings_override = None, functional="PBE",
                  turn_knobs={'VACUUM':[],'THICKNESS':[]},
                  from_ase=False):
         CalibrateSlab.__init__(self, incar, poscar, potcar, kpoints, 
@@ -965,6 +975,8 @@ class CalibrateInterface(CalibrateSlab):
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
                            job_cmd=job_cmd, wait=wait,
+                           mappings_override = mappings_override,
+                           functional = functional,
                            turn_knobs = turn_knobs, from_ase=from_ase)
         self.interface_setup(turn_knobs=turn_knobs)        
 

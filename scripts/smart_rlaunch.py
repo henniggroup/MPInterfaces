@@ -88,7 +88,7 @@ def launch():
             done.append(True)
         if done and all(done):
             print('Launching ', fid, ' ...')
-            with settings(host_string='km468@hipergator.rc.ufl.edu'):
+            with settings(host_string='username@hipergator.rc.ufl.edu'):
                 run("ssh dev1 rlaunch singleshot -f "+str(fid))
         else:
             print("Haven't recieved execution termination confirmation for the jobs in the firework from hipergator resource manager")

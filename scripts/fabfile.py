@@ -25,16 +25,16 @@ from fabric.api import settings, run
 def launch(fw_id, machine='hipergator'):
     cmd = "rlaunch singleshot -f "+str(fw_id)    
     if machine == 'hipergator':
-        with settings(host_string='km468@hipergator.rc.ufl.edu'):
+        with settings(host_string='username@hipergator.rc.ufl.edu'):
             run("ssh dev1 "+cmd)
     elif machine == 'hydrogen':
-        with settings(host_string='km468@hermes.mse.ufl.edu'):
-            run("ssh hydrogen "+cmd)
+        with settings(host_string='hydrogen'):
+            run(cmd)
     elif machine == 'stampede':
         pass
     else:
-        with settings(host_string='km468@hermes.mse.ufl.edu'):
-            run("ssh hydrogen ssh "+machine+" "+cmd)
+        with settings(host_string='hydrogen'):
+            run("ssh "+machine+" "+cmd)
             
 if __name__ == '__main__':
     launch()

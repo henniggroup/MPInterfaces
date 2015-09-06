@@ -292,6 +292,9 @@ class mpint(object):
                 logger.info('optium values for the knob parameters based on the cutoff criterion : {0}'.format(cal.optimum_knob_responses))
 
 	def update(self, args):
+            self.incar = None
+	    self.kpoints = None
+	    self.qadapter = None
             if args.input:
                 f = open(args.input)
                 update = yaml.load(f)
@@ -309,7 +312,10 @@ class mpint(object):
                                                   kpoints=self.kpoints,
                                                   que=self.qadapter)
                else:
-                    Calibrate.update_checkpoint(job_ids=args.jids, incar=self.incar, kpoints=self.kpoints, que=self.qadapter)
+                  Calibrate.update_checkpoint(job_ids=args.jids, 
+					      incar=self.incar, 
+					      kpoints=self.kpoints, 
+					      que=self.qadapter)
 	    else:
                Calibrate.update_checkpoint()
 

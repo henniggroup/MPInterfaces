@@ -544,19 +544,19 @@ class Calibrate(PMGSONable):
             if job_ids and (j['job_id'] in job_ids or job.job_dir in job_ids):
                 logger.info('setting job {0} in {1} to rerun'.format(j['job_id'], job.job_dir))
                 contcar_file = job.job_dir+os.sep+'CONTCAR'
-                if os.path.isfile(contcar_file):
+                if os.path.isfile(contcar_file) and len(open(contcar_file).readlines()) != 0 :
                     logger.info('setting poscar file from {}'
                                 .format(contcar_file))
                     job.vis.poscar = Poscar.from_file(contcar_file)
-                    if incar:
-                        logger.info('incar overridden')
-                        job.vis.incar = incar
-                    if kpoints:
-                        logger.info('kpoints overridden')
-                        job.vis.kpoints = kpoints
-                    if qadapter:
-                        logger.info('qadapter overridden')
-                        job.vis.qadapter = qadapter
+                if incar:
+                    logger.info('incar overridden')
+                    job.vis.incar = incar
+                if kpoints:
+                    logger.info('kpoints overridden')
+                    job.vis.kpoints = kpoints
+                if qadapter:
+                    logger.info('qadapter overridden')
+                    job.vis.qadapter = qadapter
                 run_jobs.append(job)
         for j in all_jobs:
             final_energy = j.get_final_energy()

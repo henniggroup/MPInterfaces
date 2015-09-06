@@ -558,15 +558,15 @@ class Calibrate(PMGSONable):
                     logger.info('qadapter overridden')
                     job.vis.qadapter = qadapter
                 run_jobs.append(job)
+        if run_jobs:
+            c = Custodian(handlers, run_jobs, max_errors=5)
+            c.run()
         for j in all_jobs:
             final_energy = j.get_final_energy()
             cal_log_new.append({"job": j.as_dict(), 
                                  'job_id': j.job_id, 
                                  "corrections": [], 
                                  'final_energy': final_energy})
-        if run_jobs:
-            c = Custodian(handlers, run_jobs, max_errors=5)
-            c.run()
         dumpfn(cal_log_new, Calibrate.LOG_FILE, cls=MontyEncoder,
                indent=4)
 

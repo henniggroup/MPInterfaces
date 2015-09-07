@@ -77,9 +77,9 @@ def get_reduced_uv(uv,tm):
 
 def reduced_supercell_vectors(ab, n):
     """
-    returns all possible reduced in-plane lattice vectors for the
-    given starting unit cell lattice vectors(ab) and the
-    supercell size n
+    returns all possible reduced in-plane lattice vectors and 
+    transition matrices for the given starting unit cell lattice 
+    vectors(ab) and the supercell size n
     """
     uv_list = []
     tm_list = []

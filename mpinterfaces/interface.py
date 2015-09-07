@@ -196,7 +196,7 @@ class Interface(Slab):
         """
         scell, nlig = self.enforce_coverage()
         ab = [self.lattice.matrix[0,:], self.lattice.matrix[1,:]]
-        uv_list = reduced_supercell_vectors(ab, scell)
+        uv_list, _ = reduced_supercell_vectors(ab, scell)
         logger.info('\nlist of possible reduced lattice vectors {}'
                     .format(uv_list))
         norm_list = []
@@ -340,12 +340,12 @@ class Interface(Slab):
         """ set the slab on to which the ligand is adsorbed"""
         self.slab = Slab.from_dict(self.as_dict())
         
-    def as_dict(self):
+    def to_dict(self):
         d = self.as_dict()
         d['hkl'] = list(self.miller_index)
         d['ligand'] = None
         if self.ligand is not None:
-            d['ligand'] = self.ligand.as_dict()
+            d['ligand'] = self.ligand.to_dict()
         if d['ligand'] is not None:
             d['num_ligands'] = self.n_ligands
         else:
@@ -556,7 +556,7 @@ class Ligand(Molecule):
         self._sites = combine_mol_sites
         self.set_distance_matrix(self)
         
-    def as_dict(self) :
+    def to_dict(self) :
         d = self.as_dict()
         d['name'] = self.composition.formula
         return d

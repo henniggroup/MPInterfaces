@@ -82,7 +82,8 @@ class Interface(Slab):
                  validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False,
                  primitive = True,
-                 from_ase=False, x_shift= 0, y_shift= 0, rot=[0,0,0],
+                 from_ase=False,
+                 x_shift= 0, y_shift= 0, rot=[0,0,0],
                  center_slab=True):
         self.from_ase = from_ase
         vac_extension = 0
@@ -91,12 +92,14 @@ class Interface(Slab):
         if isinstance(strt, Structure) and not isinstance(strt, Slab):
             self.min_vac = min_vac + vac_extension
             if self.from_ase:
-                strt = get_ase_slab(strt, hkl=hkl,min_thick=min_thick,
+                strt = get_ase_slab(strt,
+                                    hkl=hkl,
+                                    min_thick=min_thick,
                                     min_vac=min_vac + vac_extension)
             else:
                 strt = SlabGenerator(strt, hkl, min_thick,
                                      min_vac + vac_extension,
-                                    center_slab=center_slab,
+                                     center_slab=center_slab,
                                      primitive = primitive).get_slab()
             strt.make_supercell(supercell)
         else:
@@ -158,34 +161,32 @@ class Interface(Slab):
         returns the number of ligands  and the supercell size  that
         satisfies the criterion
         """
-        #print (self.surface_area)
         n_atoms = len(self.frac_coords[:,0])
-        self.top_bot_dist = np.max(self.distance_matrix.reshape(n_atoms*n_atoms, 1))
+        #self.top_bot_dist = np.max(self.distance_matrix.reshape(n_atoms*n_atoms, 1))
         self.set_top_atoms()        
         n_top_atoms =  len(self.top_atoms)
-        print (n_top_atoms)
+        logger.info('number of top atoms = {}'.format(n_top_atoms))
         max_coverage = n_top_atoms/self.surface_area
         m = self.lattice.matrix
-        surface_area = np.linalg.norm(np.cross(m[0], m[1]))        
-        logger.info('\nrequested surface coverage = {}'.format(self.surface_coverage))
+        surface_area_orig = np.linalg.norm(np.cross(m[0], m[1]))        
+        logger.info('requested surface coverage = {}'.format(self.surface_coverage))
         logger.info('maximum possible coverage = {}'.format(max_coverage))
-        if self.surface_coverage:
-            if self.surface_coverage > max_coverage:
-                logger.info('requested surface coverage exceeds the max possible coverage')
-            else:
-                for scell in range(1, self.scell_nmax):
-                    for nlig in range(1, scell*n_top_atoms+1):
-                        surface_area = scell * surface_area
-                        surface_coverage = nlig/surface_area
-                        diff_coverage = np.abs(surface_coverage - self.surface_coverage)
-                        if diff_coverage<=self.surface_coverage*self.coverage_tol:
-                            logger.info('\ntolerance limit = {}'
-                                        .format(self.coverage_tol))                                
-                            logger.info('\npossible coverage within the tolerance limit = {}'
-                                        .format(nlig/surface_area))
-                            logger.info('supercell size = {}'.format(scell))
-                            logger.info('number of ligands = {}'.format(nlig))
-                            return scell, nlig
+        if self.surface_coverage > max_coverage:
+            logger.warn('requested surface coverage exceeds the max possible coverage. exiting.')
+            sys.exit()
+        else:
+            for scell in range(1, self.scell_nmax):
+                for nlig in range(1, scell*n_top_atoms+1):
+                    surface_area = scell * surface_area_orig
+                    surface_coverage = nlig/surface_area
+                    diff_coverage = np.abs(surface_coverage - self.surface_coverage)
+                    if diff_coverage<=self.surface_coverage*self.coverage_tol:
+                        logger.info('tolerance limit = {}'.format(self.coverage_tol))
+                        logger.info('possible coverage within the tolerance limit = {}'.format(nlig/surface_area))
+                        logger.info('supercell size = {}'.format(scell))
+                        logger.info('number of ligands = {}'.format(nlig))
+                        return scell, nlig
+        return None, None
 
     def get_reduced_scell(self):
         """
@@ -195,17 +196,19 @@ class Interface(Slab):
         lattice vector norms
         """
         scell, nlig = self.enforce_coverage()
-        ab = [self.lattice.matrix[0,:], self.lattice.matrix[1,:]]
-        uv_list, _ = reduced_supercell_vectors(ab, scell)
-        logger.info('\nlist of possible reduced lattice vectors {}'
-                    .format(uv_list))
-        norm_list = []
-        for  uv in uv_list:
-            unorm = np.linalg.norm(uv[0])
-            vnorm = np.linalg.norm(uv[1])
-            norm_list.append(abs(1. - unorm/vnorm))
-        return nlig, uv_list[np.argmin(norm_list)]
-
+        if scell and nlig:
+            ab = [self.lattice.matrix[0,:], self.lattice.matrix[1,:]]
+            uv_list, _ = reduced_supercell_vectors(ab, scell)
+            norm_list = []
+            for  uv in uv_list:
+                unorm = np.linalg.norm(uv[0])
+                vnorm = np.linalg.norm(uv[1])
+                norm_list.append(abs(1. - unorm/vnorm))
+            return nlig, uv_list[np.argmin(norm_list)]
+        else:
+            logger.warn("couldn't find supercell and number of ligands that satisfy the required surface coverage. exiting.")
+            sys.exit()
+            
     def cover_surface(self, site_indices):
         """
         puts the ligand molecule on the given list of site indices
@@ -265,7 +268,7 @@ class Interface(Slab):
                 # We have a 180 degree angle.
                 # Simply do an inversion about the origin
                 for i in range(len(self.ligand)):
-                        self.ligand[i] = (self.ligand[i].species_and_occu,
+                    self.ligand[i] = (self.ligand[i].species_and_occu,
                                        origin - (self.ligand[i].coords - origin))
             # x - y - shifts
             x = self.x_shift
@@ -315,14 +318,15 @@ class Interface(Slab):
         have enough ligands to satify the surface coverage criterion
         also sets the slab on which the ligand is adsorbed
         """
-        if self.ligand is not None:
+        if self.ligand:
             nlig, uv = self.get_reduced_scell()
-            print (nlig,uv)
             self.n_ligands = nlig        
             logger.info(
-                '\nusing ... {0} ligands on a supercell with in-plane lattice vectors {1}'
+                'using {0} ligands on a supercell with in-plane lattice vectors\n{1}'
                 .format(self.n_ligands, uv))
-            new_latt_matrix = [ uv[0][:], uv[1][:], self.lattice.matrix[2,:]]
+            new_latt_matrix = [ uv[0][:],
+                                uv[1][:],
+                                self.lattice.matrix[2,:]]
             new_latt = Lattice(new_latt_matrix)
             _, __, scell = self.lattice.find_mapping(new_latt) 
             #self.scell = self.possible_scells[opt_lig_scell_index]
@@ -479,10 +483,10 @@ class Ligand(Molecule):
         if self.angle:
             for mol in range(len(self.mols)):
                 for ind_key, rot in self.angle[str(mol)].items():
-                    #print 'mol, ind_key, rot ', mol, ind_key, rot
                     perp_vec = np.cross(self.mol_vecs[int(ind_key)],
                                          self.mol_vecs[mol])
-                    #if the vectors are parllel, then perp_vec = (-y, x, 0)
+                    #if the vectors are parllel,
+                    #then perp_vec = (-y, x, 0)
                     if np.abs( np.dot( self.mol_vecs[int(ind_key)],
                                       self.mol_vecs[mol] ) - \
                                       np.linalg.norm(self.mol_vecs[mol])**2 ) < 1e-6:
@@ -532,13 +536,12 @@ class Ligand(Molecule):
                         new_coords[ind, 1] = coord[1]
                         new_coords[ind, 2] = coord[2]
                     new_coords = new_coords + displacement
-                    self.mols[mol] =  Molecule(self.mols[mol].species_and_occu,
-                                               new_coords, charge = \
-                                               self.mols[mol]._charge,
-                                               spin_multiplicity = \
-                                               self.mols[mol]._spin_multiplicity,
-                                               site_properties = \
-                                               self.mols[mol].site_properties)
+                    self.mols[mol] =  Molecule(
+                        self.mols[mol].species_and_occu,
+                        new_coords,
+                        charge = self.mols[mol]._charge,
+                        spin_multiplicity = self.mols[mol]._spin_multiplicity,
+                        site_properties = self.mols[mol].site_properties)
 
     def create_ligand(self):
         """
@@ -571,16 +574,15 @@ class Ligand(Molecule):
     
 #test
 if __name__=='__main__':
+    # the following example require:
+    # acetic_acid.xyz and POSCAR.mp-21276_PbS 
     from pymatgen.io.vasp.inputs import Poscar    
-    ########################################
     #create lead acetate ligand
     #from 3 molecules: 2 acetic acid + 1 Pb
-    ########################################
     mol0 = Molecule.from_file("acetic_acid.xyz")
     mol1 = Molecule.from_file("acetic_acid.xyz")
     mol2 = Molecule(["Pb"], [[0,0,0]])
     mols = [mol0, mol1, mol2]
-
     #center of mass distances in angstrom
     #example: 3 molecules and cm_dist = [4,2],
     #center of mass of mol1 is moved from mol0 in 1,0,0 direction by 4 A
@@ -619,44 +621,20 @@ if __name__=='__main__':
     remove = [[7],[7],[]]
     
     #combined_mol = combine_mols(mols, cm_dist, angle, link=link, remove=remove)
-    lead_acetate = Ligand(mols, cm_dist, angle=angle, link={}, remove=remove)
+    lead_acetate = Ligand(mols, cm_dist, angle=angle,
+                          link={}, remove=remove)
     lead_acetate.create_ligand()
     lead_acetate.to('xyz', 'lead_acetate.xyz')
 
     #put the ligand in a box
     boxed_lead_acetate = lead_acetate.get_boxed_structure(13, 13, 13)  
-    boxed_lead_acetate.to(fmt= "poscar", filename= "POSCAR_diacetate_boxed.vasp")
-
-    ########################################
-    # H2O ligand
-    ########################################        
-    # PBEPBE/aug-cc-pVQZ , from cccbdb
-    #0 0 0.119079
-    #0 0.7648 -0.476318
-    #0 -0.7648 -0.476318
-    #adsorb species 'O' on atom of index 3 shifted by 1.0 A
-    #slb.add_adsorbate_atom([3], 'O', 1.0)
-    adatoms = ['O','H', 'H']
-    adatoms_coords = np.array([ [0,0,0], [0, 0.77, 0.60], [0, -0.77, 0.60]])
-    mol = Molecule(adatoms, adatoms_coords)
-    h2o = Ligand([mol])
-
-    ########################################
-    # Interface = Slab + ligand + solvent(to do)
-    # Cu surface with H2O as ligands
-    #######################################
-
-    a0 = 3.62 #from materials project
-    latt = Lattice.cubic(a0)
-    species = ["Cu", "Cu", "Cu", "Cu"]
-    positions = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5]]
-    
-    #initial structure, must be either a bulk structure or a slab
-    strt_cu = Structure(latt, species, positions)
-
+    boxed_lead_acetate.to(fmt= "poscar",
+                          filename= "POSCAR_diacetate_boxed.vasp")
+    # bulk PbS
     strt_pbs = Structure.from_file('POSCAR.mp-21276_PbS')
     
-    #intital supercell, this wont be the final supercell if surface coverage is specified
+    #intital supercell, this wont be the final supercell if surface
+    #coverage is specified
     supercell = [1,1,1]
 
     #miller index
@@ -670,11 +648,12 @@ if __name__=='__main__':
     min_vac = 10
     
     # surface coverage in the units of lig/ang^2
-    #mind: exact coverage as provided cannot be guaranteed, the slab will be constructed
+    #mind: exact coverage as provided cannot be guaranteed,
+    # the slab will be constructed
     #with a coverage value thats close to the requested one
     #note: maximum supercell size possible is 10 x 10
     #note: 1 lig/nm^2 = 0.01 lig/ang^2    
-    surface_coverage = 0.01
+    surface_coverage = 0.001
     
     #atom on the slab surface on which the ligand will be attached,
     #no need to specify if the slab is made of only a single species
@@ -684,32 +663,30 @@ if __name__=='__main__':
     adatom_on_lig='O'
     
     #ligand displacement from the slab surface along the surface normal
-    #i.e adatom_on_lig will be displced by this amount from the adsorb_on_species atom
+    #i.e adatom_on_lig will be displced by this amount from the
+    #adsorb_on_species atom
     #on the slab
     #in Angstrom
     displacement = 2.0
 
-    #
     #here we create the interface
-    #
-    iface = Interface(strt_pbs, hkl=hkl, min_thick=min_thick, min_vac=min_vac,
-                      supercell=supercell, surface_coverage=surface_coverage,
+    iface = Interface(strt_pbs, hkl=hkl, min_thick=min_thick,
+                      min_vac=min_vac, supercell=supercell,
+                      surface_coverage=surface_coverage,
                       ligand=lead_acetate, displacement=displacement,
                       adsorb_on_species = adsorb_on_species,
-                      adatom_on_lig=adatom_on_lig, primitive = False)
-#    iface = Interface(strt, hkl=hkl, min_thick=min_thick, min_vac=20,
-#                      supercell=supercell, surface_coverage=0.01,
-#                      ligand=lead_acetate, displacement=displacement, adatom_on_lig='Pb')
+                      adatom_on_lig=adatom_on_lig, primitive = False,
+                      scell_nmax=30)
     iface.create_interface()
     iface.sort()
     iface.to('poscar', 'POSCAR_interface.vasp')
     iface.slab.sort()
     iface.slab.to('poscar', 'POSCAR_slab.vasp')
-    #if you want a customized poscar file(with selective dynamics etc),
-    #use the following construct to create the poscar file    
-#    poscar = Poscar(iface,
-#                    selective_dynamics = np.ones(iface.frac_coords.shape))
-#    poscar.write_file('POSCAR_interface_2.vasp')
-#    print iface.frac_coords.shape
-    strt = SlabGenerator(strt_pbs, hkl, min_thick, min_vac, center_slab=True, primitive = False).get_slab()
-    strt.to('poscar', 'POSCAR_primtive.vasp')    
+    # H2O ligand
+    # PBEPBE/aug-cc-pVQZ , from cccbdb
+    #adatoms = ['O','H', 'H']
+    #adatoms_coords = np.array([ [0,0,0],
+    #                            [0, 0.77, 0.60],
+    #                            [0, -0.77, 0.60]])
+    #mol = Molecule(adatoms, adatoms_coords)
+    #h2o = Ligand([mol])

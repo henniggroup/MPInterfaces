@@ -338,15 +338,17 @@ class Interface(Slab):
             
     def set_slab(self):
         """ set the slab on to which the ligand is adsorbed"""
-        self.slab = Slab.from_dict(self.as_dict())
+        self.slab = Slab.from_dict(super(Interface, self).as_dict())
         
-    def to_dict(self):
-        d = self.as_dict()
+    def as_dict(self):
+        d = super(Interface, self).as_dict()
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d['hkl'] = list(self.miller_index)
         d['ligand'] = None
-        if self.ligand is not None:
-            d['ligand'] = self.ligand.to_dict()
-        if d['ligand'] is not None:
+        if self.ligand:
+            d['ligand'] = self.ligand.as_dict()
+        if d.get('ligand'):
             d['num_ligands'] = self.n_ligands
         else:
             d['num_ligands'] = 0            
@@ -556,8 +558,10 @@ class Ligand(Molecule):
         self._sites = combine_mol_sites
         self.set_distance_matrix(self)
         
-    def to_dict(self) :
-        d = self.as_dict()
+    def as_dict(self) :
+        d = super(Ligand, self).as_dict()
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d['name'] = self.composition.formula
         return d
 

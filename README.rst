@@ -23,9 +23,12 @@ Prepping
 
    Note: ASE does not work with python3
 
-2. It is highly recommended that you use gcc compiler. So type::
+2. it is highly recommended that you use gcc compiler. So type::
 
    export CC=gcc
+
+   Note: *Don't use gcc if the already available numpy/scipy packages
+   were setup using intel MKL*
 
 3. Unless you have admin privilege on the machine you are installing, it is
    better to install this package and all its dependencies in a virtual environment.

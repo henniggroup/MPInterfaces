@@ -73,6 +73,11 @@ step 3(if the local copy was installed in the develop mode this step can be skip
 	
 3. python setup.py install(or develop)
 
+4. set the evironment variables:
+   - MAPI_KEY=the_key_obtained_from_materialsproject
+   - VASP_PSP_DIR=path_to_vasp_potcar_files
+   
+
   
 Documentation
 ==============

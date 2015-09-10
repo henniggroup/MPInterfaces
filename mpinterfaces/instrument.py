@@ -186,7 +186,7 @@ class MPINTVaspJob(Job):
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
                                      stderr=subprocess.PIPE)
                 stdout, stderr= p.communicate() 
-                self.job_id = stdout.rstrip('\n')
+                self.job_id = stdout.rstrip('\n').split()[-1]
                 f.write(self.job_id)
         else:
             cmd = list(self.job_cmd)

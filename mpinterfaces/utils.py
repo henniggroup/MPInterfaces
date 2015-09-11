@@ -69,12 +69,13 @@ def slab_from_file(hkl, filename):
                 site_properties=slab_input.site_properties)
 
 
-def add_vacuum_padding(slab, vacuum):
+def add_vacuum_padding(slab, vacuum, hkl=[0,0,1]):
     """
     add vacuum spacing to the given structure
     Args:
         slab: sructure/slab object to be padded 
         vacuum: in angstroms
+        hkl: miller index
     Returns:
          Structure object
     """
@@ -94,7 +95,19 @@ def add_vacuum_padding(slab, vacuum):
                                       new_lattice,
                                       properties=site.properties,
                                       coords_are_cartesian=True))
-    return Structure.from_sites(new_sites)
+    new_struct = Structure.from_sites(new_sites)
+    #center the slab
+    avg_z = np.average([fcoord[2] for fcoord in new_struct.frac_coords])
+    new_struct.translate_sites(list(range(len(new_struct))),
+                               [0, 0, 0.5 - avg_z])
+    return Slab(new_struct.lattice,
+                new_struct.species_and_occu,
+                new_struct.frac_coords,
+                hkl,
+                Structure.from_sites(new_struct,to_unit_cell=True),
+                shift=0,
+                scale_factor=np.eye(3, dtype=np.int),
+                site_properties=new_struct.site_properties)
 
 
 def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',

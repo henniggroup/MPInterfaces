@@ -39,15 +39,10 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
     """
     def __init__(self, host="127.0.0.1", port=27017, database="vasp",
                  user=None, password=None, collection="nanoparticles",
-                 parse_dos=False, compress_dos=False, simulate_mode=False,
+                 parse_dos=False, compress_dos=False,
+                 simulate_mode=False,
                  additional_fields=None, update_duplicates=True,
                  mapi_key=None, use_full_uri=True, runs=None):
-        """
-        Additional_fields = {'authors':[a.as_dict() for a in self.authors],
-                             'projects': ,
-                              'refernces': ,
-                              }
-        """
         VaspToDbTaskDrone.__init__(self, host=host, port=port, 
                                    database=database, user=user, 
                                    password=password, 
@@ -58,7 +53,8 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
                                    additional_fields=additional_fields,
                                    update_duplicates=update_duplicates,
                                    mapi_key=mapi_key, 
-                                   use_full_uri=use_full_uri, runs=runs)
+                                   use_full_uri=use_full_uri,
+                                   runs=runs)
 
     def generate_doc(self, dir_name, vasprun_files):
             """
@@ -75,9 +71,12 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
                 d1 = d["calculations"][0]
                 d2 = d["calculations"][-1]
                 #Now map some useful info to the root level.
-                for root_key in ["completed_at", "nsites", "unit_cell_formula",
-                                 "reduced_cell_formula", "pretty_formula",
-                                 "elements", "nelements", "cif", "density",
+                for root_key in ["completed_at", "nsites",
+                                 "unit_cell_formula",
+                                 "reduced_cell_formula",
+                                 "pretty_formula",
+                                 "elements", "nelements", "cif",
+                                 "density",
                                  "is_hubbard", "hubbards", "run_type"]:
                     d[root_key] = d2[root_key]
                 d["chemsys"] = "-".join(sorted(d2["elements"]))

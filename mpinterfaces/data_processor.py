@@ -36,7 +36,8 @@ class MPINTComputedEntry(ComputedEntry):
     def __init__(self, structure, kpoints, incar, energy, correction=0.0,
                   parameters=None, data=None, entry_id=None):
         ComputedEntry.__init__(self, structure.composition, energy,
-                               correction=correction, parameters=parameters,
+                               correction=correction,
+                               parameters=parameters,
                                data=data, entry_id=entry_id)
         self.structure = structure
         self.kpoints = kpoints
@@ -70,7 +71,9 @@ class MPINTComputedEntry(ComputedEntry):
     @classmethod
     def from_dict(cls, d):
         dec = MontyDecoder()
-        return cls(dec.process_decoded(d["structure"],d["kpoints"],d["incar"]),
+        return cls(dec.process_decoded(d["structure"],
+                                       d["kpoints"],
+                                       d["incar"]),
                    d["energy"], d["correction"],
                    dec.process_decoded(d.get("parameters", {})),
                    dec.process_decoded(d.get("data", self.data)),
@@ -104,13 +107,13 @@ class MPINTVasprun(Vasprun):
                 ComputedStructureEntries to be returned instead of
                 ComputedEntries.
             inc_incar_n_kpoints (bool): along with inc_structure set
-            to True if you want MPINTComputedEntries to be returned :
-            returns incar and kpoints objects 
-                
-            parameters (list): Input parameters to include. It has to be
-                 one of the properties supported by the Vasprun object. 
-                 If parameters == None, a default set of parameters that
-                are necessary for typical post-processing will be set.
+                to True if you want MPINTComputedEntries to be 
+                returned
+            parameters (list): Input parameters to include. 
+                It has to be one of the properties supported by the 
+                Vasprun object. If parameters == None, a default set 
+                of parameters that are necessary for typical 
+                post-processing will be set.
             data (list): Output data to include. Has to be one of the 
                 properties supported by the Vasprun object.
 

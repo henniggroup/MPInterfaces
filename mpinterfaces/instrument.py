@@ -55,8 +55,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         if qadapter is not None:
             self.qadapter = qadapter.from_dict(qadapter.to_dict())
         else:
-            self.qadapter = None
-        
+            self.qadapter = None        
         config_dict = {}
         config_dict['INCAR'] = self.incar.as_dict()
         config_dict['POSCAR'] = self.poscar.as_dict() 
@@ -135,7 +134,6 @@ class MPINTVaspJob(Job):
                  vis=None, auto_npar=True,
                  auto_gamma=True, settings_override=None,
                  gamma_vasp_cmd=None, copy_magmom=False, wait=True):
-
         self.job_cmd = job_cmd
         self.name = name
         self.output_file = output_file

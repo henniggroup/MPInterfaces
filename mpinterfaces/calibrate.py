@@ -825,7 +825,7 @@ class Calibrate(PMGSONable):
                             logger.info('Job {} pending'.format(j.job_id))
                             done = done + [False]
                 # test:
-                done = [True, True]                            
+                #done = [True, True]                            
                 if all(done):
                     logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))                                    
                     time.sleep(5)

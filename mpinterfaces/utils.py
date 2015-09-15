@@ -7,6 +7,7 @@ Utility functions
 import sys
 import math
 import socket
+import subprocess as sp
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite

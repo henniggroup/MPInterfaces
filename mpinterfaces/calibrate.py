@@ -810,8 +810,8 @@ class Calibrate(PMGSONable):
                         elif state == 'R':
                             logger.info('job {} running'.format(j.job_id))
                             done = done + [False]
-                        elif state in ['C', 'CF', 'F']:
-                            logger.error('Job {0} in {1} cancelled or failed'.format(j.job_id, j.job_dir))
+                        elif state in ['C', 'CF', 'F', '00']:
+                            logger.error('Job {0} in {1} cancelled or failed. State = {2}'.format(j.job_id, j.job_dir,state))
                             done = done + [False]
                             if handlers:
                                 logger.info('Investigating ... ')
@@ -822,11 +822,8 @@ class Calibrate(PMGSONable):
                                         if h.check():
                                             logger.error('Detected vasp errors {}'.format(h.errors))
                                 os.chdir(j.parent_job_dir)
-                        elif state == '00':
-                            logger.info('Job {} not in the que'.format(j.job_id))
-                            done = done + [False]
                         else:
-                            logger.info('Job {} pending'.format(j.job_id))
+                            logger.info('Job {0} pending. State = {1}'.format(j.job_id,state))
                             done = done + [False]
                 # test:
                 #done = [True, True]                            

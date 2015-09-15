@@ -169,22 +169,25 @@ def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
         return (None, job_cmd)
 
 
-def get_job_state(job_id):
+def get_job_state(job):
     """
-    return the job state given the job_id
+    given the job, return the job state and the job output file name
     """
     hostname = socket.gethostname()
     state = None
+    ofname = None
     #hipergator,pbs
     if 'ufhpc' in hostname:
-        output = sp.check_output(['qstat', '-i', job_id])
+        output = sp.check_output(['qstat', '-i', job.job_id])
         state = output.rstrip('\n').split('\n')[-1].split()[-2]
+        ofname = "FW_job.out"
     #stampede, slurm
     elif 'stampede' in hostname:
-        output = sp.check_output(['squeue', '--job', job_id])
+        output = sp.check_output(['squeue', '--job', job.job_id])
         state = output.rstrip('\n').split('\n')[-1].split()[-4]
+        ofname = "vasp_job-"+str(job.job_id)+".out"
     #no batch system
     else:
         state = 'XX'        
-    return state
+    return state, ofname
     

@@ -804,7 +804,7 @@ class Calibrate(PMGSONable):
                     Calibrate.update_checkpoint(jfile=cf)
                     all_jobs = Calibrate.jobs_from_file(cf)
                     for j in all_jobs:
-                        state = get_job_state(j.job_id)
+                        state, ofname = get_job_state(j)
                         if j.final_energy:
                             done = done + [True]
                         elif state == 'R':
@@ -817,9 +817,10 @@ class Calibrate(PMGSONable):
                                 logger.info('Investigating ... ')
                                 os.chdir(j.job_dir)
                                 for h in handlers:
-                                    h.output_filename = j.output_file
-                                    if h.check():
-                                        logger.error('Detected vasp errors {}'.format(h.errors))
+                                    if ofname:
+                                        h.output_filename = ofname
+                                        if h.check():
+                                            logger.error('Detected vasp errors {}'.format(h.errors))
                                 os.chdir(j.parent_job_dir)
                         else:
                             logger.info('Job {} pending'.format(j.job_id))

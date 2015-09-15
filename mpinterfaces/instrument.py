@@ -256,14 +256,4 @@ class MPINTVaspErrors(ErrorHandler):
     handles restarting of jobs that exceed the walltime
     employs the check + correct method of custodian ErrorHandler
     """
-    def check():
-        """
-        method to check completion of the job
-        """
-        pass
-
-    def correct():
-        """
-        method to correct the error or restart the job
-        """
-        pass 
+    pass

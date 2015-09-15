@@ -246,7 +246,7 @@ class Calibrate(PMGSONable):
         """
         if key == 'KPOINTS':
             return 'KPTS'
-        elif key == 'POTCAR':
+        elif key == 'POTCAR_map' or key == 'POTCAR_functional':
             return 'POT'
         elif key == 'POSCAR':
             return 'POS'        
@@ -301,7 +301,7 @@ class Calibrate(PMGSONable):
         else:    
             return str(kpoint)
 
-    def potcar_to_name(self, mapping):
+    def potcar_to_name(self, mapping,functional):
         """
         convert a symbol mapping and functional to a name that 
         can be used for setting up the potcar jobs
@@ -314,8 +314,13 @@ class Calibrate(PMGSONable):
         Returns:
             string 
         """
-        l = [v for k,v in mapping.items()]
-        return '_'.join(self.functional, l)
+        if mapping:
+            l = [v for k,v in mapping.items()]
+            return '_'.join(self.functional, l)
+        elif functional:
+            return '_'.join(functional)
+        else:
+            return '_'.join(functional,l)
         
 
     def set_incar(self, param, val):
@@ -344,7 +349,7 @@ class Calibrate(PMGSONable):
         elif poscar is not None:
             self.poscar = poscar
 
-    def set_potcar(self, mapping=None):
+    def set_potcar(self, mapping=None, functional='PBE'):
         """
         set the potcar: symbol to potcar type mapping
         """
@@ -361,8 +366,13 @@ class Calibrate(PMGSONable):
                     mapped_symbols.append(sym)     
         else:
             mapped_symbols = symbols
+        if functional:
+            func=functional
+        else:
+            func=self.functional
         self.potcar = Potcar(symbols=mapped_symbols,
-                             functional=self.functional)
+                             functional=func)
+               
         pass
 
     def set_kpoints(self, kpoint):
@@ -448,11 +458,21 @@ class Calibrate(PMGSONable):
                     self.add_job(name=job_dir, job_dir=job_dir)
                     
 
-    def setup_potcar_jobs(self, mappings):
+    def setup_potcar_jobs(self, mappings,functional_list):
         """
         take a list of symbol mappings and setup the potcar jobs
         """
-        for mapping in mappings:
+        if functional_list:
+            for func in functional_list:
+                self.set_potcar(functional=func)
+                if not self.is_matrix:
+                    job_dir  = self.job_dir+ os.sep \
+                        + self.key_to_name('POTCAR') \
+                        + os.sep + self.potcar_to_name(func)
+                    self.add_job(name=job_dir, job_dir=job_dir)
+        
+        elif mappings:
+            for mapping in mappings:
                 self.set_potcar(mapping)
                 if not self.is_matrix:
                     job_dir  = self.job_dir+ os.sep \
@@ -1037,7 +1057,7 @@ class CalibrateInterface(CalibrateSlab):
         #if there are other paramters that are being varied
         #change the comment accordingly
         comment = self.system['hkl']+self.system['ligand']['name']
-        return Poscar(slab_struct, comment=comment,
+        return Poscar(iface, comment=comment,
                       selective_dynamics=sd)
             
 if __name__ == '__main__':

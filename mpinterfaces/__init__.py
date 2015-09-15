@@ -17,8 +17,8 @@ def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
     Note: Get the api key from materialsproject website. The one used
     here is nolonger valid.
     
-    Note: for the given formula there are many structures available, this
-    function returns the one with the lowest energy above the hull
+    Note: for the given formula there are many structures available, 
+    this function returns the one with the lowest energy above the hull
     unless all_structs is set to True
     """
     if not MAPI_KEY:
@@ -48,12 +48,3 @@ def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
                 return m.get_structure_by_material_id(mineah_key)
             else:
                 return None
-
-
-from .calibrate import Calibrate, CalibrateBulk, CalibrateSlab, CalibrateMolecule
-from .instrument import MPINTVaspInputSet, MPINTVaspJob
-from .data_processor import MPINTComputedEntry, MPINTVaspDrone, MPINTVasprun
-from .interface import Interface, Ligand
-from .measurement import Measurement
-from .firetasks import MPINTCalibrateTask, MPINTMeasurementTask
-

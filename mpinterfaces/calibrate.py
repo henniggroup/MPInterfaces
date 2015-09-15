@@ -43,12 +43,7 @@ from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
-from custodian.vasp.handlers import VaspErrorHandler
-#from custodian.vasp.handlers import FrozenJobErrorHandler
-#from custodian.vasp.handlers import MeshSymmetryErrorHandler
-#from custodian.vasp.handlers import NonConvergingErrorHandler
 from custodian.custodian import Custodian, gzip_dir
-from custodian.vasp.interpreter import VaspModder
 
 from monty.json import MSONable, MontyEncoder, MontyDecoder
 from monty.serialization import loadfn, dumpfn
@@ -139,10 +134,7 @@ class Calibrate(PMGSONable):
         self.job_dir_list = []
         self.jobs = []
         self.job_ids = []        
-        #example:- handlers = [VaspErrorHandler(),
-        #FrozenJobErrorHandler(),
-        #MeshSymmetryErrorHandler(), NonConvergingErrorHandler()]
-        self.handlers = [] #[VaspErrorHandler("stdout")]
+        self.handlers = []
         self.job_cmd = job_cmd
         self.n_atoms = 0
         self.turn_knobs = turn_knobs
@@ -776,6 +768,41 @@ class Calibrate(PMGSONable):
             all_jobs.append(job)
         return all_jobs
 
+    @staticmethod    
+    def launch_daemon(steps, interval, handlers):
+        """
+        run all the 'steps' in daemon mode
+        checks job status every 'interval' seconds
+        also runs all the error handlers
+        """
+        for step in steps:
+            chkpt_files = step()
+            while True:
+                done = []            
+                for cf in chkpt_files:
+                    time.sleep(3)                
+                    Calibrate.update_checkpoint(jfile=cf)
+                    all_jobs = Calibrate.jobs_from_file(cf)
+                    # test:
+                    #done = [True, False]
+                    done = done + [(True if job.final_energy else False)
+                                   for job in all_jobs]
+                    if handlers:
+                        logger.info('Checking for errors')     
+                        for j in all_jobs:
+                            os.chdir(j.job_dir)
+                            for h in handlers:
+                                h.output_filename = j.output_file
+                                if h.check():
+                                    logger.error('Detected vasp errors {}'.format(h.errors))
+                            os.chdir(j.parent_job_dir)
+                if all(done):
+                    logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))                                    
+                    time.sleep(5)
+                    break
+                logger.info('all jobs in {0} NOT done. Next update in {1} seconds'.format(step.func_name,interval))
+                time.sleep(interval)
+    
 
 class CalibrateMolecule(Calibrate):
     """

@@ -11,6 +11,11 @@ from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+from custodian.vasp.handlers import VaspErrorHandler
+#from custodian.vasp.handlers import FrozenJobErrorHandler
+#from custodian.vasp.handlers import MeshSymmetryErrorHandler
+#from custodian.vasp.handlers import NonConvergingErrorHandler 
+
 from mpinterfaces import get_struct_from_mp
 from mpinterfaces.interface import Interface
 from mpinterfaces.calibrate import Calibrate, CalibrateSlab
@@ -174,7 +179,6 @@ def step2():
             contcar_file = os.path.join(jdir, 'CONTCAR')
             slab_2d = slab_from_file(hkl_2d, contcar_file)
             species_2d = ''.join([tos.symbol for tos in slab_2d.types_of_specie])
-            print(species_sub, species_2d)
             # align
             slab_sub_aligned, slab_2d_aligned = get_aligned_lattices(
                 slab_sub,
@@ -255,7 +259,6 @@ def step3():
         # read in as structure object        
         mat2d_slab_aligned = Structure.from_file(contcar_file)
         species_2d = ''.join([tos.symbol for tos in mat2d_slab_aligned.types_of_specie])
-        print(species_sub, species_2d)
         # position the aligned materials in all possible ways
         hetero_interfaces = generate_all_configs(mat2d_slab_aligned,
                                                  substrate_slab_aligned,
@@ -283,36 +286,10 @@ def step3():
     return [name+'.json']
 
 
-def launch_daemon(steps, interval):
-    """
-    run all the steps in daemon mode
-    checks job status every 'interval' seconds
-    """
-    for step in steps:
-        chkpt_files = globals()[step]()        
-        while True:
-            done = []            
-            for cf in chkpt_files:
-                time.sleep(3)                
-                Calibrate.update_checkpoint(jfile=cf)
-                all_jobs = Calibrate.jobs_from_file(cf)
-                # test:
-                #done = [True, True]
-                done = done + [(True if job.final_energy else False)
-                               for job in all_jobs]
-            if all(done):
-                print('all jobs in {} done. Proceeding to the next one'.format(step))
-                time.sleep(5)
-                break
-            # update and check every 'interval' seconds
-            print('all jobs in {0} NOT done. Next update in {1} seconds'.format(step,interval))
-            time.sleep(interval)
-                    
-
 if __name__ == '__main__':
-    # name of functions to be run.
     # functions will be run in the order given in the list
-    steps = ['step1', 'step2', 'step3']
+    steps = [step1, step2, step3]
+    error_handlers = [VaspErrorHandler()]
     # update interval
     interval = 300
-    launch_daemon(steps,interval)
+    Calibrate.launch_daemon(steps, interval, error_handlers)

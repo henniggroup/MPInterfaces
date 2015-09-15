@@ -178,13 +178,21 @@ def get_job_state(job):
     ofname = None
     #hipergator,pbs
     if 'ufhpc' in hostname:
-        output = sp.check_output(['qstat', '-i', job.job_id])
-        state = output.rstrip('\n').split('\n')[-1].split()[-2]
+        try:
+            output = sp.check_output(['qstat', '-i', job.job_id])
+            state = output.rstrip('\n').split('\n')[-1].split()[-2]
+        except:
+            print('Job {} not in the que'.format(job.job_id))
+            state = "00" 
         ofname = "FW_job.out"
     #stampede, slurm
     elif 'stampede' in hostname:
-        output = sp.check_output(['squeue', '--job', job.job_id])
-        state = output.rstrip('\n').split('\n')[-1].split()[-4]
+        try:
+            output = sp.check_output(['squeue', '--job', job.job_id])
+            state = output.rstrip('\n').split('\n')[-1].split()[-4]
+        except:
+            print('Job {} not in the que'.format(job.job_id))
+            state = "00"             
         ofname = "vasp_job-"+str(job.job_id)+".out"
     #no batch system
     else:

@@ -822,6 +822,9 @@ class Calibrate(PMGSONable):
                                         if h.check():
                                             logger.error('Detected vasp errors {}'.format(h.errors))
                                 os.chdir(j.parent_job_dir)
+                        elif state == '00':
+                            logger.info('Job {} not in the que'.format(j.job_id))
+                            done = done + [False]
                         else:
                             logger.info('Job {} pending'.format(j.job_id))
                             done = done + [False]

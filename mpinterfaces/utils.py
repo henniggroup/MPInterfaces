@@ -166,3 +166,24 @@ def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
         return (CommonAdapter(d['type'], **d['params']), job_cmd) 
     else:
         return (None, job_cmd)
+
+
+def get_job_state(job_id):
+    """
+    return the job state given the job_id
+    """
+    hostname = socket.gethostname()
+    state = None
+    #hipergator,pbs
+    if 'ufhpc' in hostname:
+        output = sp.check_output(['qstat', '-i', job_id])
+        state = output.rstrip('\n').split('\n')[-1].split()[-2]
+    #stampede, slurm
+    elif 'stampede' in hostname:
+        output = sp.check_output(['squeue', '--job', job_id])
+        state = output.rstrip('\n').split('\n')[-1].split()[-4]
+    #no batch system
+    else:
+        state = 'XX'        
+    return state
+    

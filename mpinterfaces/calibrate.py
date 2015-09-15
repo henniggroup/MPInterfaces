@@ -53,7 +53,7 @@ from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
 from mpinterfaces.interface import Interface, Ligand
-from mpinterfaces.utils import get_ase_slab
+from mpinterfaces.utils import get_ase_slab, get_job_state
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -803,19 +803,29 @@ class Calibrate(PMGSONable):
                     time.sleep(3)                
                     Calibrate.update_checkpoint(jfile=cf)
                     all_jobs = Calibrate.jobs_from_file(cf)
-                    # test:
-                    #done = [True, False]
-                    done = done + [(True if job.final_energy else False)
-                                   for job in all_jobs]
-                    if handlers:
-                        logger.info('Checking for errors')     
-                        for j in all_jobs:
-                            os.chdir(j.job_dir)
-                            for h in handlers:
-                                h.output_filename = j.output_file
-                                if h.check():
-                                    logger.error('Detected vasp errors {}'.format(h.errors))
-                            os.chdir(j.parent_job_dir)
+                    for j in all_jobs:
+                        state = get_job_state(j.job_id)
+                        if j.final_energy:
+                            done = done + [True]
+                        elif state == 'R':
+                            logger.info('job {} running'.format(j.job_id))
+                            done = done + [False]
+                        elif state in ['C', 'CF', 'F']:
+                            logger.error('Job {0} in {1} cancelled or failed'.format(j.job_id, j.job_dir))
+                            done = done + [False]
+                            if handlers:
+                                logger.info('Investigating ... ')
+                                os.chdir(j.job_dir)
+                                for h in handlers:
+                                    h.output_filename = j.output_file
+                                    if h.check():
+                                        logger.error('Detected vasp errors {}'.format(h.errors))
+                                os.chdir(j.parent_job_dir)
+                        else:
+                            logger.info('Job {} pending'.format(j.job_id))
+                            done = done + [False]
+                # test:
+                done = [True, True]                            
                 if all(done):
                     logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))                                    
                     time.sleep(5)

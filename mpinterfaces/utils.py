@@ -37,6 +37,13 @@ sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
+wf_logger = logging.getLogger('workflow')
+wf_logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(levelname)s:%(asctime)s:%(message)s')
+fh = logging.FileHandler('workflow.log', mode='a')
+fh.setFormatter(formatter)
+wf_logger.addHandler(fh)
+
 
 def get_ase_slab(pmg_struct, hkl=(1,1,1), min_thick=10, min_vac=10):
     """
@@ -325,30 +332,30 @@ def launch_daemon(steps, interval, handlers=None):
                         if j.final_energy:
                             done = done + [True]
                         elif state == 'R':
-                            logger.info('job {} running'.format(j.job_id))
+                            wf_logger.info('job {} running'.format(j.job_id))
                             done = done + [False]
                         elif state in ['C', 'CF', 'F', '00']:
-                            logger.error('Job {0} in {1} cancelled or failed. State = {2}'.format(j.job_id, j.job_dir,state))
+                            wf_logger.error('Job {0} in {1} cancelled or failed. State = {2}'.format(j.job_id, j.job_dir,state))
                             done = done + [False]
                             if handlers:
-                                logger.info('Investigating ... ')
+                                wf_logger.info('Investigating ... ')
                                 os.chdir(j.job_dir)
                                 for h in handlers:
                                     if ofname:
                                         h.output_filename = ofname
                                         if h.check():
-                                            logger.error('Detected vasp errors {}'.format(h.errors))
+                                            wf_logger.error('Detected vasp errors {}'.format(h.errors))
                                 os.chdir(j.parent_job_dir)
                         else:
-                            logger.info('Job {0} pending. State = {1}'.format(j.job_id,state))
+                            wf_logger.info('Job {0} pending. State = {1}'.format(j.job_id,state))
                             done = done + [False]
                 # test:
                 #done = [True, True]                            
                 if all(done):
-                    logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))                                    
+                    wf_logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))                                    
                     time.sleep(5)
                     break
-                logger.info('all jobs in {0} NOT done. Next update in {1} seconds'.format(step.func_name,interval))
+                wf_logger.info('all jobs in {0} NOT done. Next update in {1} seconds'.format(step.func_name,interval))
                 time.sleep(interval)
         
         

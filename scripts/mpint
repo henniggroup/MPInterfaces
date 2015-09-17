@@ -29,9 +29,10 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
 
-from mpinterfaces import get_struct_from_mp, Interface
+from mpinterfaces import get_struct_from_mp
 from mpinterfaces.calibrate import Calibrate, CalibrateSlab
-from mpinterfaces.utils import get_run_cmmnd
+from mpinterfaces.interface import Interface
+from mpinterfaces.utils import *
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -272,16 +273,6 @@ class mpint(object):
                 cal.run()
                 logger.info("the job ids for the job in the directory {0} are {1}".format(cal.job_dir_list, cal.job_ids))
 
-
-        def check(self, args):
-            cal_objs = [self.get_cal(args)]
-            done  = Calibrate.check_calcs(cal_objs)
-            if done:
-                print('\n all done ...')                
-            else:
-                print('\n not yet  ...')
-
-
         def get_energies(self, args):
             cal_objs = [self.get_cal(args)]
             for cal in cal_objs:
@@ -306,18 +297,18 @@ class mpint(object):
                        json_files.append(i)
                if json_files:
                   for jf in json_files:
-                      Calibrate.update_checkpoint(job_ids=args.jids,
-                                                  jfile = jf,
-                                                  incar=self.incar,
-                                                  kpoints=self.kpoints,
-                                                  que=self.qadapter)
+                      update_checkpoint(job_ids=args.jids,
+                                        jfile = jf,
+                                        incar=self.incar,
+                                        kpoints=self.kpoints,
+                                        que=self.qadapter)
                else:
-                  Calibrate.update_checkpoint(job_ids=args.jids, 
-					      incar=self.incar, 
-					      kpoints=self.kpoints, 
-					      que=self.qadapter)
+                  update_checkpoint(job_ids=args.jids, 
+				    incar=self.incar, 
+				    kpoints=self.kpoints, 
+				    que=self.qadapter)
 	    else:
-               Calibrate.update_checkpoint()
+                update_checkpoint()
 
         def main(self):
             m_description = """
@@ -332,8 +323,6 @@ input yaml file, naf.yaml, and runs the job i.e submits to the que.
 
 run modes supported:
   1. run : submits job to the que
-  2. check: check whether the job is finished or not
-  3. energies: get the energies and the optimum parameter values
 
 Everytime jobs are submitted or its sttaus queried, information such as job ids, 
 job folders etc are written to the log file 'mpint.log'. This makes it easier to
@@ -352,12 +341,6 @@ Note: this script submits jobs only to the PBS ques such as hipergator
 
             cal_parser = subparsers.add_parser('run', help='run the specified job') 
             cal_parser.set_defaults(func=self.run)
-
-            check_parser = subparsers.add_parser('check', help='check whether the calculation of the specified type for the given system is done or not')
-            check_parser.set_defaults(func=self.check)
-
-            check_parser = subparsers.add_parser('energies', help='get energies for the given system and calculation type')
-            check_parser.set_defaults(func=self.get_energies)
 
             update_parser = subparsers.add_parser('update', help='update/rerun the checkpoint file calibrate.json ')
 	    update_parser.add_argument('jids', type=str, nargs='*',

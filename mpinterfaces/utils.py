@@ -422,15 +422,3 @@ def partition_jobs(turn_knobs, max_jobs):
         turn_knobs_list.append(OrderedDict(ordered_list))
         name_list.append('_'.join([str(i),str(j)]))
     return turn_knobs_list, name_list
-
-        
-def create_step(turn_knobs, qadapter, job_cmd, job_dir,
-                name, incar=None, kpoints=None):
-    """
-    step wrapper
-    """
-    def step():
-        run_cal(turn_knobs, qadapter, job_cmd, job_dir,
-                name, incar=incar, kpoints=kpoints)
-        return [name+'.json']
-    return step

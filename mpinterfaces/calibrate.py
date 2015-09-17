@@ -789,7 +789,7 @@ class Calibrate(PMGSONable):
         return all_jobs
 
     @staticmethod    
-    def launch_daemon(steps, interval, handlers):
+    def launch_daemon(steps, interval, handlers=None):
         """
         run all the 'steps' in daemon mode
         checks job status every 'interval' seconds

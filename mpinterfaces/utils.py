@@ -437,3 +437,13 @@ def partition_jobs(turn_knobs, max_jobs):
         turn_knobs_list.append(OrderedDict(ordered_list))
         name_list.append('_'.join([str(i),str(j)]))
     return turn_knobs_list, name_list
+
+
+def get_logger(log_file_name):
+    loggr = logging.getLogger(log_file_name)
+    loggr.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
+    fh = logging.FileHandler(log_file_name+'.log', mode='a')
+    fh.setFormatter(formatter)
+    loggr.addHandler(fh)
+    return loggr

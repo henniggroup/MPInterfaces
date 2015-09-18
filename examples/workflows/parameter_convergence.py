@@ -3,7 +3,6 @@ from __future__ import division, unicode_literals, print_function
 import os
 import sys
 import time
-import logging
 from collections import OrderedDict
 
 from pymatgen.core.structure import Structure
@@ -14,15 +13,8 @@ from mpinterfaces import get_struct_from_mp
 from mpinterfaces.calibrate import Calibrate
 from mpinterfaces.utils import *
 
-# all the info/warnings/outputs redirected to the log file: log_file_name.log
-# set the log file name here
-log_file_name = 'Convg'
-logger = logging.getLogger(log_file_name)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
-fh = logging.FileHandler(log_file_name+'.log', mode='a')
-fh.setFormatter(formatter)
-logger.addHandler(fh)
+# all the info/warnings/outputs redirected to the log file: convg.log
+logger = get_logger('convg')
 
 incar_dict = dict(
     PREC = 'Accurate',

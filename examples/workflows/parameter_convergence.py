@@ -3,6 +3,7 @@ from __future__ import division, unicode_literals, print_function
 import os
 import sys
 import time
+import logging
 from collections import OrderedDict
 
 from pymatgen.core.structure import Structure
@@ -12,6 +13,13 @@ from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from mpinterfaces import get_struct_from_mp
 from mpinterfaces.calibrate import Calibrate
 from mpinterfaces.utils import *
+
+logger = logging.getLogger('Convg')
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
+fh = logging.FileHandler('Convg.log', mode='a')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 incar_dict = dict(
     PREC = 'Accurate',
@@ -27,7 +35,7 @@ incar = Incar.from_dict(incar_dict)
 # KPOINTS
 kpoints = Kpoints.monkhorst_automatic(kpts=(12, 12, 12))
 # QUE
-nprocs = 16
+nprocs = 8
 nnodes = 1
 mem='1000'
 walltime = '1:00:00'
@@ -88,7 +96,7 @@ def run_cal(turn_knobs, qadapter, job_cmd, job_dir, checkpoint_file,
                     turn_knobs=turn_knobs, qadapter=qadapter,
                     job_cmd = job_cmd, job_dir=job_dir,
                     Grid_type=Grid_type,functional=functional,
-                    checkpoint_file=checkpoint_file)
+                    checkpoint_file=checkpoint_file, cal_logger=logger)
     cal.setup()
     cal.run()
     
@@ -97,4 +105,4 @@ if __name__ == '__main__':
     get_structures()
     steps = [convergence, post_process]
     interval = 30
-    launch_daemon(steps,interval)
+    launch_daemon(steps,interval, ld_logger=logger)

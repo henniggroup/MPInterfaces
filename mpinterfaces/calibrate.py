@@ -79,7 +79,7 @@ class Calibrate(PMGSONable):
                  mappings_override = None, functional="PBE",
                  turn_knobs=OrderedDict( [ ('ENCUT',[]),
                                            ('KPOINTS',[])] ),
-                 checkpoint_file=None):
+                 checkpoint_file=None, cal_logger=None):
         """
         Calibrate constructor
 
@@ -151,6 +151,10 @@ class Calibrate(PMGSONable):
         self.mappings_override = mappings_override
         self.functional = functional
         self.checkpoint_file = checkpoint_file
+        if cal_logger:
+            self.logger = cal_logger
+        else:
+            self.logger = logger
     
     def setup(self):
         """
@@ -192,7 +196,7 @@ class Calibrate(PMGSONable):
                 else:
                     self.setup_incar_jobs(k, v)
         else:
-            logger.warn('knobs not set, running a single job')
+            self.logger.warn('knobs not set, running a single job')
             self.add_job(name='single_job', job_dir=self.job_dir)
 
     def setup_matrix_job(self):
@@ -225,13 +229,13 @@ class Calibrate(PMGSONable):
         if i == n-1 and i != 0:
             for val in self.turn_knobs[keys[i]]:
                 self.job_dir = job_dir + os.sep + self.val_to_name(val)
-                logger.info('setting jobs in the directory: '+self.job_dir)
-                self._setup(turn_knobs=dict([(keys[i], [val])]))            
+                self.logger.info('setting jobs in the directory: '+self.job_dir)
+                self._setup(turn_knobs=dict([(keys[i], [val])]))
                 self.add_job(name=job_dir, job_dir=self.job_dir)
         else:
             for val in self.turn_knobs[keys[i]]:
                 self.job_dir = job_dir + os.sep + self.val_to_name(val)
-                logger.info('setting jobs in the directory: '+self.job_dir)
+                self.logger.info('setting jobs in the directory: '+self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))
                 self.recursive_jobs(n,keys,i+1)
 
@@ -394,7 +398,6 @@ class Calibrate(PMGSONable):
             self.kpoints = Kpoints.automatic_linemode(divisions=kpoint,\
                            ibz=HighSymmKpath(self.poscar.structure))
         name = self.kpoint_to_name(kpoint, self.Grid_type)
-        logger.info('KPOINTS = '+name)
         job_dir = self.job_dir +os.sep+ self.key_to_name('KPOINTS') \
           + os.sep + name
         return job_dir
@@ -409,7 +412,7 @@ class Calibrate(PMGSONable):
         """
         if val_list:
             for val in val_list:
-                logger.info('setting INCAR parameter ' + param + ' = '\
+                self.logger.info('setting INCAR parameter ' + param + ' = '\
                             + str(val))
                 self.set_incar(param, val)
                 if not self.is_matrix:
@@ -417,7 +420,7 @@ class Calibrate(PMGSONable):
                         param + os.sep +  self.val_to_name(val)
                     self.add_job(name=job_dir, job_dir=job_dir)
         else:
-        	logger.warn('incar list empty')
+            self.logger.warn('incar list empty')
                     
             
     def setup_kpoints_jobs(self, kpoints_list = None):
@@ -431,7 +434,7 @@ class Calibrate(PMGSONable):
                 if not self.is_matrix:                     
                     self.add_job(name=job_dir, job_dir=job_dir)
         else:
-        	logger.warn('kpoints_list empty')
+            self.logger.warn('kpoints_list empty')
             
     def setup_poscar_jobs(self, scale_list=None, poscar_list=None):
         """
@@ -490,12 +493,13 @@ class Calibrate(PMGSONable):
         """
         vis = MPINTVaspInputSet(name, self.incar, self.poscar,
                                 self.potcar, self.kpoints,
-                                self.qadapter)
+                                self.qadapter, vis_logger=self.logger)
         #the job command can be overrridden in the run method
         job = MPINTVaspJob(self.job_cmd, name=name, final = True,
                            parent_job_dir=self.parent_job_dir,
                            job_dir=job_dir, vis=vis, auto_npar=False,
-                            auto_gamma=False, wait=self.wait)
+                            auto_gamma=False, wait=self.wait,
+                           vjob_logger = self.logger)
         self.job_dir_list.append(os.path.abspath(job_dir))
         self.jobs.append(job)
     
@@ -600,7 +604,7 @@ class CalibrateMolecule(Calibrate):
         
     def setup_kpoints_jobs(self, Grid_type = 'M',
                            kpoints_list = None, conv_step = 1):
-        logger.warn("Its a molecule ! no need for kpoint convergence")
+        self.logger.warn("Its a molecule ! no need for kpoint convergence")
         self.kpoints = Kpoints.monkhorst_automatic(kpts = [1,1,1])
         return
 
@@ -860,21 +864,3 @@ if __name__ == '__main__':
                          turn_knobs = turn_knobs )
     cal.setup()     
     cal.run(job_cmd)
-    #print(cal.job_ids)
-
-    
-    # to use the next after the calibrate jobs are done
-    #done = Calibrate.check_calcs([cal])  #
-    #get the knob responses
-    #cal.set_knob_responses()
-    #optimu knob responses
-    #cal.set_sorted_optimum_params()
-    #print(cal.sorted_response_to_knobs['ENCUT']['600.0'])
-    #print(cal.optimum_knob_responses)
-    #test enforce_cutoff
-    #setup relaxation jobs after optimum parameters are set
-    #cal.setup_relaxation_jobs([cal])
-    #inp_list = [ ['[[2,2,4]]', 10], ['[[2,2,5]]', 9.9],
-    #           ['[[2,2,6]]', 9.895], ['[[2,2,7]]', 9.888],
-    #['[[2,2,8]]', 9.879],]
-    #print(cal.enforce_cutoff(inp_list, delta_e=0.01))

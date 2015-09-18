@@ -38,13 +38,6 @@ sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
-wf_logger = logging.getLogger('workflow')
-wf_logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(levelname)s:%(asctime)s:%(message)s')
-fh = logging.FileHandler('workflow.log', mode='a')
-fh.setFormatter(formatter)
-wf_logger.addHandler(fh)
-
 
 def get_ase_slab(pmg_struct, hkl=(1,1,1), min_thick=10, min_vac=10):
     """
@@ -211,7 +204,7 @@ def get_job_state(job):
             output = sp.check_output(['qstat', '-i', job.job_id])
             state = output.rstrip('\n').split('\n')[-1].split()[-2]
         except:
-            print('Job {} not in the que'.format(job.job_id))
+            logger.info('Job {} not in the que'.format(job.job_id))
             state = "00" 
         ofname = "FW_job.out"
     #stampede, slurm
@@ -220,7 +213,8 @@ def get_job_state(job):
             output = sp.check_output(['squeue', '--job', job.job_id])
             state = output.rstrip('\n').split('\n')[-1].split()[-4]
         except:
-            print('Job {} not in the que'.format(job.job_id))
+            logger.info('Job {} not in the que.'.format(job.job_id))
+            logger.info('This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
             state = "00"             
         ofname = "vasp_job-"+str(job.job_id)+".out"
     #no batch system
@@ -314,12 +308,15 @@ def jobs_from_file(filename='calibrate.json'):
         return all_jobs
 
     
-def launch_daemon(steps, interval, handlers=None):
+def launch_daemon(steps, interval, handlers=None, ld_logger=None):
         """
         run all the 'steps' in daemon mode
         checks job status every 'interval' seconds
         also runs all the error handlers
         """
+        if ld_logger:
+            global logger
+            logger = ld_logger
         chkpt_files_prev = None
         for step in steps:
             chkpt_files = step(checkpoint_files=chkpt_files_prev)
@@ -337,30 +334,30 @@ def launch_daemon(steps, interval, handlers=None):
                         if j.final_energy:
                             done = done + [True]
                         elif state == 'R':
-                            wf_logger.info('job {} running'.format(j.job_id))
+                            logger.info('job {} running'.format(j.job_id))
                             done = done + [False]
                         elif state in ['C', 'CF', 'F', '00']:
-                            wf_logger.error('Job {0} in {1} cancelled or failed. State = {2}'.format(j.job_id, j.job_dir,state))
+                            logger.error('Job {0} in {1} cancelled or failed. State = {2}'.format(j.job_id, j.job_dir,state))
                             done = done + [False]
                             if handlers:
-                                wf_logger.info('Investigating ... ')
+                                logger.info('Investigating ... ')
                                 os.chdir(j.job_dir)
                                 for h in handlers:
                                     if ofname:
                                         h.output_filename = ofname
                                         if h.check():
-                                            wf_logger.error('Detected vasp errors {}'.format(h.errors))
+                                            logger.error('Detected vasp errors {}'.format(h.errors))
                                 os.chdir(j.parent_job_dir)
                         else:
-                            wf_logger.info('Job {0} pending. State = {1}'.format(j.job_id,state))
+                            logger.info('Job {0} pending. State = {1}'.format(j.job_id,state))
                             done = done + [False]
                 # test:
                 #done = [True, True]                            
                 if all(done):
-                    wf_logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))                                    
+                    logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))                                    
                     time.sleep(5)
                     break
-                wf_logger.info('all jobs in {0} NOT done. Next update in {1} seconds'.format(step.func_name,interval))
+                logger.info('all jobs in {0} NOT done. Next update in {1} seconds'.format(step.func_name,interval))
                 time.sleep(interval)
         
         
@@ -426,7 +423,7 @@ def partition_jobs(turn_knobs, max_jobs):
     max_key = turn_knobs.items()[max_index][0]
     partition = range(0,max_len,max(1,int(max_len/partition_size)))
     partition_1 = partition[1:]+[max_len]
-    print('{0} list of length {1} will be partitioned into {2} chunks'.format(max_key,max_len,len(partition)))
+    logger.info('{0} list of length {1} will be partitioned into {2} chunks'.format(max_key,max_len,len(partition)))
     turn_knobs_list = []
     name_list = []
     for i,j in zip(partition,partition_1):

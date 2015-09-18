@@ -41,7 +41,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
     create INCAR, POSCAR, POTCAR & KPOINTS files
     """
     def __init__(self, name, incar, poscar, potcar, kpoints,
-                 qadapter=None, **kwargs ):
+                 qadapter=None, vis_logger=None, **kwargs ):
         """
         default INCAR from config_dict
         
@@ -67,6 +67,10 @@ class MPINTVaspInputSet(DictVaspInputSet):
         #self.user_incar_settings = self.incar.as_dict()        
         DictVaspInputSet.__init__(self, name, config_dict,
                                    ediff_per_atom=False, **kwargs)
+        if vis_logger:
+            self.logger = vis_logger
+        else:
+            self.logger = logger
         
     def write_input(self, job_dir, make_dir_if_not_present=True,
                      write_cif=False):
@@ -78,7 +82,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         d = job_dir
         if make_dir_if_not_present and not os.path.exists(d):
             os.makedirs(d)
-        logger.info('writing inputset to : '+d)
+        self.logger.info('writing inputset to : '+d)
         self.incar.write_file(os.path.join(d, 'INCAR'))
         self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
@@ -100,6 +104,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
                  qadapter=qadapter, kwargs=self.extra )
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
+        d["logger"] = self.logger.name
         return d
 
     @classmethod
@@ -112,7 +117,9 @@ class MPINTVaspInputSet(DictVaspInputSet):
         if d["qadapter"] is not None:
             qadapter = CommonAdapter.from_dict(d["qadapter"])
         return MPINTVaspInputSet(d["name"], incar, poscar, potcar,
-                                 kpoints, qadapter, **d["kwargs"])
+                                 kpoints, qadapter, 
+                                 vis_logger = logging.getLogger(d["logger"]),
+                                 **d["kwargs"])
 
     
 class MPINTVaspJob(Job):
@@ -133,7 +140,8 @@ class MPINTVaspJob(Job):
                  final=True, gzipped=False, backup=False,
                  vis=None, auto_npar=True,
                  auto_gamma=True, settings_override=None,
-                 gamma_vasp_cmd=None, copy_magmom=False, wait=True):
+                 gamma_vasp_cmd=None, copy_magmom=False, wait=True,
+                 vjob_logger=None):
         self.job_cmd = job_cmd
         self.name = name
         self.output_file = output_file
@@ -151,6 +159,10 @@ class MPINTVaspJob(Job):
         self.gamma_vasp_cmd = gamma_vasp_cmd
         self.copy_magmom = copy_magmom
         self.wait = wait
+        if vjob_logger:
+            self.logger = vjob_logger
+        else:
+            self.logger = logger
 
     def setup(self):
         """
@@ -173,7 +185,7 @@ class MPINTVaspJob(Job):
         parent job directory
         """
         os.chdir(os.path.abspath(self.job_dir))
-        logger.info('running in : '+self.job_dir)
+        self.logger.info('running in : '+self.job_dir)
         p = None
         #if launching jobs via batch system
         if self.vis.qadapter is not None:
@@ -208,13 +220,13 @@ class MPINTVaspJob(Job):
         try:
             vasprun = MPINTVasprun(vasprun_file_path, parse_potcar_file=False)
             if vasprun.converged:
-                logger.info("job {0} in {1} converged".format(self.job_id, self.job_dir))
+                self.logger.info("job {0} in {1} converged".format(self.job_id, self.job_dir))
                 return vasprun.final_energy
             else:
-                logger.info("job {0} in {1} NOT converged".format(self.job_id, self.job_dir))
+                self.logger.info("job {0} in {1} NOT converged".format(self.job_id, self.job_dir))
                 return None
         except Exception as ex:
-            logger.info("error reading vasprun.xml, probably the job {0} in {1} is not done yet.".format(self.job_id, self.job_dir))
+            self.logger.info("error reading vasprun.xml, probably the job {0} in {1} is not done yet.".format(self.job_id, self.job_dir))
             return None
 
     def as_dict(self):
@@ -230,6 +242,7 @@ class MPINTVaspJob(Job):
                  copy_magmom=self.copy_magmom, wait=self.wait)
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
+        d["logger"] = self.logger.name
         return d
 
     @classmethod
@@ -248,7 +261,8 @@ class MPINTVaspJob(Job):
                             settings_override=d["settings_override"],
                             gamma_vasp_cmd=d["gamma_vasp_cmd"], 
                             copy_magmom=d["copy_magmom"], 
-                            wait=d["wait"])
+                            wait=d["wait"],
+                            vjob_logger = logging.getLogger(d["logger"]))
 
         
 class MPINTVaspErrors(ErrorHandler):

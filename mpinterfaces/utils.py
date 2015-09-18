@@ -320,8 +320,12 @@ def launch_daemon(steps, interval, handlers=None):
         checks job status every 'interval' seconds
         also runs all the error handlers
         """
+        chkpt_files_prev = None
         for step in steps:
-            chkpt_files = step()
+            chkpt_files = step(checkpoint_files=chkpt_files_prev)
+            chkpt_files_prev = chkpt_files
+            if not chkpt_files:
+                return None
             while True:
                 done = []            
                 for cf in chkpt_files:
@@ -360,7 +364,7 @@ def launch_daemon(steps, interval, handlers=None):
                 time.sleep(interval)
         
         
-def get_convergence_data(jfile):
+def get_convergence_data(jfile, params = ['ENCUT','KPOINTS']):
     """
     returns data dict in the following format
     {'Al':
@@ -370,7 +374,7 @@ def get_convergence_data(jfile):
      'W': ...
     }
 
-    Note: only ENCUT and KPOINTS
+    Note: processes only INCAR parmaters and KPOINTS
     """
     cutoff_jobs = jobs_from_file(jfile)
     data = {}
@@ -379,26 +383,32 @@ def get_convergence_data(jfile):
         poscar_file = os.path.join(jdir, 'POSCAR')
         struct_m = Structure.from_file(poscar_file)
         species = ''.join([tos.symbol for tos in struct_m.types_of_specie])
-        # energy / atom
         if data.get(species):
-            data[species]['ENCUT'].append([j.vis.incar['ENCUT'],j.final_energy/len(struct_m)])
-            data[species]['KPOINTS'].append([j.vis.kpoints.kpts,j.final_energy/len(struct_m)])
+            for p in params:
+                if j.vis.incar.get(p):
+                    data[species][p].append( [ j.vis.incar[p],
+                                               j.final_energy/len(struct_m) ] )
+                elif p == 'KPOINTS':
+                    data[species]['KPOINTS'].append( [ j.vis.kpoints.kpts,
+                                                       j.final_energy/len(struct_m) ] )
+                else:
+                    logger.warn('dont know how to parse the parameter {}'.format(p))
         else:
             data[species] = {}
-            data[species]['ENCUT'] = []
-            data[species]['KPOINTS'] = []
+            for p in params:
+                data[species][p] = []
+                data[species][p] = []
     return data    
 
 
-def get_opt_params(data, species, param='ENCUT'):
+def get_opt_params(data, species, param='ENCUT', ev_per_atom=1.0):
     """
     return optimum parameter
     default: 1 meV/atom
     """
     sorted_list = sorted(data[species][param], key=lambda x:x[1])
     sorted_array = np.array(sorted_list)
-    # 1meV/atom difference
-    consecutive_diff = np.abs(sorted_array[:-1,1] - sorted_array[1:,1] - 0.001)
+    consecutive_diff = np.abs(sorted_array[:-1,1] - sorted_array[1:,1] - ev_per_atom)
     min_index = np.argmin(consecutive_diff)
     return sorted_list[min_index][0]
     

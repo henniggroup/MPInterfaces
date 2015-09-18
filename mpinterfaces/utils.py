@@ -12,6 +12,7 @@ import time
 import subprocess as sp
 import logging
 import numpy as np
+from collections import OrderedDict
 
 from monty.json import MSONable, MontyEncoder, MontyDecoder
 from monty.serialization import loadfn, dumpfn

@@ -14,10 +14,13 @@ from mpinterfaces import get_struct_from_mp
 from mpinterfaces.calibrate import Calibrate
 from mpinterfaces.utils import *
 
-logger = logging.getLogger('Convg')
+# all the info/warnings/outputs redirected to the log file: log_file_name.log
+# set the log file name here
+log_file_name = 'Convg'
+logger = logging.getLogger(log_file_name)
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
-fh = logging.FileHandler('Convg.log', mode='a')
+fh = logging.FileHandler(log_file_name+'.log', mode='a')
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
@@ -73,13 +76,13 @@ def post_process(**kwargs):
     # parameters that need to be optimized
     params = ['ENCUT','KPOINTS']
     for chkfile in kwargs['checkpoint_files']:
-        print('processing {}'.format(chkfile))
+        logger.info('processing {}'.format(chkfile))
         conv_data = get_convergence_data(chkfile, params=params) 
         for k in conv_data.keys():
             for param in params:
                 optimum = get_opt_params(conv_data, k, param=param, 
                                          ev_per_atom=0.001)
-                print('For {0}, the  optimum {1} : {2}'.format(k, 
+                logger.info('For {0}, the  optimum {1} : {2}'.format(k, 
                                                                param, 
                                                                optimum))
     return None

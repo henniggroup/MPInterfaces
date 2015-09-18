@@ -63,10 +63,10 @@ def run_cal(turn_knobs, qadapter, job_cmd, job_dir, name,
     """
     setup and run calibrate job
     """
-    Calibrate.LOG_FILE = name+'.json'
     cal = Calibrate(incar, poscar, potcar, kpoints, 
                     turn_knobs=turn_knobs, qadapter=qadapter,
-                    job_cmd = job_cmd, job_dir=job_dir)
+                    job_cmd = job_cmd, job_dir=job_dir,
+                    checkpoint_file=name+'.json')
     cal.setup()
     cal.run()
 

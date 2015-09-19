@@ -5,15 +5,13 @@ This script demonstrates the creation of ligand interfaces and
 preoptimization screening of possible interfaces.
 """
 
-MAPI_KEY = MAPI_KEY
-
 import sys
 
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.operations import SymmOp
 
-from mpinterfaces import *
+from mpinterfaces.interface import Interface, Ligand
 import numpy as np 
 
 

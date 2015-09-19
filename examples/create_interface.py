@@ -16,9 +16,8 @@ import sys
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.vasp.inputs import Poscar
 
-from mpinterfaces import *
+from mpinterfaces.interface import Interface, Ligand
 
-MAPI_KEY = MAPI_KEY
  
 if __name__=='__main__':
     # PbS 100 surface with single hydrazine as ligand

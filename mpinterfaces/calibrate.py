@@ -497,8 +497,7 @@ class Calibrate(PMGSONable):
         #the job command can be overrridden in the run method
         job = MPINTVaspJob(self.job_cmd, name=name, final = True,
                            parent_job_dir=self.parent_job_dir,
-                           job_dir=job_dir, vis=vis, auto_npar=False,
-                            auto_gamma=False, wait=self.wait,
+                           job_dir=job_dir, vis=vis, wait=self.wait,
                            vjob_logger = self.logger)
         self.job_dir_list.append(os.path.abspath(job_dir))
         self.jobs.append(job)

@@ -121,31 +121,25 @@ class MPINTVaspInputSet(DictVaspInputSet):
                                  vis_logger = logging.getLogger(d["logger"]),
                                  **d["kwargs"])
 
-    
-class MPINTVaspJob(Job):
+
+class MPINTJob(Job):
     """
-    defines a vasp job i.e setup the required input files and 
+    defines a job i.e setup the required input files and 
     launch the job
     
     Args:
        job_cmd: a list, the command to be issued in each job_dir
                  eg: ['qsub', 'submit_job']
-       setup_dir: directory that has the setup files for creating the
-                   rest of the vasp inputs
        job_dir: the directory from which the jobs will be launched
     """
     def __init__(self, job_cmd, name='noname',output_file="job.out", 
-                 setup_dir='.',
                  parent_job_dir='.', job_dir='untitled', suffix="",
-                 final=True, gzipped=False, backup=False,
-                 vis=None, auto_npar=True,
-                 auto_gamma=True, settings_override=None,
-                 gamma_vasp_cmd=None, copy_magmom=False, wait=True,
+                 final=True, gzipped=False, backup=False, vis=None,
+                 auto_npar=True, settings_override=None, wait=True,
                  vjob_logger=None):
         self.job_cmd = job_cmd
         self.name = name
         self.output_file = output_file
-        self.setup_dir = setup_dir
         self.parent_job_dir = parent_job_dir
         self.job_dir = job_dir
         self.final = final
@@ -155,9 +149,6 @@ class MPINTVaspJob(Job):
         self.suffix = suffix
         self.settings_override = settings_override
         self.auto_npar = auto_npar
-        self.auto_gamma = auto_gamma
-        self.gamma_vasp_cmd = gamma_vasp_cmd
-        self.copy_magmom = copy_magmom
         self.wait = wait
         if vjob_logger:
             self.logger = vjob_logger
@@ -166,11 +157,7 @@ class MPINTVaspJob(Job):
 
     def setup(self):
         """
-        looks for the set up files(POSCAR, submit_job etc) in the 
-        setup_dir and uses those files to create the vasp input set 
-        in the job_dir.
-        The current setup looks only for the poscar file in the setup 
-        directory
+        write the input files to the job_dir
         """
         self.vis.write_input(self.job_dir)
         if self.backup:
@@ -215,31 +202,16 @@ class MPINTVaspJob(Job):
     def name(self):
          return self.__class__.__name__
 
-    def get_final_energy(self):
-        vasprun_file_path = self.job_dir + os.sep + 'vasprun.xml'
-        try:
-            vasprun = MPINTVasprun(vasprun_file_path, parse_potcar_file=False)
-            if vasprun.converged:
-                self.logger.info("job {0} in {1} converged".format(self.job_id, self.job_dir))
-                return vasprun.final_energy
-            else:
-                self.logger.info("job {0} in {1} NOT converged".format(self.job_id, self.job_dir))
-                return None
-        except Exception as ex:
-            self.logger.info("error reading vasprun.xml, probably the job {0} in {1} is not done yet.".format(self.job_id, self.job_dir))
-            return None
-
     def as_dict(self):
         d = dict(job_cmd=self.job_cmd, name=self.name, 
-                 output_file=self.output_file, setup_dir=self.setup_dir,
+                 output_file=self.output_file,
                  parent_job_dir=self.parent_job_dir, 
                  job_dir=self.job_dir, suffix=self.suffix, 
                  final=self.final, gzipped=self.gzipped, 
                  backup=self.backup, vis=self.vis.as_dict(), 
-                 auto_npar=self.auto_npar, auto_gamma=self.auto_gamma, 
+                 auto_npar=self.auto_npar,
                  settings_override=self.settings_override,
-                 gamma_vasp_cmd=self.gamma_vasp_cmd, 
-                 copy_magmom=self.copy_magmom, wait=self.wait)
+                 wait=self.wait)
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["logger"] = self.logger.name
@@ -250,19 +222,55 @@ class MPINTVaspJob(Job):
         vis = MontyDecoder().process_decoded(d["vis"])
         return MPINTVaspJob(d["job_cmd"], name=d["name"], 
                             output_file=d["output_file"], 
-                            setup_dir=d["setup_dir"],
                             parent_job_dir=d["parent_job_dir"], 
                             job_dir=d["job_dir"], 
                             suffix=d["suffix"], final=d["final"], 
                             gzipped=d["gzipped"], 
                             backup=d["backup"], vis=vis, 
                             auto_npar=d["auto_npar"], 
-                            auto_gamma=d["auto_gamma"], 
                             settings_override=d["settings_override"],
-                            gamma_vasp_cmd=d["gamma_vasp_cmd"], 
-                            copy_magmom=d["copy_magmom"], 
                             wait=d["wait"],
                             vjob_logger = logging.getLogger(d["logger"]))
+
+    
+class MPINTVaspJob(MPINTJob):
+    """
+    defines a vasp job i.e setup the required input files and 
+    launch the job
+    
+    Args:
+       job_cmd: a list, the command to be issued in each job_dir
+                 eg: ['qsub', 'submit_job']
+       job_dir: the directory from which the jobs will be launched
+    """
+    def __init__(self, job_cmd, name='noname',output_file="job.out", 
+                 parent_job_dir='.', job_dir='untitled', suffix="",
+                 final=True, gzipped=False, backup=False, vis=None,
+                 auto_npar=True, settings_override=None, wait=True,
+                 vjob_logger=None):
+        MPINTJob.__init__(self, job_cmd, name=name,
+                          output_file=output_file, 
+                          parent_job_dir=parent_job_dir,
+                          job_dir=job_dir, suffix=suffix,
+                          final=final, gzipped=gzipped,
+                          backup=backup, vis=vis, auto_npar=auto_npar,
+                          settings_override=settings_override,
+                          wait=wait, vjob_logger=vjob_logger)
+
+    def get_final_energy(self):
+        vasprun_file_path = self.job_dir + os.sep + 'vasprun.xml'
+        try:
+            vasprun = MPINTVasprun(vasprun_file_path,
+                                   parse_potcar_file=False)
+            if vasprun.converged:
+                self.logger.info("job {0} in {1} converged".format(self.job_id, self.job_dir))
+                return vasprun.final_energy
+            else:
+                self.logger.info("job {0} in {1} NOT converged".format(self.job_id, self.job_dir))
+                return None
+        except Exception as ex:
+            self.logger.info("error reading vasprun.xml, probably the job {0} in {1} is not done yet.".format(self.job_id, self.job_dir))
+            return None
 
         
 class MPINTVaspErrors(ErrorHandler):

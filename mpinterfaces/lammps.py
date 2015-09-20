@@ -1,7 +1,12 @@
 from __future__ import division, unicode_literals, print_function
 
+"""
+Calibrate LAMMPS jobs
+"""
+
 import os
 import sys
+import logging
 from collections import OrderedDict
 from re import compile as re_compile, IGNORECASE
 
@@ -9,38 +14,36 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.aseio import AseAtomsAdaptor
 from pymatgen.serializers.json_coders import PMGSONable
 
+from monty.json import MSONable, MontyEncoder, MontyDecoder
+
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
-from ase.calculators.lammpsrun import prism
+from ase.calculators.lammpsrun import LAMMPS, prism
 
 from mpinterfaces.instrument import MPINTJob
 from mpinterfaces.calibrate import Calibrate
 
 
-class MPINTLammps(PMGSONable):
-    def __init__(self, structure, parameters={}, label='mpintlmp',
-                 specorder=None, always_triclinic=False,
-                 no_data_file=False):
+class MPINTLammps(LAMMPS, PMGSONable):
+    """
+    setup LAMMPS for given structure and parameters
+    extends ase.calculators.lammpsrun.LAMMPS
+    """
+    def __init__(self, structure, parameters={},
+                 label='mpintlmp', specorder=None,
+                 always_triclinic=False, no_data_file=False):
+        LAMMPS.__init__(self, label=label,
+                        parameters=parameters,
+                        specorder=specorder, files=[],
+                        always_triclinic=always_triclinic,
+                        no_data_file=no_data_file)        
         self.structure = structure
         self.atoms = AseAtomsAdaptor().get_atoms(structure)
         self.label = label
         self.parameters = parameters
         self.specorder = specorder
         self.always_triclinic = always_triclinic
-        self.forces = None
         self.no_data_file = no_data_file
-        self._custom_thermo_args = ['step', 'temp', 'press', 'cpu',
-                                    'pxx', 'pyy', 'pzz', 'pxy', 'pxz',
-                                    'pyz','ke', 'pe', 'etotal',
-                                    'vol', 'lx', 'ly', 'lz', 'atoms']
-        self._custom_thermo_mark = ' '.join([x.capitalize() for x in
-                                             self._custom_thermo_args[0:3]])
-        # Match something which can be converted to a float
-        f_re = r'([+-]?(?:(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|nan|inf))'
-        n = len(self._custom_thermo_args)
-        self._custom_thermo_re = re_compile(r'^\s*' + r'\s+'.join([f_re]*n) + r'\s*$',
-                                            flags=IGNORECASE)
-        self.thermo_content = []
         
     def write_lammps_data(self, f):
         """
@@ -157,10 +160,16 @@ class MPINTLammps(PMGSONable):
             f.write('fix fix_nve all nve\n')
         if 'thermo_style' in parameters:
             f.write('thermo_style %s\n' % parameters['thermo_style'])
+        else:
+            f.write(('thermo_style custom %s\n') % (' '.join(self._custom_thermo_args)))
         if 'thermo_modify' in parameters:
             f.write('thermo_modify %s\n' % parameters['thermo_modify'])
+        else:
+            f.write('thermo_modify flush yes\n')
         if 'thermo' in parameters:
             f.write('thermo %s\n' % parameters['thermo'])
+        else:
+            f.write('thermo 1\n')            
         if 'minimize' in parameters:
             f.write('minimize %s\n' % parameters['minimize'])
         if 'run' in parameters:
@@ -171,7 +180,7 @@ class MPINTLammps(PMGSONable):
             f.write('dump %s\n' % parameters['dump'])
         else:
             f.write('dump dump_all all custom 1 %s id type x y z vx vy vz fx fy fz\n' % lammps_trj)            
-        f.write('print calculation_end\n')
+        f.write('print __end_of_ase_invoked_calculation__\n')
         f.write('log /dev/stdout\n') # Force LAMMPS to flush log
         f.close()
 
@@ -196,6 +205,9 @@ class MPINTLammps(PMGSONable):
 
     
 class MPINTLammpsInput(PMGSONable):
+    """
+    create inputs(data and input file) for LAMMPS
+    """
     def __init__(self, mplmp, qadapter=None, vis_logger=None):
         self.mplmp = mplmp
         if qadapter is not None:
@@ -208,6 +220,9 @@ class MPINTLammpsInput(PMGSONable):
             self.logger = logger
         
     def write_input(self, job_dir, make_dir_if_not_present=True):
+        """
+        write LAMMPS input set to job_dir
+        """
         d = job_dir
         if make_dir_if_not_present and not os.path.exists(d):
             os.makedirs(d)
@@ -251,13 +266,15 @@ class MPINTLammpsInput(PMGSONable):
             vis_logger = logging.getLogger(d["logger"]))
     
 
-class MPINTLammpsJob(MPINTJob):    
+class MPINTLammpsJob(MPINTJob):
+    """
+    Define LAMMPS job
+    """
     def __init__(self, job_cmd, name='mpintlmpjob',
                  output_file="job.out", parent_job_dir='.',
                  job_dir='untitled', final=True, gzipped=False,
-                 backup=False, vis=None,
-                 settings_override=None, wait=True,
-                 vjob_logger=None):
+                 backup=False, vis=None, settings_override=None,
+                 wait=True, vjob_logger=None):
         MPINTJob.__init__(self, job_cmd, name=name,
                           output_file=output_file, 
                           parent_job_dir=parent_job_dir,
@@ -267,8 +284,17 @@ class MPINTLammpsJob(MPINTJob):
                           settings_override=settings_override,
                           wait=wait, vjob_logger=vjob_logger)
 
-    def get_final_energy(self):
-        pass
+    def get_final_energy(self, lammps_log='log.lammps'):
+        try:
+            f = open('log.lammps','r')
+            self.vis.mplmp.read_lammps_log(lammps_log=f,
+                                           PotEng_first=False)
+            energy = self.vis.mplmp.thermo_content[-1]['pe']
+            f.close()            
+        except:
+            energy = None
+        print(energy)
+        return None
 
     def as_dict(self):
         d = dict(job_cmd=self.job_cmd,
@@ -287,21 +313,23 @@ class MPINTLammpsJob(MPINTJob):
     @classmethod
     def from_dict(cls, d):
         vis = MontyDecoder().process_decoded(d["vis"])
-        return MPINTVaspJob(d["job_cmd"],
-                            output_file=d["output_file"], 
-                            parent_job_dir=d["parent_job_dir"], 
-                            job_dir=d["job_dir"], 
-                            final=d["final"], 
-                            gzipped=d["gzipped"], 
-                            backup=d["backup"], vis=vis, 
-                            settings_override=d["settings_override"],
-                            wait=d["wait"],
-                            vjob_logger = logging.getLogger(d["logger"]))
+        return MPINTLammpsJob(d["job_cmd"],
+                              output_file=d["output_file"], 
+                              parent_job_dir=d["parent_job_dir"], 
+                              job_dir=d["job_dir"], 
+                              final=d["final"], 
+                              gzipped=d["gzipped"], 
+                              backup=d["backup"], vis=vis, 
+                              settings_override=d["settings_override"],
+                              wait=d["wait"],
+                              vjob_logger = logging.getLogger(d["logger"]))
     
 
 class CalibrateLammps(Calibrate):
-    def __init__(self, parameters,
-                 parent_job_dir='.',
+    """
+    Defines LAMMPS workflow consisting of LAMMPS jobs
+    """
+    def __init__(self, parameters, parent_job_dir='.',
                  job_dir='./cal_lammps', qadapter=None,
                  job_cmd='qsub', wait=True,
                  turn_knobs=OrderedDict([('STRUCTURES',[]),
@@ -317,26 +345,57 @@ class CalibrateLammps(Calibrate):
                            cal_logger=cal_logger)
         
     def add_job(self, mplmp, name='noname', job_dir='.'):
-       lmp_inp =MPINTLammpsInput(mplmp, self.qadapter, self.logger)
-       job = MPINTLammpsJob(self.job_cmd, name=name, final = True,
-                            parent_job_dir=self.parent_job_dir,
-                            job_dir=job_dir, vis=lmp_inp,
-                            wait=self.wait,
-                            vjob_logger = self.logger)
-       self.jobs.append(job)
+        """
+        add lammps job given MPINTLammps object
+        """
+        lmp_inp =MPINTLammpsInput(mplmp, self.qadapter, self.logger)
+        job = MPINTLammpsJob(self.job_cmd, name=name, final = True,
+                             parent_job_dir=self.parent_job_dir,
+                             job_dir=job_dir, vis=lmp_inp,
+                             wait=self.wait, vjob_logger = self.logger)
+        self.jobs.append(job)
         
     def setup(self):
+        """
+        setup workflow for the given turn_knobs i.e create jobs
+        for each knob settings
+        supported keys: 
+             STRUCTURES: list of pymatgen structure objects
+             PARAMS: list of lammps parameter dictionaries
+             PAIR_COEFFS: list of pair coefficient files
+        Note: If PARAMS specified then PAIR_COEFFS skipped
+        """
         for i,structure in enumerate(self.turn_knobs['STRUCTURES']):
-            for j,pcf in enumerate(self.turn_knobs['PAIR_COEFFS']):
-                label = '_'.join([structure.formula.replace(' ',''),
-                                  str(i), str(j)])
-                lmp = self.get_lmp(structure, pcf, label)
-                job_dir  = self.job_dir+ os.sep + lmp.label
-                self.add_job(lmp, name=lmp.label, job_dir=job_dir)
-
+            if 'PARAMS' in self.turn_knobs.keys():
+                for j,param in enumerate(self.turn_knobs['PARAMS']):
+                    label = '_'.join([
+                        structure.formula.replace(' ',''), str(i)])
+                    lmp =  MPINTLammps(structure,
+                                       parameters=param,
+                                       label=label)
+                    job_dir  = self.job_dir+ os.sep + 'PARAMS' + os.sep + label
+                    self.add_job(lmp, name=label, job_dir=job_dir)
+            elif 'PAIR_COEFFS' in self.turn_knobs.keys():
+                for j,pcf in enumerate(self.turn_knobs['PAIR_COEFFS']):
+                    label = '_'.join([
+                        structure.formula.replace(' ',''),
+                        str(i), str(j)])
+                    lmp = self.get_lmp(structure, pcf, label)
+                    job_dir  = self.job_dir+ os.sep + 'PAIR_COEFFS' + os.sep + lmp.label
+                    self.add_job(lmp, name=lmp.label, job_dir=job_dir)
+            else:
+                    label = '_'.join([
+                        structure.formula.replace(' ',''), str(i)])
+                    lmp =  MPINTLammps(structure,
+                                       parameters=self.parameters,
+                                       label=label)
+                    job_dir  = self.job_dir+ os.sep + label
+                    self.add_job(lmp, name=label, job_dir=job_dir)
+                
     def get_lmp(self, structure, pair_coeff_file, label):
         """
-        return MPINTlammps object
+        return MPINTlammps object for the given structure and
+        pair coefficent file
         """
         types_of_species = ' '.join( [tos.symbol
                                       for tos in structure.types_of_specie] )

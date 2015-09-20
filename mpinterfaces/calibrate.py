@@ -588,8 +588,7 @@ class CalibrateMolecule(Calibrate):
                  job_cmd='qsub', wait=True,
                  mappings_override = None, functional="PBE",
                  turn_knobs={'ENCUT':[],'KPOINTS':[]},
-                 checkpoint_file=None):
-        
+                 checkpoint_file=None, cal_logger=None):
         Calibrate.__init__(self, incar, poscar, potcar, kpoints, 
                            system=system, is_matrix = is_matrix, 
                            Grid_type = Grid_type,
@@ -599,7 +598,8 @@ class CalibrateMolecule(Calibrate):
                            mappings_override = mappings_override,
                            functional = functional,
                            turn_knobs = turn_knobs,
-                           checkpoint_file=checkpoint_file)
+                           checkpoint_file=checkpoint_file,
+                           cal_logger=cal_logger)
         
     def setup_kpoints_jobs(self, Grid_type = 'M',
                            kpoints_list = None, conv_step = 1):
@@ -621,8 +621,7 @@ class CalibrateBulk(Calibrate):
                  job_cmd='qsub', wait=True,
                  mappings_override = None, functional="PBE",
                  turn_knobs={'ENCUT':[],'KPOINTS':[]},
-                 checkpoint_file=None): 
-            
+                 checkpoint_file=None, cal_logger=None): 
         Calibrate.__init__(self, incar, poscar, potcar, kpoints,
                            system=system, is_matrix = is_matrix,
                            Grid_type = Grid_type,
@@ -632,7 +631,8 @@ class CalibrateBulk(Calibrate):
                            mappings_override = mappings_override,
                            functional = functional,
                            turn_knobs = OrderedDict(turn_knobs),
-                           checkpoint_file=checkpoint_file)
+                           checkpoint_file=checkpoint_file,
+                           cal_logger=cal_logger)
         
 
 class CalibrateSlab(Calibrate):
@@ -645,7 +645,8 @@ class CalibrateSlab(Calibrate):
                  qadapter=None, job_cmd='qsub', wait=True,
                  mappings_override = None, functional="PBE",
                  turn_knobs={'VACUUM':[],'THICKNESS':[]},
-                 from_ase=False, checkpoint_file=None):
+                 from_ase=False, checkpoint_file=None,
+                 cal_logger=None):
         self.from_ase = from_ase
         self.is_matrix = is_matrix
         self.system = system
@@ -660,7 +661,8 @@ class CalibrateSlab(Calibrate):
                            mappings_override = mappings_override,
                            functional = functional,
                            turn_knobs = turn_knobs,
-                           checkpoint_file=checkpoint_file)
+                           checkpoint_file=checkpoint_file,
+                           cal_logger=cal_logger)
 
     def slab_setup(self, turn_knobs=None):
         """
@@ -776,7 +778,8 @@ class CalibrateInterface(CalibrateSlab):
                  qadapter=None, job_cmd='qsub', wait=True,
                  mappings_override = None, functional="PBE",
                  turn_knobs={'VACUUM':[],'THICKNESS':[]},
-                 from_ase=False, checkpoint_file=None):
+                 from_ase=False, checkpoint_file=None,
+                 cal_logger=None):
         CalibrateSlab.__init__(self, incar, poscar, potcar, kpoints, 
                                system=system, is_matrix = is_matrix, 
                                Grid_type = Grid_type,
@@ -787,7 +790,8 @@ class CalibrateInterface(CalibrateSlab):
                                functional = functional,
                                turn_knobs = turn_knobs,
                                from_ase=from_ase,
-                               checkpoint_file=checkpoint_file)
+                               checkpoint_file=checkpoint_file,
+                               cal_logger=cal_logger)
         self.interface_setup(turn_knobs=turn_knobs)        
 
     def interface_setup(self, turn_knobs=None):

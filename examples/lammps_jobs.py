@@ -8,11 +8,11 @@ from mpinterfaces import get_struct_from_mp
 from mpinterfaces.lammps import MPINTLammps, CalibrateLammps
 from mpinterfaces.utils import get_run_cmmnd
 
-# list of structures
+# list of structures from materialsproject
 structures = get_struct_from_mp('ZnO', all_structs=True)
 # scale the structures
+scell_size = 12
 for s in structures:
-    scell_size = 12
     a, b, c = s.lattice.abc
     s.make_supercell([int(scell_size/a),
                       int(scell_size/b),
@@ -24,15 +24,15 @@ parameters = {'atom_style': 'charge',
               'fix':['fix_nve all nve',
                      '1 all box/relax aniso 0.0 vmax 0.001',
                      '1a all qeq/comb 1 0.0001 file fq.out'] }
-# pair coefficient file
-pair_coeff_file = os.path.join(os.getcwd(), "ffield.comb3")
-#set jobs for the list of MPINTLammps objects
+# list of pair coefficient files
+pair_coeff_files = [os.path.join(os.getcwd(), "ffield.comb3")]
+# set jobs for the list of MPINTLammps objects
 turn_knobs = OrderedDict(
     [
         ('STRUCTURES', structures),
-        ('PAIR_COEFFS', [pair_coeff_file])
-    ])
-#job directory and run settings
+        ('PAIR_COEFFS', pair_coeff_files)
+    ] )
+# job directory and run settings
 job_dir = 'lammps_job'
 nprocs = 8
 nnodes = 1

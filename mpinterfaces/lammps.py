@@ -11,7 +11,7 @@ from collections import OrderedDict
 from re import compile as re_compile, IGNORECASE
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.aseio import AseAtomsAdaptor
+from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.serializers.json_coders import PMGSONable
 
 from monty.json import MSONable, MontyEncoder, MontyDecoder
@@ -44,6 +44,9 @@ class MPINTLammps(LAMMPS, PMGSONable):
         self.specorder = specorder
         self.always_triclinic = always_triclinic
         self.no_data_file = no_data_file
+        self.charges = None
+        if 'charges' in self.parameters:
+            self.charges = self.parameters['charges']
         
     def write_lammps_data(self, f):
         """
@@ -55,7 +58,7 @@ class MPINTLammps(LAMMPS, PMGSONable):
         n_atoms = len(symbols)
         f.write('%d \t atoms \n' % n_atoms)
         if self.specorder is None:
-            species = sorted(set(symbols))
+            species = [tos.symbol for tos in self.structure.types_of_specie]
         else:
             species = self.specorder
         n_atom_types = len(species)
@@ -71,10 +74,14 @@ class MPINTLammps(LAMMPS, PMGSONable):
         f.write('Atoms \n\n')
         for i, r in enumerate(map(p.pos_to_lammps_str,
                                   self.atoms.get_positions())):
+            c = 0.0
+            if self.charges:
+                c = self.charges[symbols[i]]
             s = species.index(symbols[i]) + 1
             if 'atom_style' in self.parameters:
                 if self.parameters['atom_style'] == 'charge':
-                    f.write('%6d %3d %6f %s %s %s\n' % ((i+1, s, 0.0)+tuple(r)))
+                    
+                    f.write('%6d %3d %6f %s %s %s\n' % ((i+1, s, c)+tuple(r)))
                 else:
                     f.write('%6d %3d %s %s %s\n' % ((i+1, s)+tuple(r)))
         if self.atoms.get_velocities() is not None:
@@ -123,10 +130,8 @@ class MPINTLammps(LAMMPS, PMGSONable):
                          'side in units box\n') % (xhi, yhi, zhi))
             symbols = self.atoms.get_chemical_symbols()
             if self.specorder is None:
-                # By default, atom types in alphabetic order
-                species = sorted(set(symbols))
+                species = [tos.symbol for tos in self.structure.types_of_specie]
             else:
-                # By request, specific atom type ordering
                 species = self.specorder
             n_atom_types = len(species)
             species_i = dict([(s,i+1) for i,s in enumerate(species)])

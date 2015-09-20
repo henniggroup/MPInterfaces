@@ -19,6 +19,7 @@ for s in structures:
                       int(scell_size/c)])
 # lammps input paramaters    
 parameters = {'atom_style': 'charge',
+              'charges': {'Zn':2, 'O':-2},
               'pair_style' : 'comb3 polar_off',
               'minimize':'1.0e-13  1.0e-20  1000  10000',
               'fix':['fix_nve all nve',

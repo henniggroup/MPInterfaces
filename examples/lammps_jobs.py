@@ -20,25 +20,27 @@ for s in structures:
 # lammps input paramaters    
 parameters = {'atom_style': 'charge',
               'charges': {'Zn':2, 'O':-2},
-              'pair_style' : 'comb3 polar_off',
               'minimize':'1.0e-13  1.0e-20  1000  10000',
               'fix':['fix_nve all nve',
                      '1 all box/relax aniso 0.0 vmax 0.001',
                      '1a all qeq/comb 1 0.0001 file fq.out'] }
+# list of pair styles
+pair_styles = ['comb3 polar_off']
 # list of pair coefficient files
 pair_coeff_files = [os.path.join(os.getcwd(), "ffield.comb3")]
-# parameters tuned: structures and pair coefficients
+# parameters tuned: structures, pair styles and  pair coefficients
 turn_knobs = OrderedDict(
     [
         ('STRUCTURES', structures),
+        ('PAIR_STYLES', pair_styles),
         ('PAIR_COEFFS', pair_coeff_files)
     ] )
 # job directory and run settings
 job_dir = 'lammps_job'
-nprocs = 8
+nprocs = 4
 nnodes = 1
-walltime = '00:30:00'
-mem = 1000
+walltime = '00:15:00'
+mem = 500
 job_bin = '/home/km468/Software/lammps/src/lmp_ufhpc < inp'
 qadapter, job_cmd = get_run_cmmnd(nnodes=nnodes, nprocs=nprocs,
                                   walltime=walltime,

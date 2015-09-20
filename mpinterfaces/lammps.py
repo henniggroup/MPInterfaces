@@ -58,7 +58,8 @@ class MPINTLammps(LAMMPS, PMGSONable):
         n_atoms = len(symbols)
         f.write('%d \t atoms \n' % n_atoms)
         if self.specorder is None:
-            species = [tos.symbol for tos in self.structure.types_of_specie]
+            species = [tos.symbol
+                       for tos in self.structure.types_of_specie]
         else:
             species = self.specorder
         n_atom_types = len(species)
@@ -81,7 +82,8 @@ class MPINTLammps(LAMMPS, PMGSONable):
             if 'atom_style' in self.parameters:
                 if self.parameters['atom_style'] == 'charge':
                     
-                    f.write('%6d %3d %6f %s %s %s\n' % ((i+1, s, c)+tuple(r)))
+                    f.write('%6d %3d %6f %s %s %s\n' %
+                            ((i+1, s, c)+tuple(r)) )
                 else:
                     f.write('%6d %3d %s %s %s\n' % ((i+1, s)+tuple(r)))
         if self.atoms.get_velocities() is not None:
@@ -90,7 +92,8 @@ class MPINTLammps(LAMMPS, PMGSONable):
                 f.write('%6d %s %s %s\n' % ((i+1,)+tuple(v)))
         f.close()
 
-    def write_lammps_in(self, lammps_in=None, lammps_trj=None, lammps_data=None):
+    def write_lammps_in(self, lammps_in=None, lammps_trj=None,
+                        lammps_data=None):
         """
         write lammps input file
         from ase with custom modifications
@@ -109,13 +112,14 @@ class MPINTLammps(LAMMPS, PMGSONable):
         if 'boundary' in parameters:
             f.write('boundary %s \n' % parameters['boundary'])
         else:
-            f.write('boundary %c %c %c \n' % tuple('sp'[x] for x in pbc))
+            f.write('boundary %c %c %c \n' %
+                    tuple('sp'[x] for x in pbc))
         f.write('atom_modify sort 0 0.0 \n')
         for key in ('neighbor' ,'newton'):
             if key in parameters:
                 f.write('%s %s \n' % (key, parameters[key]))
         f.write('\n')
-        # If self.no_lammps_data,
+        # If no_data_file,
         # write the simulation box and the atoms
         if self.no_data_file:
             p = self.prism
@@ -137,8 +141,8 @@ class MPINTLammps(LAMMPS, PMGSONable):
             species_i = dict([(s,i+1) for i,s in enumerate(species)])
             f.write('create_box %i asecell\n' % n_atom_types)
             for s, pos in zip(symbols, self.atoms.get_positions()):
-                f.write('create_atoms %i single %s %s %s units box\n' % \
-                            ((species_i[s],)+p.pos_to_lammps_fold_str(pos)))
+                f.write('create_atoms %i single %s %s %s units box\n'%
+                        ((species_i[s],)+p.pos_to_lammps_fold_str(pos)))
         else:
             f.write('read_data %s\n' % lammps_data)
         # interaction
@@ -166,7 +170,8 @@ class MPINTLammps(LAMMPS, PMGSONable):
         if 'thermo_style' in parameters:
             f.write('thermo_style %s\n' % parameters['thermo_style'])
         else:
-            f.write(('thermo_style custom %s\n') % (' '.join(self._custom_thermo_args)))
+            f.write(('thermo_style custom %s\n') %
+                    (' '.join(self._custom_thermo_args)))
         if 'thermo_modify' in parameters:
             f.write('thermo_modify %s\n' % parameters['thermo_modify'])
         else:
@@ -330,7 +335,8 @@ class MPINTLammpsJob(MPINTJob):
                               backup=d["backup"], vis=vis, 
                               settings_override=d["settings_override"],
                               wait=d["wait"],
-                              vjob_logger = logging.getLogger(d["logger"]))
+                              vjob_logger = logging.getLogger(
+                                  d["logger"]))
     
 
 class CalibrateLammps(Calibrate):
@@ -370,8 +376,10 @@ class CalibrateLammps(Calibrate):
         supported keys: 
              STRUCTURES: list of pymatgen structure objects
              PARAMS: list of lammps parameter dictionaries
+             PAIR_STYLES: list of pair styles
              PAIR_COEFFS: list of pair coefficient files
-        Note: If PARAMS specified then PAIR_COEFFS skipped
+        Note: If PARAMS specified then PAIR_STYLES & PAIR_COEFFS 
+              skipped
         """
         for i,structure in enumerate(self.turn_knobs['STRUCTURES']):
             if 'PARAMS' in self.turn_knobs.keys():
@@ -381,16 +389,23 @@ class CalibrateLammps(Calibrate):
                     lmp =  MPINTLammps(structure,
                                        parameters=param,
                                        label=label)
-                    job_dir  = self.job_dir+ os.sep + 'PARAMS' + os.sep + label
+                    job_dir  = self.job_dir+ os.sep + 'PARAMS' + \
+                               os.sep + label
                     self.add_job(lmp, name=label, job_dir=job_dir)
-            elif 'PAIR_COEFFS' in self.turn_knobs.keys():
-                for j,pcf in enumerate(self.turn_knobs['PAIR_COEFFS']):
-                    label = '_'.join([
-                        structure.formula.replace(' ',''),
-                        str(i), str(j)])
-                    lmp = self.get_lmp(structure, pcf, label)
-                    job_dir  = self.job_dir+ os.sep + 'PAIR_COEFFS' + os.sep + lmp.label
-                    self.add_job(lmp, name=lmp.label, job_dir=job_dir)
+            elif 'PAIR_STYLES' in self.turn_knobs.keys():
+                for j,ps in enumerate(self.turn_knobs['PAIR_STYLES']):
+                    self.parameters['pair_style'] = ps
+                    for k,pcf in enumerate(self.turn_knobs['PAIR_COEFFS']):
+                        label = '_'.join([
+                            structure.formula.replace(' ',''),
+                            str(i), str(k)])
+                        lmp = self.get_lmp(structure, pcf, label)
+                        job_dir  = self.job_dir+ os.sep + \
+                                   'PAIR_STYLES' + os.sep + \
+                                   '_'.join(ps.split()) + os.sep +\
+                                   lmp.label
+                        self.add_job(lmp, name=lmp.label,
+                                     job_dir=job_dir)
             else:
                     label = '_'.join([
                         structure.formula.replace(' ',''), str(i)])

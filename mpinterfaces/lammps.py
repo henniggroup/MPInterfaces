@@ -285,16 +285,19 @@ class MPINTLammpsJob(MPINTJob):
                           wait=wait, vjob_logger=vjob_logger)
 
     def get_final_energy(self, lammps_log='log.lammps'):
+        """
+        return the final total energy
+        """
+        energy = None
         try:
-            f = open('log.lammps','r')
+            f = open(os.path.join(self.job_dir,lammps_log),'r')
             self.vis.mplmp.read_lammps_log(lammps_log=f,
                                            PotEng_first=False)
-            energy = self.vis.mplmp.thermo_content[-1]['pe']
+            energy = self.vis.mplmp.thermo_content[-1]['etotal']
             f.close()            
         except:
             energy = None
-        print(energy)
-        return None
+        return energy
 
     def as_dict(self):
         d = dict(job_cmd=self.job_cmd,

@@ -2,7 +2,14 @@ from __future__ import division, unicode_literals, print_function
 
 import os
 import sys
+from collections import OrderedDict
 from re import compile as re_compile, IGNORECASE
+
+from pymatgen.core.structure import Structure
+from pymatgen.io.aseio import AseAtomsAdaptor
+from pymatgen.serializers.json_coders import PMGSONable
+
+from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from ase.calculators.lammpsrun import prism
 
@@ -10,11 +17,12 @@ from mpinterfaces.instrument import MPINTJob
 from mpinterfaces.calibrate import Calibrate
 
 
-class MPINTLammps(object):
-    def __init__(self, atoms, parameters={}, label='mpintlmp',
+class MPINTLammps(PMGSONable):
+    def __init__(self, structure, parameters={}, label='mpintlmp',
                  specorder=None, always_triclinic=False,
                  no_data_file=False):
-        self.atoms = atoms.copy()
+        self.structure = structure
+        self.atoms = AseAtomsAdaptor().get_atoms(structure)
         self.label = label
         self.parameters = parameters
         self.specorder = specorder
@@ -166,12 +174,28 @@ class MPINTLammps(object):
         f.write('print calculation_end\n')
         f.write('log /dev/stdout\n') # Force LAMMPS to flush log
         f.close()
-            
-    def run(self):
-        pass
+
+    def as_dict(self):
+        d = dict(structure=self.structure.as_dict(),
+                 parameters=self.parameters, label=self.label,
+                 specorder=self.specorder,
+                 always_triclinic=self.always_triclinic,
+                 no_data_file=self.no_data_file)
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+        
+    @classmethod
+    def from_dict(cls, d):
+        structure = Structure.from_dict(d["structure"])
+        return MPINTLammps(structure, parameters=d["parameters"],
+                           label=d["label"],
+                           specorder=d["specorder"],
+                           always_triclinic=d["always_triclinic"],
+                           no_data_file=d["no_data_file"])
 
     
-class MPINTLammpsInput(object):
+class MPINTLammpsInput(PMGSONable):
     def __init__(self, mplmp, qadapter=None, vis_logger=None):
         self.mplmp = mplmp
         if qadapter is not None:
@@ -210,7 +234,7 @@ class MPINTLammpsInput(object):
         qadapter = None
         if self.qadapter:
             qadapter = self.qadapter.to_dict()
-        d = dict(qadapter=qadapter)
+        d = dict(qadapter=qadapter, mplmp=self.mplmp.as_dict())
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["logger"] = self.logger.name
@@ -222,6 +246,7 @@ class MPINTLammpsInput(object):
         if d["qadapter"] is not None:
             qadapter = CommonAdapter.from_dict(d["qadapter"])
         return MPINTLammpsInput(
+            MPINTLammps.from_dict(d["mplmp"]),
             qadapter, 
             vis_logger = logging.getLogger(d["logger"]))
     
@@ -229,30 +254,60 @@ class MPINTLammpsInput(object):
 class MPINTLammpsJob(MPINTJob):    
     def __init__(self, job_cmd, name='mpintlmpjob',
                  output_file="job.out", parent_job_dir='.',
-                 job_dir='untitled', suffix="",
-                 final=True, gzipped=False, backup=False, vis=None,
-                 auto_npar=True, settings_override=None, wait=True,
+                 job_dir='untitled', final=True, gzipped=False,
+                 backup=False, vis=None,
+                 settings_override=None, wait=True,
                  vjob_logger=None):
         MPINTJob.__init__(self, job_cmd, name=name,
                           output_file=output_file, 
                           parent_job_dir=parent_job_dir,
-                          job_dir=job_dir, suffix=suffix,
+                          job_dir=job_dir,
                           final=final, gzipped=gzipped,
-                          backup=backup, vis=vis, auto_npar=auto_npar,
+                          backup=backup, vis=vis,
                           settings_override=settings_override,
                           wait=wait, vjob_logger=vjob_logger)
 
     def get_final_energy(self):
         pass
 
+    def as_dict(self):
+        d = dict(job_cmd=self.job_cmd,
+                 output_file=self.output_file,
+                 parent_job_dir=self.parent_job_dir, 
+                 job_dir=self.job_dir, final=self.final,
+                 gzipped=self.gzipped, backup=self.backup,
+                 vis=self.vis.as_dict(), 
+                 settings_override=self.settings_override,
+                 wait=self.wait)
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["logger"] = self.logger.name
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        vis = MontyDecoder().process_decoded(d["vis"])
+        return MPINTVaspJob(d["job_cmd"],
+                            output_file=d["output_file"], 
+                            parent_job_dir=d["parent_job_dir"], 
+                            job_dir=d["job_dir"], 
+                            final=d["final"], 
+                            gzipped=d["gzipped"], 
+                            backup=d["backup"], vis=vis, 
+                            settings_override=d["settings_override"],
+                            wait=d["wait"],
+                            vjob_logger = logging.getLogger(d["logger"]))
+    
 
 class CalibrateLammps(Calibrate):
-    def __init__(self, 
+    def __init__(self, parameters,
                  parent_job_dir='.',
                  job_dir='./cal_lammps', qadapter=None,
                  job_cmd='qsub', wait=True,
-                 turn_knobs={'LMPS':[]},
+                 turn_knobs=OrderedDict([('STRUCTURES',[]),
+                                         ('PAIR_COEFFS',[])]),
                  checkpoint_file=None, cal_logger=None):
+        self.parameters = parameters
         Calibrate.__init__(self, None, None, None, None,
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
@@ -271,6 +326,51 @@ class CalibrateLammps(Calibrate):
        self.jobs.append(job)
         
     def setup(self):
-        for lmp in self.turn_knobs['LMPS']:
-            job_dir  = self.job_dir+ os.sep + lmp.label
-            self.add_job(lmp, name=lmp.label, job_dir=job_dir)
+        for i,structure in enumerate(self.turn_knobs['STRUCTURES']):
+            for j,pcf in enumerate(self.turn_knobs['PAIR_COEFFS']):
+                label = '_'.join([structure.formula.replace(' ',''),
+                                  str(i), str(j)])
+                lmp = self.get_lmp(structure, pcf, label)
+                job_dir  = self.job_dir+ os.sep + lmp.label
+                self.add_job(lmp, name=lmp.label, job_dir=job_dir)
+
+    def get_lmp(self, structure, pair_coeff_file, label):
+        """
+        return MPINTlammps object
+        """
+        types_of_species = ' '.join( [tos.symbol
+                                      for tos in structure.types_of_specie] )
+        atomic_mass = [str(i+1)+' '+tos.atomic_mass.__repr__()
+                       for i,tos in enumerate(structure.types_of_specie) ]
+        self.parameters['pair_coeff'] = ['* * {0} {1}'.format(pair_coeff_file, types_of_species)]
+        self.parameters['mass'] = atomic_mass
+        return MPINTLammps(structure, parameters=self.parameters,
+                           label=label)
+            
+    def as_dict(self):
+        qadapter = None
+        system = None
+        if self.qadapter:
+            qadapter = self.qadapter.to_dict()
+        if self.system is not None:
+            system = self.system
+        d = dict(
+                 parent_job_dir=self.parent_job_dir,
+                 job_dir=self.job_dir,
+                 qadapter=qadapter, job_cmd=self.job_cmd,
+                 wait=self.wait,
+                 turn_knobs=self.turn_knobs,
+                 job_ids = self.job_ids)
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+        
+    @classmethod
+    def from_dict(cls, d):
+        cal =   CalibrateLammps(parent_job_dir=d["parent_job_dir"], 
+                                job_dir=d["job_dir"],
+                                qadapter=d.get("qadapter"), 
+                                job_cmd=d["job_cmd"], wait=d["wait"],
+                                turn_knobs=d["turn_knobs"])
+        cal.job_ids = d["job_ids"]
+        return cal

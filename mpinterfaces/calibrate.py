@@ -28,7 +28,7 @@ import re
 import time
 import datetime
 from itertools import product
-from collections import Counter, OrderedDict
+from collections import OrderedDict
 import logging
 
 import numpy as np
@@ -531,7 +531,6 @@ class Calibrate(PMGSONable):
             dumpfn(self.cal_log, Calibrate.LOG_FILE, cls=MontyEncoder,
                    indent=4)
             
-    
     def as_dict(self):
         qadapter = None
         system = None

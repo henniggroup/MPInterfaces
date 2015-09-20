@@ -5,7 +5,7 @@ import sys
 from collections import OrderedDict
 
 from mpinterfaces import get_struct_from_mp
-from mpinterfaces.lammps import MPINTLammps, CalibrateLammps
+from mpinterfaces.lammps import CalibrateLammps
 from mpinterfaces.utils import get_run_cmmnd
 
 # list of structures from materialsproject
@@ -26,7 +26,7 @@ parameters = {'atom_style': 'charge',
                      '1a all qeq/comb 1 0.0001 file fq.out'] }
 # list of pair coefficient files
 pair_coeff_files = [os.path.join(os.getcwd(), "ffield.comb3")]
-# set jobs for the list of MPINTLammps objects
+# parameters tuned: structures and pair coefficients
 turn_knobs = OrderedDict(
     [
         ('STRUCTURES', structures),

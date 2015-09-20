@@ -65,5 +65,5 @@ def test(**kwargs):
 
 if __name__ == '__main__':
     steps = [test]
-    interval = 10
+    interval = 60
     launch_daemon(steps, interval, ld_logger=logger)

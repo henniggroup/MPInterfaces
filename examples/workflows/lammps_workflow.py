@@ -5,15 +5,24 @@ import sys
 from math import ceil
 from collections import OrderedDict
 
+import matplotlib
+matplotlib.use('Agg')
+
+from pymatgen.core.composition import Composition
+from pymatgen.phasediagram.entries import PDEntry
+from pymatgen.phasediagram.pdmaker import PhaseDiagram
+from pymatgen.phasediagram.plotter import PDPlotter
+
 from mpinterfaces import get_struct_from_mp
 from mpinterfaces.lammps import CalibrateLammps
 from mpinterfaces.utils import *
 
-# all the info/warnings/outputs redirected to the log file: lammps.log
-logger = get_logger('lammps')
+# all the info/warnings/outputs redirected to the log file: 
+# lammps_Al_O.log
+logger = get_logger('lammps_Al_O')
 
 # list of structures from materialsproject
-structures = get_struct_from_mp('ZnO', all_structs=True)
+structures = get_struct_from_mp('Al-O', all_structs=True)
 # scale the structures
 scell_size = 12
 for s in structures:
@@ -23,7 +32,7 @@ for s in structures:
                       ceil(scell_size/c)])
 # lammps input paramaters    
 parameters = {'atom_style': 'charge',
-              'charges': {'Zn':2, 'O':-2},
+              'charges': {'Al':0, 'O':0},
               'minimize':'1.0e-13  1.0e-20  1000  10000',
               'fix':['fix_nve all nve',
                      '1 all box/relax aniso 0.0 vmax 0.001',
@@ -33,7 +42,10 @@ pair_styles = ['comb3 polar_off']
 # list of pair coefficient files
 pair_coeff_files = [os.path.join(os.getcwd(), "ffield.comb3")]
 
-def test(**kwargs):
+def step1(**kwargs):
+    """
+    run all lammps jobs
+    """
     turn_knobs = OrderedDict(
         [
             ('STRUCTURES', structures),
@@ -51,7 +63,7 @@ def test(**kwargs):
                                       walltime=walltime,
                                       job_bin=job_bin, mem=mem)
     checkpoint_files = []
-    chkpt_file = 'test_lmp.json'
+    chkpt_file = 'step1.json'
     # setup calibration jobs and run
     cal = CalibrateLammps(parameters, turn_knobs=turn_knobs,
                           qadapter=qadapter, job_cmd = job_cmd,
@@ -62,9 +74,36 @@ def test(**kwargs):
     cal.run()
     checkpoint_files.append(chkpt_file)
     return checkpoint_files
+
+
+def step2(**kwargs):
+    """
+    post process:
+       get energies from the jobs in the previous step and 
+       generate the phase diagram
+    """
+    chkfile = kwargs['checkpoint_files'][0]
+    all_jobs = jobs_from_file(chkfile)
+    entries = []
+    # add endpoint data
+    Al = Composition("Al1O0")
+    energy_al = -3.36
+    O = Composition("Al0O1")
+    energy_o = -2.58
+    entries.append(PDEntry(Al,energy_al))
+    entries.append(PDEntry(O,energy_o))
+    # get data and create entries
+    for job in all_jobs:
+        comp = job.vis.mplmp.structure.composition
+        energy =job.final_energy 
+        entries.append(PDEntry(comp,energy))
+    pd = PhaseDiagram(entries)
+    plotter = PDPlotter(pd, show_unstable=True)
+    plotter.write_image('Al_O_phasediagram.jpg')
+    return None
     
 
 if __name__ == '__main__':
-    steps = [test]
+    steps = [step1, step2]
     interval = 60
     launch_daemon(steps, interval, ld_logger=logger)

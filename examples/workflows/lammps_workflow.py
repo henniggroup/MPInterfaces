@@ -1,5 +1,10 @@
 from __future__ import division, unicode_literals, print_function
 
+"""
+Sample LAMMPS workflow that runs MD calculations for a bunch of structures and 
+subsequently generate their phasediagram.
+"""
+
 import os
 import sys
 from math import ceil
@@ -20,7 +25,6 @@ from mpinterfaces.utils import *
 # all the info/warnings/outputs redirected to the log file: 
 # lammps_Al_O.log
 logger = get_logger('lammps_Al_O')
-
 # list of structures from materialsproject
 structures = get_struct_from_mp('Al-O', all_structs=True)
 # scale the structures
@@ -41,6 +45,7 @@ parameters = {'atom_style': 'charge',
 pair_styles = ['comb3 polar_off']
 # list of pair coefficient files
 pair_coeff_files = [os.path.join(os.getcwd(), "ffield.comb3")]
+
 
 def step1(**kwargs):
     """

@@ -1,10 +1,8 @@
 from __future__ import division, unicode_literals, print_function
 
 """
-This is a simpler verison of single_workflow with just one firework
-and firetask.
-used only for testing.
-Shows how to set a firework's launch directory
+A simple Fireworks based workflow with just one firework 
+consisting of one firetask.
 """
 
 import sys

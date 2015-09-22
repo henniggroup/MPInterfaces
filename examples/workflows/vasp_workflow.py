@@ -1,5 +1,10 @@
 from __future__ import division, unicode_literals, print_function
 
+"""
+Workflow to the study the convergence of VASP parameters: ENCUT and KPOINTS
+for a range of systems.
+"""
+
 import os
 import sys
 import time
@@ -48,7 +53,11 @@ def get_structures():
         poscar_list.append(Poscar(struct_species))
     return None
 
+# step 1
 def convergence(**kwargs):
+    """
+    set up and run all required jobs for the convergence study
+    """
     job_dir = "convergence"
     kpoints_list = [[x,x,x] for x in range(8,15)]
     encut_list = range(400,800,100)
@@ -64,7 +73,12 @@ def convergence(**kwargs):
     return checkpoint_files
 
 
+# step 2
 def post_process(**kwargs):
+    """
+    process the finished jobs from the previous step and obtain the optimum
+    value for the parameters.
+    """
     # parameters that need to be optimized
     params = ['ENCUT','KPOINTS']
     for chkfile in kwargs['checkpoint_files']:

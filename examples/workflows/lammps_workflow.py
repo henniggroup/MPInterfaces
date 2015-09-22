@@ -2,6 +2,7 @@ from __future__ import division, unicode_literals, print_function
 
 import os
 import sys
+from math import ceil
 from collections import OrderedDict
 
 from mpinterfaces import get_struct_from_mp
@@ -17,9 +18,9 @@ structures = get_struct_from_mp('ZnO', all_structs=True)
 scell_size = 12
 for s in structures:
     a, b, c = s.lattice.abc
-    s.make_supercell([int(scell_size/a),
-                      int(scell_size/b),
-                      int(scell_size/c)])
+    s.make_supercell([ceil(scell_size/a),
+                      ceil(scell_size/b),
+                      ceil(scell_size/c)])
 # lammps input paramaters    
 parameters = {'atom_style': 'charge',
               'charges': {'Zn':2, 'O':-2},

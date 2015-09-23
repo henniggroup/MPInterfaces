@@ -86,23 +86,11 @@ step 3(if the local copy was installed in the develop mode this step can be skip
 Documentation
 ==============
 
-A very minimal documentation is avaiable at the moment and work is underway
-to improve it. We use the sphinx package to generate the documentation.
-First install the package 'sphinx' and the theme package 'sphinx-rtd-theme'
-using pip and then to generate the documentation either in html or pdf format
-do the following:
+A very minimal documentation is avaiable at
 
-  * html format
-    
-    - cd docs; make html
+http://henniggroup.github.io/MPInterfaces/
 
-    - open _build/html/index.html in a webbrowser to see the documentation
-
-  * pdf
-
-    - cd docs; make latexpdf
-
-    - The pdf will be in the _build/latex folder 
+and work is underway to improve it.
 
       
 Usage

@@ -1,7 +1,7 @@
 from __future__ import division, unicode_literals, print_function
 
 """
-Workflow to the study the convergence of VASP parameters: ENCUT and KPOINTS
+Workflow to study the convergence of VASP parameters: ENCUT and KPOINTS
 for a range of systems.
 """
 

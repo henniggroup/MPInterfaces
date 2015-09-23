@@ -44,12 +44,13 @@ parameters = {'atom_style': 'charge',
 # list of pair styles
 pair_styles = ['comb3 polar_off']
 # list of pair coefficient files
+# this file must be in the folder where this script is run
 pair_coeff_files = [os.path.join(os.getcwd(), "ffield.comb3")]
 
 
 def step1(**kwargs):
     """
-    run all lammps jobs
+    setup and run all lammps jobs
     """
     turn_knobs = OrderedDict(
         [

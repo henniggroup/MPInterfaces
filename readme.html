@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; mpinterfaces 1.1.2alpha documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="index.html"/>
+        <link rel="next" title="mpinterfaces package" href="mpinterfaces.html"/>
+        <link rel="prev" title="Introduction" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> mpinterfaces
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prepping">Prepping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-the-latest-version">Get the latest version</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#contributing">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#authors">Authors</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.html">mpinterfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#capabilities">Capabilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#interface-creation">Interface Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#offline-vasp-project-management">Offline vasp project management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#workflow-submission-and-launching">Workflow submission and launching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#workflow-query-examples">Workflow query examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#query-for-individual-fireworks">Query for individual Fireworks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#connecting-to-our-local-database">Connecting to our local Database</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">mpinterfaces</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Installation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/readme.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <p>MPinterfaces is a python package that enables high throughput Density
+Functional Theory(DFT) analysis of arbitrary material interfaces(ligand capped
+nanoparticles, surfaces in the presence of solvents and hetero-structure
+interfaces) using <a class="reference external" href="http://www.vasp.at/">VASP</a>, <a class="reference external" href="https://github.com/henniggroup/VASPsol">VASPsol</a>, <a class="reference external" href="http://lammps.sandia.gov/">LAMMPS</a> and <a class="reference external" href="https://github.com/materialsproject">materialsproject</a> database as well
+as their open source <a class="reference external" href="https://github.com/materialsproject">tools</a>.</p>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>The following steps applies only to linux and OSX(with xcode) operating systems.</p>
+<div class="section" id="prepping">
+<h2>Prepping<a class="headerlink" href="#prepping" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Make sure that you are using python&gt;=2.7 (do a &#8220;python &#8211;version&#8221;).</p>
+<p>Note: ASE does not work with python3</p>
+</li>
+<li><p class="first">it is highly recommended that you use gcc compiler. So type:</p>
+<p>export CC=gcc</p>
+<p>Note: <em>Don&#8217;t use gcc if the already available numpy/scipy packages
+were setup using intel MKL</em></p>
+</li>
+<li><p class="first">Unless you have admin privilege on the machine you are installing, it is
+better to install this package and all its dependencies in a virtual environment.</p>
+<ul class="simple">
+<li>get the latest version from <a class="reference external" href="https://pypi.python.org/pypi/virtualenv#downloads">https://pypi.python.org/pypi/virtualenv#downloads</a></li>
+<li>tar xvfz virtualenv-X.X.X.tar.gz</li>
+<li>cd virtualenv-X.X.X</li>
+<li>setup the virtual environment in ~/myvenv (or set to some other path and folder name)<ul>
+<li>python virtualenv.py ~/myvenv</li>
+</ul>
+</li>
+<li>activate the virtual environment<ul>
+<li>source ~/myvenv/bin/activate</li>
+</ul>
+</li>
+</ul>
+<p>For detailed instructions and documentation see</p>
+<p><a class="reference external" href="http://virtualenv.readthedocs.org/en/latest/installation.html">http://virtualenv.readthedocs.org/en/latest/installation.html</a></p>
+</li>
+<li><p class="first">Install numpy:</p>
+<p>pip install numpy</p>
+</li>
+</ol>
+</div>
+<div class="section" id="get-the-latest-version">
+<h2>Get the latest version<a class="headerlink" href="#get-the-latest-version" title="Permalink to this headline">¶</a></h2>
+<p>If you already have a local copy, steps 1 and 2 of the following instructions
+can be skipped. Just do a &#8220;git pull&#8221; from the MPInterfaces folder and go to
+step 3(if the local copy was installed in the develop mode this step can be skipped too).</p>
+<ol class="arabic simple">
+<li>Clone the latest version from github</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>git clone <a class="reference external" href="https://github.com/henniggroup/MPInterfaces.git">https://github.com/henniggroup/MPInterfaces.git</a></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>cd MPInterfaces</li>
+<li>python setup.py install(or develop)</li>
+<li>set the evironment variables:<ul>
+<li>MAPI_KEY=the_key_obtained_from_materialsproject</li>
+<li>VASP_PSP_DIR=path_to_vasp_potcar_files</li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<p>A very minimal documentation is avaiable at</p>
+<p><a class="reference external" href="http://henniggroup.github.io/MPInterfaces/">http://henniggroup.github.io/MPInterfaces/</a></p>
+<p>and work is underway to improve it.</p>
+</div>
+<div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>We use pymatgen tools for all structure manipulation tasks, so it would
+be a good idea to start from here:</p>
+<p><a class="reference external" href="http://pymatgen.org/#using-pymatgen">http://pymatgen.org/#using-pymatgen</a></p>
+<p>The examples folder contain some sample scripts that demonstrate the
+usage of mpinterfaces as well as materialsproject packages. For basic
+usage please see <strong>docs/usage.rst</strong>.</p>
+</div>
+<div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<p>We try to follow the coding style used by pymatgen(PEP8):</p>
+<p><a class="reference external" href="http://pymatgen.org/contributing.html#coding-guidelines">http://pymatgen.org/contributing.html#coding-guidelines</a></p>
+</div>
+<div class="section" id="authors">
+<h1>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h1>
+<p>Kiran Mathew</p>
+<p>Joshua Gabriel</p>
+<p>Arunima Singh</p>
+<p>Richard G. Hennig</p>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mpinterfaces.html" class="btn btn-neutral float-right" title="mpinterfaces package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Introduction" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.1.2alpha',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

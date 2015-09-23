@@ -1,11 +1,12 @@
-
 Introduction
 =============
 
-Mpinterfaces is a python package that enables high throughput analysis
-of interfaces(=surface+ligand+solvent) using VASP_, VASPsol_ and
-materialsproject_ tools.
+.. toctree::
+   :maxdepth: 2
 
+   readme
+
+   
 .. toctree::
    :maxdepth: 4
 

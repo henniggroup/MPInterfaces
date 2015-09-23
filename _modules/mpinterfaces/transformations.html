@@ -1,0 +1,585 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>mpinterfaces.transformations &mdash; mpinterfaces 1.1.2alpha documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="../../index.html"/>
+        <link rel="up" title="mpinterfaces" href="../mpinterfaces.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="../../index.html" class="icon icon-home"> mpinterfaces
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../mpinterfaces.html">mpinterfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html#capabilities">Capabilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#interface-creation">Interface Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#offline-vasp-project-management">Offline vasp project management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#workflow-submission-and-launching">Workflow submission and launching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#workflow-query-examples">Workflow query examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#query-for-individual-fireworks">Query for individual Fireworks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#connecting-to-our-local-database">Connecting to our local Database</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">mpinterfaces</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../mpinterfaces.html">mpinterfaces</a> &raquo;</li>
+      
+    <li>mpinterfaces.transformations</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for mpinterfaces.transformations</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Compute the reduced matching lattice vectors for heterostructure</span>
+<span class="sd">interfaces as described in the paper by Zur and McGill:</span>
+<span class="sd">Journal of Applied Physics 55, 378 (1984); doi: 10.1063/1.333084</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span><span class="o">=</span><span class="s">&quot;Kiran Mathew, Arunima Singh&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+
+
+<div class="viewcode-block" id="get_trans_matrices"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.get_trans_matrices">[docs]</a><span class="k">def</span> <span class="nf">get_trans_matrices</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    yields a list of 2x2 transformation matrices for the </span>
+<span class="sd">    given supercell</span>
+<span class="sd">    n: size</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">factors</span><span class="p">(</span><span class="n">n0</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n0</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">n0</span> <span class="o">%</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">i</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">factors</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">n</span> <span class="o">//</span> <span class="n">i</span>
+        <span class="k">yield</span> <span class="p">[</span> <span class="p">[[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">m</span><span class="p">]]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="p">]</span>
+
+        </div>
+<div class="viewcode-block" id="get_uv"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.get_uv">[docs]</a><span class="k">def</span> <span class="nf">get_uv</span><span class="p">(</span><span class="n">ab</span><span class="p">,</span> <span class="n">t_mat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return u and v, the supercell lattice vectors obtained through the</span>
+<span class="sd">    transformation matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ab</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">t_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ab</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">t_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> 
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ab</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">t_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> 
+    <span class="k">return</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="get_reduced_uv"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.get_reduced_uv">[docs]</a><span class="k">def</span> <span class="nf">get_reduced_uv</span><span class="p">(</span><span class="n">uv</span><span class="p">,</span><span class="n">tm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns reduced lattice vectors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">is_not_reduced</span> <span class="o">=</span>  <span class="bp">True</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">uv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">uv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">tm1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tm</span><span class="p">)</span>
+    <span class="n">u1</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">v1</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">is_not_reduced</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="o">-</span><span class="n">v</span>
+            <span class="n">tm1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">tm1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="n">u1</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">tm1c</span> <span class="o">=</span> <span class="n">tm1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">tm1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tm1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tm1c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">tm1c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">u</span><span class="o">+</span><span class="n">v</span><span class="p">):</span>
+            <span class="n">v1</span> <span class="o">=</span>  <span class="n">v</span><span class="o">+</span><span class="n">u</span>
+            <span class="n">tm1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tm1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">tm1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">u</span><span class="o">-</span><span class="n">v</span><span class="p">):</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">v</span><span class="o">-</span><span class="n">u</span>
+            <span class="n">tm1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tm1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">tm1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">is_not_reduced</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">u1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">],</span><span class="n">tm1</span>
+
+</div>
+<div class="viewcode-block" id="reduced_supercell_vectors"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.reduced_supercell_vectors">[docs]</a><span class="k">def</span> <span class="nf">reduced_supercell_vectors</span><span class="p">(</span><span class="n">ab</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns all possible reduced in-plane lattice vectors and </span>
+<span class="sd">    transition matrices for the given starting unit cell lattice </span>
+<span class="sd">    vectors(ab) and the supercell size n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">uv_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">tm_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">r_tm</span> <span class="ow">in</span> <span class="n">get_trans_matrices</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">tm</span> <span class="ow">in</span> <span class="n">r_tm</span><span class="p">:</span>
+            <span class="n">uv</span> <span class="o">=</span> <span class="n">get_uv</span><span class="p">(</span><span class="n">ab</span><span class="p">,</span> <span class="n">tm</span><span class="p">)</span>
+            <span class="n">uv</span><span class="p">,</span> <span class="n">tm1</span> <span class="o">=</span> <span class="n">get_reduced_uv</span><span class="p">(</span><span class="n">uv</span><span class="p">,</span> <span class="n">tm</span><span class="p">)</span>
+            <span class="n">uv_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">uv</span><span class="p">)</span>
+            <span class="n">tm_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tm1</span><span class="p">)</span>            
+    <span class="k">return</span> <span class="n">uv_list</span><span class="p">,</span> <span class="n">tm_list</span>
+
+</div>
+<div class="viewcode-block" id="get_r_list"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.get_r_list">[docs]</a><span class="k">def</span> <span class="nf">get_r_list</span><span class="p">(</span><span class="n">area1</span><span class="p">,</span> <span class="n">area2</span><span class="p">,</span> <span class="n">max_area</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns a list of r1 and r2 values that satisfies:</span>
+<span class="sd">    r1/r2 = area2/area1 with the constraints:</span>
+<span class="sd">    r1 &lt;= Area_max/area1 and r2 &lt;= Area_max/area2</span>
+<span class="sd">    r1 and r2 corresponds to the supercell sizes of the 2 interfaces</span>
+<span class="sd">    that align them     </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">rmax1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_area</span><span class="o">/</span><span class="n">area1</span><span class="p">)</span>
+    <span class="n">rmax2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_area</span><span class="o">/</span><span class="n">area2</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;rmax1, rmax2: {0}, {1}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rmax1</span><span class="p">,</span> <span class="n">rmax2</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">r1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rmax1</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">r2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rmax2</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">r1</span><span class="p">)</span><span class="o">*</span><span class="n">area1</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">r2</span><span class="p">)</span><span class="o">*</span><span class="n">area2</span><span class="p">)</span><span class="o">/</span><span class="n">max_area</span> <span class="o">&lt;=</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="n">r_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">r_list</span>
+
+</div>
+<div class="viewcode-block" id="get_mismatch"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.get_mismatch">[docs]</a><span class="k">def</span> <span class="nf">get_mismatch</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    percentage mistmatch between the lattice vectors a and b</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+</div>
+<div class="viewcode-block" id="get_angle"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.get_angle">[docs]</a><span class="k">def</span> <span class="nf">get_angle</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    angle between lattice vectors a and b in degrees</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+</div>
+<div class="viewcode-block" id="get_area"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.get_area">[docs]</a><span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="n">uv</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    area of the parallelogram</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">uv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">uv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="get_matching_lattices"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.get_matching_lattices">[docs]</a><span class="k">def</span> <span class="nf">get_matching_lattices</span><span class="p">(</span><span class="n">iface1</span><span class="p">,</span> <span class="n">iface2</span><span class="p">,</span> <span class="n">max_area</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+                          <span class="n">max_mismatch</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">max_angle_diff</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                          <span class="n">r1r2_tol</span><span class="o">=</span> <span class="mf">0.02</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    computes a list of matching reduced lattice vectors that satify</span>
+<span class="sd">    the max_area, max_mismatch and max_anglele_diff criteria</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">iface1</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">iface2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c">#test : the numbers from the paper</span>
+        <span class="n">a1</span> <span class="o">=</span> <span class="mf">5.653</span>
+        <span class="n">a2</span> <span class="o">=</span> <span class="mf">6.481</span>
+        <span class="c">#for 100 plane</span>
+        <span class="n">ab1</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">a1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">a1</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">a1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">a1</span><span class="o">/</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">ab2</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">a2</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">a2</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">a2</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">a2</span><span class="o">/</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">area1</span> <span class="o">=</span> <span class="n">a1</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">area2</span> <span class="o">=</span> <span class="n">a2</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="c">#for 110 plane</span>
+        <span class="n">ab1</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="n">a1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="n">a1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="n">a1</span><span class="p">]]</span>
+        <span class="n">ab2</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="n">a2</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="n">a2</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="n">a2</span><span class="p">]]</span>    
+        <span class="n">area1</span> <span class="o">=</span> <span class="n">a1</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">area2</span> <span class="o">=</span> <span class="n">a2</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c">#for 111 surface</span>
+        <span class="c">#ab1 = [ [a1/2, 0, a1/2], [a1/2, a1/2, 0]]</span>
+        <span class="c">#ab2 = [ [a2/2, 0, a2/2], [a2/2, a2/2, 0]]</span>
+        <span class="c">#area1 = a1**2 * sqrt(3)/4 #/ 2 /sqrt(2)</span>
+        <span class="c">#area2 = a2**2 * sqrt(3)/4 #/ 2 / sqrt(2)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">area1</span> <span class="o">=</span> <span class="n">iface1</span><span class="o">.</span><span class="n">surface_area</span>
+        <span class="n">area2</span> <span class="o">=</span> <span class="n">iface2</span><span class="o">.</span><span class="n">surface_area</span>
+        <span class="c">#a, b vectors that define the surface    </span>
+        <span class="n">ab1</span> <span class="o">=</span> <span class="p">[</span> <span class="n">iface1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="p">,</span> <span class="n">iface1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="p">]</span>
+        <span class="n">ab2</span> <span class="o">=</span> <span class="p">[</span> <span class="n">iface2</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="p">,</span> <span class="n">iface2</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="p">]</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;initial values:</span><span class="se">\n</span><span class="s">uv1:</span><span class="se">\n</span><span class="s">{0}</span><span class="se">\n</span><span class="s">uv2:</span><span class="se">\n</span><span class="s">{1}</span><span class="se">\n</span><span class="s"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ab1</span><span class="p">,</span> <span class="n">ab2</span><span class="p">))</span>
+    <span class="n">r_list</span> <span class="o">=</span> <span class="n">get_r_list</span><span class="p">(</span><span class="n">area1</span><span class="p">,</span> <span class="n">area2</span><span class="p">,</span> <span class="n">max_area</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">r1r2_tol</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">r_list</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;r_list is empty. Try increasing the max surface area or/and the other tolerance paramaters&#39;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;searching ...&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">r1r2</span> <span class="ow">in</span> <span class="n">r_list</span><span class="p">:</span>
+        <span class="n">uv1_list</span><span class="p">,</span> <span class="n">tm1_list</span> <span class="o">=</span> <span class="n">reduced_supercell_vectors</span><span class="p">(</span><span class="n">ab1</span><span class="p">,</span> <span class="n">r1r2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">uv2_list</span><span class="p">,</span> <span class="n">tm2_list</span> <span class="o">=</span> <span class="n">reduced_supercell_vectors</span><span class="p">(</span><span class="n">ab2</span><span class="p">,</span> <span class="n">r1r2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">uv1_list</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">uv2_list</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">uv1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uv1_list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">uv2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uv2_list</span><span class="p">):</span> 
+                <span class="n">u_mismatch</span> <span class="o">=</span> <span class="n">get_mismatch</span><span class="p">(</span><span class="n">uv1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">uv2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">v_mismatch</span> <span class="o">=</span> <span class="n">get_mismatch</span><span class="p">(</span><span class="n">uv1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">uv2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">angle1</span> <span class="o">=</span> <span class="n">get_angle</span><span class="p">(</span><span class="n">uv1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">uv1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">angle2</span> <span class="o">=</span> <span class="n">get_angle</span><span class="p">(</span><span class="n">uv2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">uv2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">angle_mismatch</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angle1</span> <span class="o">-</span> <span class="n">angle2</span><span class="p">)</span>                
+                <span class="n">area1</span> <span class="o">=</span> <span class="n">get_area</span><span class="p">(</span><span class="n">uv1</span><span class="p">)</span>
+                <span class="n">area2</span> <span class="o">=</span> <span class="n">get_area</span><span class="p">(</span><span class="n">uv2</span><span class="p">)</span>
+                <span class="k">if</span>  <span class="nb">abs</span><span class="p">(</span><span class="n">u_mismatch</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_mismatch</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">v_mismatch</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_mismatch</span><span class="p">:</span>
+                    <span class="n">max_angle</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">angle1</span><span class="p">,</span><span class="n">angle2</span><span class="p">)</span>
+                    <span class="n">min_angle</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">angle1</span><span class="p">,</span><span class="n">angle2</span><span class="p">)</span>
+                    <span class="n">mod_angle</span> <span class="o">=</span> <span class="n">max_angle</span><span class="o">%</span><span class="n">min_angle</span>
+                    <span class="n">is_angle_factor</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mod_angle</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.001</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mod_angle</span><span class="o">-</span><span class="n">min_angle</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">:</span>
+                        <span class="n">is_angle_factor</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="k">if</span>  <span class="n">angle_mismatch</span> <span class="o">&lt;</span> <span class="n">max_angle_diff</span> <span class="ow">or</span> <span class="n">is_angle_factor</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">angle_mismatch</span> <span class="o">&gt;</span> <span class="n">max_angle_diff</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">angle1</span> <span class="o">&gt;</span> <span class="n">angle2</span><span class="p">:</span>
+                                <span class="n">uv1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">uv1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">uv1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                                <span class="n">tm1_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tm1_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">tm1_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">uv2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">uv2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">uv2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                                <span class="n">tm2_list</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tm2_list</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">tm2_list</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">uv1</span><span class="p">,</span><span class="n">uv2</span><span class="p">,</span><span class="nb">min</span><span class="p">(</span><span class="n">area1</span><span class="p">,</span><span class="n">area2</span><span class="p">),</span><span class="n">u_mismatch</span><span class="p">,</span> <span class="n">v_mismatch</span><span class="p">,</span> <span class="n">angle_mismatch</span><span class="p">,</span><span class="n">tm1_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">tm2_list</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">MATCH FOUND</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">uv_opt</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">found</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;optimum values:</span><span class="se">\n</span><span class="s">uv1:</span><span class="se">\n</span><span class="s">{0}</span><span class="se">\n</span><span class="s">uv2:</span><span class="se">\n</span><span class="s">{1}</span><span class="se">\n</span><span class="s">area:</span><span class="se">\n</span><span class="s">{2}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uv_opt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">uv_opt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">uv_opt</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;optimum transition matrices:</span><span class="se">\n</span><span class="s">tm1:</span><span class="se">\n</span><span class="s">{0}</span><span class="se">\n</span><span class="s">tm2:</span><span class="se">\n</span><span class="s">{1}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uv_opt</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">uv_opt</span><span class="p">[</span><span class="mi">7</span><span class="p">]))</span>        
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;u,v &amp; angle mismatches:</span><span class="se">\n</span><span class="s">{0}, {1}, {2}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uv_opt</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">uv_opt</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">uv_opt</span><span class="p">[</span><span class="mi">5</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">uv_opt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">uv_opt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s"> NO MATCH FOUND&#39;</span><span class="p">)</span>        
+        <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="get_uniq_layercoords"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.get_uniq_layercoords">[docs]</a><span class="k">def</span> <span class="nf">get_uniq_layercoords</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">nlayers</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns the coordinates of unique sites in the top or bottom</span>
+<span class="sd">    nlayers of the given structure.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        struct: input structure</span>
+<span class="sd">        nlayers: number of layers</span>
+<span class="sd">        top: top or bottom layers, default is top layer</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        numpy array of unique coordinates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">struct</span><span class="p">])</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">zu</span><span class="p">,</span> <span class="n">zuind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">z_nthlayer</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">zuind</span><span class="p">[</span><span class="o">-</span><span class="n">nlayers</span><span class="p">]]</span>
+    <span class="n">zfilter</span> <span class="o">=</span> <span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="n">z_nthlayer</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">top</span><span class="p">:</span>
+        <span class="n">z_nthlayer</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">zuind</span><span class="p">[</span><span class="n">nlayers</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]</span>
+        <span class="n">zfilter</span> <span class="o">=</span> <span class="p">(</span><span class="n">z</span> <span class="o">&lt;=</span> <span class="n">z_nthlayer</span><span class="p">)</span>
+    <span class="c"># site indices in the layers        </span>
+    <span class="n">indices_layers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">zfilter</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">sa</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+    <span class="n">symm_data</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">()</span>
+    <span class="c"># equivalency mapping for the structure</span>
+    <span class="c"># i&#39;th site in the struct equivalent to eq_struct[i]&#39;th site</span>
+    <span class="n">eq_struct</span> <span class="o">=</span> <span class="n">symm_data</span><span class="p">[</span><span class="s">&quot;equivalent_atoms&quot;</span><span class="p">]</span>
+    <span class="c"># equivalency mapping for the layers</span>
+    <span class="n">eq_layers</span> <span class="o">=</span> <span class="n">eq_struct</span><span class="p">[</span><span class="n">indices_layers</span><span class="p">]</span>
+    <span class="c"># site indices of unique atoms in the layers</span>
+    <span class="n">__</span><span class="p">,</span> <span class="n">ueq_layers_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">eq_layers</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c">#print(ueq_layers_indices) </span>
+    <span class="n">indices_uniq</span> <span class="o">=</span> <span class="n">indices_layers</span><span class="p">[</span><span class="n">ueq_layers_indices</span><span class="p">]</span>
+    <span class="c"># coordinates of the unique atoms in the layers</span>
+    <span class="k">return</span> <span class="n">coords</span><span class="p">[</span><span class="n">indices_uniq</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="generate_all_configs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.generate_all_configs">[docs]</a><span class="k">def</span> <span class="nf">generate_all_configs</span><span class="p">(</span><span class="n">mat2d</span><span class="p">,</span> <span class="n">substrate</span><span class="p">,</span>
+                         <span class="n">nlayers_2d</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">nlayers_substrate</span> <span class="o">=</span> <span class="mi">2</span> <span class="p">,</span>
+                         <span class="n">seperation</span> <span class="o">=</span> <span class="mi">5</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For the given lattice matched 2D material and substrate structures,</span>
+<span class="sd">    this functions computes all unique sites in the interface layers</span>
+<span class="sd">    and subsequently generates all possible unique 2d/substrate</span>
+<span class="sd">    interfaces and writes the corresponding poscar files</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mat2d: Lattice and symmetry-matched 2D material structure</span>
+<span class="sd">        substrate: Lattice and symmetry-matched 2D substrate structure</span>
+<span class="sd">        nlayers_substrate: number of substrate layers</span>
+<span class="sd">        nlayers_2d: number of 2d material layers</span>
+<span class="sd">        seperation: seperation between the substrate and the 2d</span>
+<span class="sd">                    material        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">    TODO: give additional random placement of 2D material on substrate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># immediate exit if no structures</span>
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">mat2d</span> <span class="ow">and</span> <span class="n">substrate</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;no structures. aborting ...&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+    <span class="c"># unique site coordinates in the substrate top layers</span>
+    <span class="n">coords_uniq_sub</span> <span class="o">=</span> <span class="n">get_uniq_layercoords</span><span class="p">(</span><span class="n">substrate</span><span class="p">,</span>
+                                           <span class="n">nlayers_substrate</span><span class="p">,</span>
+                                           <span class="n">top</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># unique site coordinates in the 2D material bottom layers</span>
+    <span class="n">coords_uniq_2d</span> <span class="o">=</span> <span class="n">get_uniq_layercoords</span><span class="p">(</span><span class="n">mat2d</span><span class="p">,</span>
+                                          <span class="n">nlayers_2d</span><span class="p">,</span>
+                                          <span class="n">top</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">substrate_top_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span>
+                                       <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">substrate</span><span class="p">])[:,</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">mat_2d_bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span>
+                                     <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">mat2d</span><span class="p">])[:,</span><span class="mi">2</span><span class="p">])</span>
+    <span class="c"># shift normal to the surface by &#39;seperation&#39;</span>
+    <span class="n">surface_normal</span> <span class="o">=</span> <span class="n">substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">substrate_top_z</span><span class="p">])</span>
+    <span class="n">shift_normal</span> <span class="o">=</span> <span class="n">surface_normal</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">surface_normal</span><span class="p">)</span> <span class="o">*</span> <span class="n">seperation</span>
+    <span class="c">#generate all possible interfaces, one for each combination of</span>
+    <span class="c"># unique substrate and unique 2d materials site in the layers .i.e</span>
+    <span class="c"># an interface structure for each parallel shift</span>
+    <span class="c">#interface = 2D material + substrate</span>
+    <span class="n">hetero_interfaces</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">coord_i</span> <span class="ow">in</span> <span class="n">coords_uniq_sub</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">coord_j</span> <span class="ow">in</span> <span class="n">coords_uniq_2d</span><span class="p">:</span>
+            <span class="n">interface</span> <span class="o">=</span> <span class="n">substrate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">shift_parallel</span> <span class="o">=</span> <span class="n">coord_i</span> <span class="o">-</span> <span class="n">coord_j</span>
+            <span class="n">shift_parallel</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">shift_net</span> <span class="o">=</span> <span class="n">shift_normal</span> <span class="o">-</span> <span class="n">shift_parallel</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">mat2d</span><span class="p">:</span>
+                <span class="n">new_coords</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span>
+                <span class="n">new_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">mat_2d_bottom</span>
+                <span class="n">new_coords</span> <span class="o">=</span> <span class="n">new_coords</span> <span class="o">+</span> <span class="n">origin</span> <span class="o">+</span> <span class="n">shift_net</span>
+                <span class="n">interface</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">new_coords</span><span class="p">,</span>
+                                 <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">hetero_interfaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">hetero_interfaces</span>
+
+</div>
+<div class="viewcode-block" id="get_aligned_lattices"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.transformations.get_aligned_lattices">[docs]</a><span class="k">def</span> <span class="nf">get_aligned_lattices</span><span class="p">(</span><span class="n">slab_sub</span><span class="p">,</span> <span class="n">slab_2d</span><span class="p">,</span> <span class="n">max_area</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                         <span class="n">max_mismatch</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+                         <span class="n">max_angle_diff</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r1r2_tol</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    given the 2 slab structures and the alignment paramters, return</span>
+<span class="sd">    slab structures with lattices that are aligned with respect to each</span>
+<span class="sd">    other</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># get the matching substrate and 2D material lattices</span>
+    <span class="n">uv_substrate</span><span class="p">,</span> <span class="n">uv_mat2d</span> <span class="o">=</span> <span class="n">get_matching_lattices</span><span class="p">(</span><span class="n">slab_sub</span><span class="p">,</span> <span class="n">slab_2d</span><span class="p">,</span>
+                                              <span class="n">max_area</span> <span class="o">=</span> <span class="n">max_area</span><span class="p">,</span>
+                                              <span class="n">max_mismatch</span> <span class="o">=</span> <span class="n">max_mismatch</span><span class="p">,</span>
+                                              <span class="n">max_angle_diff</span> <span class="o">=</span> <span class="n">max_angle_diff</span><span class="p">,</span>
+                                              <span class="n">r1r2_tol</span> <span class="o">=</span> <span class="n">r1r2_tol</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">uv_substrate</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">uv_mat2d</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;no matching u and v, trying adjusting the parameters&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+    <span class="n">substrate</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">slab_sub</span><span class="p">)</span>
+    <span class="n">mat2d</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">slab_2d</span><span class="p">)</span>
+    <span class="c"># map the intial slabs to the newly found matching lattices</span>
+    <span class="n">substrate_latt</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                                    <span class="p">[</span>
+                                    <span class="n">uv_substrate</span><span class="p">[</span><span class="mi">0</span><span class="p">][:],</span>
+                                    <span class="n">uv_substrate</span><span class="p">[</span><span class="mi">1</span><span class="p">][:],</span>
+                                    <span class="n">substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span>
+                                    <span class="p">]</span> <span class="p">))</span>
+    <span class="c"># to avoid numerical issues with find_mapping</span>
+    <span class="n">mat2d_fake_c</span> <span class="o">=</span> <span class="n">mat2d</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">mat2d</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,:])</span> <span class="o">*</span> <span class="mf">5.0</span>
+    <span class="n">mat2d_latt</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                                   <span class="p">[</span>
+                                   <span class="n">uv_mat2d</span><span class="p">[</span><span class="mi">0</span><span class="p">][:],</span>
+                                   <span class="n">uv_mat2d</span><span class="p">[</span><span class="mi">1</span><span class="p">][:],</span>
+                                   <span class="n">mat2d_fake_c</span>
+                                   <span class="p">]</span> <span class="p">))</span>
+    <span class="n">mat2d_latt_fake</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                                   <span class="p">[</span>
+                                   <span class="n">mat2d</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span>
+                                   <span class="n">mat2d</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span>
+                                   <span class="n">mat2d_fake_c</span>
+                                   <span class="p">]</span> <span class="p">))</span>    
+    <span class="n">_</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">scell</span> <span class="o">=</span> <span class="n">substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">find_mapping</span><span class="p">(</span><span class="n">substrate_latt</span><span class="p">,</span>
+                                              <span class="n">ltol</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+                                              <span class="n">atol</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">scell</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> 
+    <span class="n">substrate</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">scell</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">scell</span> <span class="o">=</span> <span class="n">mat2d_latt_fake</span><span class="o">.</span><span class="n">find_mapping</span><span class="p">(</span><span class="n">mat2d_latt</span><span class="p">,</span>
+                                            <span class="n">ltol</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+                                            <span class="n">atol</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">scell</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> 
+    <span class="n">mat2d</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">scell</span><span class="p">)</span>
+    <span class="c"># modify the substrate lattice so that the 2d material can be</span>
+    <span class="c"># grafted on top of it</span>
+    <span class="n">lmap</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span>
+            <span class="n">substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span>
+            <span class="n">mat2d</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span>
+        <span class="p">]</span> <span class="p">)</span> <span class="p">)</span>    
+    <span class="n">mat2d</span><span class="o">.</span><span class="n">modify_lattice</span><span class="p">(</span><span class="n">lmap</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">substrate</span><span class="p">,</span> <span class="n">mat2d</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.1.2alpha',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

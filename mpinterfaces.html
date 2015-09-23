@@ -1,0 +1,1461 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>mpinterfaces package &mdash; mpinterfaces 1.1.2alpha documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="index.html"/>
+        <link rel="next" title="Overview" href="usage.html"/>
+        <link rel="prev" title="Introduction" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> mpinterfaces
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">mpinterfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.database">mpinterfaces.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#capabilities">Capabilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#interface-creation">Interface Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#offline-vasp-project-management">Offline vasp project management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#workflow-submission-and-launching">Workflow submission and launching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#workflow-query-examples">Workflow query examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#query-for-individual-fireworks">Query for individual Fireworks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#connecting-to-our-local-database">Connecting to our local Database</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">mpinterfaces</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>mpinterfaces package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/mpinterfaces.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="mpinterfaces-package">
+<h1>mpinterfaces package<a class="headerlink" href="#mpinterfaces-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-mpinterfaces.calibrate">
+<span id="mpinterfaces-calibrate-module"></span><h2>mpinterfaces.calibrate module<a class="headerlink" href="#module-mpinterfaces.calibrate" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mpinterfaces.calibrate.Calibrate">
+<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">Calibrate</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type=u'A'</em>, <em>parent_job_dir=u'.'</em>, <em>job_dir=u'Job'</em>, <em>qadapter=None</em>, <em>job_cmd=u'qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional=u'PBE'</em>, <em>turn_knobs=OrderedDict([(u'ENCUT'</em>, <span class="optional">[</span><span class="optional">]</span><em>)</em>, <em>(u'KPOINTS'</em>, <span class="optional">[</span><span class="optional">]</span><em>)])</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.PMGSONable</span></code></p>
+<p>The base class for creating vasp work flows for
+calibrating the input parameters for different systems</p>
+<p>A wrapper around Custodian</p>
+<dl class="attribute">
+<dt id="mpinterfaces.calibrate.Calibrate.LOG_FILE">
+<code class="descname">LOG_FILE</code><em class="property"> = u'calibrate.json'</em><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.LOG_FILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.add_job">
+<code class="descname">add_job</code><span class="sig-paren">(</span><em>name=u'noname'</em>, <em>job_dir=u'.'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.add_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.add_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>add a single job using the current incar, poscar, potcar and 
+kpoints</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mpinterfaces.calibrate.Calibrate.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.key_to_name">
+<code class="descname">key_to_name</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.key_to_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.key_to_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>convenient string mapping for the keys in the turn_knobs dict</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>key: key to the knob dict</dd>
+<dt>Returns:</dt>
+<dd>an appropriate string representation of the key so that
+the name doesnt clash with the filenames</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.kpoint_to_name">
+<code class="descname">kpoint_to_name</code><span class="sig-paren">(</span><em>kpoint</em>, <em>grid_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.kpoint_to_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.kpoint_to_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a string representation for the given kpoint</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>kpoint: an iterable
+grid_type: grid_type used for the KPOINTS</dd>
+<dt>Returns:    </dt>
+<dd>string representation for kpoint eg: Monkhorst Pack
+2 2 2 will be named 2x2x2</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.potcar_to_name">
+<code class="descname">potcar_to_name</code><span class="sig-paren">(</span><em>mapping</em>, <em>functional</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.potcar_to_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.potcar_to_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert a symbol mapping and functional to a name that 
+can be used for setting up the potcar jobs</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mapping: example:- if mapping = {&#8216;Pt&#8217;:&#8217;Pt_pv&#8217;, </dt>
+<dd><dl class="first last docutils">
+<dt>&#8216;Si&#8217;:&#8217;Si_GW&#8217;} then the name will be PBE_Pt_pv_Si_GW</dt>
+<dd>with self.functional=&#8221;PBE&#8221;</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>string</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.recursive_jobs">
+<code class="descname">recursive_jobs</code><span class="sig-paren">(</span><em>n</em>, <em>keys</em>, <em>i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.recursive_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.recursive_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>recursively setup the jobs: used by setup_matrix_job</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>n: total number of knobs aka parameters to be tuned
+keys: list of knobs i.e parameter names
+i: ith knob</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>job_cmd=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>run the vasp jobs through custodian
+if the job list is empty,
+run a single job with the initial input set</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.set_incar">
+<code class="descname">set_incar</code><span class="sig-paren">(</span><em>param</em>, <em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.set_incar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.set_incar" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the incar paramter, param = val</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.set_kpoints">
+<code class="descname">set_kpoints</code><span class="sig-paren">(</span><em>kpoint</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.set_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.set_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the kpoint</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.set_poscar">
+<code class="descname">set_poscar</code><span class="sig-paren">(</span><em>scale=None</em>, <em>poscar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.set_poscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.set_poscar" title="Permalink to this definition">¶</a></dt>
+<dd><p>perturbs given structure by volume scaling factor 
+or takes user defined variants of Poscar</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">scale : Volume Scaling parameter</p>
+<p>poscar : Poscar object of user defined structure</p>
+<p class="last">set the poscar: volume scaled by the scale factor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.set_potcar">
+<code class="descname">set_potcar</code><span class="sig-paren">(</span><em>mapping=None</em>, <em>functional=u'PBE'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.set_potcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.set_potcar" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the potcar: symbol to potcar type mapping</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>set up the jobs for the given turn_knobs dict
+is_matrix = True implies that the params in the dict are 
+interrelated. Otherwise calcs corresponding to each dict key
+is independent</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.setup_incar_jobs">
+<code class="descname">setup_incar_jobs</code><span class="sig-paren">(</span><em>param</em>, <em>val_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.setup_incar_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.setup_incar_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>set up incar jobs,, calls set_incar to set the value to param</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>param: Name of INCAR parameter
+val_list: List of values to vary for the param</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.setup_kpoints_jobs">
+<code class="descname">setup_kpoints_jobs</code><span class="sig-paren">(</span><em>kpoints_list=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.setup_kpoints_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.setup_kpoints_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>setup the kpoint jobs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.setup_matrix_job">
+<code class="descname">setup_matrix_job</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.setup_matrix_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.setup_matrix_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>set up jobs where the dict keys are interrelated
+mind: its an ordered dict, the order in which the keys
+are specified determines the nested directory structure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.setup_poscar_jobs">
+<code class="descname">setup_poscar_jobs</code><span class="sig-paren">(</span><em>scale_list=None</em>, <em>poscar_list=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.setup_poscar_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.setup_poscar_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>for scaling the latice vectors of the original structure,
+scale_list is volume scaling factor list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.setup_potcar_jobs">
+<code class="descname">setup_potcar_jobs</code><span class="sig-paren">(</span><em>mappings</em>, <em>functional_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.setup_potcar_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.setup_potcar_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>take a list of symbol mappings and setup the potcar jobs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.Calibrate.val_to_name">
+<code class="descname">val_to_name</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.val_to_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.val_to_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert a value to a string so that it can be used for naming
+the job directory
+the decimal points in floats are replaced with underscore 
+character
+if the value is of type list, kpoint_to_name method is used 
+since
+only kpoint values are expected to be of type list
+if the values is of type dict then potcar_to_name method is 
+invoked</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>val: knob value to be converted into an appropriate string</dt>
+<dd>representation</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>a string filename for the value</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.calibrate.CalibrateBulk">
+<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateBulk</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type=u'A'</em>, <em>parent_job_dir=u'.'</em>, <em>job_dir=u'./Bulk'</em>, <em>qadapter=None</em>, <em>job_cmd=u'qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional=u'PBE'</em>, <em>turn_knobs={u'KPOINTS': []</em>, <em>u'ENCUT': []}</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateBulk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateBulk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mpinterfaces.calibrate.Calibrate" title="mpinterfaces.calibrate.Calibrate"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.calibrate.Calibrate</span></code></a></p>
+<p>Calibrate parameters for Bulk calculations</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.calibrate.CalibrateInterface">
+<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateInterface</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type=u'A'</em>, <em>parent_job_dir=u'.'</em>, <em>job_dir=u'./Interface'</em>, <em>qadapter=None</em>, <em>job_cmd=u'qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional=u'PBE'</em>, <em>turn_knobs={u'THICKNESS': []</em>, <em>u'VACUUM': []}</em>, <em>from_ase=False</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mpinterfaces.calibrate.CalibrateSlab" title="mpinterfaces.calibrate.CalibrateSlab"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.calibrate.CalibrateSlab</span></code></a></p>
+<p>Calibrate paramters for interface calculations</p>
+<dl class="method">
+<dt id="mpinterfaces.calibrate.CalibrateInterface.create_interface">
+<code class="descname">create_interface</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateInterface.create_interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateInterface.create_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>add params that you want to vary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.CalibrateInterface.interface_setup">
+<code class="descname">interface_setup</code><span class="sig-paren">(</span><em>turn_knobs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateInterface.interface_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateInterface.interface_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.calibrate.CalibrateMolecule">
+<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateMolecule</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type=u'A'</em>, <em>parent_job_dir=u'.'</em>, <em>job_dir=u'./Molecule'</em>, <em>qadapter=None</em>, <em>job_cmd=u'qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional=u'PBE'</em>, <em>turn_knobs={u'KPOINTS': []</em>, <em>u'ENCUT': []}</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateMolecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateMolecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mpinterfaces.calibrate.Calibrate" title="mpinterfaces.calibrate.Calibrate"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.calibrate.Calibrate</span></code></a></p>
+<p>Calibrate paramters for Molecule calculations</p>
+<dl class="method">
+<dt id="mpinterfaces.calibrate.CalibrateMolecule.setup_kpoints_jobs">
+<code class="descname">setup_kpoints_jobs</code><span class="sig-paren">(</span><em>Grid_type=u'M'</em>, <em>kpoints_list=None</em>, <em>conv_step=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateMolecule.setup_kpoints_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateMolecule.setup_kpoints_jobs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.calibrate.CalibrateSlab">
+<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateSlab</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type=u'A'</em>, <em>parent_job_dir=u'.'</em>, <em>job_dir=u'./Slab'</em>, <em>qadapter=None</em>, <em>job_cmd=u'qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional=u'PBE'</em>, <em>turn_knobs={u'THICKNESS': []</em>, <em>u'VACUUM': []}</em>, <em>from_ase=False</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateSlab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateSlab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mpinterfaces.calibrate.Calibrate" title="mpinterfaces.calibrate.Calibrate"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.calibrate.Calibrate</span></code></a></p>
+<p>Calibrate paramters for Slab calculations</p>
+<dl class="method">
+<dt id="mpinterfaces.calibrate.CalibrateSlab.create_slab">
+<code class="descname">create_slab</code><span class="sig-paren">(</span><em>vacuum=12</em>, <em>thickness=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateSlab.create_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateSlab.create_slab" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the vacuum spacing, slab thickness and call sd_flags
+for top 2 layers</p>
+<p>returns the poscar corresponding to the modified structure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.CalibrateSlab.set_reconstructed_surface">
+<code class="descname">set_reconstructed_surface</code><span class="sig-paren">(</span><em>sites_to_add</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateSlab.set_reconstructed_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateSlab.set_reconstructed_surface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append sites as needed for reconstruction TODO</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="mpinterfaces.calibrate.CalibrateSlab.set_sd_flags">
+<em class="property">static </em><code class="descname">set_sd_flags</code><span class="sig-paren">(</span><em>interface=None</em>, <em>n_layers=2</em>, <em>top=True</em>, <em>bottom=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateSlab.set_sd_flags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateSlab.set_sd_flags" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the relaxation flags for top and bottom layers of interface.</p>
+<p>The upper and lower bounds of the z coordinate are determined
+based on the slab. All layers above and below the bounds will
+be relaxed. This means if there is a ligand on top of the slab,
+all of its atoms will also be relaxed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.CalibrateSlab.setup_thickness_jobs">
+<code class="descname">setup_thickness_jobs</code><span class="sig-paren">(</span><em>thickness_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateSlab.setup_thickness_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateSlab.setup_thickness_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>create slabs with the provided thickness settings</p>
+<p>returns list of poscars</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.CalibrateSlab.setup_vacuum_jobs">
+<code class="descname">setup_vacuum_jobs</code><span class="sig-paren">(</span><em>vacuum_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateSlab.setup_vacuum_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateSlab.setup_vacuum_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>create slabs with the provided vacuum settings</p>
+<p>returns list of poscars</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.calibrate.CalibrateSlab.slab_setup">
+<code class="descname">slab_setup</code><span class="sig-paren">(</span><em>turn_knobs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateSlab.slab_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateSlab.slab_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>invoke the set up methods corresponding to the dict keys:
+VACUUM and THICKNESS
+sets the POSCAR key in the turn_knobs</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.data_processor">
+<span id="mpinterfaces-data-processor-module"></span><h2>mpinterfaces.data_processor module<a class="headerlink" href="#module-mpinterfaces.data_processor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mpinterfaces.data_processor.MPINTComputedEntry">
+<em class="property">class </em><code class="descclassname">mpinterfaces.data_processor.</code><code class="descname">MPINTComputedEntry</code><span class="sig-paren">(</span><em>structure</em>, <em>kpoints</em>, <em>incar</em>, <em>energy</em>, <em>correction=0.0</em>, <em>parameters=None</em>, <em>data=None</em>, <em>entry_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/data_processor.html#MPINTComputedEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.data_processor.MPINTComputedEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></code></p>
+<p>extend ComputedEntry to include structure as well as kpoints</p>
+<dl class="method">
+<dt id="mpinterfaces.data_processor.MPINTComputedEntry.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/data_processor.html#MPINTComputedEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.data_processor.MPINTComputedEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mpinterfaces.data_processor.MPINTComputedEntry.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/data_processor.html#MPINTComputedEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.data_processor.MPINTComputedEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.data_processor.MPINTVaspDrone">
+<em class="property">class </em><code class="descclassname">mpinterfaces.data_processor.</code><code class="descname">MPINTVaspDrone</code><span class="sig-paren">(</span><em>inc_structure=False</em>, <em>inc_incar_n_kpoints=False</em>, <em>parameters=None</em>, <em>data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/data_processor.html#MPINTVaspDrone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.data_processor.MPINTVaspDrone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.apps.borg.hive.VaspToComputedEntryDrone</span></code></p>
+<p>extend VaspToComputedEntryDrone to use the custom 
+Vasprun: MPINTVasprun</p>
+<dl class="method">
+<dt id="mpinterfaces.data_processor.MPINTVaspDrone.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/data_processor.html#MPINTVaspDrone.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.data_processor.MPINTVaspDrone.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.data_processor.MPINTVaspDrone.assimilate">
+<code class="descname">assimilate</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/data_processor.html#MPINTVaspDrone.assimilate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.data_processor.MPINTVaspDrone.assimilate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mpinterfaces.data_processor.MPINTVaspDrone.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/data_processor.html#MPINTVaspDrone.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.data_processor.MPINTVaspDrone.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.data_processor.MPINTVasprun">
+<em class="property">class </em><code class="descclassname">mpinterfaces.data_processor.</code><code class="descname">MPINTVasprun</code><span class="sig-paren">(</span><em>filename</em>, <em>ionic_step_skip=None</em>, <em>ionic_step_offset=0</em>, <em>parse_dos=True</em>, <em>parse_eigen=True</em>, <em>parse_projected_eigen=False</em>, <em>parse_potcar_file=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/data_processor.html#MPINTVasprun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.data_processor.MPINTVasprun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.outputs.Vasprun</span></code></p>
+<p>Extend Vasprun to use custom ComputedEntry: MPINTComputedEntry</p>
+<dl class="method">
+<dt id="mpinterfaces.data_processor.MPINTVasprun.get_computed_entry">
+<code class="descname">get_computed_entry</code><span class="sig-paren">(</span><em>inc_structure=False</em>, <em>inc_incar_n_kpoints=False</em>, <em>parameters=None</em>, <em>data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/data_processor.html#MPINTVasprun.get_computed_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.data_processor.MPINTVasprun.get_computed_entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a ComputedEntry from the vasprun.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>inc_structure (bool): Set to True if you want</dt>
+<dd>ComputedStructureEntries to be returned instead of
+ComputedEntries.</dd>
+<dt>inc_incar_n_kpoints (bool): along with inc_structure set</dt>
+<dd>to True if you want MPINTComputedEntries to be 
+returned</dd>
+<dt>parameters (list): Input parameters to include. </dt>
+<dd>It has to be one of the properties supported by the 
+Vasprun object. If parameters == None, a default set 
+of parameters that are necessary for typical 
+post-processing will be set.</dd>
+<dt>data (list): Output data to include. Has to be one of the </dt>
+<dd>properties supported by the Vasprun object.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>ComputedStructureEntry/ComputedEntry</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.database">
+<span id="mpinterfaces-database-module"></span><h2>mpinterfaces.database module<a class="headerlink" href="#module-mpinterfaces.database" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mpinterfaces.database.MPINTVaspToDbTaskDrone">
+<em class="property">class </em><code class="descclassname">mpinterfaces.database.</code><code class="descname">MPINTVaspToDbTaskDrone</code><span class="sig-paren">(</span><em>host=u'127.0.0.1'</em>, <em>port=27017</em>, <em>database=u'vasp'</em>, <em>user=None</em>, <em>password=None</em>, <em>collection=u'nanoparticles'</em>, <em>parse_dos=False</em>, <em>compress_dos=False</em>, <em>simulate_mode=False</em>, <em>additional_fields=None</em>, <em>update_duplicates=True</em>, <em>mapi_key=None</em>, <em>use_full_uri=True</em>, <em>runs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/database.html#MPINTVaspToDbTaskDrone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.database.MPINTVaspToDbTaskDrone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matgendb.creator.VaspToDbTaskDrone</span></code></p>
+<p>subclassing VaspToDbTaskDrone</p>
+<dl class="method">
+<dt id="mpinterfaces.database.MPINTVaspToDbTaskDrone.generate_doc">
+<code class="descname">generate_doc</code><span class="sig-paren">(</span><em>dir_name</em>, <em>vasprun_files</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/database.html#MPINTVaspToDbTaskDrone.generate_doc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.database.MPINTVaspToDbTaskDrone.generate_doc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overridden</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.database.MPINTVaspToDbTaskDrone.post_process">
+<code class="descname">post_process</code><span class="sig-paren">(</span><em>dir_name</em>, <em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/database.html#MPINTVaspToDbTaskDrone.post_process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.database.MPINTVaspToDbTaskDrone.post_process" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>customization:</dt>
+<dd>adds system.json to the dictionary</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.database.analysis_and_error_checks">
+<code class="descclassname">mpinterfaces.database.</code><code class="descname">analysis_and_error_checks</code><span class="sig-paren">(</span><em>d</em>, <em>max_force_threshold=0.5</em>, <em>volume_change_threshold=0.2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/database.html#analysis_and_error_checks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.database.analysis_and_error_checks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.database.get_uri">
+<code class="descclassname">mpinterfaces.database.</code><code class="descname">get_uri</code><span class="sig-paren">(</span><em>dir_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/database.html#get_uri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.database.get_uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Customized version of the original pymatgen-db version. 
+Customization required because same job folder on hipergator
+gets different uri for different login nodes .</p>
+<p>Returns the URI path for a directory. This allows files hosted on
+different file servers to have distinct locations.
+Args:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>dir_name:</dt>
+<dd>A directory name.</dd>
+</dl>
+</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Full URI path, e.g., fileserver.host.com:/full/path/of/dir_name.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.firetasks">
+<span id="mpinterfaces-firetasks-module"></span><h2>mpinterfaces.firetasks module<a class="headerlink" href="#module-mpinterfaces.firetasks" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mpinterfaces.firetasks.MPINTCalibrateTask">
+<em class="property">class </em><code class="descclassname">mpinterfaces.firetasks.</code><code class="descname">MPINTCalibrateTask</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/firetasks.html#MPINTCalibrateTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.firetasks.MPINTCalibrateTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">fireworks.core.firework.FireTaskBase</span></code></p>
+<p>Calibration Task</p>
+<dl class="attribute">
+<dt id="mpinterfaces.firetasks.MPINTCalibrateTask.optional_params">
+<code class="descname">optional_params</code><em class="property"> = [u'que_params']</em><a class="headerlink" href="#mpinterfaces.firetasks.MPINTCalibrateTask.optional_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.firetasks.MPINTCalibrateTask.run_task">
+<code class="descname">run_task</code><span class="sig-paren">(</span><em>fw_spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/firetasks.html#MPINTCalibrateTask.run_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.firetasks.MPINTCalibrateTask.run_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>launch jobs to the queue</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.firetasks.MPINTDatabaseTask">
+<em class="property">class </em><code class="descclassname">mpinterfaces.firetasks.</code><code class="descname">MPINTDatabaseTask</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/firetasks.html#MPINTDatabaseTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.firetasks.MPINTDatabaseTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">fireworks.core.firework.FireTaskBase</span></code>, <code class="xref py py-class docutils literal"><span class="pre">fireworks.utilities.fw_serializers.FWSerializable</span></code></p>
+<p>submit data to the database firetask</p>
+<dl class="attribute">
+<dt id="mpinterfaces.firetasks.MPINTDatabaseTask.optional_params">
+<code class="descname">optional_params</code><em class="property"> = [u'dbase_params']</em><a class="headerlink" href="#mpinterfaces.firetasks.MPINTDatabaseTask.optional_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mpinterfaces.firetasks.MPINTDatabaseTask.required_params">
+<code class="descname">required_params</code><em class="property"> = [u'measure_dir']</em><a class="headerlink" href="#mpinterfaces.firetasks.MPINTDatabaseTask.required_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.firetasks.MPINTDatabaseTask.run_task">
+<code class="descname">run_task</code><span class="sig-paren">(</span><em>fw_spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/firetasks.html#MPINTDatabaseTask.run_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.firetasks.MPINTDatabaseTask.run_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>go through the measurement job dirs and 
+put the measurement jobs in the database</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.firetasks.MPINTMeasurementTask">
+<em class="property">class </em><code class="descclassname">mpinterfaces.firetasks.</code><code class="descname">MPINTMeasurementTask</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/firetasks.html#MPINTMeasurementTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.firetasks.MPINTMeasurementTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">fireworks.core.firework.FireTaskBase</span></code>, <code class="xref py py-class docutils literal"><span class="pre">fireworks.utilities.fw_serializers.FWSerializable</span></code></p>
+<p>Measurement Task</p>
+<dl class="attribute">
+<dt id="mpinterfaces.firetasks.MPINTMeasurementTask.optional_params">
+<code class="descname">optional_params</code><em class="property"> = [u'que_params', u'job_cmd', u'other_params', u'fw_id']</em><a class="headerlink" href="#mpinterfaces.firetasks.MPINTMeasurementTask.optional_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mpinterfaces.firetasks.MPINTMeasurementTask.required_params">
+<code class="descname">required_params</code><em class="property"> = [u'measurement']</em><a class="headerlink" href="#mpinterfaces.firetasks.MPINTMeasurementTask.required_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.firetasks.MPINTMeasurementTask.run_task">
+<code class="descname">run_task</code><span class="sig-paren">(</span><em>fw_spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/firetasks.html#MPINTMeasurementTask.run_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.firetasks.MPINTMeasurementTask.run_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>setup up a measurement task using the prior calibration jobs
+and run</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.firetasks.get_cal_obj">
+<code class="descclassname">mpinterfaces.firetasks.</code><code class="descname">get_cal_obj</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/firetasks.html#get_cal_obj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.firetasks.get_cal_obj" title="Permalink to this definition">¶</a></dt>
+<dd><p>construct a calibration object from the input dictionary, d</p>
+<p>returns a calibration object</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.firetasks.load_class">
+<code class="descclassname">mpinterfaces.firetasks.</code><code class="descname">load_class</code><span class="sig-paren">(</span><em>mod</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/firetasks.html#load_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.firetasks.load_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>load class named name from module mod
+this function is adapted from materialsproject</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.instrument">
+<span id="mpinterfaces-instrument-module"></span><h2>mpinterfaces.instrument module<a class="headerlink" href="#module-mpinterfaces.instrument" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mpinterfaces.instrument.MPINTJob">
+<em class="property">class </em><code class="descclassname">mpinterfaces.instrument.</code><code class="descname">MPINTJob</code><span class="sig-paren">(</span><em>job_cmd</em>, <em>name=u'noname'</em>, <em>output_file=u'job.out'</em>, <em>parent_job_dir=u'.'</em>, <em>job_dir=u'untitled'</em>, <em>suffix=u''</em>, <em>final=True</em>, <em>gzipped=False</em>, <em>backup=False</em>, <em>vis=None</em>, <em>auto_npar=True</em>, <em>settings_override=None</em>, <em>wait=True</em>, <em>vjob_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">custodian.custodian.Job</span></code></p>
+<p>defines a job i.e setup the required input files and 
+launch the job</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>job_cmd: a list, the command to be issued in each job_dir</dt>
+<dd>eg: [&#8216;qsub&#8217;, &#8216;submit_job&#8217;]</dd>
+</dl>
+<p class="last">job_dir: the directory from which the jobs will be launched</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="mpinterfaces.instrument.MPINTJob.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTJob.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTJob.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mpinterfaces.instrument.MPINTJob.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTJob.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTJob.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.instrument.MPINTJob.name">
+<code class="descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTJob.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTJob.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.instrument.MPINTJob.postprocess">
+<code class="descname">postprocess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTJob.postprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTJob.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.instrument.MPINTJob.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTJob.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTJob.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>move to the job_dir, launch the job and back to the
+parent job directory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.instrument.MPINTJob.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTJob.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTJob.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>write the input files to the job_dir</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.instrument.MPINTVaspErrors">
+<em class="property">class </em><code class="descclassname">mpinterfaces.instrument.</code><code class="descname">MPINTVaspErrors</code><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTVaspErrors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTVaspErrors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">custodian.custodian.ErrorHandler</span></code></p>
+<p>handles restarting of jobs that exceed the walltime
+employs the check + correct method of custodian ErrorHandler</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.instrument.MPINTVaspInputSet">
+<em class="property">class </em><code class="descclassname">mpinterfaces.instrument.</code><code class="descname">MPINTVaspInputSet</code><span class="sig-paren">(</span><em>name</em>, <em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>qadapter=None</em>, <em>vis_logger=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vasp.sets.DictVaspInputSet</span></code></p>
+<p>defines the set of input required for a vasp job i.e
+create INCAR, POSCAR, POTCAR &amp; KPOINTS files</p>
+<dl class="method">
+<dt id="mpinterfaces.instrument.MPINTVaspInputSet.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTVaspInputSet.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTVaspInputSet.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mpinterfaces.instrument.MPINTVaspInputSet.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTVaspInputSet.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTVaspInputSet.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.instrument.MPINTVaspInputSet.write_input">
+<code class="descname">write_input</code><span class="sig-paren">(</span><em>job_dir</em>, <em>make_dir_if_not_present=True</em>, <em>write_cif=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTVaspInputSet.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTVaspInputSet.write_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>the input files are written to the job_dir
+process(if needed) and write the input files in each directory
+structures read from the poscar files in the directory</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.instrument.MPINTVaspJob">
+<em class="property">class </em><code class="descclassname">mpinterfaces.instrument.</code><code class="descname">MPINTVaspJob</code><span class="sig-paren">(</span><em>job_cmd</em>, <em>name=u'noname'</em>, <em>output_file=u'job.out'</em>, <em>parent_job_dir=u'.'</em>, <em>job_dir=u'untitled'</em>, <em>suffix=u''</em>, <em>final=True</em>, <em>gzipped=False</em>, <em>backup=False</em>, <em>vis=None</em>, <em>auto_npar=True</em>, <em>settings_override=None</em>, <em>wait=True</em>, <em>vjob_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTVaspJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTVaspJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mpinterfaces.instrument.MPINTJob" title="mpinterfaces.instrument.MPINTJob"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.instrument.MPINTJob</span></code></a></p>
+<p>defines a vasp job i.e setup the required input files and 
+launch the job</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>job_cmd: a list, the command to be issued in each job_dir</dt>
+<dd>eg: [&#8216;qsub&#8217;, &#8216;submit_job&#8217;]</dd>
+</dl>
+<p class="last">job_dir: the directory from which the jobs will be launched</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="mpinterfaces.instrument.MPINTVaspJob.get_final_energy">
+<code class="descname">get_final_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTVaspJob.get_final_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTVaspJob.get_final_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.interface">
+<span id="mpinterfaces-interface-module"></span><h2>mpinterfaces.interface module<a class="headerlink" href="#module-mpinterfaces.interface" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mpinterfaces.interface.Interface">
+<em class="property">class </em><code class="descclassname">mpinterfaces.interface.</code><code class="descname">Interface</code><span class="sig-paren">(</span><em>strt, hkl=[1, 1, 1], min_thick=10, min_vac=10, supercell=[1, 1, 1], name=None, adsorb_on_species=None, adatom_on_lig=None, ligand=None, displacement=1.0, surface_coverage=None, scell_nmax=10, coverage_tol=0.25, solvent=None, start_from_slab=False, validate_proximity=False, to_unit_cell=False, coords_are_cartesian=False, primitive=True, from_ase=False, lll_reduce=False, center_slab=True, max_normal_search=None, force_normalize=False, x_shift=0, y_shift=0, rot=[0, 0, 0]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.surface.Slab</span></code></p>
+<p>Interface = slab + ligand + environment(solvent)
+Creates a Slab - Ligand Interface of given coverage and given 
+slab-ligand displacement</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">strt: Starting Structure Object for Slab of the Interface 
+hkl: Miller Index of Slab 
+min_thick: Minimum Slab Thickness in Angstroms desired 
+min_vac: Minimum Vacuum Spacing (Padding top and bottom, each)</p>
+<blockquote>
+<div>in Angstroms</div></blockquote>
+<dl class="docutils">
+<dt>supercell: Trial supercell to start with to enforce coverage, </dt>
+<dd>default 1x1x1</dd>
+<dt>name: System name to specify database entry</dt>
+<dd>(can be a combination of miller indices of slab and 
+ligand and solvent) 
+eg: &#8220;PbS [1,1,1] + Hydrazine in DMF (epsilon = 37.5)&#8221;</dd>
+</dl>
+<p>adsorb_on_species: Reference atom on slab to adsorb on 
+adatom_on_lig: bonding atom on ligand 
+ligand: structure object for ligand 
+displacement: initial adsorption distance desired above the</p>
+<blockquote>
+<div>adsorb_on_species</div></blockquote>
+<dl class="docutils">
+<dt>surface_coverage: Number of ligands desired per surface area </dt>
+<dd>of slab, in ligands per square angstroms</dd>
+<dt>scell_max: Maximum number of supercells to create (used for </dt>
+<dd>finding supercell for the given coverage requirement</dd>
+<dt>coverage_tol: Tolerance for coverage calculation in Ligands </dt>
+<dd>per square Angstroms</dd>
+</dl>
+<p>solvent: Name of solvent to be added for the run 
+start_from_slab: Whether slab is given as input. Useful when</p>
+<blockquote>
+<div>custom reconstructed slabs are to be used</div></blockquote>
+<dl class="docutils">
+<dt>validate_proximity: Check whether any atoms are too close </dt>
+<dd>(using pymatgen default of 0.01 Angstroms)</dd>
+</dl>
+<p>to_unit_cell: Pymatgen Slab routine to find unit cell
+coords_are_cartesian: Whether the input coordinates are in</p>
+<blockquote>
+<div>cartesian</div></blockquote>
+<dl class="docutils">
+<dt>from_ase: Whether to create Slab using python-ase for producing </dt>
+<dd>slabs that have orthogonal lattice vectors</dd>
+</dl>
+<p class="last">NOTE:   
+if starting from the bulk structure, create slab
+note: if the starting structure is a slab, the vaccum extension
+is not possible</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="mpinterfaces.interface.Interface.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Interface.calc_energy">
+<code class="descname">calc_energy</code><span class="sig-paren">(</span><em>model=u'Coulomb'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.calc_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.calc_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates energy of the interface according to a 
+defined energy model, useful for pre-screening 
+candidate structures, returns 5 lowest energy 
+structures
+Args:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>model: energy model to compute according to, default is</dt>
+<dd>Coulomb</dd>
+</dl>
+</div></blockquote>
+<p>Returns: energy of structure according to model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Interface.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Interface.cover_surface">
+<code class="descname">cover_surface</code><span class="sig-paren">(</span><em>site_indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.cover_surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.cover_surface" title="Permalink to this definition">¶</a></dt>
+<dd><p>puts the ligand molecule on the given list of site indices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Interface.create_interface">
+<code class="descname">create_interface</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.create_interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.create_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates the interface i.e creates a slab of given thicknes and
+vacuum space. It ensures that the cell is big enough and
+have enough ligands to satify the surface coverage criterion
+also sets the slab on which the ligand is adsorbed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Interface.enforce_coverage">
+<code class="descname">enforce_coverage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.enforce_coverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.enforce_coverage" title="Permalink to this definition">¶</a></dt>
+<dd><p>adjusts the supercell size and the number of adsorbed ligands
+so as to meet the surface coverage criterion within the given
+tolerance limit(specified as fraction of the required
+surface coverage)</p>
+<p>returns the number of ligands  and the supercell size  that
+satisfies the criterion</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Interface.get_index">
+<code class="descname">get_index</code><span class="sig-paren">(</span><em>species_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.get_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.get_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the first site index of the atomic species</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Interface.get_reduced_scell">
+<code class="descname">get_reduced_scell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.get_reduced_scell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.get_reduced_scell" title="Permalink to this definition">¶</a></dt>
+<dd><p>enforces the surface coverage criterion and generates
+the list all reduced lattice vectors that correspond to
+the computed supercell size and returns the one with similar
+lattice vector norms</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Interface.set_slab">
+<code class="descname">set_slab</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.set_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.set_slab" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the slab on to which the ligand is adsorbed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Interface.set_top_atoms">
+<code class="descname">set_top_atoms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.set_top_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.set_top_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the list of top and bottom atoms indices</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.interface.Ligand">
+<em class="property">class </em><code class="descclassname">mpinterfaces.interface.</code><code class="descname">Ligand</code><span class="sig-paren">(</span><em>mols</em>, <em>cm_dist=[]</em>, <em>angle={}</em>, <em>link={}</em>, <em>remove=[]</em>, <em>charge=0</em>, <em>spin_multiplicity=None</em>, <em>validate_proximity=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Ligand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Ligand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.structure.Molecule</span></code></p>
+<p>Construct ligand from  molecules</p>
+<dl class="method">
+<dt id="mpinterfaces.interface.Ligand.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Ligand.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Ligand.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Ligand.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Ligand.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Ligand.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Ligand.create_ligand">
+<code class="descname">create_ligand</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Ligand.create_ligand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Ligand.create_ligand" title="Permalink to this definition">¶</a></dt>
+<dd><p>create the ligand by assembling the provided individual 
+molecules and removeing the specified atoms from the molecules</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Ligand.get_perp_vec">
+<code class="descname">get_perp_vec</code><span class="sig-paren">(</span><em>vec1</em>, <em>vec2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Ligand.get_perp_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Ligand.get_perp_vec" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the vector that is perpendicular to the vec1 and vec2
+if the vectors are parllel, then perp_vec = (0, -z, y)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Ligand.link_mols">
+<code class="descname">link_mols</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Ligand.link_mols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Ligand.link_mols" title="Permalink to this definition">¶</a></dt>
+<dd><p>link the molecules together
+connect the specified atoms of mol to the atoms of other
+molecules in the list
+connection means putting the atomm  of the mol at
+a position that is the average of the position of
+the atoms of the molecules given in the list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Ligand.position_mols">
+<code class="descname">position_mols</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Ligand.position_mols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Ligand.position_mols" title="Permalink to this definition">¶</a></dt>
+<dd><p>position the center of masses of the molecules wrt each other
+first movement is in the x direction</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Ligand.rotate_mols">
+<code class="descname">rotate_mols</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Ligand.rotate_mols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Ligand.rotate_mols" title="Permalink to this definition">¶</a></dt>
+<dd><p>rotate the molecules wrt each other using the provided info</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Ligand.set_distance_matrix">
+<code class="descname">set_distance_matrix</code><span class="sig-paren">(</span><em>mol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Ligand.set_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Ligand.set_distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the distance matrix for the molecule</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.interface.Ligand.set_mol_vecs">
+<code class="descname">set_mol_vecs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Ligand.set_mol_vecs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Ligand.set_mol_vecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the start and end indices to define the vector that
+defines the molecule
+sets the vectors that point from the start index atom to
+the farthest atom for each molecule</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.measurement">
+<span id="mpinterfaces-measurement-module"></span><h2>mpinterfaces.measurement module<a class="headerlink" href="#module-mpinterfaces.measurement" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mpinterfaces.measurement.Measurement">
+<em class="property">class </em><code class="descclassname">mpinterfaces.measurement.</code><code class="descname">Measurement</code><span class="sig-paren">(</span><em>cal_objs</em>, <em>parent_job_dir=u'.'</em>, <em>job_dir=u'./Measurement'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#Measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.Measurement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Takes in calibrate objects and use that to perform various 
+measurement calculations such as solvation, ligand binding energy 
+etc. The default behaviour is to setup and run static calculations 
+for all the given calibrate jobs.</p>
+<p>Serves as Base Class. Override this class for custom measurements.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cal_objs: List of Calibration Object Names
+parent_job_dir: Directory in which measuremnt is setup 
+job_dir: Path name to directory for running the Measurement</p>
+<blockquote class="last">
+<div>modules</div></blockquote>
+</dd>
+</dl>
+<dl class="method">
+<dt id="mpinterfaces.measurement.Measurement.get_energy">
+<code class="descname">get_energy</code><span class="sig-paren">(</span><em>cal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#Measurement.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.Measurement.get_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>measures the energy of a single cal object
+a single cal object can have multiple calculations
+returns energies lists</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.measurement.Measurement.make_measurements">
+<code class="descname">make_measurements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#Measurement.make_measurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.Measurement.make_measurements" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets the energies and processes it
+override this for custom measurements</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.measurement.Measurement.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>job_cmd=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#Measurement.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.Measurement.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>run jobs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.measurement.Measurement.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#Measurement.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.Measurement.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>setup static jobs for all the calibrate objects
+copies CONTCAR to POSCAR
+sets NSW = 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.measurement.MeasurementInterface">
+<em class="property">class </em><code class="descclassname">mpinterfaces.measurement.</code><code class="descname">MeasurementInterface</code><span class="sig-paren">(</span><em>cal_objs</em>, <em>parent_job_dir=u'.'</em>, <em>job_dir=u'./MeasurementInterface'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#MeasurementInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.MeasurementInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mpinterfaces.measurement.Measurement" title="mpinterfaces.measurement.Measurement"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.measurement.Measurement</span></code></a></p>
+<p>Interface</p>
+<p>Takes list of Calibration Objects of Interface, Slab and 
+Ligand and separates them</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cal_objs: List of Calibration Objects</dd>
+</dl>
+<dl class="method">
+<dt id="mpinterfaces.measurement.MeasurementInterface.make_measurements">
+<code class="descname">make_measurements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#MeasurementInterface.make_measurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.MeasurementInterface.make_measurements" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the slab, ligand and interface energies
+compute binding energies</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.measurement.MeasurementInterface.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#MeasurementInterface.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.MeasurementInterface.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>setup static jobs for the calibrate objects
+copies CONTCAR to POSCAR
+sets NSW = 0
+write system.json file for database crawler</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.measurement.MeasurementSolvation">
+<em class="property">class </em><code class="descclassname">mpinterfaces.measurement.</code><code class="descname">MeasurementSolvation</code><span class="sig-paren">(</span><em>cal_obj, parent_job_dir=u'.', job_dir=u'./MeasurementSolvation', sol_params={u'TAU': [0], u'NELECT': [], u'LAMBDA_D_K': [3.0], u'EB_K': [78.4]}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#MeasurementSolvation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.MeasurementSolvation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mpinterfaces.measurement.Measurement" title="mpinterfaces.measurement.Measurement"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.measurement.Measurement</span></code></a></p>
+<p>Solvation with poisson-boltzmann(test verison)</p>
+<dl class="method">
+<dt id="mpinterfaces.measurement.MeasurementSolvation.make_measurements">
+<code class="descname">make_measurements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#MeasurementSolvation.make_measurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.MeasurementSolvation.make_measurements" title="Permalink to this definition">¶</a></dt>
+<dd><p>get solvation energies</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.measurement.MeasurementSolvation.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#MeasurementSolvation.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.MeasurementSolvation.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>setup solvation jobs for the calibrate objects
+copies WAVECAR and sets the solvation params in the incar file
+also dumps system.json file in each directory for the database
+crawler
+mind: works only for cal objects that does only single 
+calculations</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.nanoparticle">
+<span id="mpinterfaces-nanoparticle-module"></span><h2>mpinterfaces.nanoparticle module<a class="headerlink" href="#module-mpinterfaces.nanoparticle" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mpinterfaces.nanoparticle.Nanoparticle">
+<em class="property">class </em><code class="descclassname">mpinterfaces.nanoparticle.</code><code class="descname">Nanoparticle</code><span class="sig-paren">(</span><em>structure, rmax=15, hkl_family=[(1, 0, 0), (1, 1, 1)], surface_energies=[28, 25], scell=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/nanoparticle.html#Nanoparticle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.nanoparticle.Nanoparticle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.structure.Molecule</span></code></p>
+<p>Construct nanoparticle using wulff construction</p>
+<dl class="method">
+<dt id="mpinterfaces.nanoparticle.Nanoparticle.create">
+<code class="descname">create</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/nanoparticle.html#Nanoparticle.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.nanoparticle.Nanoparticle.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates the nanoparticle by chopping of the corners normal to the
+specified surfaces.
+the distance to the surface from the center of the particel =
+normalized surface energy * max radius</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.nanoparticle.Nanoparticle.get_centered_molecule">
+<code class="descname">get_centered_molecule</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/nanoparticle.html#Nanoparticle.get_centered_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.nanoparticle.Nanoparticle.get_centered_molecule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.nanoparticle.Nanoparticle.get_normals">
+<code class="descname">get_normals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/nanoparticle.html#Nanoparticle.get_normals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.nanoparticle.Nanoparticle.get_normals" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the normal to the plane (h,k,l)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.nanoparticle.Nanoparticle.set_miller_family">
+<code class="descname">set_miller_family</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/nanoparticle.html#Nanoparticle.set_miller_family"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.nanoparticle.Nanoparticle.set_miller_family" title="Permalink to this definition">¶</a></dt>
+<dd><p>get all miller indices for the given maximum index
+get the list of indices that correspond to the given family
+of indices</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.transformations">
+<span id="mpinterfaces-transformations-module"></span><h2>mpinterfaces.transformations module<a class="headerlink" href="#module-mpinterfaces.transformations" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="mpinterfaces.transformations.generate_all_configs">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">generate_all_configs</code><span class="sig-paren">(</span><em>mat2d</em>, <em>substrate</em>, <em>nlayers_2d=2</em>, <em>nlayers_substrate=2</em>, <em>seperation=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#generate_all_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.generate_all_configs" title="Permalink to this definition">¶</a></dt>
+<dd><p>For the given lattice matched 2D material and substrate structures,
+this functions computes all unique sites in the interface layers
+and subsequently generates all possible unique 2d/substrate
+interfaces and writes the corresponding poscar files</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">mat2d: Lattice and symmetry-matched 2D material structure
+substrate: Lattice and symmetry-matched 2D substrate structure
+nlayers_substrate: number of substrate layers
+nlayers_2d: number of 2d material layers
+seperation: seperation between the substrate and the 2d</p>
+<blockquote class="last">
+<div>material</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+</dl>
+<p>TODO: give additional random placement of 2D material on substrate</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.get_aligned_lattices">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_aligned_lattices</code><span class="sig-paren">(</span><em>slab_sub</em>, <em>slab_2d</em>, <em>max_area=200</em>, <em>max_mismatch=0.05</em>, <em>max_angle_diff=1</em>, <em>r1r2_tol=0.2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_aligned_lattices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_aligned_lattices" title="Permalink to this definition">¶</a></dt>
+<dd><p>given the 2 slab structures and the alignment paramters, return
+slab structures with lattices that are aligned with respect to each
+other</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.get_angle">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_angle</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>angle between lattice vectors a and b in degrees</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.get_area">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_area</code><span class="sig-paren">(</span><em>uv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>area of the parallelogram</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.get_matching_lattices">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_matching_lattices</code><span class="sig-paren">(</span><em>iface1</em>, <em>iface2</em>, <em>max_area=100</em>, <em>max_mismatch=0.01</em>, <em>max_angle_diff=1</em>, <em>r1r2_tol=0.02</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_matching_lattices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_matching_lattices" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes a list of matching reduced lattice vectors that satify
+the max_area, max_mismatch and max_anglele_diff criteria</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.get_mismatch">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_mismatch</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_mismatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_mismatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>percentage mistmatch between the lattice vectors a and b</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.get_r_list">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_r_list</code><span class="sig-paren">(</span><em>area1</em>, <em>area2</em>, <em>max_area</em>, <em>tol=0.02</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_r_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_r_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a list of r1 and r2 values that satisfies:
+r1/r2 = area2/area1 with the constraints:
+r1 &lt;= Area_max/area1 and r2 &lt;= Area_max/area2
+r1 and r2 corresponds to the supercell sizes of the 2 interfaces
+that align them</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.get_reduced_uv">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_reduced_uv</code><span class="sig-paren">(</span><em>uv</em>, <em>tm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_reduced_uv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_reduced_uv" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns reduced lattice vectors</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.get_trans_matrices">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_trans_matrices</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_trans_matrices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_trans_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>yields a list of 2x2 transformation matrices for the 
+given supercell
+n: size</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.get_uniq_layercoords">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_uniq_layercoords</code><span class="sig-paren">(</span><em>struct</em>, <em>nlayers</em>, <em>top=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_uniq_layercoords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_uniq_layercoords" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the coordinates of unique sites in the top or bottom
+nlayers of the given structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>struct: input structure
+nlayers: number of layers
+top: top or bottom layers, default is top layer</dd>
+<dt>Return:</dt>
+<dd>numpy array of unique coordinates</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.get_uv">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_uv</code><span class="sig-paren">(</span><em>ab</em>, <em>t_mat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_uv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_uv" title="Permalink to this definition">¶</a></dt>
+<dd><p>return u and v, the supercell lattice vectors obtained through the
+transformation matrix</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.transformations.reduced_supercell_vectors">
+<code class="descclassname">mpinterfaces.transformations.</code><code class="descname">reduced_supercell_vectors</code><span class="sig-paren">(</span><em>ab</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#reduced_supercell_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.reduced_supercell_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns all possible reduced in-plane lattice vectors and 
+transition matrices for the given starting unit cell lattice 
+vectors(ab) and the supercell size n</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.utils">
+<span id="mpinterfaces-utils-module"></span><h2>mpinterfaces.utils module<a class="headerlink" href="#module-mpinterfaces.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="mpinterfaces.utils.add_vacuum_padding">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">add_vacuum_padding</code><span class="sig-paren">(</span><em>slab, vacuum, hkl=[0, 0, 1]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#add_vacuum_padding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.add_vacuum_padding" title="Permalink to this definition">¶</a></dt>
+<dd><p>add vacuum spacing to the given structure
+Args:</p>
+<blockquote>
+<div>slab: sructure/slab object to be padded 
+vacuum: in angstroms
+hkl: miller index</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Structure object</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.get_ase_slab">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">get_ase_slab</code><span class="sig-paren">(</span><em>pmg_struct</em>, <em>hkl=(1</em>, <em>1</em>, <em>1)</em>, <em>min_thick=10</em>, <em>min_vac=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#get_ase_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.get_ase_slab" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes in the intial structure as pymatgen Structure object
+uses ase to generate the slab
+returns pymatgen Slab object</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>pmg_struct: pymatgen structure object
+hkl: hkl index of surface of slab to be created
+min_thick: minimum thickness of slab in Angstroms
+min_vac: minimum vacuum spacing</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.get_convergence_data">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">get_convergence_data</code><span class="sig-paren">(</span><em>jfile, params=[u'ENCUT', u'KPOINTS']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#get_convergence_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.get_convergence_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns data dict in the following format
+{&#8216;Al&#8217;:</p>
+<blockquote>
+<div><blockquote>
+<div><dl class="docutils">
+<dt>{&#8216;ENCUT&#8217;: [ [500,1.232], [600,0.8798] ], </dt>
+<dd>&#8216;KPOINTS&#8217;:[ [], [] ]</dd>
+</dl>
+<p>},</p>
+</div></blockquote>
+<p>&#8216;W&#8217;: ...</p>
+</div></blockquote>
+<p>}</p>
+<p>Note: processes only INCAR parmaters and KPOINTS</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.get_job_state">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">get_job_state</code><span class="sig-paren">(</span><em>job</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#get_job_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.get_job_state" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Args:</dt>
+<dd>job: job</dd>
+<dt>Returns:</dt>
+<dd>the job state and the job output file name</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.get_logger">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">get_logger</code><span class="sig-paren">(</span><em>log_file_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#get_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.get_logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.get_opt_params">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">get_opt_params</code><span class="sig-paren">(</span><em>data</em>, <em>species</em>, <em>param=u'ENCUT'</em>, <em>ev_per_atom=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#get_opt_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.get_opt_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>return optimum parameter
+default: 1 meV/atom</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.get_run_cmmnd">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">get_run_cmmnd</code><span class="sig-paren">(</span><em>nnodes=1</em>, <em>nprocs=16</em>, <em>walltime=u'24:00:00'</em>, <em>job_bin=None</em>, <em>mem=u'1000'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#get_run_cmmnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.get_run_cmmnd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.jobs_from_file">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">jobs_from_file</code><span class="sig-paren">(</span><em>filename=u'calibrate.json'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#jobs_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.jobs_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>read in json file of format caibrate.json(the default logfile
+created when jobs are run through calibrate) and return the
+list of job objects.
+Args:</p>
+<blockquote>
+<div>filename: checkpoint file name</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>list of all jobs</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.launch_daemon">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">launch_daemon</code><span class="sig-paren">(</span><em>steps</em>, <em>interval</em>, <em>handlers=None</em>, <em>ld_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#launch_daemon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.launch_daemon" title="Permalink to this definition">¶</a></dt>
+<dd><p>run all the &#8216;steps&#8217; in daemon mode
+checks job status every &#8216;interval&#8217; seconds
+also runs all the error handlers</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.partition_jobs">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">partition_jobs</code><span class="sig-paren">(</span><em>turn_knobs</em>, <em>max_jobs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#partition_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.partition_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>divide turn_knobs into smaller turn_knobs so that each one of
+them has smaller max_jobs jobs</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.slab_from_file">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">slab_from_file</code><span class="sig-paren">(</span><em>hkl</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#slab_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.slab_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>reads in structure from the file and returns slab object.
+useful for reading in 2d/substrate structures from file.
+Args:</p>
+<blockquote>
+<div><p>hkl: miller index of the slab in the input file.
+filename: structure file in any format</p>
+<blockquote>
+<div>supported by pymatgen</div></blockquote>
+</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Slab object</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.update_checkpoint">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">update_checkpoint</code><span class="sig-paren">(</span><em>job_ids=None</em>, <em>jfile=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#update_checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.update_checkpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>rerun the jobs with job ids in the job_ids list. The jobs are
+read from the json checkpoint file, jfile. 
+If no job_ids are given then the checkpoint file will 
+be updated with corresponding final energy
+Args:</p>
+<blockquote>
+<div>job_ids: list of job ids
+jfile: check point file</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mpinterfaces" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="mpinterfaces.get_struct_from_mp">
+<code class="descclassname">mpinterfaces.</code><code class="descname">get_struct_from_mp</code><span class="sig-paren">(</span><em>formula</em>, <em>MAPI_KEY=u''</em>, <em>all_structs=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces.html#get_struct_from_mp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.get_struct_from_mp" title="Permalink to this definition">¶</a></dt>
+<dd><p>fetches the structure corresponding to the given formula
+from the materialsproject database.</p>
+<p>Note: Get the api key from materialsproject website. The one used
+here is nolonger valid.</p>
+<p>Note: for the given formula there are many structures available, 
+this function returns the one with the lowest energy above the hull
+unless all_structs is set to True</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="usage.html" class="btn btn-neutral float-right" title="Overview" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Introduction" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.1.2alpha',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,357 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>mpinterfaces.firetasks &mdash; mpinterfaces 1.1.2alpha documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="../../index.html"/>
+        <link rel="up" title="mpinterfaces" href="../mpinterfaces.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="../../index.html" class="icon icon-home"> mpinterfaces
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../mpinterfaces.html">mpinterfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html#capabilities">Capabilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#interface-creation">Interface Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#offline-vasp-project-management">Offline vasp project management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#workflow-submission-and-launching">Workflow submission and launching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#workflow-query-examples">Workflow query examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#query-for-individual-fireworks">Query for individual Fireworks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../usage.html#connecting-to-our-local-database">Connecting to our local Database</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">mpinterfaces</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../mpinterfaces.html">mpinterfaces</a> &raquo;</li>
+      
+    <li>mpinterfaces.firetasks</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for mpinterfaces.firetasks</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Defines various firetasks</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="kn">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="kn">import</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span>
+<span class="kn">from</span> <span class="nn">pymatgen.apps.borg.queen</span> <span class="kn">import</span> <span class="n">BorgQueen</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MontyDecoder</span>
+
+<span class="kn">from</span> <span class="nn">fireworks.core.firework</span> <span class="kn">import</span> <span class="n">FireTaskBase</span><span class="p">,</span> <span class="n">Firework</span><span class="p">,</span> <span class="n">FWAction</span>
+<span class="kn">from</span> <span class="nn">fireworks.core.launchpad</span> <span class="kn">import</span> <span class="n">LaunchPad</span>
+<span class="kn">from</span> <span class="nn">fireworks.utilities.fw_serializers</span> <span class="kn">import</span> <span class="n">FWSerializable</span>
+<span class="kn">from</span> <span class="nn">fireworks.utilities.fw_utilities</span> <span class="kn">import</span> <span class="n">explicit_serialize</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces.calibrate</span> <span class="kn">import</span> <span class="n">CalibrateMolecule</span><span class="p">,</span> <span class="n">CalibrateSlab</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.calibrate</span> <span class="kn">import</span> <span class="n">CalibrateBulk</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.measurement</span> <span class="kn">import</span> <span class="n">Measurement</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.database</span> <span class="kn">import</span> <span class="n">MPINTVaspToDbTaskDrone</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.utils</span> <span class="kn">import</span> <span class="n">get_run_cmmnd</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%(levelname)s</span><span class="s">:</span><span class="si">%(name)s</span><span class="s">:</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
+<span class="n">sh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+<span class="n">sh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_class"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.firetasks.load_class">[docs]</a><span class="k">def</span> <span class="nf">load_class</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    load class named name from module mod</span>
+<span class="sd">    this function is adapted from materialsproject</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="nb">globals</span><span class="p">(),</span> <span class="nb">locals</span><span class="p">(),</span> <span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_cal_obj"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.firetasks.get_cal_obj">[docs]</a><span class="k">def</span> <span class="nf">get_cal_obj</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    construct a calibration object from the input dictionary, d</span>
+
+<span class="sd">    returns a calibration object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cal</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="c"># default</span>
+    <span class="c">#if not d.get(&quot;qadapter&quot;):</span>
+    <span class="c">#    qadapter, job_cmd = get_run_cmmnd(**d.get(&#39;que_params&#39;, {}))</span>
+    <span class="c">#    cal.qadapter = qadapter</span>
+    <span class="c">#    cal.job_cmd = job_cmd</span>
+    <span class="k">return</span> <span class="n">cal</span>
+
+</div>
+<span class="nd">@explicit_serialize</span>
+<div class="viewcode-block" id="MPINTCalibrateTask"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.firetasks.MPINTCalibrateTask">[docs]</a><span class="k">class</span> <span class="nc">MPINTCalibrateTask</span><span class="p">(</span><span class="n">FireTaskBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calibration Task</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">optional_params</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;que_params&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="MPINTCalibrateTask.run_task"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.firetasks.MPINTCalibrateTask.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fw_spec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        launch jobs to the queue</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cal</span> <span class="o">=</span> <span class="n">get_cal_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">cal</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+        <span class="n">cal</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">cal</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;que_params&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;que_params&#39;</span><span class="p">)})</span>
+        <span class="k">return</span> <span class="n">FWAction</span><span class="p">(</span><span class="n">mod_spec</span><span class="o">=</span><span class="p">[{</span><span class="s">&#39;_push&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;cal_objs&#39;</span><span class="p">:</span><span class="n">d</span><span class="p">}}])</span>
+        
+</div></div>
+<span class="nd">@explicit_serialize</span>
+<div class="viewcode-block" id="MPINTMeasurementTask"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.firetasks.MPINTMeasurementTask">[docs]</a><span class="k">class</span> <span class="nc">MPINTMeasurementTask</span><span class="p">(</span><span class="n">FireTaskBase</span><span class="p">,</span> <span class="n">FWSerializable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Measurement Task</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">required_params</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;measurement&quot;</span><span class="p">]</span>
+    <span class="n">optional_params</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;que_params&quot;</span><span class="p">,</span> <span class="s">&quot;job_cmd&quot;</span><span class="p">,</span> <span class="s">&quot;other_params&quot;</span><span class="p">,</span> <span class="s">&quot;fw_id&quot;</span><span class="p">]</span>    
+
+<div class="viewcode-block" id="MPINTMeasurementTask.run_task"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.firetasks.MPINTMeasurementTask.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fw_spec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setup up a measurement task using the prior calibration jobs</span>
+<span class="sd">        and run</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cal_objs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;The measurement task will be constructed from {} calibration objects&#39;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fw_spec</span><span class="p">[</span><span class="s">&#39;cal_objs&#39;</span><span class="p">]))</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">calparams</span> <span class="ow">in</span> <span class="n">fw_spec</span><span class="p">[</span><span class="s">&#39;cal_objs&#39;</span><span class="p">]:</span>
+            <span class="n">calparams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;que_params&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;que_params&#39;</span><span class="p">)})</span>
+            <span class="n">cal</span> <span class="o">=</span> <span class="n">get_cal_obj</span><span class="p">(</span><span class="n">calparams</span><span class="p">)</span>
+            <span class="n">cal_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cal</span><span class="p">)</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="n">load_class</span><span class="p">(</span><span class="s">&quot;mpinterfaces.calibrate&quot;</span><span class="p">,</span> <span class="s">&quot;Calibrate&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">check_calcs</span><span class="p">(</span><span class="n">cal_objs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Calibration not done yet. Try again later&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;All subsequent fireworks will be defused&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;&quot;&quot;Try re-running this firework again later.</span>
+<span class="s">            Re-running this firework will activate all the subsequent foreworks too&quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;This fireworks id = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;fw_id&quot;</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="n">FWAction</span><span class="p">(</span><span class="n">defuse_children</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="c">### to enable dynamic workflow, uncomment the following</span>
+            <span class="c">#if self.get(&quot;fw_id&quot;):</span>
+            <span class="c">#    fw_id = int(self.get(&quot;fw_id&quot;)) + 1</span>
+            <span class="c">#    self[&quot;fw_id&quot;] = fw_id</span>
+            <span class="c">#    new_fw = Firework(MPINTMeasurementTask(self),</span>
+            <span class="c">#                      spec={&#39;cal_objs&#39;:fw_spec[&#39;cal_objs&#39;]},</span>
+            <span class="c">#                      name = &#39;new_fw&#39;, fw_id = -fw_id)</span>
+            <span class="c">#else:</span>
+            <span class="c">#    new_fw = Firework(MPINTMeasurementTask(self),</span>
+            <span class="c">#                      spec={&#39;cal_objs&#39;:fw_spec[&#39;cal_objs&#39;]},</span>
+            <span class="c">#                      name = &#39;new_fw&#39;)</span>
+            <span class="c">#    </span>
+            <span class="c">#return FWAction(detours=new_fw)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">measure</span> <span class="o">=</span> <span class="n">load_class</span><span class="p">(</span><span class="s">&quot;mpinterfaces.measurement&quot;</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="p">[</span><span class="s">&#39;measurement&#39;</span><span class="p">])(</span><span class="n">cal_objs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;other_params&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+            <span class="n">job_cmd</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;job_cmd&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">job_cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;job_cmd&quot;</span><span class="p">)</span>
+            <span class="n">measure</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+            <span class="n">measure</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">job_cmd</span> <span class="o">=</span> <span class="n">job_cmd</span><span class="p">)</span>
+            <span class="n">cal_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">cal</span> <span class="ow">in</span> <span class="n">measure</span><span class="o">.</span><span class="n">cal_objs</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">cal</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;que_params&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;que_params&#39;</span><span class="p">)})</span>
+                <span class="n">cal_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">FWAction</span><span class="p">(</span><span class="n">update_spec</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;cal_objs&#39;</span><span class="p">:</span><span class="n">cal_list</span><span class="p">})</span>
+
+</div></div>
+<span class="nd">@explicit_serialize</span>
+<div class="viewcode-block" id="MPINTDatabaseTask"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.firetasks.MPINTDatabaseTask">[docs]</a><span class="k">class</span> <span class="nc">MPINTDatabaseTask</span><span class="p">(</span><span class="n">FireTaskBase</span><span class="p">,</span> <span class="n">FWSerializable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    submit data to the database firetask</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">required_params</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;measure_dir&quot;</span><span class="p">]</span>
+    <span class="n">optional_params</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;dbase_params&quot;</span><span class="p">]</span>    
+
+<div class="viewcode-block" id="MPINTDatabaseTask.run_task"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.firetasks.MPINTDatabaseTask.run_task">[docs]</a>    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fw_spec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        go through the measurement job dirs and </span>
+<span class="sd">        put the measurement jobs in the database</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">drone</span> <span class="o">=</span> <span class="n">MPINTVaspToDbTaskDrone</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;dbase_params&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="n">queen</span> <span class="o">=</span> <span class="n">BorgQueen</span><span class="p">(</span><span class="n">drone</span><span class="p">)</span><span class="c">#, number_of_drones=ncpus)</span>
+        <span class="n">queen</span><span class="o">.</span><span class="n">serial_assimilate</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="s">&quot;measure_dir&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">FWAction</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.1.2alpha',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

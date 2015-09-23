@@ -1,0 +1,437 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Overview &mdash; mpinterfaces 1.1.2alpha documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="index.html"/>
+        <link rel="prev" title="mpinterfaces package" href="mpinterfaces.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> mpinterfaces
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.html">mpinterfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#capabilities">Capabilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#interface-creation">Interface Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#offline-vasp-project-management">Offline vasp project management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-submission-and-launching">Workflow submission and launching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-query-examples">Workflow query examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#query-for-individual-fireworks">Query for individual Fireworks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connecting-to-our-local-database">Connecting to our local Database</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">mpinterfaces</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Overview</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/usage.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>The MPInterfaces package contains python modules that enable the creation of
+FireWorks workflows for ligand-slab interface and slab-slab interface
+calculations with VASP.</p>
+<p>The package is structured as python modules (listed in modules section
+of docs and contained in mpinterfaces folder), examples notebooks
+(ipython notebooks) and workflows scripts to be
+used with a locally set up FireWorks database.</p>
+<p>The examples folder contains scripts for interface creation and utility post processing and
+ipython notebook examples and workflow submission scripts.</p>
+<p>Apart from these, there are utility scripts for the plotting of band structures,
+density of states and equations of state.</p>
+<p>The example folder &#8220;notebooks&#8221; also provides example calculations of Pourbaix diagrams,
+and Phase diagrams based on the method implemented in pymatgen/examples</p>
+</div>
+<div class="section" id="capabilities">
+<h1>Capabilities<a class="headerlink" href="#capabilities" title="Permalink to this headline">¶</a></h1>
+<p>MPInterfaces extends object oriented definitions of materialsproject pymatgen to
+interfaces and features:</p>
+<div class="section" id="interface-creation">
+<h2>Interface Creation<a class="headerlink" href="#interface-creation" title="Permalink to this headline">¶</a></h2>
+<p>extended object oriented definitions to
+the pymatgen Slab called &#8220;Interface&#8221; and an
+adsorbate extension of pymatgen Molecule
+called &#8220;Ligand&#8221; and scripts to create Interfaces.</p>
+<dl class="docutils">
+<dt>Example scripts:</dt>
+<dd><ul class="first last simple">
+<li>create_interface.py : creates an example ligand + slab interface illustrating</li>
+<li>ligand_interface.py : creates a list of ligand + slab interfaces with pre-configuration</li>
+<li>hetero_interface.py : creates a slab – slab heterostructure interface</li>
+<li>nanoparticle.py     : creates a nanoparticle based on Wulff Construction</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="offline-vasp-project-management">
+<h2>Offline vasp project management<a class="headerlink" href="#offline-vasp-project-management" title="Permalink to this headline">¶</a></h2>
+<p>The script, <strong>mpint</strong>, in the scripts folder serves as a management
+tool for vasp projects, starting from encut, kpoint or other parameter
+optimization till the solvation calculations. Just define all types of
+calculations with their corresponding specifications needed for the
+project in a yaml file and run or rerun calculaitons as required.</p>
+<p>it takes 3 arguments: input yaml file, type of calculation and the
+run mode</p>
+<p>example:</p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">`</span>
+<span class="pre">mpint</span> <span class="pre">-i</span> <span class="pre">naf.yaml</span> <span class="pre">-t</span> <span class="pre">bulk_calibrate</span> <span class="pre">run</span>
+<span class="pre">`</span></code></p>
+<p>this will read in the specifications for &#8216;bulk_calibrate&#8217; job
+from the input yaml file, naf.yaml(in examples folder), and
+runs the job i.e submits to the PBS que.</p>
+</div></blockquote>
+<p><strong>Job Monitoring</strong>:</p>
+<p>Everytime jobs are submitted or its status queried, information
+such as job ids, job folders etc are written to the calibrate.json(the default name)
+checkpoint file. This makes it easier to identify job ids and their
+corresponding job folders. Also provides all job info including
+converged final energies in one place, in the checkpoint file.</p>
+<p>update the calibrate.json(default name) checkpoint file with the final
+energies(if converged):</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">`</span>
+<span class="pre">mpint</span> <span class="pre">update</span>
+<span class="pre">`</span></code></div></blockquote>
+<p>update custom name(example:- step1.json) checkpoint file with the
+final energies(if converged):</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">`</span>
+<span class="pre">mpint</span> <span class="pre">update</span> <span class="pre">step1.json</span>
+<span class="pre">`</span></code></div></blockquote>
+<p>update checkpoint files from calibrate runs:</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">`</span>
+<span class="pre">mpint</span> <span class="pre">update</span> <span class="pre">step1.json</span> <span class="pre">step2.json</span>
+<span class="pre">`</span></code></div></blockquote>
+<p>update calibrate.json and rerun jobs(will reset the poscar from the contcar
+file if one exists) with the given ids:</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">`</span>
+<span class="pre">mpint</span> <span class="pre">update</span> <span class="pre">14692739.moab.ufhpc</span> <span class="pre">14692740.moab.ufhpc</span>
+<span class="pre">`</span></code></div></blockquote>
+<p>update calibrate.json and rerun jobs in the given job directory paths:</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">`</span>
+<span class="pre">mpint</span> <span class="pre">update</span> <span class="pre">all_poscars/POS/CBr2_294_C1Br2</span> <span class="pre">all_poscars/POS/CoBr2_294_Co1Br2</span>
+<span class="pre">`</span></code></div></blockquote>
+<p>update calibrate.json and rerun jobs in the given folders(job ids are also accepted)
+with incar or kpoints or que parameters overridden by the parmaters in
+the override_input.yaml file:</p>
+<blockquote>
+<div><code class="docutils literal"><span class="pre">`</span>
+<span class="pre">mpint</span> <span class="pre">-i</span> <span class="pre">override_input.yaml</span> <span class="pre">update</span> <span class="pre">all_poscars/POS/CBr2_294_C1Br2</span> <span class="pre">all_poscars/POS/CoBr2_294_Co1Br2</span>
+<span class="pre">`</span></code></div></blockquote>
+</div>
+<div class="section" id="high-throughput-vasp-workflows-with-fireworks">
+<h2>High throughput VASP workflows with FireWorks<a class="headerlink" href="#high-throughput-vasp-workflows-with-fireworks" title="Permalink to this headline">¶</a></h2>
+<p>High throughput VASP workflows can be handled by creating your own FireWorks database server.
+The FireWorks package from the materialsproject is installed at the time of installation.
+We have defined FireTasks customized to Interface studies as follows:</p>
+<dl class="docutils">
+<dt>Calibrate, Measurement and DatabaseSubmit.</dt>
+<dd><ul class="first last simple">
+<li>Calibrate Task:
+Defines all tasks that involve the calibration of
+VASP input parameters. For example, energy cutoff convergence,
+kpoints convergence,vacuum convergence, thickness convergence in case of slabs
+Calibrate module defined in calibrate.py provides customized
+Bulk, Molecule, Slab and Interface objects for the Calibrate Task</li>
+<li>Measurement Task:
+Tasks for VASP jobs dependent on a previous calculation. Currently implemented
+tasks include Static calculation following a Calibrate Task and Solvation calculation following a Calibrate Task
+Measurement tasks are linked to calibrate tasks and are capable of copying
+the necessary files from the previous calculation to restart the calculation.
+for example, CONTCAR from a Relaxation for a Static calculation, CONTCAR and WAVECAR for a Solvation calculation</li>
+<li>Database Task:
+Submits data to a MongoDB database similar to VasptoDBtaskDrone
+of pymatgen extended to use Interface specific keys of miller index of slab
+and ligand chemical formula in .json format</li>
+</ul>
+</dd>
+</dl>
+<p>Refer examples/Workflows for example workflow submission scripts.</p>
+</div>
+</div>
+<div class="section" id="example-of-fireworks-database-queries">
+<h1>Example of FireWorks Database Queries<a class="headerlink" href="#example-of-fireworks-database-queries" title="Permalink to this headline">¶</a></h1>
+<p>After installation and setup of your database according to
+FireWorks documentation, create your own my_launchpad.yaml using</p>
+<p>lpad init</p>
+<p>Set the path to this file to LAUNCHPAD_LOC in
+the fw_config.py found in your installation directory.</p>
+<dl class="docutils">
+<dt>TIP: create the my_launchpad.yaml in the directory</dt>
+<dd>~/.fireworks</dd>
+</dl>
+<p>Make sure to configure your my_launchpad.yaml file to your local
+database settings (host name, database name, etc.)</p>
+<div class="section" id="workflow-submission-and-launching">
+<h2>Workflow submission and launching<a class="headerlink" href="#workflow-submission-and-launching" title="Permalink to this headline">¶</a></h2>
+<p>Refer examples folder for simple workflow scripts</p>
+<blockquote>
+<div><p>-&gt; general submission of workflow to the database:</p>
+<p>python workflow_script.py</p>
+<p>Fireworks package has some nice utility scripts for launching
+fireworks and checking job status. If the fireworks package is
+installed then those scripts are already in your PATH. Some
+examples are given below:</p>
+<p>-&gt; reset database to erase all workflows</p>
+<blockquote>
+<div><p>CAUTION: Be careful when using the following command as it will
+erase all workflows from the database:</p>
+<p>lpad reset</p>
+</div></blockquote>
+<p>-&gt; launch a single firework:</p>
+<blockquote>
+<div>rlaunch singleshot -f [fw_id]</div></blockquote>
+<p>-&gt; get all fireworks info:</p>
+<blockquote>
+<div>lpad get_fws</div></blockquote>
+<p>-&gt; get all workflows info:</p>
+<blockquote>
+<div>lpad get_wflows</div></blockquote>
+<p>-&gt; reset database to erase all workflows</p>
+<blockquote>
+<div><p>CAUTION: Be careful when using the following command as it will
+erase all workflows from the database:</p>
+<p>lpad reset</p>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="workflow-query-examples">
+<h2>Workflow query examples<a class="headerlink" href="#workflow-query-examples" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>-&gt; query by name:</p>
+<blockquote>
+<div>example:
+lpad get_wflows -n &#8220;Ag_100&#8221;</div></blockquote>
+<p>-&gt; query by state</p>
+<blockquote>
+<div><p>lpad get_wflows -s STATE</p>
+<p>or</p>
+<p>lpad get_wflows -q &#8216;{&#8220;state&#8221;:STATE}&#8217; &#8211;sort created_on</p>
+<p>where STATE = &#8220;READY&#8221;, &#8220;WAITING&#8221;, &#8220;RUNNING&#8221;, &#8220;FIZZLED&#8221; or &#8220;DEFUSED&#8221;</p>
+</div></blockquote>
+<p>-&gt; delete workflows:</p>
+<blockquote>
+<div>example:
+lpad delete_wflows -n Ag_100</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="query-for-individual-fireworks">
+<h2>Query for individual Fireworks<a class="headerlink" href="#query-for-individual-fireworks" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><dl class="docutils">
+<dt>-&gt; query by state</dt>
+<dd>lpad get_fws -s STATE</dd>
+</dl>
+<p>or</p>
+<blockquote>
+<div><p>lpad get_fws -q &#8216;{&#8220;state&#8221;:STATE}&#8217; &#8211;sort created_on</p>
+<p>where STATE = &#8220;READY&#8221;, &#8220;WAITING&#8221;, &#8220;RUNNING&#8221;, &#8220;FIZZLED&#8221;, &#8220;DEFUSED&#8221;</p>
+</div></blockquote>
+<p>-&gt; query fireworks by name or id:</p>
+<blockquote>
+<div><p>example:
+lpad get_fws -n &#8220;solvation&#8221;</p>
+<p>lpad get_fws -i 102 -d all</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>-&gt; re-run firework with id, fw_id. Same as marking the firework as ready</dt>
+<dd>lpad rerun_fws -i fw_id</dd>
+<dt>-&gt; re-run a finished or fizzled firework with updated specs:</dt>
+<dd><p class="first">example: update the sol_params of the first task of the firework with id 102
+lpad rerun_fws -i 102</p>
+<p class="last">lpad update_fws -i 102 -u &#8216;{&#8220;_tasks.0.other_params.sol_params.NELECT&#8221;:[-1,-0.5,0,0.5,1]}&#8217;</p>
+</dd>
+</dl>
+</div></blockquote>
+</div>
+<div class="section" id="connecting-to-our-local-database">
+<h2>Connecting to our local Database<a class="headerlink" href="#connecting-to-our-local-database" title="Permalink to this headline">¶</a></h2>
+<p>The mongo database for job submission(&#8216;fireworks&#8217;) is set up on the
+machine &#8216;hydrogen&#8217;.
+Please use your own account to connect to the database
+Contact me (<a class="reference external" href="mailto:km468&#37;&#52;&#48;cornell&#46;edu">km468<span>&#64;</span>cornell<span>&#46;</span>edu</a>) to create a database account</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="mpinterfaces.html" class="btn btn-neutral" title="mpinterfaces package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.1.2alpha',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

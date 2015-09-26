@@ -30,6 +30,7 @@ from custodian.custodian import Custodian
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from ase.lattice.surface import surface
+from mpinterfaces.instrument import MPINTVaspJob
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -230,7 +231,9 @@ def update_checkpoint(job_ids=None, jfile=None, **kwargs):
     If no job_ids are given then the checkpoint file will 
     be updated with corresponding final energy
     Args:
-        job_ids: list of job ids
+        job_ids: list of job ids to update or q resolve
+                 if q resolve, will be a pair of old job 
+                 and new job
         jfile: check point file
     """
     cal_log = loadfn(jfile, cls=MontyDecoder)
@@ -241,7 +244,8 @@ def update_checkpoint(job_ids=None, jfile=None, **kwargs):
     final_energy = None
     incar = None
     kpoints = None
-    qadater = None
+    qadapter = None
+    #if updating the specs of the job
     for k, v in kwargs.items():
         if k == 'incar':
             incar = v
@@ -324,10 +328,11 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
             if not chkpt_files:
                 return None
             while True:
-                done = []            
+                done = []
+                reruns= []            
                 for cf in chkpt_files:
                     time.sleep(3)                
-                    update_checkpoint(jfile=cf)
+                    update_checkpoint(job_ids=reruns,jfile=cf)
                     all_jobs = jobs_from_file(cf)
                     for j in all_jobs:
                         state, ofname = get_job_state(j)
@@ -342,11 +347,25 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                             if handlers:
                                 logger.info('Investigating ... ')
                                 os.chdir(j.job_dir)
+                                truth = []
                                 for h in handlers:
                                     if ofname:
                                         h.output_filename = ofname
                                         if h.check():
                                             logger.error('Detected vasp errors {}'.format(h.errors))
+                                        #test q error checks
+                                        with open(ofname, "r") as f:
+                                            for line in f:
+                                                l = line.strip()
+                                                if 'reached required accuracy - stopping structural energy minimisation' in l:
+                                                    truth.append(False)
+                                                else:
+                                                    truth.append(True)
+                                            if all(truth):
+                                                logger.error('Possible queue error in {} resolving by rerun'.format(j.job_dir))                          
+                                                reruns.append(j.job_id)
+                                    else:
+                                        reruns.append(j.job_id)   
                                 os.chdir(j.parent_job_dir)
                         else:
                             logger.info('Job {0} pending. State = {1}'.format(j.job_id,state))
@@ -372,6 +391,8 @@ def get_convergence_data(jfile, params = ['ENCUT','KPOINTS']):
     }
 
     Note: processes only INCAR parmaters and KPOINTS
+    Sufficient tagging of the data assumed from species,Poscar
+    comment line and potcar functional
     """
     cutoff_jobs = jobs_from_file(jfile)
     data = {}
@@ -379,35 +400,48 @@ def get_convergence_data(jfile, params = ['ENCUT','KPOINTS']):
         jdir = os.path.join(j.parent_job_dir, j.job_dir)
         poscar_file = os.path.join(jdir, 'POSCAR')
         struct_m = Structure.from_file(poscar_file)
+        
         species = ''.join([tos.symbol for tos in struct_m.types_of_specie])
-        if data.get(species):
+        tag = '_'.join([species,Poscar.from_file(poscar_file).comment,j.vis.potcar.functional])
+        if data.get(tag):
             for p in params:
                 if j.vis.incar.get(p):
-                    data[species][p].append( [ j.vis.incar[p],
-                                               j.final_energy/len(struct_m) ] )
+                    data[tag][p].append( [ j.vis.incar[p],
+                                               j.final_energy/len(struct_m),j.vis.potcar,j.vis.poscar] )
+    #                print(j.vis.potcar.functional,j.vis.poscar)
                 elif p == 'KPOINTS':
-                    data[species]['KPOINTS'].append( [ j.vis.kpoints.kpts,
-                                                       j.final_energy/len(struct_m) ] )
+                    data[tag]['KPOINTS'].append( [ j.vis.kpoints.kpts,
+                                                       j.final_energy/len(struct_m),j.vis.potcar,j.vis.poscar] )
                 else:
                     logger.warn('dont know how to parse the parameter {}'.format(p))
         else:
-            data[species] = {}
+            data[tag] = {}
             for p in params:
-                data[species][p] = []
-                data[species][p] = []
+                data[tag][p] = []
+                data[tag][p] = []
     return data    
 
 
-def get_opt_params(data, species, param='ENCUT', ev_per_atom=1.0):
+def get_opt_params(data, tag, param='ENCUT', ev_per_atom=1.0):
     """
     return optimum parameter
     default: 1 meV/atom
     """
-    sorted_list = sorted(data[species][param], key=lambda x:x[1])
-    sorted_array = np.array(sorted_list)
-    consecutive_diff = np.abs(sorted_array[:-1,1] - sorted_array[1:,1] - ev_per_atom)
+#    sorted_list = sorted(data[species][param], key=lambda x:x[1])
+#    sorted_array = np.array(sorted_list)
+#    consecutive_diff = np.abs(sorted_array[:-1,1] - sorted_array[1:,1] - ev_per_atom)
+#    min_index = np.argmin(consecutive_diff)
+#    return sorted_list[min_index][0]
+    #test
+    sorted_list = sorted(data[tag][param], key=lambda x:x[0])
+    t = np.array(sorted_list)[:,1]
+    #print(sorted_array[:-1,1], sorted_array[1:,1], ev_per_atom)
+    consecutive_diff = [float(j)-float(i) for i, j in zip(t[:-1], t[1:])]
+    #print("Consecutive_diff",consecutive_diff)
     min_index = np.argmin(consecutive_diff)
-    return sorted_list[min_index][0]
+    #return the poscar object, potcar object and incar setting that is optimum
+    print(type(data[tag][param][min_index][3]))
+    return [tag,data[tag][param][min_index][2],data[tag][param][min_index][3],sorted_list[min_index][0],t]
     
 
 def partition_jobs(turn_knobs, max_jobs):

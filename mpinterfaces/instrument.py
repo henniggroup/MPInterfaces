@@ -54,6 +54,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         self.extra = kwargs
         if qadapter is not None:
             self.qadapter = qadapter.from_dict(qadapter.to_dict())
+            self.script_name = 'submit_script'
         else:
             self.qadapter = None        
         config_dict = {}
@@ -95,13 +96,17 @@ class MPINTVaspInputSet(DictVaspInputSet):
             
     def as_dict(self):
         qadapter = None
+        script_name = None
         if self.qadapter:
             qadapter = self.qadapter.to_dict()
+        if self.script_name:
+            script_name = self.script_name
         d = dict(name=self.name, incar=self.incar.as_dict(), 
                  poscar=self.poscar.as_dict(), 
                  potcar=self.potcar.as_dict(), 
                  kpoints=self.kpoints.as_dict(),
-                 qadapter=qadapter, kwargs=self.extra )
+                 qadapter=qadapter, script_name=script_name,
+                 kwargs=self.extra )
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["logger"] = self.logger.name

@@ -30,7 +30,6 @@ from custodian.custodian import Custodian
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from ase.lattice.surface import surface
-from mpinterfaces.instrument import MPINTVaspJob
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

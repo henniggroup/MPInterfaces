@@ -345,32 +345,23 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                             if handlers:
                                 logger.info('Investigating ... ')
                                 os.chdir(j.job_dir)
-                                truth = []
-                                for h in handlers:
-                                    if ofname:
-                                        h.output_filename = ofname
-                                        if h.check():
-                                            logger.error('Detected vasp errors {}'.format(h.errors))
-                                        #test q error checks
-                                        with open(ofname, "r") as f:
-                                            for line in f:
-                                                l = line.strip()
-                                                if 'reached required accuracy - stopping structural\
-                                                 energy minimisation' in l:
-                                                    truth.append(False)
-                                                else:
-                                                    truth.append(True)
-                                            if all(truth):
-                                                logger.error('Possible queue error in {}\
-                                                 resolving by rerun'.format(j.job_dir))                          
-                                                reruns.append(j.job_id)
+                                if ofname:
+                                    if os.path.exists(ofname):
+                                        for h in handlers:                                            
+                                            h.output_filename = ofname
+                                            if h.check():
+                                                logger.error('Detected vasp errors {}'.format(h.errors))
+                                                #TODO: correct the error and mark the job for rerun
+                                                #all error handling must done using proper errorhandlers
+                                                #h.correct()
+                                                #reruns.append(j.job_id)
                                     else:
+                                        logger.error('stdout redirect file not generated, job {} will be rerun'.format(j.job_id))
                                         reruns.append(j.job_id)   
                                 os.chdir(j.parent_job_dir)
                         else:
                             logger.info('Job {0} pending. State = {1}'.format(j.job_id,state))
                             done = done + [False]
-                                            
                 if all(done):
                     logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))                                    
                     time.sleep(5)

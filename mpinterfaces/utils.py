@@ -232,8 +232,6 @@ def update_checkpoint(job_ids=None, jfile=None, **kwargs):
     be updated with corresponding final energy
     Args:
         job_ids: list of job ids to update or q resolve
-                 if q resolve, will be a pair of old job 
-                 and new job
         jfile: check point file
     """
     cal_log = loadfn(jfile, cls=MontyDecoder)
@@ -342,7 +340,8 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                             logger.info('job {} running'.format(j.job_id))
                             done = done + [False]
                         elif state in ['C', 'CF', 'F', '00']:
-                            logger.error('Job {0} in {1} cancelled or failed. State = {2}'.format(j.job_id, j.job_dir,state))
+                            logger.error('Job {0} in {1} cancelled or failed. State = {2}'.\
+                                         format(j.job_id, j.job_dir,state))
                             done = done + [False]
                             if handlers:
                                 logger.info('Investigating ... ')
@@ -357,12 +356,14 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                                         with open(ofname, "r") as f:
                                             for line in f:
                                                 l = line.strip()
-                                                if 'reached required accuracy - stopping structural energy minimisation' in l:
+                                                if 'reached required accuracy - stopping structural\
+                                                 energy minimisation' in l:
                                                     truth.append(False)
                                                 else:
                                                     truth.append(True)
                                             if all(truth):
-                                                logger.error('Possible queue error in {} resolving by rerun'.format(j.job_dir))                          
+                                                logger.error('Possible queue error in {}\
+                                                 resolving by rerun'.format(j.job_dir))                          
                                                 reruns.append(j.job_id)
                                     else:
                                         reruns.append(j.job_id)   
@@ -370,8 +371,7 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                         else:
                             logger.info('Job {0} pending. State = {1}'.format(j.job_id,state))
                             done = done + [False]
-                # test:
-                #done = [True, True]                            
+                                            
                 if all(done):
                     logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))                                    
                     time.sleep(5)
@@ -424,8 +424,18 @@ def get_convergence_data(jfile, params = ['ENCUT','KPOINTS']):
 
 def get_opt_params(data, tag, param='ENCUT', ev_per_atom=1.0):
     """
-    return optimum parameter
-    default: 1 meV/atom
+    Args:
+        data:  dictionary of convergence data
+        tag:   key to dictionary of convergence dara
+        param: parameter to be optimized
+        ev_per_atom: minimizing criterion in eV per unit 
+    
+    Returns
+        [list] optimum parameter set consisting of tag, potcar object,
+        poscar object, list of convergence data energies sorted according to 
+        param
+    
+    default criterion: 1 meV/atom
     """
 #    sorted_list = sorted(data[species][param], key=lambda x:x[1])
 #    sorted_array = np.array(sorted_list)
@@ -434,13 +444,13 @@ def get_opt_params(data, tag, param='ENCUT', ev_per_atom=1.0):
 #    return sorted_list[min_index][0]
     #test
     sorted_list = sorted(data[tag][param], key=lambda x:x[0])
+    #sorted array data 
     t = np.array(sorted_list)[:,1]
     #print(sorted_array[:-1,1], sorted_array[1:,1], ev_per_atom)
-    consecutive_diff = [float(j)-float(i) for i, j in zip(t[:-1], t[1:])]
+    consecutive_diff = [float(j)-float(i)-ev_per_atom for i, j in zip(t[:-1], t[1:])]
     #print("Consecutive_diff",consecutive_diff)
     min_index = np.argmin(consecutive_diff)
-    #return the poscar object, potcar object and incar setting that is optimum
-    print(type(data[tag][param][min_index][3]))
+    #return the tag,potcar object, poscar object, incar setting and convergence data for plotting that is optimum
     return [tag,data[tag][param][min_index][2],data[tag][param][min_index][3],sorted_list[min_index][0],t]
     
 
@@ -474,6 +484,13 @@ def partition_jobs(turn_knobs, max_jobs):
 
 
 def get_logger(log_file_name):
+    """
+    writes out logging file. 
+    Very useful project logging, recommended for use 
+    to monitor the start and completion of steps in the workflow
+    Arg:
+        log_file_name: name of the log file, log_file_name.log
+    """
     loggr = logging.getLogger(log_file_name)
     loggr.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')

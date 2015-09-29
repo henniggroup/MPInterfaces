@@ -381,6 +381,58 @@ def get_convergence_data(jfile, params = ['ENCUT','KPOINTS']):
     }
 
     Note: processes only INCAR parmaters and KPOINTS
+    """
+    cutoff_jobs = jobs_from_file(jfile)
+    data = {}
+    for j in cutoff_jobs:
+        jdir = os.path.join(j.parent_job_dir, j.job_dir)
+        poscar_file = os.path.join(jdir, 'POSCAR')
+        struct_m = Structure.from_file(poscar_file)
+        species = ''.join([tos.symbol for tos in struct_m.types_of_specie])
+        if data.get(species):
+            for p in params:
+                if j.vis.incar.get(p):
+                    data[species][p].append( [ j.vis.incar[p],
+                                               j.final_energy/len(struct_m) ] )
+                elif p == 'KPOINTS':
+                    data[species]['KPOINTS'].append( [ j.vis.kpoints.kpts,
+                                                       j.final_energy/len(struct_m) ] )
+                else:
+                    logger.warn('dont know how to parse the parameter {}'.format(p))
+        else:
+            data[species] = {}
+            for p in params:
+                data[species][p] = []
+                data[species][p] = []
+    return data    
+
+
+def get_opt_params(data, species, param='ENCUT', ev_per_atom=0.001):
+    """
+    return optimum parameter
+    default: 1 meV/atom
+    """
+    sorted_list = sorted(data[species][param], key=lambda x:x[1])
+    sorted_array = np.array(sorted_list)
+    consecutive_diff = np.abs(sorted_array[:-1,1] - sorted_array[1:,1] - ev_per_atom)
+    min_index = np.argmin(consecutive_diff)
+    return sorted_list[min_index][0]
+
+
+# PLEASE DONT CHANGE THINGS WITHOUT UPDATING SCRIPTS/MODULES THAT DEPEND
+# ON IT
+# get_convergence_data and get_opt_params moved to *_custom
+def get_convergence_data_custom(jfile, params = ['ENCUT','KPOINTS']):
+    """
+    returns data dict in the following format
+    {'Al':
+          {'ENCUT': [ [500,1.232], [600,0.8798] ], 
+            'KPOINTS':[ [], [] ]
+          },
+     'W': ...
+    }
+
+    Note: processes only INCAR parmaters and KPOINTS
     Sufficient tagging of the data assumed from species,Poscar
     comment line and potcar functional
     """
@@ -412,7 +464,7 @@ def get_convergence_data(jfile, params = ['ENCUT','KPOINTS']):
     return data    
 
 
-def get_opt_params(data, tag, param='ENCUT', ev_per_atom=1.0):
+def get_opt_params_custom(data, tag, param='ENCUT', ev_per_atom=1.0):
     """
     Args:
         data:  dictionary of convergence data
@@ -427,12 +479,6 @@ def get_opt_params(data, tag, param='ENCUT', ev_per_atom=1.0):
     
     default criterion: 1 meV/atom
     """
-#    sorted_list = sorted(data[species][param], key=lambda x:x[1])
-#    sorted_array = np.array(sorted_list)
-#    consecutive_diff = np.abs(sorted_array[:-1,1] - sorted_array[1:,1] - ev_per_atom)
-#    min_index = np.argmin(consecutive_diff)
-#    return sorted_list[min_index][0]
-    #test
     sorted_list = sorted(data[tag][param], key=lambda x:x[0])
     #sorted array data 
     t = np.array(sorted_list)[:,1]

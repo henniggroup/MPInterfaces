@@ -191,7 +191,7 @@ class MPINTLammps(LAMMPS, PMGSONable):
         else:
             f.write('dump dump_all all custom 1 %s id type x y z vx vy vz fx fy fz\n' % lammps_trj)            
         f.write('print __end_of_ase_invoked_calculation__\n')
-        f.write('log /dev/stdout\n') # Force LAMMPS to flush log
+        f.write('log /dev/stdout\n')
         f.close()
 
     def as_dict(self):
@@ -343,92 +343,121 @@ class CalibrateLammps(Calibrate):
     """
     Defines LAMMPS workflow consisting of LAMMPS jobs
     """
-    def __init__(self, parameters, parent_job_dir='.',
+    def __init__(self, parameters, structure=None, parent_job_dir='.',
                  job_dir='./cal_lammps', qadapter=None,
-                 job_cmd='qsub', wait=True,
+                 job_cmd='qsub', wait=True, is_matrix = False,
                  turn_knobs=OrderedDict([('STRUCTURES',[]),
-                                         ('PAIR_COEFFS',[])]),
+                                         ('PAIR_COEFF',[])]),
                  checkpoint_file=None, cal_logger=None):
         self.parameters = parameters
+        self.structure = structure
         Calibrate.__init__(self, None, None, None, None,
                            parent_job_dir=parent_job_dir,
                            job_dir=job_dir, qadapter=qadapter,
-                           job_cmd=job_cmd, wait=wait,
-                           turn_knobs = turn_knobs,
+                           job_cmd=job_cmd, wait=wait, 
+                           turn_knobs = turn_knobs, 
+                           is_matrix=is_matrix,
                            checkpoint_file=checkpoint_file,
                            cal_logger=cal_logger)
+
+    def val_to_name(self, val):
+        if isinstance(val, Structure):
+            return '_'.join([val.formula.replace(' ',''), 
+                             str(val.volume)] )
+        else:
+            name = str(val).replace(' ','_')
+            return name.split('/')[-1]
+
+    def key_to_name(self, key):
+        return str(key)
+
+    def setup_structure_jobs(self, structures, paircoeff):
+        for s in structures:
+            self.structure = s
+            self.set_paircoeff(s, paircoeff)
+            if not self.is_matrix:
+                name = self.val_to_name(s)
+                job_dir  = self.job_dir + os.sep + \
+                    self.key_to_name('STRUCTURES') + os.sep + name
+                self.add_job(name=name, job_dir=job_dir)
+
+    def setup_paircoeff_jobs(self, paircoeff_list):
+        for pcoeff in paircoeff_list:
+            self.set_paircoeff(self.structure, pcoeff)
+            if not self.is_matrix:
+                name = self.val_to_name(pcoeff)
+                job_dir  = self.job_dir + os.sep + \
+                    self.key_to_name('PAIR_COEFF') + os.sep + name
+                self.add_job(name=name, job_dir=job_dir)
+
+    def setup_params_jobs(self, params_list):
+        for params in params_list:
+            self.parameters = params
+            if not self.is_matrix:
+                name = self.val_to_name(params)
+                job_dir  = self.job_dir + os.sep + \
+                    self.key_to_name('PARAMS') + os.sep + name
+                self.add_job(name=name, job_dir=job_dir)
+
+    def setup_genericparam_jobs(self, key, vals):
+        for v in vals:
+            self.parameters[key.lower()] = v
+            if not self.is_matrix:
+                name = self.val_to_name(v)
+                job_dir  = self.job_dir + os.sep + \
+                    self.key_to_name(key) + os.sep + name
+                self.add_job(name=name, job_dir=job_dir)
+
+    def set_paircoeff(self, structure, pcoeff):
+        types_of_species = ' '.join( 
+            [tos.symbol for tos in structure.types_of_specie] )
+        atomic_mass = [
+            str(i+1)+' '+tos.atomic_mass.__repr__()
+            for i,tos in enumerate(structure.types_of_specie) ]
+        self.parameters['mass'] = atomic_mass
+        self.parameters['pair_coeff'] = [
+            '* * {0} {1}'.format(pcoeff, types_of_species) ]
         
-    def add_job(self, mplmp, name='noname', job_dir='.'):
+    def add_job(self, name='noname', job_dir='.'):
         """
         add lammps job given MPINTLammps object
         """
-        lmp_inp =MPINTLammpsInput(mplmp, self.qadapter, self.logger)
+        mplmp =  MPINTLammps(self.structure, 
+                             parameters=self.parameters)
+        lmp_inp = MPINTLammpsInput(mplmp, self.qadapter, self.logger)
         job = MPINTLammpsJob(self.job_cmd, name=name, final = True,
                              parent_job_dir=self.parent_job_dir,
                              job_dir=job_dir, vis=lmp_inp,
                              wait=self.wait, vjob_logger = self.logger)
         self.jobs.append(job)
         
-    def setup(self):
+    def _setup(self, turn_knobs=None):
         """
         setup workflow for the given turn_knobs i.e create jobs
         for each knob settings
-        supported keys: 
+        keys with special support(everything else handled by 
+        genericparam job setup): 
              STRUCTURES: list of pymatgen structure objects
              PARAMS: list of lammps parameter dictionaries
-             PAIR_STYLES: list of pair styles
-             PAIR_COEFFS: list of pair coefficient files
-        Note: If PARAMS specified then PAIR_STYLES & PAIR_COEFFS 
-              skipped
+             PAIR_COEFF: list of pair coefficient files
         """
-        for i,structure in enumerate(self.turn_knobs['STRUCTURES']):
-            if 'PARAMS' in self.turn_knobs.keys():
-                for j,param in enumerate(self.turn_knobs['PARAMS']):
-                    label = '_'.join([
-                        structure.formula.replace(' ',''), str(i)])
-                    lmp =  MPINTLammps(structure,
-                                       parameters=param,
-                                       label=label)
-                    job_dir  = self.job_dir+ os.sep + 'PARAMS' + \
-                               os.sep + label
-                    self.add_job(lmp, name=label, job_dir=job_dir)
-            elif 'PAIR_STYLES' in self.turn_knobs.keys():
-                for j,ps in enumerate(self.turn_knobs['PAIR_STYLES']):
-                    self.parameters['pair_style'] = ps
-                    for k,pcf in enumerate(self.turn_knobs['PAIR_COEFFS']):
-                        label = '_'.join([
-                            structure.formula.replace(' ',''),
-                            str(i), str(k)])
-                        lmp = self.get_lmp(structure, pcf, label)
-                        job_dir  = self.job_dir+ os.sep + \
-                                   'PAIR_STYLES' + os.sep + \
-                                   '_'.join(ps.split()) + os.sep +\
-                                   lmp.label
-                        self.add_job(lmp, name=lmp.label,
-                                     job_dir=job_dir)
-            else:
-                    label = '_'.join([
-                        structure.formula.replace(' ',''), str(i)])
-                    lmp =  MPINTLammps(structure,
-                                       parameters=self.parameters,
-                                       label=label)
-                    job_dir  = self.job_dir+ os.sep + label
-                    self.add_job(lmp, name=label, job_dir=job_dir)
+        if turn_knobs is None:
+            turn_knobs = self.turn_knobs
+        if any(turn_knobs.values()):
+            for k, v in turn_knobs.items():
+                if k == 'STRUCTURES' and v:
+                    self.setup_structure_jobs(
+                        v, self.turn_knobs['PAIR_COEFF'][0])
+                elif k == 'PAIR_COEFF' and v:
+                    self.setup_paircoeff_jobs(v)
+                elif k == 'PARAMS' and v:
+                    self.setup_params_jobs(v)
+                else:
+                    self.setup_genericparam_jobs(k, v)
+        else:
+            self.logger.warn('knobs not set, running a single job')
+            self.add_job(name='single_job', job_dir=self.job_dir)
                 
-    def get_lmp(self, structure, pair_coeff_file, label):
-        """
-        return MPINTlammps object for the given structure and
-        pair coefficent file
-        """
-        types_of_species = ' '.join( [tos.symbol
-                                      for tos in structure.types_of_specie] )
-        atomic_mass = [str(i+1)+' '+tos.atomic_mass.__repr__()
-                       for i,tos in enumerate(structure.types_of_specie) ]
-        self.parameters['pair_coeff'] = ['* * {0} {1}'.format(pair_coeff_file, types_of_species)]
-        self.parameters['mass'] = atomic_mass
-        return MPINTLammps(structure, parameters=self.parameters,
-                           label=label)
-            
     def as_dict(self):
         qadapter = None
         system = None

@@ -55,8 +55,8 @@ def step1(**kwargs):
     turn_knobs = OrderedDict(
         [
             ('STRUCTURES', structures),
-            ('PAIR_STYLES', pair_styles),
-            ('PAIR_COEFFS', pair_coeff_files)
+            ('PAIR_STYLE', pair_styles),
+            ('PAIR_COEFF', pair_coeff_files)
             ] )
     # job directory and run settings
     job_dir = 'lammps_job'
@@ -72,8 +72,8 @@ def step1(**kwargs):
     chkpt_file = 'step1.json'
     # setup calibration jobs and run
     cal = CalibrateLammps(parameters, turn_knobs=turn_knobs,
-                          qadapter=qadapter, job_cmd = job_cmd,
-                          job_dir=job_dir,
+                          qadapter=qadapter, job_cmd=job_cmd,
+                          job_dir=job_dir, is_matrix=True,
                           checkpoint_file=chkpt_file,
                           cal_logger=logger)
     cal.setup()

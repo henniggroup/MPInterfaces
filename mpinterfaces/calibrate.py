@@ -378,8 +378,6 @@ class Calibrate(PMGSONable):
             func=self.functional
         self.potcar = Potcar(symbols=mapped_symbols,
                              functional=func)
-               
-        pass
 
     def set_kpoints(self, kpoint):
         """

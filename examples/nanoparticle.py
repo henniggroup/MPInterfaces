@@ -7,7 +7,7 @@ create nanoparticle using wulff construction
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from mpinterfaces import get_struct_from_mp
-from mpinterfaces.nanopartcle import Nanoparticle
+from mpinterfaces.nanoparticle import Nanoparticle
 
 
 #-----------------------------------

@@ -40,7 +40,8 @@ from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.apps.borg.queen import BorgQueen
-from pymatgen.serializers.json_coders import PMGSONable
+from monty.json import MSONable
+#from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 from custodian.custodian import Custodian, gzip_dir
@@ -62,8 +63,8 @@ sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
-
-class Calibrate(PMGSONable):    
+#changed PMGSONable to MSONable
+class Calibrate(MSONable):    
     """
     The base class for creating vasp work flows for
     calibrating the input parameters for different systems

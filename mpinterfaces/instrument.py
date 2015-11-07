@@ -41,8 +41,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
     create INCAR, POSCAR, POTCAR & KPOINTS files
     """
     def __init__(self, name, incar, poscar, potcar, kpoints,
-                 qadapter=None, script_name='submit_script',
-                 vis_logger=None, **kwargs ):
+                 qadapter=None, vis_logger=None, **kwargs ):
         """
         default INCAR from config_dict
         
@@ -55,9 +54,9 @@ class MPINTVaspInputSet(DictVaspInputSet):
         self.extra = kwargs
         if qadapter is not None:
             self.qadapter = qadapter.from_dict(qadapter.to_dict())
+            self.script_name = 'submit_script'
         else:
-            self.qadapter = None
-        self.script_name = script_name            
+            self.qadapter = None        
         config_dict = {}
         config_dict['INCAR'] = self.incar.as_dict()
         config_dict['POSCAR'] = self.poscar.as_dict() 
@@ -88,21 +87,25 @@ class MPINTVaspInputSet(DictVaspInputSet):
         self.incar.write_file(os.path.join(d, 'INCAR'))
         self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
-        self.poscar.write_file(os.path.join(d, 'POSCAR'),significant_figures=10)
+        self.poscar.write_file(os.path.join(d, 'POSCAR'))
         if self.qadapter is not None:
+            self.script_name = 'submit_script'
             with open(os.path.join(d, self.script_name), 'w') as f:
                 queue_script = self.qadapter.get_script_str(job_dir)
                 f.write(queue_script)           
             
     def as_dict(self):
         qadapter = None
+        script_name = None
         if self.qadapter:
             qadapter = self.qadapter.to_dict()
+        if self.script_name:
+            script_name = self.script_name
         d = dict(name=self.name, incar=self.incar.as_dict(), 
                  poscar=self.poscar.as_dict(), 
                  potcar=self.potcar.as_dict(), 
                  kpoints=self.kpoints.as_dict(),
-                 qadapter=qadapter, script_name=self.script_name,
+                 qadapter=qadapter, script_name=script_name,
                  kwargs=self.extra )
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -118,10 +121,8 @@ class MPINTVaspInputSet(DictVaspInputSet):
         qadapter = None
         if d["qadapter"] is not None:
             qadapter = CommonAdapter.from_dict(d["qadapter"])
-        script_name = d["script_name"]
         return MPINTVaspInputSet(d["name"], incar, poscar, potcar,
-                                 kpoints, qadapter,
-                                 script_name = script_name,
+                                 kpoints, qadapter, 
                                  vis_logger = logging.getLogger(d["logger"]),
                                  **d["kwargs"])
 
@@ -181,11 +182,13 @@ class MPINTJob(Job):
         #if launching jobs via batch system
         if self.vis.qadapter is not None:
             submit_cmd = self.vis.qadapter.supported_q_types[self.vis.qadapter.q_type]
+            #print os.path.exists(self.vis.script_name)
             cmd = [submit_cmd, self.vis.script_name]
             with open(self.output_file, 'w') as f:            
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
                                      stderr=subprocess.PIPE)
-                stdout, stderr= p.communicate() 
+                stdout, stderr= p.communicate()
+                print(stdout) 
                 self.job_id = stdout.rstrip('\n').split()[-1]
                 f.write(self.job_id)
         else:

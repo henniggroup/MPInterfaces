@@ -455,9 +455,7 @@ class Calibrate(MSONable):
             for poscar in poscar_list:
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
-                poskey = str(poscar.structure.composition.reduced_formula) \
-                                 + '_'+ str(int(poscar.structure.lattice.volume)) \
-                                 + '_' + ''.join((poscar.comment).split())
+                poskey = str(poscar.comment)
                 
                 job_dir  = self.job_dir+ os.sep +'POS' +\
                   os.sep + poskey

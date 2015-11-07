@@ -30,6 +30,7 @@ from custodian.custodian import Custodian
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from ase.lattice.surface import surface
+from mpinterfaces.instrument import MPINTVaspJob
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -231,6 +232,8 @@ def update_checkpoint(job_ids=None, jfile=None, **kwargs):
     be updated with corresponding final energy
     Args:
         job_ids: list of job ids to update or q resolve
+                 if q resolve, will be a pair of old job 
+                 and new job
         jfile: check point file
     """
     cal_log = loadfn(jfile, cls=MontyDecoder)
@@ -319,14 +322,14 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
             global logger
             logger = ld_logger
         chkpt_files_prev = None
+        reruns=[]
         for step in steps:
             chkpt_files = step(checkpoint_files=chkpt_files_prev)
             chkpt_files_prev = chkpt_files
             if not chkpt_files:
                 return None
             while True:
-                done = []
-                reruns= []            
+                done = []            
                 for cf in chkpt_files:
                     time.sleep(3)                
                     update_checkpoint(job_ids=reruns,jfile=cf)
@@ -339,29 +342,39 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                             logger.info('job {} running'.format(j.job_id))
                             done = done + [False]
                         elif state in ['C', 'CF', 'F', '00']:
-                            logger.error('Job {0} in {1} cancelled or failed. State = {2}'.\
-                                         format(j.job_id, j.job_dir,state))
+                            logger.error('Job {0} in {1} cancelled or failed. State = {2}'.format(j.job_id, j.job_dir,state))
                             done = done + [False]
                             if handlers:
                                 logger.info('Investigating ... ')
                                 os.chdir(j.job_dir)
-                                if ofname:
-                                    if os.path.exists(ofname):
-                                        for h in handlers:                                            
-                                            h.output_filename = ofname
-                                            if h.check():
-                                                logger.error('Detected vasp errors {}'.format(h.errors))
-                                                #TODO: correct the error and mark the job for rerun
-                                                #all error handling must done using proper errorhandlers
-                                                #h.correct()
-                                                #reruns.append(j.job_id)
+                                truth = []
+                                for h in handlers:
+                                    if ofname:
+                                        h.output_filename = ofname
+                                        if h.check():
+                                            logger.error('Detected vasp errors {}'.format(h.errors))
+                                        #test q error checks
+                                        with open(ofname, "r") as f:
+                                            for line in f:
+                                                l = line.strip()
+                                                if 'reached required accuracy - stopping structural energy minimisation' in l:
+                                                    truth.append(False)
+                                                else:
+                                                    truth.append(True)
+                                            if all(truth):
+                                                logger.error('Possible queue error in {} resolving by rerun'.format(j.job_dir))                          
+                                                #os.chdir(j.parent_job_dir)
+                                                #j.run()
+                                                #logger.info('New job id is {}'.format(j.job_id))
+                                                reruns.append(j.job_id)
                                     else:
-                                        logger.error('stdout redirect file not generated, job {} will be rerun'.format(j.job_id))
                                         reruns.append(j.job_id)   
                                 os.chdir(j.parent_job_dir)
                         else:
                             logger.info('Job {0} pending. State = {1}'.format(j.job_id,state))
                             done = done + [False]
+                # test:
+                #done = [True, True]                            
                 if all(done):
                     logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))                                    
                     time.sleep(5)
@@ -371,58 +384,6 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
         
         
 def get_convergence_data(jfile, params = ['ENCUT','KPOINTS']):
-    """
-    returns data dict in the following format
-    {'Al':
-          {'ENCUT': [ [500,1.232], [600,0.8798] ], 
-            'KPOINTS':[ [], [] ]
-          },
-     'W': ...
-    }
-
-    Note: processes only INCAR parmaters and KPOINTS
-    """
-    cutoff_jobs = jobs_from_file(jfile)
-    data = {}
-    for j in cutoff_jobs:
-        jdir = os.path.join(j.parent_job_dir, j.job_dir)
-        poscar_file = os.path.join(jdir, 'POSCAR')
-        struct_m = Structure.from_file(poscar_file)
-        species = ''.join([tos.symbol for tos in struct_m.types_of_specie])
-        if data.get(species):
-            for p in params:
-                if j.vis.incar.get(p):
-                    data[species][p].append( [ j.vis.incar[p],
-                                               j.final_energy/len(struct_m) ] )
-                elif p == 'KPOINTS':
-                    data[species]['KPOINTS'].append( [ j.vis.kpoints.kpts,
-                                                       j.final_energy/len(struct_m) ] )
-                else:
-                    logger.warn('dont know how to parse the parameter {}'.format(p))
-        else:
-            data[species] = {}
-            for p in params:
-                data[species][p] = []
-                data[species][p] = []
-    return data    
-
-
-def get_opt_params(data, species, param='ENCUT', ev_per_atom=0.001):
-    """
-    return optimum parameter
-    default: 1 meV/atom
-    """
-    sorted_list = sorted(data[species][param], key=lambda x:x[1])
-    sorted_array = np.array(sorted_list)
-    consecutive_diff = np.abs(sorted_array[:-1,1] - sorted_array[1:,1] - ev_per_atom)
-    min_index = np.argmin(consecutive_diff)
-    return sorted_list[min_index][0]
-
-
-# PLEASE DONT CHANGE THINGS WITHOUT UPDATING SCRIPTS/MODULES THAT DEPEND
-# ON IT
-# get_convergence_data and get_opt_params moved to *_custom
-def get_convergence_data_custom(jfile, params = ['ENCUT','KPOINTS']):
     """
     returns data dict in the following format
     {'Al':
@@ -464,29 +425,25 @@ def get_convergence_data_custom(jfile, params = ['ENCUT','KPOINTS']):
     return data    
 
 
-def get_opt_params_custom(data, tag, param='ENCUT', ev_per_atom=1.0):
+def get_opt_params(data, tag, param='ENCUT', ev_per_atom=1.0):
     """
-    Args:
-        data:  dictionary of convergence data
-        tag:   key to dictionary of convergence dara
-        param: parameter to be optimized
-        ev_per_atom: minimizing criterion in eV per unit 
-    
-    Returns
-        [list] optimum parameter set consisting of tag, potcar object,
-        poscar object, list of convergence data energies sorted according to 
-        param
-    
-    default criterion: 1 meV/atom
+    return optimum parameter
+    default: 1 meV/atom
     """
+#    sorted_list = sorted(data[species][param], key=lambda x:x[1])
+#    sorted_array = np.array(sorted_list)
+#    consecutive_diff = np.abs(sorted_array[:-1,1] - sorted_array[1:,1] - ev_per_atom)
+#    min_index = np.argmin(consecutive_diff)
+#    return sorted_list[min_index][0]
+    #test
     sorted_list = sorted(data[tag][param], key=lambda x:x[0])
-    #sorted array data 
     t = np.array(sorted_list)[:,1]
     #print(sorted_array[:-1,1], sorted_array[1:,1], ev_per_atom)
-    consecutive_diff = [float(j)-float(i)-ev_per_atom for i, j in zip(t[:-1], t[1:])]
+    consecutive_diff = [float(j)-float(i) for i, j in zip(t[:-1], t[1:])]
     #print("Consecutive_diff",consecutive_diff)
     min_index = np.argmin(consecutive_diff)
-    #return the tag,potcar object, poscar object, incar setting and convergence data for plotting that is optimum
+    #return the poscar object, potcar object and incar setting that is optimum
+    print(type(data[tag][param][min_index][3]))
     return [tag,data[tag][param][min_index][2],data[tag][param][min_index][3],sorted_list[min_index][0],t]
     
 
@@ -520,13 +477,6 @@ def partition_jobs(turn_knobs, max_jobs):
 
 
 def get_logger(log_file_name):
-    """
-    writes out logging file. 
-    Very useful project logging, recommended for use 
-    to monitor the start and completion of steps in the workflow
-    Arg:
-        log_file_name: name of the log file, log_file_name.log
-    """
     loggr = logging.getLogger(log_file_name)
     loggr.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')

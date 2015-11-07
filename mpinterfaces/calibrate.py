@@ -190,8 +190,10 @@ class Calibrate(MSONable):
                     self.setup_kpoints_jobs(kpoints_list = v)
                 elif k == 'VOLUME' and v:
                     self.setup_poscar_jobs(scale_list = v)
-                elif k == 'POTCAR' and v:
+                elif k == 'POTCAR_map' and v:
                     self.setup_potcar_jobs(mappings = v)
+                elif k == 'POTCAR_functional' and v:
+                    self.setup_potcar_jobs(functional_list=v)
                 elif k == 'POSCAR' and v:
                     self.setup_poscar_jobs(poscar_list=v)
                 else:
@@ -379,6 +381,7 @@ class Calibrate(MSONable):
             func=self.functional
         self.potcar = Potcar(symbols=mapped_symbols,
                              functional=func)
+        
 
     def set_kpoints(self, kpoint):
         """
@@ -462,7 +465,7 @@ class Calibrate(MSONable):
                     self.add_job(name=job_dir, job_dir=job_dir)
                     
 
-    def setup_potcar_jobs(self, mappings,functional_list):
+    def setup_potcar_jobs(self, mappings=None,functional_list=None):
         """
         take a list of symbol mappings and setup the potcar jobs
         """
@@ -526,7 +529,7 @@ class Calibrate(MSONable):
         if self.checkpoint_file:
             dumpfn(self.cal_log, self.checkpoint_file,
                    cls=MontyEncoder, indent=4)
-        else:
+        else: 
             dumpfn(self.cal_log, Calibrate.LOG_FILE, cls=MontyEncoder,
                    indent=4)
             
@@ -724,6 +727,9 @@ class CalibrateSlab(Calibrate):
                                        primitive=False).get_slab()
         slab_struct.sort()
         sd = self.set_sd_flags(slab_struct)
+        if self.system['hkl'] == '111R_van_maekl':
+            
+            self.set_reconstructed_surface()
         comment = 'VAC'+str(vacuum)+'THICK'+str(thickness)
         return Poscar(slab_struct, comment=comment,
                       selective_dynamics=sd)    
@@ -739,6 +745,7 @@ class CalibrateSlab(Calibrate):
         all of its atoms will also be relaxed.
         """
         sd_flags = np.zeros_like(interface.frac_coords)
+        print("sd_flags_list")
         if isinstance(interface, Interface):
             slab = interface.slab
         else:
@@ -754,14 +761,19 @@ class CalibrateSlab(Calibrate):
             z_upper_bound = np.unique(z_coords)[-n_layers]
             sd_flags[ [i for i, coords in enumerate(slab.frac_coords)
                        if coords[2]>=z_upper_bound ] ] = np.ones((1,3))
+        print(sd_flags.tolist())
         return sd_flags.tolist()
 
-    def set_reconstructed_surface(self, sites_to_add):
+    def set_reconstructed_surface(self, sites_to_add,sites_to_remove):
         """
         Append sites as needed for reconstruction TODO
+        Args:
+            sites_to_add (tuple): species character and coords 3x1 list or array
+            sites_to_remove (list): indices to remove
 
         """
-        pass  
+        self.append(sites_to_add[0],sites_to_add[1])
+        self.remove_sites(sites_to_remove)
 
     
 class CalibrateInterface(CalibrateSlab):

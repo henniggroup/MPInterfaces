@@ -87,7 +87,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         self.incar.write_file(os.path.join(d, 'INCAR'))
         self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
-        self.poscar.write_file(os.path.join(d, 'POSCAR'))
+        self.poscar.write_file(os.path.join(d, 'POSCAR'),significant_figures=10)
         if self.qadapter is not None:
             self.script_name = 'submit_script'
             with open(os.path.join(d, self.script_name), 'w') as f:

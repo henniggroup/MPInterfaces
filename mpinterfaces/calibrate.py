@@ -40,13 +40,12 @@ from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.apps.borg.queen import BorgQueen
-from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 from custodian.custodian import Custodian, gzip_dir
 
-from monty.json import MSONable, MontyEncoder, MontyDecoder
-from monty.serialization import loadfn, dumpfn
+from monty.json import MSONable, MontyEncoder
+from monty.serialization import dumpfn
 
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
@@ -63,7 +62,7 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 
 
-class Calibrate(PMGSONable):    
+class Calibrate(MSONable):    
     """
     The base class for creating vasp work flows for
     calibrating the input parameters for different systems

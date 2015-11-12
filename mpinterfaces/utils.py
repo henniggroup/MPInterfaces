@@ -14,7 +14,7 @@ import logging
 import numpy as np
 from collections import OrderedDict
 
-from monty.json import MSONable, MontyEncoder, MontyDecoder
+from monty.json import MontyEncoder, MontyDecoder
 from monty.serialization import loadfn, dumpfn
 
 from pymatgen.core.sites import PeriodicSite

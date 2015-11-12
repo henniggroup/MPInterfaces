@@ -12,9 +12,8 @@ from re import compile as re_compile, IGNORECASE
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.serializers.json_coders import PMGSONable
 
-from monty.json import MSONable, MontyEncoder, MontyDecoder
+from monty.json import MSONable, MontyDecoder
 
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
@@ -24,7 +23,7 @@ from mpinterfaces.instrument import MPINTJob
 from mpinterfaces.calibrate import Calibrate
 
 
-class MPINTLammps(LAMMPS, PMGSONable):
+class MPINTLammps(LAMMPS, MSONable):
     """
     setup LAMMPS for given structure and parameters
     extends ase.calculators.lammpsrun.LAMMPS
@@ -214,7 +213,7 @@ class MPINTLammps(LAMMPS, PMGSONable):
                            no_data_file=d["no_data_file"])
 
     
-class MPINTLammpsInput(PMGSONable):
+class MPINTLammpsInput(MSONable):
     """
     create inputs(data and input file) for LAMMPS
     """

@@ -180,7 +180,7 @@ class MPINTJob(Job):
         p = None
         #if launching jobs via batch system
         if self.vis.qadapter is not None:
-            submit_cmd = self.vis.qadapter.supported_q_types[self.vis.qadapter.q_type]
+            submit_cmd = self.vis.qadapter.q_commands[self.vis.qadapter.q_type]["submit_cmd"]
             cmd = [submit_cmd, self.vis.script_name]
             with open(self.output_file, 'w') as f:            
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, 

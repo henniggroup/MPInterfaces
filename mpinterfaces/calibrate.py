@@ -47,8 +47,6 @@ from custodian.custodian import Custodian, gzip_dir
 from monty.json import MSONable, MontyEncoder
 from monty.serialization import dumpfn
 
-from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
-
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.data_processor import MPINTVaspDrone
 from mpinterfaces.interface import Interface, Ligand

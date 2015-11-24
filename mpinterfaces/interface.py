@@ -362,9 +362,6 @@ class Interface(Slab):
         else:
             d['num_ligands'] = 0            
         return d
-    
-    def copy(self):
-        return Structure.from_sites(self)
 
     def calc_energy(self, model='Coulomb'):
        """

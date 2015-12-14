@@ -18,7 +18,8 @@ install:
   - travis_wait pip install -q -r requirements-optional.txt
 before_script:
   - python setup.py develop
-#script: nosetests 
+script: 
+  - nosetests mpinterfaces 
 branches:
   only:
     - master

@@ -9,6 +9,7 @@ import sys
 import operator
 from pymatgen.matproj.rest import MPRester
 
+
 def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
     """
     fetches the structure corresponding to the given formula
@@ -26,12 +27,12 @@ def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
         if not MAPI_KEY:
             print('API key not provided')
             print('get API KEY from materialsproject and set it to the MAPI_KEY environment variable. aborting ... ')
-            sys.exit()                            
+            sys.exit()
     with MPRester(MAPI_KEY) as m:
         data = m.get_data(formula)
         structures = []
         x = {}
-        print("\nnumber of structures matching the chemical formula {0} = {1}".format(formula, len(data)) )
+        print("\nnumber of structures matching the chemical formula {0} = {1}".format(formula, len(data)))
         print("The one with the the lowest energy above the hull is returned, unless all_structs is set to True")
         for d in data:
             mpid = str(d['material_id'])

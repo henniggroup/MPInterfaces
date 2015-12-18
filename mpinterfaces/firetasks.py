@@ -42,7 +42,7 @@ def get_cal_obj(d):
     """
     cal = MontyDecoder().process_decoded(d)
     # default
-    #if not d.get("qadapter"):
+    # if not d.get("qadapter"):
     #    qadapter, job_cmd = get_run_cmmnd(**d.get('que_params', {}))
     #    cal.qadapter = qadapter
     #    cal.job_cmd = job_cmd
@@ -65,9 +65,9 @@ class MPINTCalibrateTask(FireTaskBase):
         cal.setup()
         cal.run()
         d = cal.as_dict()
-        d.update({'que_params':self.get('que_params')})
-        return FWAction(mod_spec=[{'_push': {'cal_objs':d}}])
-        
+        d.update({'que_params': self.get('que_params')})
+        return FWAction(mod_spec=[{'_push': {'cal_objs': d}}])
+
 
 @explicit_serialize
 class MPINTMeasurementTask(FireTaskBase, FWSerializable):
@@ -75,7 +75,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
     Measurement Task
     """
     required_params = ["measurement"]
-    optional_params = ["que_params", "job_cmd", "other_params", "fw_id"]    
+    optional_params = ["que_params", "job_cmd", "other_params", "fw_id"]
 
     def run_task(self, fw_spec):
         """
@@ -84,9 +84,9 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         """
         cal_objs = []
         logger.info('The measurement task will be constructed from {} calibration objects'
-                    .format(len(fw_spec['cal_objs'])) )
+                    .format(len(fw_spec['cal_objs'])))
         for calparams in fw_spec['cal_objs']:
-            calparams.update({'que_params':self.get('que_params')})
+            calparams.update({'que_params': self.get('que_params')})
             cal = get_cal_obj(calparams)
             cal_objs.append(cal)
         done = load_class("mpinterfaces.calibrate", "Calibrate").check_calcs(cal_objs)
@@ -98,18 +98,18 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             logger.info('This fireworks id = {}'.format(self.get("fw_id")))
             return FWAction(defuse_children=True)
             ### to enable dynamic workflow, uncomment the following
-            #if self.get("fw_id"):
+            # if self.get("fw_id"):
             #    fw_id = int(self.get("fw_id")) + 1
             #    self["fw_id"] = fw_id
             #    new_fw = Firework(MPINTMeasurementTask(self),
             #                      spec={'cal_objs':fw_spec['cal_objs']},
             #                      name = 'new_fw', fw_id = -fw_id)
-            #else:
+            # else:
             #    new_fw = Firework(MPINTMeasurementTask(self),
             #                      spec={'cal_objs':fw_spec['cal_objs']},
             #                      name = 'new_fw')
             #    
-            #return FWAction(detours=new_fw)
+            # return FWAction(detours=new_fw)
         else:
             measure = load_class("mpinterfaces.measurement",
                                  self['measurement'])(cal_objs, **self.get("other_params", {}))
@@ -117,13 +117,13 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             if self.get("job_cmd", None) is not None:
                 job_cmd = self.get("job_cmd")
             measure.setup()
-            measure.run(job_cmd = job_cmd)
+            measure.run(job_cmd=job_cmd)
             cal_list = []
             for cal in measure.cal_objs:
                 d = cal.as_dict()
-                d.update({'que_params':self.get('que_params')})
+                d.update({'que_params': self.get('que_params')})
                 cal_list.append(d)
-            return FWAction(update_spec={'cal_objs':cal_list})
+            return FWAction(update_spec={'cal_objs': cal_list})
 
 
 @explicit_serialize
@@ -132,7 +132,7 @@ class MPINTDatabaseTask(FireTaskBase, FWSerializable):
     submit data to the database firetask
     """
     required_params = ["measure_dir"]
-    optional_params = ["dbase_params"]    
+    optional_params = ["dbase_params"]
 
     def run_task(self, fw_spec):
         """
@@ -140,6 +140,6 @@ class MPINTDatabaseTask(FireTaskBase, FWSerializable):
         put the measurement jobs in the database
         """
         drone = MPINTVaspToDbTaskDrone(**d.get("dbase_params", {}))
-        queen = BorgQueen(drone)#, number_of_drones=ncpus)
+        queen = BorgQueen(drone)  # , number_of_drones=ncpus)
         queen.serial_assimilate(self["measure_dir"])
         return FWAction()

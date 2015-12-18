@@ -30,27 +30,28 @@ class Nanoparticle(Molecule):
     """
     Construct nanoparticle using wulff construction
     """
-    def __init__(self, structure, rmax=15, hkl_family=[(1,0,0), (1,1,1)],
-                  surface_energies=[28,25], scell=None):
+
+    def __init__(self, structure, rmax=15, hkl_family=[(1, 0, 0), (1, 1, 1)],
+                 surface_energies=[28, 25], scell=None):
         self.structure = structure
         self.rmax = rmax
         self.hkl_family = hkl_family
         self.surface_energies = surface_energies
         if scell is None:
-            ncella = int(np.ceil(2*rmax/structure.lattice.a))
-            ncellb = int(np.ceil(2*rmax/structure.lattice.b))
-            ncellc = int(np.ceil(2*rmax/structure.lattice.c))
+            ncella = int(np.ceil(2 * rmax / structure.lattice.a))
+            ncellb = int(np.ceil(2 * rmax / structure.lattice.b))
+            ncellc = int(np.ceil(2 * rmax / structure.lattice.c))
             self.scell = [ncella, ncellb, ncellc]
         else:
             self.scell = scell
         self.structure.make_supercell(self.scell)
         recp_lattice = self.structure.lattice.reciprocal_lattice_crystallographic
         self.recp_lattice = recp_lattice.scale(1)
-        self.set_miller_family()        
-        Molecule.__init__(self, [site.species_and_occu 
+        self.set_miller_family()
+        Molecule.__init__(self, [site.species_and_occu
                                  for site in self.structure.sites],
-                           self.structure.cart_coords, charge=0 )
-        #self._sites = list(self._sites)
+                          self.structure.cart_coords, charge=0)
+        # self._sites = list(self._sites)
 
     def set_miller_family(self):
         """
@@ -62,12 +63,12 @@ class Nanoparticle(Molecule):
         analyzer = SpacegroupAnalyzer(recp_structure, symprec=0.001)
         symm_ops = analyzer.get_symmetry_operations()
 
-        max_index = max( max(m) for m in self.hkl_family)
+        max_index = max(max(m) for m in self.hkl_family)
         r = list(range(-max_index, max_index + 1))
         r.reverse()
         miller_indices = []
         self.all_equiv_millers = []
-        self.all_surface_energies = []    
+        self.all_surface_energies = []
         for miller in itertools.product(r, r, r):
             if any([i != 0 for i in miller]):
                 d = abs(reduce(gcd, miller))
@@ -84,17 +85,17 @@ class Nanoparticle(Molecule):
         """
         normals = []
         for hkl in self.all_equiv_millers:
-            normal = self.recp_lattice.matrix[0,:]*hkl[0] + \
-              self.recp_lattice.matrix[1,:]*hkl[1] + \
-              self.recp_lattice.matrix[2,:]*hkl[2] 
-            normals.append(normal/np.linalg.norm(normal))
+            normal = self.recp_lattice.matrix[0, :] * hkl[0] + \
+                     self.recp_lattice.matrix[1, :] * hkl[1] + \
+                     self.recp_lattice.matrix[2, :] * hkl[2]
+            normals.append(normal / np.linalg.norm(normal))
         return normals
 
     def get_centered_molecule(self):
         center = self.center_of_mass
         new_coords = np.array(self.cart_coords) - center
         return Molecule(self.species_and_occu, new_coords,
-                        charge=self._charge, 
+                        charge=self._charge,
                         spin_multiplicity=self._spin_multiplicity,
                         site_properties=self.site_properties)
 
@@ -105,36 +106,36 @@ class Nanoparticle(Molecule):
         the distance to the surface from the center of the particel =
         normalized surface energy * max radius
         """
-        mol = self.get_centered_molecule()    
+        mol = self.get_centered_molecule()
         normalized_surface_energies = \
-          np.array(self.all_surface_energies)/ float(max(self.all_surface_energies))
+            np.array(self.all_surface_energies) / float(max(self.all_surface_energies))
         surface_normals = self.get_normals()
         remove_sites = []
         for i, site in enumerate(mol):
             for j, normal in enumerate(surface_normals):
                 n = np.array(normal)
-                n = n/np.linalg.norm(n)
-                if np.dot(site.coords, n) + self.rmax*normalized_surface_energies[j] <= 0 :
+                n = n / np.linalg.norm(n)
+                if np.dot(site.coords, n) + self.rmax * normalized_surface_energies[j] <= 0:
                     remove_sites.append(i)
                     break
-        self.remove_sites(remove_sites)                
-        #new_sites = [site for k, site in enumerate(mol) if k not in remove_sites]
-        #return Molecule.from_sites(new_sites)
+        self.remove_sites(remove_sites)
+        # new_sites = [site for k, site in enumerate(mol) if k not in remove_sites]
+        # return Molecule.from_sites(new_sites)
 
-            
+
 if __name__ == '__main__':
-    #nanopartcle settings
-    #max radius in angstroms
-    rmax = 15 
-    #surface families to be chopped off
-    surface_families = [(1,0,0), (1,1,1)]
-    #could be in any units, will be normalized 
-    surface_energies = [28,25]  
+    # nanopartcle settings
+    # max radius in angstroms
+    rmax = 15
+    # surface families to be chopped off
+    surface_families = [(1, 0, 0), (1, 1, 1)]
+    # could be in any units, will be normalized
+    surface_energies = [28, 25]
 
-    #caution: set the structure wrt which the the miller indices are specified
-    #use your own API key
+    # caution: set the structure wrt which the the miller indices are specified
+    # use your own API key
     structure = get_struct_from_mp('PbS')
-    #primitve ---> conventional cell
+    # primitve ---> conventional cell
     sa = SpacegroupAnalyzer(structure)
     structure_conventional = sa.get_conventional_standard_structure()
 

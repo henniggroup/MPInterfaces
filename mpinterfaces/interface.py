@@ -7,6 +7,7 @@ Ligand(extends class Molecule) classes
 
 import sys
 import math
+import copy
 import logging
 
 import numpy as np
@@ -213,7 +214,7 @@ class Interface(Slab):
             return nlig, uv_list[np.argmin(norm_list)]
         else:
             logger.warn(
-                "couldn't find supercell and number of ligands that satisfy the required surface coverage. exiting.")
+                    "couldn't find supercell and number of ligands that satisfy the required surface coverage. exiting.")
             sys.exit()
 
     def cover_surface(self, site_indices):
@@ -521,7 +522,7 @@ class Ligand(Molecule):
                     for ind_key, conn in self.link[str(mol)].items():
                         ind = int(ind_key)
                         logger.info(
-                            'connection list for atom of index {0} of molecule {1} : {2}'.format(ind, mol, conn))
+                                'connection list for atom of index {0} of molecule {1} : {2}'.format(ind, mol, conn))
                         coord = np.array([0, 0, 0])
                         # if connecting the molecule mol to only one atom of
                         # just one another molecule

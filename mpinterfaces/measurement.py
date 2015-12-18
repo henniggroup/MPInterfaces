@@ -95,24 +95,27 @@ class Measurement(object):
 
     def get_energy(self, cal):
         """
-        measures the energy of a single cal object
-        a single cal object can have multiple calculations
-        returns energies lists
+         measures the energy of a single cal object
+         a single cal object can have multiple calculations
+         returns energies lists
         """
-        energies = []
-        for job_dir in cal.job_dir_list:
-            drone = MPINTVaspDrone(inc_structure=True,
-                                   inc_incar_n_kpoints=False)
-            bg = BorgQueen(drone)
-            # bg.parallel_assimilate(rootpath)
-            bg.serial_assimilate(job_dir)
-            allentries = bg.get_data()
-            for e in allentries:
-                if e:
-                    energies.append(e.energy)
-                    logger.debug('energy from directory {0} : {1}'
-                                 .format(job_dir, e.energy))
-        return energies
+
+    pass
+
+    #     energies = []
+    #     for job_dir in cal.job_dir_list:
+    #         drone = MPINTVaspDrone(inc_structure=True,
+    #                                inc_incar_n_kpoints=False)
+    #         bg = BorgQueen(drone)
+    #         # bg.parallel_assimilate(rootpath)
+    #         bg.serial_assimilate(job_dir)
+    #         allentries = bg.get_data()
+    #         for e in allentries:
+    #             if e:
+    #                 energies.append(e.energy)
+    #                 logger.debug('energy from directory {0} : {1}'
+    #                              .format(job_dir, e.energy))
+    #     return energies
 
     def make_measurements(self):
         """
@@ -275,6 +278,7 @@ class MeasurementInterface(Measurement):
         E_interfaces = {}
         E_slabs = {}
         E_ligands = {}
+        E_binding = {}
         for cal in self.cal_slabs:
             key = str(cal.system['hkl'])
             E_slabs[key] = self.get_energy(cal)

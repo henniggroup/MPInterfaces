@@ -139,7 +139,7 @@ class MPINTDatabaseTask(FireTaskBase, FWSerializable):
         go through the measurement job dirs and 
         put the measurement jobs in the database
         """
-        drone = MPINTVaspToDbTaskDrone(**d.get("dbase_params", {}))
+        drone = MPINTVaspToDbTaskDrone(**self.get("dbase_params", {}))
         queen = BorgQueen(drone)  # , number_of_drones=ncpus)
         queen.serial_assimilate(self["measure_dir"])
         return FWAction()

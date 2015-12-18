@@ -14,7 +14,7 @@ import logging
 from monty.json import MontyDecoder
 
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.hive import _get_transformation_history
 
@@ -76,7 +76,7 @@ class MPINTComputedEntry(ComputedEntry):
                                        d["incar"]),
                    d["energy"], d["correction"],
                    dec.process_decoded(d.get("parameters", {})),
-                   dec.process_decoded(d.get("data", self.data)),
+                   dec.process_decoded(d.get("data", {})),
                    entry_id=d.get("entry_id", None))
 
 
@@ -203,7 +203,6 @@ class MPINTVaspDrone(VaspToComputedEntryDrone):
                               "inc_incar_n_kpoints": self._inc_incar_n_kpoints,
                               "parameters": self._parameters,
                               "data": self._data},
-                "version": __version__,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 

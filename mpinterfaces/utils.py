@@ -214,7 +214,7 @@ def get_job_state(job):
         except:
             logger.info('Job {} not in the que.'.format(job.job_id))
             logger.info(
-                'This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
+                    'This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
             state = "00"
         ofname = "vasp_job-" + str(job.job_id) + ".out"
     # no batch system
@@ -357,7 +357,7 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                                             # reruns.append(j.job_id)
                                 else:
                                     logger.error(
-                                        'stdout redirect file not generated, job {} will be rerun'.format(j.job_id))
+                                            'stdout redirect file not generated, job {} will be rerun'.format(j.job_id))
                                     reruns.append(j.job_id)
                             os.chdir(j.parent_job_dir)
                     else:

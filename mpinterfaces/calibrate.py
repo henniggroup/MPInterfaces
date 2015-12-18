@@ -316,7 +316,7 @@ class Calibrate(MSONable):
         elif functional:
             return '_'.join(functional)
         else:
-            return '_'.join(functional, l)
+            return '_'.join(self.functional)
 
     def set_incar(self, param, val):
         """

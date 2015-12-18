@@ -271,8 +271,8 @@ class MPINTVaspJob(MPINTJob):
                 return None
         except Exception as ex:
             self.logger.info(
-                "error reading vasprun.xml, probably the job {0} in {1} is not done yet.".format(self.job_id,
-                                                                                                 self.job_dir))
+                    "error reading vasprun.xml, probably the job {0} in {1} is not done yet.".format(self.job_id,
+                                                                                                     self.job_dir))
             return None
 
 

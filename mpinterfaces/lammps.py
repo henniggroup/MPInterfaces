@@ -5,6 +5,7 @@ Calibrate LAMMPS jobs
 """
 
 import os
+import sys
 import logging
 from collections import OrderedDict
 
@@ -19,6 +20,13 @@ from ase.calculators.lammpsrun import LAMMPS, prism
 
 from mpinterfaces.instrument import MPINTJob
 from mpinterfaces.calibrate import Calibrate
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+sh = logging.StreamHandler(stream=sys.stdout)
+sh.setFormatter(formatter)
+logger.addHandler(sh)
 
 
 class MPINTLammps(LAMMPS, MSONable):

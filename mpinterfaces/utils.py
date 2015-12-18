@@ -22,8 +22,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.io.vasp.inputs import Incar, Poscar
-from pymatgen.io.vasp.inputs import Potcar, Kpoints
+from pymatgen.io.vasp.inputs import Poscar
 
 from custodian.custodian import Custodian
 

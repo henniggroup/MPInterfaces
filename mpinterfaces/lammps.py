@@ -5,10 +5,8 @@ Calibrate LAMMPS jobs
 """
 
 import os
-import sys
 import logging
 from collections import OrderedDict
-from re import compile as re_compile, IGNORECASE
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.ase import AseAtomsAdaptor

@@ -11,15 +11,11 @@ import json
 import logging
 import itertools
 
-import numpy as np
-
-from pymatgen import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
 
-from mpinterfaces.calibrate import Calibrate, CalibrateMolecule
-from mpinterfaces.calibrate import CalibrateSlab, CalibrateBulk
+from mpinterfaces.calibrate import CalibrateMolecule
+from mpinterfaces.calibrate import CalibrateSlab
 from mpinterfaces.calibrate import CalibrateInterface      
 from mpinterfaces.interface import Interface
 

@@ -5,26 +5,17 @@ Defines various firetasks
 """
 
 import sys
-import re
-import copy
 import logging
 
-from pymatgen.io.vasp.inputs import Incar, Poscar
-from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.apps.borg.queen import BorgQueen
 
 from monty.json import MontyDecoder
 
-from fireworks.core.firework import FireTaskBase, Firework, FWAction
-from fireworks.core.launchpad import LaunchPad
+from fireworks.core.firework import FireTaskBase, FWAction
 from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import explicit_serialize
 
-from mpinterfaces.calibrate import CalibrateMolecule, CalibrateSlab
-from mpinterfaces.calibrate import CalibrateBulk
-from mpinterfaces.measurement import Measurement
 from mpinterfaces.database import MPINTVaspToDbTaskDrone
-from mpinterfaces.utils import get_run_cmmnd
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

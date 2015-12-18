@@ -8,14 +8,11 @@ import sys
 import itertools
 from fractions import gcd
 from functools import reduce
-from collections import defaultdict
 import logging
 
 import numpy as np
 
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure, Molecule
-from pymatgen.core.surface import get_symmetrically_distinct_miller_indices
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import in_coord_list
 

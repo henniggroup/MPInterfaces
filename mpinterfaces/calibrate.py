@@ -21,11 +21,7 @@ for a given structure
 
 import sys
 import os
-import shutil
-import subprocess
-import operator
 import re
-import time
 import datetime
 from itertools import product
 from collections import OrderedDict
@@ -35,22 +31,19 @@ import numpy as np
 
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.core.surface import Slab, SlabGenerator
+from pymatgen.core.surface import SlabGenerator
 from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
-from pymatgen.io.vasp.outputs import Outcar
-from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
-from custodian.custodian import Custodian, gzip_dir
+from custodian.custodian import Custodian
 
 from monty.json import MSONable, MontyEncoder
 from monty.serialization import dumpfn
 
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
-from mpinterfaces.data_processor import MPINTVaspDrone
 from mpinterfaces.interface import Interface, Ligand
-from mpinterfaces.utils import get_ase_slab, get_job_state
+from mpinterfaces.utils import get_ase_slab
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

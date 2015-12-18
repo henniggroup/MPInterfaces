@@ -15,9 +15,6 @@ import datetime
 import numpy as np
 
 from pymatgen.core.structure import Structure
-from pymatgen.core.composition import Composition
-from pymatgen.io.vasp import Vasprun, Incar, Kpoints, Potcar, Poscar, \
-    Outcar, Oszicar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.bond_valence import BVAnalyzer
 

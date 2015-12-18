@@ -11,13 +11,12 @@ import glob
 import re
 import logging
 
-from monty.json import MontyEncoder, MontyDecoder
+from monty.json import MontyDecoder
 
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
-from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
-     _get_transformation_history
+from pymatgen.apps.borg.hive import _get_transformation_history
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

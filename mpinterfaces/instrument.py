@@ -11,15 +11,10 @@ import os, shutil
 import subprocess
 import logging
 
-import numpy as np
-
-from pymatgen import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.sets import DictVaspInputSet
 
-from custodian.custodian import Job, gzip_dir, ErrorHandler
-from custodian.vasp.interpreter import VaspModder
+from custodian.custodian import Job, ErrorHandler
 
 from monty.json import MontyDecoder
 

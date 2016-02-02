@@ -279,7 +279,7 @@ class Calibrate(MSONable):
         elif type(val) == dict:
             return self.potcar_to_name(val)
         elif isinstance(val, Poscar):
-            return val.comment
+            return val.comment.replace(' ','_').replace('\t','_')
         else:
             return str(val)
 

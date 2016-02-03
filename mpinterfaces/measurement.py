@@ -41,9 +41,9 @@ class Measurement(object):
     Serves as Base Class. Override this class for custom measurements.
     
     Args:
-	cal_objs: List of Calibration Object Names
-	parent_job_dir: Directory in which measuremnt is setup 
-	job_dir: Path name to directory for running the Measurement 
+        cal_objs: List of Calibration Object Names
+        parent_job_dir: Directory in which measuremnt is setup 
+        job_dir: Path name to directory for running the Measurement 
                  modules
     """
 
@@ -134,7 +134,7 @@ class Measurement(object):
 class MeasurementSolvation(Measurement):
     """
     Solvation with poisson-boltzmann(test verison)
-	
+        
     """
 
     def __init__(self, cal_obj, parent_job_dir='.',
@@ -208,8 +208,8 @@ class MeasurementInterface(Measurement):
     Ligand and separates them 
 
     Args:
-	cal_objs: List of Calibration Objects
-	
+        cal_objs: List of Calibration Objects
+        
     """
 
     def __init__(self, cal_objs, parent_job_dir='.',

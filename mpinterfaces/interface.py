@@ -50,7 +50,7 @@ class Interface(Slab):
         name: System name to specify database entry
               (can be a combination of miller indices of slab and 
               ligand and solvent) 
-	      eg: "PbS [1,1,1] + Hydrazine in DMF (epsilon = 37.5)"
+              eg: "PbS [1,1,1] + Hydrazine in DMF (epsilon = 37.5)"
         adsorb_on_species: Reference atom on slab to adsorb on 
         adatom_on_lig: bonding atom on ligand 
         ligand: structure object for ligand 
@@ -73,8 +73,8 @@ class Interface(Slab):
         from_ase: Whether to create Slab using python-ase for producing 
                   slabs that have orthogonal lattice vectors
 
-  	NOTE:	
-	if starting from the bulk structure, create slab
+        NOTE:   
+        if starting from the bulk structure, create slab
         note: if the starting structure is a slab, the vaccum extension
         is not possible
     """

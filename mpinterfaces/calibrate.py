@@ -295,7 +295,7 @@ class Calibrate(MSONable):
         
         Returns:    
             string representation for kpoint eg: Monkhorst Pack
-	    2 2 2 will be named 2x2x2
+            2 2 2 will be named 2x2x2
         """
         if grid_type == 'M' or grid_type == 'G':
             return str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' \
@@ -333,14 +333,14 @@ class Calibrate(MSONable):
     def set_poscar(self, scale=None, poscar=None):
         """
         perturbs given structure by volume scaling factor 
-	or takes user defined variants of Poscar 
-	
-	Args:
-	   scale : Volume Scaling parameter
+        or takes user defined variants of Poscar 
+        
+        Args:
+           scale : Volume Scaling parameter
 
-	   poscar : Poscar object of user defined structure
+           poscar : Poscar object of user defined structure
 
-	   set the poscar: volume scaled by the scale factor
+           set the poscar: volume scaled by the scale factor
         """
         if scale is not None:
             structure = Poscar.from_dict(self.poscar_orig).structure
@@ -395,9 +395,9 @@ class Calibrate(MSONable):
         """
         set up incar jobs,, calls set_incar to set the value to param
 
-	Args:
-	    param: Name of INCAR parameter
-	    val_list: List of values to vary for the param
+        Args:
+            param: Name of INCAR parameter
+            val_list: List of values to vary for the param
         """
         if val_list:
             for val in val_list:

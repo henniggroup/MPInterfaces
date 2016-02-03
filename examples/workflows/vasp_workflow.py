@@ -56,7 +56,10 @@ def get_structures():
 # step 1
 def convergence(**kwargs):
     """
-    set up and run all required jobs for the convergence study
+    Set up and run all required jobs for the convergence study.
+    Recursive(is_matrix=True) ENCUT and KPOINTS jobs for the given list of POSCARS.
+    Note: Since this is a convergence study ENCUT jobs and KPOINTS jobs are independently 
+    i.e recursion is used for the list of POSCARS+ENCUT and POSCARS+KPOINTS separately
     """
     job_dir = "convergence"
     kpoints_list = [[x,x,x] for x in range(8,15)]

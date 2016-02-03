@@ -280,8 +280,8 @@ class Calibrate(MSONable):
             return self.potcar_to_name(val)
         elif isinstance(val, Poscar):
             return str(val.structure.composition.reduced_formula) \
-                       + '_' + str(int(val.structure.lattice.volume)) \
-                       + '_' + ''.join((val.comment).split())
+                   + '_' + str(int(val.structure.lattice.volume)) \
+                   + '_' + ''.join((val.comment).split())
         else:
             return str(val)
 
@@ -421,7 +421,7 @@ class Calibrate(MSONable):
                 self.set_kpoints(kpoint)
                 if not self.is_matrix:
                     job_dir = self.job_dir + os.sep + self.key_to_name('KPOINTS') \
-                        + os.sep + self.kpoint_to_name(kpoint, self.Grid_type)
+                              + os.sep + self.kpoint_to_name(kpoint, self.Grid_type)
                     self.add_job(name=job_dir, job_dir=job_dir)
         else:
             self.logger.warn('kpoints_list empty')
@@ -437,7 +437,7 @@ class Calibrate(MSONable):
                 self.set_potcar()
                 if not self.is_matrix:
                     job_dir = self.job_dir + os.sep + 'POS' + \
-                          os.sep + 'VOLUME_' + str(scale)
+                              os.sep + 'VOLUME_' + str(scale)
                     self.add_job(name=job_dir, job_dir=job_dir)
         elif poscar_list:
             for poscar in poscar_list:
@@ -445,7 +445,7 @@ class Calibrate(MSONable):
                 self.set_potcar()
                 if not self.is_matrix:
                     job_dir = self.job_dir + os.sep + 'POS' + \
-                        os.sep + self.val_to_name(poscar)
+                              os.sep + self.val_to_name(poscar)
                     self.add_job(name=job_dir, job_dir=job_dir)
 
     def setup_potcar_jobs(self, mappings, functional_list):

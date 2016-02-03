@@ -1,3 +1,7 @@
+# coding: utf-8
+# Copyright (c) Henniggroup.
+# Distributed under the terms of the MIT License.
+
 from __future__ import division, unicode_literals, print_function
 
 """
@@ -26,9 +30,9 @@ def get_e_v(path):
     energies = []
     drone = MPINTVaspDrone(inc_structure=True)
     bg = BorgQueen(drone)
-    #bg.parallel_assimilate(path)
-    bg.serial_assimilate(path)            
-    allentries =  bg.get_data()
+    # bg.parallel_assimilate(path)
+    bg.serial_assimilate(path)
+    allentries = bg.get_data()
     for e in allentries:
         if e:
             energies.append(e.energy)
@@ -37,33 +41,32 @@ def get_e_v(path):
 
 
 def custom_plot(volumes, energies, eos):
-    plot.plot(volumes,energies,'ro')
+    plot.plot(volumes, energies, 'ro')
     x = np.linspace(min(eos.v), max(eos.v), 100)
     y = eval(eos.eos_string)(x, eos.eos_parameters[0],
                              eos.eos_parameters[1],
                              eos.eos_parameters[2],
-                             eos.eos_parameters[3] )
+                             eos.eos_parameters[3])
     plot.plot(x, y, label='fit')
     plot.xlabel('Volume ($\AA^3$)')
     plot.ylabel('Energy (eV)')
     plot.legend(loc='best')
     plot.savefig('eos.png')
-    #show()
+    # show()
 
-    
-if __name__=='__main__':
-    #load from file
-    #volumes = np.loadtxt('filename')[:,0]
-    #energies = np.loadtxt('filename')[:,1]
-    #volumes = np.array([13.72, 14.83, 16.0, 17.23, 18.52])
-    #energies = np.array([-56.29, -56.41, -56.46, -56.46, -56.42])
+
+if __name__ == '__main__':
+    # load from file
+    # volumes = np.loadtxt('filename')[:,0]
+    # energies = np.loadtxt('filename')[:,1]
+    # volumes = np.array([13.72, 14.83, 16.0, 17.23, 18.52])
+    # energies = np.array([-56.29, -56.41, -56.46, -56.46, -56.42])
     volumes, energies = get_e_v('VOLUME')
-    #eos = 'sjeos', 'murnaghan', 'birch', 'taylor', 'vinet' etc.
+    # eos = 'sjeos', 'murnaghan', 'birch', 'taylor', 'vinet' etc.
     eos = EquationOfState(volumes, energies, eos='murnaghan')
     v0, e0, B = eos.fit()
-    #the ASE units for the bulk modulus is eV/Angstrom^3 
+    # the ASE units for the bulk modulus is eV/Angstrom^3
     print('optimum volume, energy and bulk moduls', v0, e0, B)
-    #plot
-    eos.plot(filename= "eos_fit")
-    #custom_plot(volumes, energies, eos)
-
+    # plot
+    eos.plot(filename="eos_fit")
+    # custom_plot(volumes, energies, eos)

@@ -1,3 +1,7 @@
+# coding: utf-8
+# Copyright (c) Henniggroup.
+# Distributed under the terms of the MIT License.
+
 from __future__ import division, unicode_literals, print_function
 
 import os
@@ -14,16 +18,16 @@ structures = get_struct_from_mp('ZnO', all_structs=True)
 scell_size = 12
 for s in structures:
     a, b, c = s.lattice.abc
-    s.make_supercell([int(scell_size/a),
-                      int(scell_size/b),
-                      int(scell_size/c)])
+    s.make_supercell([int(scell_size / a),
+                      int(scell_size / b),
+                      int(scell_size / c)])
 # lammps input paramaters    
 parameters = {'atom_style': 'charge',
-              'charges': {'Zn':2, 'O':-2},
-              'minimize':'1.0e-13  1.0e-20  1000  10000',
-              'fix':['fix_nve all nve',
-                     '1 all box/relax aniso 0.0 vmax 0.001',
-                     '1a all qeq/comb 1 0.0001 file fq.out'] }
+              'charges': {'Zn': 2, 'O': -2},
+              'minimize': '1.0e-13  1.0e-20  1000  10000',
+              'fix': ['fix_nve all nve',
+                      '1 all box/relax aniso 0.0 vmax 0.001',
+                      '1a all qeq/comb 1 0.0001 file fq.out']}
 # list of pair styles
 pair_styles = ['comb3 polar_off']
 # list of pair coefficient files
@@ -34,7 +38,7 @@ turn_knobs = OrderedDict(
         ('STRUCTURES', structures),
         ('PAIR_STYLES', pair_styles),
         ('PAIR_COEFFS', pair_coeff_files)
-    ] )
+    ])
 # job directory and run settings
 job_dir = 'lammps_job'
 nprocs = 4
@@ -47,7 +51,7 @@ qadapter, job_cmd = get_run_cmmnd(nnodes=nnodes, nprocs=nprocs,
                                   job_bin=job_bin, mem=mem)
 # setup calibration jobs and run
 cal = CalibrateLammps(parameters, turn_knobs=turn_knobs,
-                      qadapter=qadapter, job_cmd = job_cmd,
+                      qadapter=qadapter, job_cmd=job_cmd,
                       job_dir=job_dir)
 cal.setup()
 cal.run()

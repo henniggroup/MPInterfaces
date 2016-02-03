@@ -1,3 +1,7 @@
+# coding: utf-8
+# Copyright (c) Henniggroup.
+# Distributed under the terms of the MIT License.
+
 from __future__ import division, unicode_literals, print_function
 
 """
@@ -11,6 +15,7 @@ from math import ceil
 from collections import OrderedDict
 
 import matplotlib
+
 matplotlib.use('Agg')
 
 from pymatgen.core.composition import Composition
@@ -31,16 +36,16 @@ structures = get_struct_from_mp('Al-O', all_structs=True)
 scell_size = 12
 for s in structures:
     a, b, c = s.lattice.abc
-    s.make_supercell([ceil(scell_size/a),
-                      ceil(scell_size/b),
-                      ceil(scell_size/c)])
+    s.make_supercell([ceil(scell_size / a),
+                      ceil(scell_size / b),
+                      ceil(scell_size / c)])
 # lammps input paramaters    
 parameters = {'atom_style': 'charge',
-              'charges': {'Al':0, 'O':0},
-              'minimize':'1.0e-13  1.0e-20  1000  10000',
-              'fix':['fix_nve all nve',
-                     '1 all box/relax aniso 0.0 vmax 0.001',
-                     '1a all qeq/comb 1 0.0001 file fq.out'] }
+              'charges': {'Al': 0, 'O': 0},
+              'minimize': '1.0e-13  1.0e-20  1000  10000',
+              'fix': ['fix_nve all nve',
+                      '1 all box/relax aniso 0.0 vmax 0.001',
+                      '1a all qeq/comb 1 0.0001 file fq.out']}
 # list of pair styles
 pair_styles = ['comb3 polar_off']
 # list of pair coefficient files
@@ -57,7 +62,7 @@ def step1(**kwargs):
             ('STRUCTURES', structures),
             ('PAIR_STYLE', pair_styles),
             ('PAIR_COEFF', pair_coeff_files)
-            ] )
+        ])
     # job directory and run settings
     job_dir = 'lammps_job'
     nprocs = 4
@@ -96,18 +101,18 @@ def step2(**kwargs):
     energy_al = -3.36
     O = Composition("Al0O1")
     energy_o = -2.58
-    entries.append(PDEntry(Al,energy_al))
-    entries.append(PDEntry(O,energy_o))
+    entries.append(PDEntry(Al, energy_al))
+    entries.append(PDEntry(O, energy_o))
     # get data and create entries
     for job in all_jobs:
         comp = job.vis.mplmp.structure.composition
-        energy =job.final_energy 
-        entries.append(PDEntry(comp,energy))
+        energy = job.final_energy
+        entries.append(PDEntry(comp, energy))
     pd = PhaseDiagram(entries)
     plotter = PDPlotter(pd, show_unstable=True)
     plotter.write_image('Al_O_phasediagram.jpg')
     return None
-    
+
 
 if __name__ == '__main__':
     steps = [step1, step2]

@@ -1,3 +1,7 @@
+# coding: utf-8
+# Copyright (c) Henniggroup.
+# Distributed under the terms of the MIT License.
+
 from __future__ import division, unicode_literals, print_function
 
 """
@@ -12,6 +16,6 @@ import pybel
 from pybel import readstring
 
 smi_input = "C1=CC=CS1"
-mol = readstring("smi", smi_input) 
+mol = readstring("smi", smi_input)
 mol.make3D()
 mol.write(format="xyz", filename='out.xyz', overwrite=True)

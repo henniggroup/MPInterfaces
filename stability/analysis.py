@@ -24,6 +24,41 @@ MPR = MPRester(
 def get_competing_species(directories):
 
     total_competing_species = []
+
+    for directory in directories:
+        os.chdir(directory)
+        composition = Structure.from_file('POSCAR').composition
+        try:
+            energy = Vasprun('vasprun.xml').final_energy
+        except:
+            energy = 100
+        my_entry = ComputedEntry(composition, energy)  # 2D material
+        entries = MPR.get_entries_in_chemsys(
+            [elt.symbol for elt in composition]
+            )
+
+        entries.append(my_entry)  # 2D material
+
+        pda = PDAnalyzer(PhaseDiagram(entries))
+        decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
+        competing_species = [
+            (entry.composition.reduced_formula,
+             entry.entry_id) for entry in decomp[0]
+            ]
+
+        # Keep a running list of all unique competing species, since in
+        # high throughput 2D searches there is usually some overlap in
+        # competing species for different materials.
+        for specie in competing_species:
+            if specie not in total_competing_species:
+                total_competing_species.append(specie)
+        os.chdir('../')
+
+    return total_competing_species
+
+
+def get_hull_distances(directories):
+
     hull_distances = {}
     finished_competitors = {}
 
@@ -61,26 +96,17 @@ def get_competing_species(directories):
             formula = entries[i].composition.reduced_formula
             if formula in finished_competitors:
                 entries[i] = finished_competitors[formula]
+            else:
+                entries[i].energy = 100
 
         entries.append(my_entry)  # 2D material
 
         pda = PDAnalyzer(PhaseDiagram(entries))
         decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
-        competing_species = [
-            (entry.composition.reduced_formula,
-             entry.entry_id) for entry in decomp[0]
-            ]
 
-        # Keep a running list of all unique competing species, since in
-        # high throughput 2D searches there is usually some overlap in
-        # competing species for different materials.
-        for specie in competing_species:
-            if specie not in total_competing_species:
-                total_competing_species.append(specie)
-        os.chdir('../')
         hull_distances[composition.reduced_formula] = decomp[1]
 
-    return [total_competing_species, hull_distances]
+    return hull_distances
 
 
 def plot_hull_distances(hull_distances):

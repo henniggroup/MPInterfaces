@@ -120,9 +120,10 @@ def plot_hull_distances(hull_distances):
     i = 0
     for compound in hull_distances:
         x_ticklabels.append(compound)
-        if hull_distances[compound] < 100:
+        hull_distance = hull_distances[compound] * 1000
+        if hull_distance < 100:
             color_code = 0.5
-        elif hull_distances[compound] < 200:
+        elif hull_distance < 200:
             color_code = 0.71
         else:
             color_code = 0.92

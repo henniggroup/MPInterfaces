@@ -97,7 +97,7 @@ def get_hull_distances(directories):
             if formula in finished_competitors:
                 entries[i] = finished_competitors[formula]
             else:
-                entries[i].energy = 100
+                entries[i] = ComputedEntry(entries[i].composition, 100)
 
         entries.append(my_entry)  # 2D material
 

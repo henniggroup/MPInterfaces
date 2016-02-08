@@ -5,11 +5,14 @@ from pymatgen.core.structure import Structure
 
 def is_converged(directory):
 
-    if 'reached required accuracy' in open(
-        '{}/job.log'.format(directory)
-            ).read():
-        return True
-    else:
+    try:
+        if 'reached required accuracy' in open(
+            '{}/job.log'.format(directory)
+                ).read():
+            return True
+        else:
+            return False
+    except IOError:
         return False
 
 

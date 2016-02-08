@@ -11,8 +11,8 @@ from monty.serialization import loadfn
 import twod_materials
 
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.py', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.pyc', '')
+PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
+PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
 
 INCAR_DICT = {
     '@class': 'Incar', '@module': 'pymatgen.io.vasp.inputs', 'AGGAC': 0.0,

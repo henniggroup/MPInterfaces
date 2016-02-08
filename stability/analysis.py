@@ -133,7 +133,9 @@ def plot_hull_distances(hull_distances):
                                    facecolor=plt.cm.jet(color_code)))
         i += 1
 
-    ax.set_xticks(range(len(hull_distances)))
-    ax.set_xticklabels(x_ticklabels)
+    ax.set_xticks([x + 0.5 for x in range(len(hull_distances))])
+    ax.set_xticklabels(x_ticklabels, family='serif', size=20)
+    ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
+    ax.set_ylabel(r'$\mathrm{E_F\/(meV/atom)}$')
 
     plt.savefig('stability_plot.pdf', transparent=True)

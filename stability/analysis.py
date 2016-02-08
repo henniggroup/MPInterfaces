@@ -11,6 +11,8 @@ from monty.serialization import loadfn
 
 import twod_materials.standard as st
 
+import matplotlib.pyplot as plt
+
 
 MPR = MPRester(
     loadfn(os.path.join(os.path.expanduser('~'), 'dbauth.yaml'))['mp_api']
@@ -39,7 +41,6 @@ def get_competing_species(directories):
         os.chdir('../')
 
     for directory in directories:
-        print os.getcwd()
         os.chdir(directory)
         composition = Structure.from_file('POSCAR').composition
         try:
@@ -78,3 +79,28 @@ def get_competing_species(directories):
         hull_distances[composition.reduced_formula] = decomp[1]
 
     return [total_competing_species, hull_distances]
+
+
+def plot_hull_distances(hull_distances):
+
+    ax = plt.figure().gca()
+    ax.set_ylim(0, 1000)
+    ax.set_xlim(0, len(hull_distances))
+
+    x_ticklabels = []
+    i = 0
+    for compound in hull_distances:
+        x_ticklabels.append(compound)
+        if hull_distances[compound] < 100:
+            color_code = 0.5
+        elif hull_distances[compound] < 200:
+            color_code = 0.71
+        else:
+            color_code = 0.92
+
+        ax.add_patch(plt.Rectangle(i, 0), height=hull_distances[compound],
+                     width=1, linewidth=0, facecolor=plt.cm.jet(color_code))
+
+    ax.set_xticklabels(x_ticklabels)
+
+    plt.savefig('stability_plot.pdf', transparent=True)

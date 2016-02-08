@@ -127,8 +127,8 @@ def plot_hull_distances(hull_distances):
         else:
             color_code = 0.92
 
-        ax.add_patch(plt.Rectangle(i, 0), height=hull_distances[compound],
-                     width=1, linewidth=0, facecolor=plt.cm.jet(color_code))
+        ax.add_patch(plt.Rectangle((i, 0), height=hull_distances[compound],
+                     width=1, linewidth=0, facecolor=plt.cm.jet(color_code)))
 
     ax.set_xticklabels(x_ticklabels)
 

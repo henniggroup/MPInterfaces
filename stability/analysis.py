@@ -39,7 +39,7 @@ def get_competing_species(directories):
         os.chdir('../')
 
     for directory in directories:
-        print os.path.getcwd()
+        print os.getcwd()
         os.chdir(directory)
         composition = Structure.from_file('POSCAR').composition
         try:

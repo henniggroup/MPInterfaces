@@ -11,6 +11,8 @@ from monty.serialization import loadfn
 
 import twod_materials.standard as st
 
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 

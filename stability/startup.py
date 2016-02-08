@@ -63,6 +63,7 @@ def relax_competing_species(competing_species, submit=True):
     os.chdir('all_competitors')
 
     for specie in competing_species:
+        print specie[0]
         if not os.path.isdir(specie[0]):
             os.mkdir(specie[0])
         os.chdir(specie[0])

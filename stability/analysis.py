@@ -105,6 +105,7 @@ def get_hull_distances(directories):
         decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
 
         hull_distances[composition.reduced_formula] = decomp[1]
+        os.chdir('../')
 
     return hull_distances
 

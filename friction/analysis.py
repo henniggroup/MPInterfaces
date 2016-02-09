@@ -2,7 +2,7 @@ import os
 
 import matplotlib.pyplot as plt
 
-import twod_materials.standard as st
+from pymatgen.io.vasp.outputs import Vasprun
 
 
 def plot_friction_surface(directory):
@@ -22,7 +22,7 @@ def plot_friction_surface(directory):
         for y in Y_VALUES:
             dir = '{}x{}'.format(x, y)
             os.chdir(dir)
-            ENERGY_ARRAY[x].append(st.get_toten())
+            ENERGY_ARRAY[x].append(Vasprun('vasprun.xml').final_energy)
             os.chdir('../')
 
     minima = []

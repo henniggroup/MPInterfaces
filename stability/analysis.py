@@ -9,7 +9,7 @@ from pymatgen.matproj.rest import MPRester
 
 from monty.serialization import loadfn
 
-import twod_materials.standard as st
+from twod_materials.utils import is_converged
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -68,7 +68,7 @@ def get_hull_distances(directories):
         os.chdir('all_competitors')
         for comp_dir in [
             dir for dir in os.listdir(os.getcwd()) if os.path.isdir(dir) and
-            st.is_converged(dir)
+            is_converged(dir)
                 ]:
             os.chdir(comp_dir)
             composition = Structure.from_file('POSCAR').composition
@@ -113,7 +113,7 @@ def get_hull_distances(directories):
 def plot_hull_distances(hull_distances):
 
     ax = plt.figure().gca()
-    ax.set_ylim(0, 1000)
+    ax.set_ylim(0, 700)
     ax.set_xlim(0, len(hull_distances))
 
     x_ticklabels = []

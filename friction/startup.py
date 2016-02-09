@@ -1,6 +1,6 @@
 import os
 
-import twod_materials.standard as st
+import twod_materials.utils as utl
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
@@ -10,12 +10,12 @@ def run_friction_calculations(directories, submit=True):
 
     for directory in directories:
         os.chdir(directory)
-        st.add_vacuum(3 - st.get_spacing(), 0.8)
+        utl.add_vacuum(3 - utl.get_spacing(), 0.8)
         structure = Structure.from_file('POSCAR')
         n_sites_per_layer = structure.num_sites
         structure.make_supercell([1, 1, 2])
         structure.to('POSCAR', 'POSCAR')
-        st.add_vacuum(12, 0.9)
+        utl.add_vacuum(12, 0.9)
 
         z_coords = []
         for site in structure.sites:
@@ -54,7 +54,7 @@ def run_friction_calculations(directories, submit=True):
                         else:
                             poscar.write(line)
 
-                st.write_runjob(dir, 1, 8, '400mb', '1:00:00', 'vasp')
+                utl.write_runjob(dir, 1, 8, '400mb', '1:00:00', 'vasp')
 
                 if submit:
                     os.system('qsub runjob')

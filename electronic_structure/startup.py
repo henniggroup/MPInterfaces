@@ -1,6 +1,6 @@
 import os
 
-import twod_materials.standard as st
+from twod_materials.utils import write_runjob
 
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.inputs import Incar
@@ -35,7 +35,7 @@ def run_hse_calculations(directories, submit=True):
             os.system('cp ../POTCAR ./POTCAR')
             os.system('cp ../vdw_kernel.bindat ./')
             Incar.from_dict(HSE_INCAR_DICT).write_file('INCAR')
-            st.write_runjob(directory, 1, 32, '1200mb', '150:00:00', 'vasp')
+            write_runjob(directory, 1, 32, '1200mb', '150:00:00', 'vasp')
 
             os.system('cp ../IBZKPT ./KPOINTS')
             kpoints_lines = open('KPOINTS').readlines()

@@ -1,6 +1,6 @@
 import os
 
-import twod_materials.standard as st
+import twod_materials.utils as utl
 
 from pymatgen.matproj.rest import MPRester
 from pymatgen.core.structure import Structure
@@ -33,7 +33,7 @@ def relax(directories, submit=True):
         os.chdir(directory)
 
         # Ensure 20A interlayer vacuum
-        st.add_vacuum(20 - st.get_spacing(), 0.9)
+        utl.add_vacuum(20 - utl.get_spacing(), 0.9)
 
         # vdw_kernel.bindat file required for VDW calculations.
         os.system('cp {} .'.format(KERNEL_PATH))
@@ -46,10 +46,10 @@ def relax(directories, submit=True):
         Incar.from_dict(INCAR_DICT).write_file('INCAR')
 
         # POTCAR
-        st.write_potcar()
+        utl.write_potcar()
 
         # Submission script
-        st.write_runjob(directory, 1, 8, '600mb', '6:00:00', 'vasp_noz')
+        utl.write_runjob(directory, 1, 8, '600mb', '6:00:00', 'vasp_noz')
 
         if submit:
             os.system('qsub runjob')
@@ -71,8 +71,8 @@ def relax_competing_species(competing_species, submit=True):
         structure.to('POSCAR', 'POSCAR')
         Kpoints.automatic_density(structure, 1000).write_file('KPOINTS')
         Incar.from_dict(INCAR_DICT).write_file('INCAR')
-        st.write_potcar()
-        st.write_runjob(specie[0], 1, 8, '600mb', '6:00:00', 'vasp')
+        utl.write_potcar()
+        utl.write_runjob(specie[0], 1, 8, '600mb', '6:00:00', 'vasp')
         if submit:
             os.system('qsub runjob')
         os.chdir('../')

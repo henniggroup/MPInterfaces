@@ -23,8 +23,9 @@ def get_band_structures(directories):
         if band_gap['energy']:
             cbm = vasprun.get_band_structure().get_cbm()
             vbm = vasprun.get_band_structure().get_vbm()
+            efermi = vasprun.efermi
             band_gaps[directory] = {'CBM': cbm, 'VBM': vbm,
-                                    'Direct': is_direct}
+                                    'Direct': is_direct, 'E_Fermi':efermi}
         else:
             band_gaps[directory] = False
         os.chdir('../')
@@ -34,68 +35,84 @@ def get_band_structures(directories):
 
 def plot_band_alignments(band_gaps):
 
-    ax = plt.figure(figsize=(10, 10)).gca()
-    ax.set_xlim(len(band_gaps))
+    ax = plt.figure(figsize=(16, 10)).gca()
+
+    x_max = len(band_gaps)*1.625
+    ax.set_xlim(0, x_max)
 
     x_ticklabels = []
     vbms = []
+    for compound in band_gaps:
+        vbms.append(band_gaps[compound]['VBM']['energy'])
+
+    y_min = min(vbms) - 0.5
+
     i = 0
     for compound in band_gaps:
         x_ticklabels.append(compound)
-        cbm = band_gaps[compound]['CBM']
-        vbm = band_gaps[compound]['VBM']
-        vbms.append(vbm)
+        efermi = band_gaps[compound]['E_Fermi']
+        cbm = band_gaps[compound]['CBM']['energy']  # - efermi?
+        vbm = band_gaps[compound]['VBM']['energy']  # - efermi?
         if band_gaps[compound]['Direct']:
-            linewidth = 3
+            linewidth = 5
         else:
             linewidth = 0
 
-        ax.add_patch(plt.Rectangle((i, cbm), height=-cbm, width=0.9,
-                                   facecolor="#0066cc", linewidth=linewidth))
+        ax.add_patch(plt.Rectangle((i, cbm), height=-cbm, width=0.8,
+                                   facecolor="#002b80", linewidth=linewidth,
+                                   edgecolor="#e68a00"))
+        ax.add_patch(plt.Rectangle((i, y_min),
+                                   height=(vbm - y_min), width=0.8,
+                                   facecolor="#002b80", linewidth=linewidth,
+                                   edgecolor="#e68a00"))
+
         i += 1
 
-    ax.set_ylim(min(vbms)-0.5, 0)
+    ax.set_ylim(y_min, 0)
 
     ax.plot([0, i], [-1.9, -1.9], color='k', alpha=0.6, linewidth=4)
-    ax.text(i + 0.5, -1.94, r'$\mathrm{CO_2+\/e^-\/\rightarrow\/CO^-_2}$',
+    ax.text(i*1.05, -1.94, r'$\mathrm{CO_2+\/e^-\/\rightarrow\/CO^-_2}$',
             size=20)
 
     ax.plot([0, i], [-0.61, -0.61], color='k', alpha=0.6, linewidth=4)
-    ax.text(i + 0.5, -0.7,
+    ax.text(i*1.05, -0.7,
             r'$\mathrm{CO_2\/+\/2H^+\/+\/2e^-\/\rightarrow\/HCO_2H}$', size=20)
 
     ax.plot([0, i], [-0.53, -0.53], color='k', alpha=0.6, linewidth=4)
-    ax.text(i + 0.5, -0.59,
+    ax.text(i*1.05, -0.59,
             r'$\mathrm{CO_2\/+\/2H^+\/+\/2e^-\/\rightarrow\/CO\/+\/H_2O}$',
             size=20)
 
     ax.plot([0, i], [-0.48, -0.48], color='k', alpha=0.6, linewidth=4)
-    ax.text(i + 0.5, -0.48,
+    ax.text(i*1.05, -0.48,
             r'$\mathrm{CO_2\/+\/4H^+\/+\/4e^-\/\rightarrow\/HCHO\/+\/H_2O}$',
             size=20)
 
     ax.plot([0, i], [-0.38, -0.38], color='k', alpha=0.6, linewidth=4)
-    ax.text(i + 0.5, -0.37,
+    ax.text(i*1.05, -0.37,
             r'$\mathrm{CO_2\/+\/6H^+\/+\/6e^-\/\rightarrow\/CH_3OH\/+\/H_2O}$',
             size=20)
 
-    ax.plot([0, 16], [-0.24, -0.24], color='k', alpha=0.6, linewidth=4)
-    ax.text(i + 0.5, -0.24,
+    ax.plot([0, i], [-0.24, -0.24], color='k', alpha=0.6, linewidth=4)
+    ax.text(i*1.05, -0.24,
             r'$\mathrm{CO_2\/+\/8H^+\/+\/8e^-\/\rightarrow\/CH_4\/+\/2H_2O}$',
             size=20)
 
-    ax.set_xticks(range(i))
+    ax.set_xticks([n + 0.4 for n in range(i)])
     ax.set_xticklabels(x_ticklabels, family='serif', size=20, rotation=60)
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
 
-    ax.add_patch(plt.Rectangle((i + 1, min(vbms) + 0.25), width=3, height=0.2,
-                               facecolor='w', linewidth=3))
-    ax.text(i + 2.5, min(vbms) + 0.35, 'Direct', family='serif', color='k',
+    ax.add_patch(plt.Rectangle((i*1.1, y_min + (-y_min*0.15)), width=x_max*0.1,
+                               height=(-y_min*0.1), facecolor='#002b80',
+                               edgecolor='#e68a00', linewidth=5))
+    ax.text(i*1.18, y_min*0.8, 'Direct', family='serif', color='w',
             size=20, horizontalalignment='center', verticalalignment='center')
-    ax.add_patch(plt.Rectangle((i + 5, min(vbms) + 0.25), width=3, height=0.2,
-                               facecolor='w', linewidth=0))
-    ax.text(i + 6.5, min(vbms) + 0.35, 'Indirect', family='serif', size=20,
-            color='k', horizontalalignment='center',
+
+    ax.add_patch(plt.Rectangle((i*1.1, y_min), width=x_max*0.1,
+                               height=(-y_min*0.1), facecolor='#002b80',
+                               linewidth=0))
+    ax.text(i*1.18, y_min*0.95, 'Indirect', family='serif', size=20,
+            color='w', horizontalalignment='center',
             verticalalignment='center')
 
     ax.spines['top'].set_visible(False)
@@ -106,3 +123,4 @@ def plot_band_alignments(band_gaps):
     ax.xaxis.set_ticks_position('bottom')
 
     plt.savefig('band_alignments.pdf', transparent=True)
+

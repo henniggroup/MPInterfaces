@@ -23,7 +23,7 @@ INCAR_DICT = {
     }
 KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
 MPR = MPRester(
-    loadfn(os.path.join(os.path.expanduser('~'), 'dbauth.yaml'))['mp_api']
+    loadfn(os.path.join(os.expanduser('~'), 'config.yaml'))['mp_api']
     )
 
 

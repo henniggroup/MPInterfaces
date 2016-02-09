@@ -28,11 +28,10 @@ import twod_materials
 
 PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
 PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-PACKAGE_PATH = os.path.join(PACKAGE_PATH, 'pourbaix')
 
-ION_DATA = loadfn(os.path.join(PACKAGE_PATH, 'ions.yaml'))
-END_MEMBERS = loadfn(os.path.join(PACKAGE_PATH, 'end_members.yaml'))
-ION_COLORS = loadfn(os.path.join(PACKAGE_PATH, 'ion_colors.yaml'))
+ION_DATA = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/ions.yaml'))
+END_MEMBERS = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/end_members.yaml'))
+ION_COLORS = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/ion_colors.yaml'))
 
 
 def contains_entry(entry_list, entry):

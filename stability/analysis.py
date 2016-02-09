@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 
 MPR = MPRester(
-    loadfn(os.path.join(os.path.expanduser('~'), 'dbauth.yaml'))['mp_api']
+    loadfn(os.path.join(os.expanduser('~'), 'config.yaml'))['mp_api']
     )
 
 

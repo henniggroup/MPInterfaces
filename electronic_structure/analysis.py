@@ -27,6 +27,7 @@ def get_band_structures(directories):
                                     'Direct': is_direct}
         else:
             band_gaps[directory] = False
+        os.chdir('../')
 
     return band_gaps
 

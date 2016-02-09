@@ -112,7 +112,7 @@ def get_hull_distances(directories):
 
 def plot_hull_distances(hull_distances):
 
-    ax = plt.figure().gca()
+    ax = plt.figure(figsize=(12, 10)).gca()
     ax.set_ylim(0, 700)
     ax.set_xlim(0, len(hull_distances))
 
@@ -128,8 +128,8 @@ def plot_hull_distances(hull_distances):
         else:
             color_code = 0.92
 
-        ax.add_patch(plt.Rectangle((i, 0), height=hull_distance, width=1,
-                                   linewidth=0,
+        ax.add_patch(plt.Rectangle((i + 0.1, 0), height=hull_distance,
+                                   width=0.8, linewidth=0,
                                    facecolor=plt.cm.jet(color_code)))
         i += 1
 

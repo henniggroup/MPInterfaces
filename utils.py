@@ -2,6 +2,12 @@ import os
 
 from pymatgen.core.structure import Structure
 
+from monty.serialization import loadfn
+
+
+POTENTIAL_PATH = loadfn(
+    os.path.join(os.path.expanduser('~'), 'config.yaml'))['potentials']
+
 
 def is_converged(directory):
 
@@ -46,7 +52,8 @@ def add_vacuum(delta, cut=0.9):
     Adds vacuum to a POSCAR.
 
     delta = vacuum thickness in Angstroms
-    cut = height above which atoms will need to be fixed. Defaults to 0.9.
+    cut = height above which atoms will need to be fixed. Defaults to
+    0.9.
     '''
     # Fix the POSCAR to put bottom atoms (if they are accidentally above
     # tolerance) at 0.0.
@@ -112,7 +119,8 @@ def add_vacuum(delta, cut=0.9):
     c_lat_par[2] = c_length_plus_delta / float(lattice_constant)
     scalar = c_lat_par[2] / save
 
-    # Create list of atom coordinates and adjust their z-coordinate on the fly
+    # Create list of atom coordinates and adjust their z-coordinate on
+    # the fly
 
     atoms = []
     for i in range(8, final_atom_line):
@@ -120,8 +128,8 @@ def add_vacuum(delta, cut=0.9):
         atom[2] = float(atom[2]) / scalar
         atoms.append(atom)
 
-    # Write updated values to new_POSCAR, copy it to old_POSCAR, then close
-    # files and delete new_POSCAR
+    # Write updated values to new_POSCAR, copy it to old_POSCAR, then
+    # close files and delete new_POSCAR
 
     new_poscar.write('{}\n'.format(name))
     new_poscar.write('{}\n'.format(lattice_constant))
@@ -185,8 +193,7 @@ def write_potcar(types='None'):
             elements[i] += '_{}'.format(types[i])
 
         # If specified pseudopotential doesn't exist, try other variations.
-        if os.path.exists('/home/mashton/Potentials/POT_GGA_PAW_PBE/'
-                          '{}/POTCAR'.format(elements[i])):
+        if os.path.exists('{}/{}/POTCAR'.format(POTENTIAL_PATH, elements[i])):
             pass
         else:
             print 'Potential file for {} does not exist. Looking for best'\
@@ -197,27 +204,25 @@ def write_potcar(types='None'):
                 length = len(types[i]) + 1
                 elements[i] = elements[i][:-length]
             elements[i] += '_sv'
-            if os.path.exists('/home/mashton/Potentials/POT_GGA_PAW_PBE/{}/'
-                              'POTCAR'.format(elements[i])):
+            if os.path.exists('{}/{}/POTCAR'.format(
+                    POTENTIAL_PATH, elements[i])):
                 print 'Found one! {} will work.'.format(elements[i])
             else:
                 elements[i] = elements[i][:-3]
                 elements[i] += '_pv'
-                if os.path.exists('/home/mashton/Potentials/POT_GGA_PAW_PBE/{}'
-                                  '/POTCAR'.format(elements[i])):
+                if os.path.exists('{}/{}/POTCAR'.format(
+                        POTENTIAL_PATH, elements[i])):
                     print 'Found one! {} will work.'.format(elements[i])
                 else:
                     elements[i] = elements[i][:-3]
                     elements[i] += '_3'
-                    if os.path.exists('/home/mashton/Potentials/'
-                                      'POT_GGA_PAW_PBE/{}/'
-                                      'POTCAR'.format(elements[i])):
+                    if os.path.exists('{}/{}/POTCAR'.format(
+                            POTENTIAL_PATH, elements[i])):
                         print 'Found one! {} will work.'.format(elements[i])
                     else:
                         elements[i] = elements[i][:-2]
-                        if os.path.exists('/home/mashton/Potentials/'
-                                          'POT_GGA_PAW_PBE/{}/'
-                                          'POTCAR'.format(elements[i])):
+                        if os.path.exists('{}/{}/POTCAR'.format(
+                                POTENTIAL_PATH, elements[i])):
                             print ('Found one! {} will '
                                    'work.'.format(elements[i]))
                         else:
@@ -226,8 +231,7 @@ def write_potcar(types='None'):
 
     # Create paths, open files, and write files to POTCAR for each potential.
     for element in elements:
-        potentials.append('/home/mashton/Potentials/POT_GGA_PAW_PBE/'
-                          '{}/POTCAR'.format(element))
+        potentials.append('{}/{}/POTCAR'.format(POTENTIAL_PATH, element))
     outfile = open('POTCAR', 'w')
     for potential in potentials:
         infile = open(potential)

@@ -10,6 +10,7 @@ def run_friction_calculations(directories, submit=True):
 
     for directory in directories:
         os.chdir(directory)
+        os.system('cp CONTCAR POSCAR')
         utl.add_vacuum(3 - utl.get_spacing(), 0.8)
         structure = Structure.from_file('POSCAR')
         n_sites_per_layer = structure.num_sites
@@ -17,10 +18,10 @@ def run_friction_calculations(directories, submit=True):
         structure.to('POSCAR', 'POSCAR')
         utl.add_vacuum(12, 0.9)
 
-        z_coords = []
+        c_coords = []
         for site in structure.sites:
-            z_coords.append(site.z)
-        bottom_layer_max_height = sorted(z_coords)[n_sites_per_layer - 1]
+            c_coords.append(site.c)
+        bottom_layer_max_height = sorted(c_coords)[n_sites_per_layer - 1]
 
         for x in range(10):
             for y in range(10):
@@ -38,7 +39,8 @@ def run_friction_calculations(directories, submit=True):
 
                 os.chdir(dir)
                 incar_dict = Incar.from_file('INCAR').as_dict()
-                incar_dict.update({'NSW': 0})
+                incar_dict.update({'NSW': 0, 'LAECHG': False, 'LCHARG': False,
+                                   'LWAVE': False})
                 Incar.from_dict(incar_dict).write_file('INCAR')
 
                 # Shift the top layer

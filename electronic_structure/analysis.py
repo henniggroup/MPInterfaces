@@ -50,7 +50,7 @@ def plot_band_alignments(band_gaps):
     i = 0
     for compound in band_gaps:
         x_ticklabels.append(compound)
-        efermi = band_gaps[compound]['E_Fermi']
+#        efermi = band_gaps[compound]['E_Fermi']
         cbm = band_gaps[compound]['CBM']['energy']  # - efermi?
         vbm = band_gaps[compound]['VBM']['energy']  # - efermi?
         if band_gaps[compound]['Direct']:
@@ -123,4 +123,3 @@ def plot_band_alignments(band_gaps):
     ax.xaxis.set_ticks_position('bottom')
 
     plt.savefig('band_alignments.pdf', transparent=True)
-

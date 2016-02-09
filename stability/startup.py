@@ -30,30 +30,31 @@ MPR = MPRester(
 def relax(directories, submit=True):
 
     for directory in directories:
-        os.chdir(directory)
+        if not utl.is_converged(directory):
+            os.chdir(directory)
 
-        # Ensure 20A interlayer vacuum
-        utl.add_vacuum(20 - utl.get_spacing(), 0.9)
+            # Ensure 20A interlayer vacuum
+            utl.add_vacuum(20 - utl.get_spacing(), 0.9)
 
-        # vdw_kernel.bindat file required for VDW calculations.
-        os.system('cp {} .'.format(KERNEL_PATH))
+            # vdw_kernel.bindat file required for VDW calculations.
+            os.system('cp {} .'.format(KERNEL_PATH))
 
-        # KPOINTS
-        Kpoints.automatic_density(Structure.from_file('POSCAR'),
-                                  1000).write_file('KPOINTS')
+            # KPOINTS
+            Kpoints.automatic_density(Structure.from_file('POSCAR'),
+                                      1000).write_file('KPOINTS')
 
-        # INCAR
-        Incar.from_dict(INCAR_DICT).write_file('INCAR')
+            # INCAR
+            Incar.from_dict(INCAR_DICT).write_file('INCAR')
 
-        # POTCAR
-        utl.write_potcar()
+            # POTCAR
+            utl.write_potcar()
 
-        # Submission script
-        utl.write_runjob(directory, 1, 8, '600mb', '6:00:00', 'vasp_noz')
+            # Submission script
+            utl.write_runjob(directory, 1, 8, '600mb', '6:00:00', 'vasp_noz')
 
-        if submit:
-            os.system('qsub runjob')
-        os.chdir('../')
+            if submit:
+                os.system('qsub runjob')
+            os.chdir('../')
 
 
 def relax_competing_species(competing_species, submit=True):
@@ -65,15 +66,16 @@ def relax_competing_species(competing_species, submit=True):
     for specie in competing_species:
         if not os.path.isdir(specie[0]):
             os.mkdir(specie[0])
-        os.chdir(specie[0])
-        os.system('cp {} .'.format(KERNEL_PATH))
-        structure = MPR.get_structure_by_material_id(specie[1])
-        structure.to('POSCAR', 'POSCAR')
-        Kpoints.automatic_density(structure, 1000).write_file('KPOINTS')
-        Incar.from_dict(INCAR_DICT).write_file('INCAR')
-        utl.write_potcar()
-        utl.write_runjob(specie[0], 1, 8, '600mb', '6:00:00', 'vasp')
-        if submit:
-            os.system('qsub runjob')
-        os.chdir('../')
+        if not utl.is_converged(specie[0]):
+            os.chdir(specie[0])
+            os.system('cp {} .'.format(KERNEL_PATH))
+            structure = MPR.get_structure_by_material_id(specie[1])
+            structure.to('POSCAR', 'POSCAR')
+            Kpoints.automatic_density(structure, 1000).write_file('KPOINTS')
+            Incar.from_dict(INCAR_DICT).write_file('INCAR')
+            utl.write_potcar()
+            utl.write_runjob(specie[0], 1, 8, '600mb', '6:00:00', 'vasp')
+            if submit:
+                os.system('qsub runjob')
+            os.chdir('../')
     os.chdir('../')

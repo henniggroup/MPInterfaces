@@ -26,6 +26,9 @@ def run_friction_calculations(directories, submit=True):
             for y in range(10):
                 dir = '{}x{}'.format(x, y)
 
+                if not os.path.isdir(dir):
+                    os.mkdir(dir)
+
                 # Copy input files
                 os.system('cp INCAR {}/'.format(dir))
                 os.system('cp KPOINTS {}/'.format(dir))

@@ -10,7 +10,7 @@ from monty.serialization import loadfn
 
 
 MPR = MPRester(
-    loadfn(os.path.join(os.expanduser('~'), 'config.yaml'))['mp_api']
+    loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
     )
 
 

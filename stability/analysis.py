@@ -22,6 +22,11 @@ MPR = MPRester(
 
 
 def get_competing_species(directories):
+    """
+    Collect the species to which the 2D materials might decompose to.
+    Since a lot of 2D materials with similar compositions will have the
+    same competing species, duplicates aren't counted.
+    """
 
     total_competing_species = []
 
@@ -111,6 +116,9 @@ def get_hull_distances(directories):
 
 
 def plot_hull_distances(hull_distances):
+    """
+    Create a bar graph of the formation energies of the 2D materials.
+    """
 
     ax = plt.figure(figsize=(12, 10)).gca()
     ax.set_ylim(0, 700)
@@ -121,10 +129,16 @@ def plot_hull_distances(hull_distances):
     for compound in hull_distances:
         x_ticklabels.append(compound)
         hull_distance = hull_distances[compound] * 1000
+
+        # Good chance of stability
         if hull_distance < 100:
             color_code = 0.5
+
+        # Decent chance of stability
         elif hull_distance < 200:
             color_code = 0.71
+
+        # Poor chance of stability
         else:
             color_code = 0.92
 

@@ -10,6 +10,9 @@ POTENTIAL_PATH = loadfn(
 
 
 def is_converged(directory):
+    """
+    Check if a relaxation has converged.
+    """
 
     try:
         if 'reached required accuracy' in open(
@@ -55,9 +58,9 @@ def add_vacuum(delta, cut=0.9):
     cut = height above which atoms will need to be fixed. Defaults to
     0.9.
     '''
+
     # Fix the POSCAR to put bottom atoms (if they are accidentally above
     # tolerance) at 0.0.
-
     structure = Structure.from_file('POSCAR')
     with open('POSCAR', 'r') as readcar:
         poscar_lines = readcar.readlines()

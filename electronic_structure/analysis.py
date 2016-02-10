@@ -6,6 +6,13 @@ import matplotlib.pyplot as plt
 
 
 def get_band_structures(directories):
+    """
+    Return information on the band structures of all compounds.
+    {'CBM': conduction band minimum (energy & location),
+     'VBM': valence band maximum (energy & location),
+     'Direct': Boolean,
+     'E_Fermi': Fermi energy}
+    """
 
     band_gaps = {}
     for directory in directories:
@@ -34,6 +41,10 @@ def get_band_structures(directories):
 
 
 def plot_band_alignments(band_gaps):
+    """
+    Plot CBM's and VBM's of all compounds together, relative to certain
+    CO2 reduction reaction enthalpies.
+    """
 
     ax = plt.figure(figsize=(16, 10)).gca()
 
@@ -53,14 +64,18 @@ def plot_band_alignments(band_gaps):
 #        efermi = band_gaps[compound]['E_Fermi']
         cbm = band_gaps[compound]['CBM']['energy']  # - efermi?
         vbm = band_gaps[compound]['VBM']['energy']  # - efermi?
+
+        # Add a box around direct gap compounds to distinguish them.
         if band_gaps[compound]['Direct']:
             linewidth = 5
         else:
             linewidth = 0
 
+        # CBM
         ax.add_patch(plt.Rectangle((i, cbm), height=-cbm, width=0.8,
                                    facecolor="#002b80", linewidth=linewidth,
                                    edgecolor="#e68a00"))
+        # VBM
         ax.add_patch(plt.Rectangle((i, y_min),
                                    height=(vbm - y_min), width=0.8,
                                    facecolor="#002b80", linewidth=linewidth,
@@ -70,38 +85,46 @@ def plot_band_alignments(band_gaps):
 
     ax.set_ylim(y_min, 0)
 
+    # CO_2 + e^- --> CO^{2-} (-1.9 eV)
     ax.plot([0, i], [-1.9, -1.9], color='k', alpha=0.6, linewidth=4)
     ax.text(i*1.05, -1.94, r'$\mathrm{CO_2+\/e^-\/\rightarrow\/CO^-_2}$',
             size=20)
 
+    # CO_2 + 2H^+ + 2e^- --> HCO_2H (-0.61 eV)
     ax.plot([0, i], [-0.61, -0.61], color='k', alpha=0.6, linewidth=4)
     ax.text(i*1.05, -0.7,
             r'$\mathrm{CO_2\/+\/2H^+\/+\/2e^-\/\rightarrow\/HCO_2H}$', size=20)
 
+    # CO_2 + 2H^+ + 2e^- --> CO + H_2O (-0.53 eV)
     ax.plot([0, i], [-0.53, -0.53], color='k', alpha=0.6, linewidth=4)
     ax.text(i*1.05, -0.59,
             r'$\mathrm{CO_2\/+\/2H^+\/+\/2e^-\/\rightarrow\/CO\/+\/H_2O}$',
             size=20)
 
+    # CO_2 + 4H^+ + 4e^- --> HCHO + H_2O (-0.48 eV)
     ax.plot([0, i], [-0.48, -0.48], color='k', alpha=0.6, linewidth=4)
     ax.text(i*1.05, -0.48,
             r'$\mathrm{CO_2\/+\/4H^+\/+\/4e^-\/\rightarrow\/HCHO\/+\/H_2O}$',
             size=20)
 
+    # CO_2 + 6H^+ + 6e^- --> CH_3OH + H_2O (-0.38 eV)
     ax.plot([0, i], [-0.38, -0.38], color='k', alpha=0.6, linewidth=4)
     ax.text(i*1.05, -0.37,
             r'$\mathrm{CO_2\/+\/6H^+\/+\/6e^-\/\rightarrow\/CH_3OH\/+\/H_2O}$',
             size=20)
 
+    # CO_2 + 8H^+ + 8e^- --> CH_4 + 2H_2O (-0.24 eV)
     ax.plot([0, i], [-0.24, -0.24], color='k', alpha=0.6, linewidth=4)
     ax.text(i*1.05, -0.24,
             r'$\mathrm{CO_2\/+\/8H^+\/+\/8e^-\/\rightarrow\/CH_4\/+\/2H_2O}$',
             size=20)
 
+    # Set tick labels
     ax.set_xticks([n + 0.4 for n in range(i)])
     ax.set_xticklabels(x_ticklabels, family='serif', size=20, rotation=60)
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
 
+    # Add a legend to explain that direct gaps are in boxes.
     ax.add_patch(plt.Rectangle((i*1.1, y_min + (-y_min*0.15)), width=x_max*0.1,
                                height=(-y_min*0.1), facecolor='#002b80',
                                edgecolor='#e68a00', linewidth=5))
@@ -115,6 +138,7 @@ def plot_band_alignments(band_gaps):
             color='w', horizontalalignment='center',
             verticalalignment='center')
 
+    # Too many axes are hideous.
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['bottom'].set_visible(False)

@@ -7,15 +7,25 @@ from pymatgen.io.vasp.inputs import Incar
 
 
 def run_friction_calculations(directories, submit=True):
+    """
+    Setup a 10x10 grid of static energy calculations to plot the Gamma
+    surface between two layers of the 2D material.
+    """
 
     for directory in directories:
         os.chdir(directory)
         os.system('cp CONTCAR POSCAR')
+
+        # Pad the bottom layer with 3 Angstroms of vacuum.
         utl.add_vacuum(3 - utl.get_spacing(), 0.8)
         structure = Structure.from_file('POSCAR')
         n_sites_per_layer = structure.num_sites
+
+        # Make another layer.
         structure.make_supercell([1, 1, 2])
         structure.to('POSCAR', 'POSCAR')
+
+        # Add 12 Angstroms of vacuum to prevent periodic interactions.
         utl.add_vacuum(12, 0.9)
 
         c_coords = []

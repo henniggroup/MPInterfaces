@@ -10,6 +10,12 @@ HSE_INCAR_DICT = {}
 
 
 def run_hse_calculations(directories, submit=True):
+    """
+    Setup and submit HSE06 calculations for accurate band structures.
+    Requires a previous WAVECAR and IBZKPT from a PBE run. See
+    http://cms.mpi.univie.ac.at/wiki/index.php/Si_bandstructure for more
+    details.
+    """
 
     for directory in directories:
         os.chdir(directory)
@@ -19,6 +25,8 @@ def run_hse_calculations(directories, submit=True):
         if band_gap['energy']:
             transition = band_gap['transition'].split('-')
 
+            # Amount to increment along the kpath to result in 10
+            # points total.
             increment = ((transition[1][0] - transition[0][0]) / 9,
                          (transition[1][1] - transition[0][1]) / 9,
                          (transition[1][2] - transition[0][2] / 9))
@@ -37,6 +45,8 @@ def run_hse_calculations(directories, submit=True):
             Incar.from_dict(HSE_INCAR_DICT).write_file('INCAR')
             write_runjob(directory, 1, 32, '1200mb', '150:00:00', 'vasp')
 
+            # Re-use the irreducible brillouin zone KPOINTS from a
+            # previous GGA run.
             os.system('cp ../IBZKPT ./KPOINTS')
             kpoints_lines = open('KPOINTS').readlines()
             n_kpts = int(kpoints_lines[1].split()[0])

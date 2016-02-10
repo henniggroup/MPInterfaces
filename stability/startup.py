@@ -28,6 +28,10 @@ MPR = MPRester(
 
 
 def relax(directories, submit=True):
+    """
+    Should be run before pretty much anything else, in order to get the
+    right energies of the 2D materials.
+    """
 
     for directory in directories:
         if not utl.is_converged(directory):
@@ -58,6 +62,11 @@ def relax(directories, submit=True):
 
 
 def relax_competing_species(competing_species, submit=True):
+    """
+    After obtaining the competing species, relax them with the same
+    input parameters as the 2D materials in order to ensure
+    compatibility.
+    """
 
     if not os.path.isdir('all_competitors'):
         os.mkdir('all_competitors')

@@ -19,7 +19,7 @@ INCAR_DICT = {
     'EDIFF': 1e-06, 'GGA': 'Bo', 'IBRION': 2, 'ISIF': 3, 'ISMEAR': 0,
     'LAECHG': True, 'LCHARG': True, 'LREAL': 'Auto', 'LUSE_VDW': True,
     'NPAR': 4, 'NSW': 50, 'PARAM1': 0.1833333333, 'PARAM2': 0.22,
-    'PREC': 'High', 'SIGMA': 0.1
+    'PREC': 'High', 'SIGMA': 0.1, 'LVTOT': True, 'LVHAR': True
     }
 KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
 MPR = MPRester(

@@ -1,0 +1,15 @@
+#!/bin/sh
+#PBS -N 1x0
+#PBS -o test.out
+#PBS -e test.err
+#PBS -r n
+#PBS -l walltime=1:00:00
+#PBS -l nodes=1:ppn=8
+#PBS -l pmem=400mb
+#PBS -W group_list=hennig
+
+cd $PBS_O_WORKDIR
+
+mpirun ~/bin/vasp > job.log
+
+echo 'Done.'

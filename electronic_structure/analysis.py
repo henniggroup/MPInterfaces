@@ -2,6 +2,8 @@ import os
 
 from pymatgen.io.vasp.outputs import Vasprun
 
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 

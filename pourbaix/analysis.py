@@ -20,6 +20,8 @@ from pymatgen.analysis.pourbaix.plotter import PourbaixPlotter
 from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
 from pymatgen.entries.computed_entries import ComputedEntry
 
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 

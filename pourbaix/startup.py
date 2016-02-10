@@ -3,7 +3,7 @@ import os
 import yaml
 
 from pymatgen.io.vasp.inputs import Kpoints, Incar
-import twod_materials.standard as st
+import twod_materials.utils as utl
 from pymatgen.matproj.rest import MPRester
 
 from monty.serialization import loadfn
@@ -82,10 +82,10 @@ class Calibrator():
             incar.write_file('INCAR')
 
             # Potcar
-            st.write_potcar([self._potcar_dict[el] for el in elements])
+            utl.write_potcar([self._potcar_dict[el] for el in elements])
 
             # Runjob
-            st.write_runjob('{}_cal'.format(elt), self._ncores, self._nprocs,
+            utl.write_runjob('{}_cal'.format(elt), self._ncores, self._nprocs,
                             self._pmem, self._walltime, self._binary)
             if submit:
                 os.system('qsub runjob')
@@ -113,10 +113,10 @@ class Calibrator():
                 incar.write_file('INCAR')
 
                 # Potcar
-                st.write_potcar([self._potcar_dict[el] for el in elements])
+                utl.write_potcar([self._potcar_dict[el] for el in elements])
 
                 # Runjob
-                st.write_runjob('{}_cal'.format(elt), self._ncores,
+                utl.write_runjob('{}_cal'.format(elt), self._ncores,
                                 self._nprocs, self._pmem, self._walltime,
                                 self._binary)
                 if submit:
@@ -155,7 +155,7 @@ class Calibrator():
             os.chdir(elt)
             print elt
             mu0[elt] = (
-                round(st.get_toten() / st.get_n_formula_units()
+                round(utl.get_toten() / utl.get_n_formula_units()
                       + self._config['OtherCorrections'][elt], 3)
                 )
             os.chdir(parent_dir)
@@ -166,7 +166,7 @@ class Calibrator():
         for elt in elts:
             os.chdir(elt)
 
-            mu0[elt] = round(st.get_toten() / st.get_n_formula_units(), 3)
+            mu0[elt] = round(utl.get_toten() / utl.get_n_formula_units(), 3)
 
             # Nitrogen needs both kinds of corrections
             if elt == 'N':
@@ -180,7 +180,7 @@ class Calibrator():
 
             fH_exp = self._config['Experimental_fH'][elt]
             try:
-                fH_dft = st.get_toten() / st.get_n_formula_units()
+                fH_dft = utl.get_toten() / utl.get_n_formula_units()
 
                 plines = open('POSCAR').readlines()
                 elements = plines[5].split()
@@ -192,12 +192,12 @@ class Calibrator():
                     comp_as_dict[element] += int(stoichiometries[i])
 
                 n_elt_per_fu = (
-                    int(comp_as_dict[elt]) / st.get_n_formula_units()
+                    int(comp_as_dict[elt]) / utl.get_n_formula_units()
                     )
                 for el in comp_as_dict:
                     fH_dft -= (
                         mu0[el] * int(comp_as_dict[el])
-                        / st.get_n_formula_units()
+                        / utl.get_n_formula_units()
                         )
 
                 corrections[elt] = round((fH_dft - fH_exp) / n_elt_per_fu, 3)

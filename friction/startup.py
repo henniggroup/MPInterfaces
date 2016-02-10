@@ -75,4 +75,5 @@ def run_friction_calculations(directories, submit=True):
                     os.system('qsub runjob')
 
                 os.chdir('../')
+        os.system('cp CONTCAR POSCAR')
         os.chdir('../')

@@ -22,8 +22,7 @@ from twod_materials.utils import (is_converged, add_vacuum, get_spacing,
                                   write_potcar, write_runjob)
 
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
+PACKAGE_PATH = os.getcwd()
 INCAR_DICT = {
     '@class': 'Incar', '@module': 'pymatgen.io.vasp.inputs', 'AGGAC': 0.0,
     'EDIFF': 1e-06, 'GGA': 'Bo', 'IBRION': 2, 'ISIF': 3, 'ISMEAR': 0,
@@ -32,9 +31,7 @@ INCAR_DICT = {
     'PREC': 'High', 'SIGMA': 0.1
     }
 KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
-MPR = MPRester(
-    loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
-    )
+MPR = MPRester(os.environ['MP_API'])
 ION_DATA = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/ions.yaml'))
 END_MEMBERS = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/end_members.yaml'))
 ION_COLORS = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/ion_colors.yaml'))

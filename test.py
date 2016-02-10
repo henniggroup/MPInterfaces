@@ -7,7 +7,6 @@ from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
 from pymatgen.matproj.rest import MPRester
 
-import twod_materials
 from twod_materials.electronic_structure.startup import run_hse_calculations
 from twod_materials.electronic_structure.analysis import (get_band_structures,
                                                           plot_band_alignments)

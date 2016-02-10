@@ -1,9 +1,9 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 
 setup(
   name = 'twod_materials',
-  packages = ['twod_materials'],
+  packages = find_packages(),
   version = '1.0',
   description = 'High throughput 2D material modules',
   author = 'Michael Ashton',

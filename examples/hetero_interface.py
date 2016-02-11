@@ -22,7 +22,7 @@ from mpinterfaces.interface import Interface
 from mpinterfaces.transformations import *
 from mpinterfaces.utils import *
 
-seperation = 3  # in angstroms
+separation = 3  # in angstroms
 nlayers_2d = 2
 nlayers_substrate = 2
 
@@ -63,7 +63,7 @@ mat2d_slab_aligned.to(fmt='poscar',
 hetero_interfaces = generate_all_configs(mat2d_slab_aligned,
                                          substrate_slab_aligned,
                                          nlayers_2d, nlayers_substrate,
-                                         seperation)
+                                         separation)
 # generate all poscars
 for i, iface in enumerate(hetero_interfaces):
     sd_flags = CalibrateSlab.set_sd_flags(

@@ -31,7 +31,9 @@ except IOError:
             os.environ['MP_API']
             )
     except KeyError:
-        MPR = MPRester(raw_input('No API key found. Please enter manually: '))
+        raise ValueError('No Materials Project API key found. Please check'
+                         ' that your ~/config.yaml contains the field'
+                         ' mp_api: your_api_key')
 
 
 class UtilsTest(unittest.TestCase):

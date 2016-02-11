@@ -12,8 +12,9 @@ except IOError:
     try:
         POTENTIAL_PATH = os.environ['VASP_PSP_DIR']
     except KeyError:
-        POTENTIAL_PATH = raw_input('No path for pseudopotentials found.'
-                                   'Please enter manually: ')
+        raise ValueError('No Materials Project API key found. Please check'
+                         ' that your ~/config.yaml contains the field'
+                         ' mp_api: your_api_key')
 
 
 def is_converged(directory):

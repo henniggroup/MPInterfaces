@@ -12,9 +12,9 @@ except IOError:
     try:
         POTENTIAL_PATH = os.environ['VASP_PSP_DIR']
     except KeyError:
-        raise ValueError('No Materials Project API key found. Please check'
+        raise ValueError('No Potentials directory found. Please check'
                          ' that your ~/config.yaml contains the field'
-                         ' mp_api: your_api_key')
+                         ' potentials: /path/to/your/POTCAR/files/')
 
 
 def is_converged(directory):

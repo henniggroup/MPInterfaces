@@ -17,7 +17,7 @@ from twod_materials.stability.analysis import get_hull_distances
 from twod_materials.stability.analysis import plot_hull_distances
 
 
-INTERVAL = 300  # Seconds between convergence checks
+INTERVAL = 360  # Seconds between convergence checks
 
 directories = [dir for dir in os.listdir(os.getcwd()) if os.path.isdir(dir)
                and dir not in ['all_competitors']]

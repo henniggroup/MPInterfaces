@@ -1,7 +1,12 @@
 import unittest
 
+import os
+
 from twod_materials.stability.analysis import (get_competing_species,
                                                get_hull_distances)
+
+
+os.chdir('stability/tests')
 
 
 class AnalysisTest(unittest.TestCase):
@@ -16,3 +21,5 @@ class AnalysisTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    os.chdir('../../')
+

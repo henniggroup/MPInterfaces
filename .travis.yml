@@ -27,8 +27,10 @@ addons:
     - python-pip
 install:
   - travis_wait pip install -r requirements.txt
-script: 
+before_script: 
   - python setup.py develop
+script:
+  - nosetests -v
 branches:
   only:
     - master

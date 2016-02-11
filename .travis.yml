@@ -1,33 +1,33 @@
 language: python
 python:
-  - "2.7"
+- '2.7'
 git:
   depth: 1
 sudo: false
 env:
   global:
-    - secure: "lodjKpzannHsrfU3YoCXP1Jj380qimYHGNx7biGtUBib/N0Mo94rkRppjNnT5kM4l7jy0nH1XazfaLtMjBVejyBj1ivVxqruWmmciW9tJqBamlh56ryS804EAOkCNak4j9tsXS0v1dif4rYH2KuxdgUp2ExcXjlsjXw20SRM6ZNjmDFYFXJ7x7NN5ta+fuKVYG1fPxl9dknMBIWuYT0fdV2YgSGAE9O6vy9Tc60doMdz7fDxTXaIaTdJGcYQWMe5Dmi1nFPOky6yPfMN0VDARDXWhy7gy2S2Ez2ItPgJPg+kW0dQZaOKTtzLbnVwskd3NF2JQlBTs1KmuUZwjKb3GNZk0mmNCOEG3MG/tJACgo/JmsT7Lkfk2FmVs5GpXpUTAC9e9AWNZyjrlz0S4GAmlAsO7SrAdP4YcPbihQ+EzIOB9OTK34chnKyOWLjEh7NFpnItNKMAodGkD4uP6005P9OBRWE4l7LSbJVjZISVQIMst5jr20+G9uMf6xnk8I+IH1i+0FRSDmC8hkpOOugoD4fN1qx5S9/JpUhZil1iJnHb2Pzk2BsQFl0BT/lLGgDjTG4ZWcryIY5g8VchOm3yOLjl/jotCoM9sX3xUksyptHcYOUkEm0oxqqjYUAV94S42ifHNS8ltR7rhZCNcQ9dEnOG4MexsZ7cxkqnsWniA/s="
-    - VASP_PSP_DIR=`pwd`
+  - VASP_PSP_DIR=`pwd`
+  - secure: JkVMFGuY+zwD69mON4HtwSEWKEXAPnKekQUzcIM3jB+zje7qVHOfu0gLwsSpHKgamUwtcxxAxT1oYCuZkRZ31PN6AWBX/J+NIT/+Bxj/lQF7L9SHUKI1CRk5PK+Xre9t1lcu1QibM6aV1C1TV0ccWNn00gYktHpmSvL9AO1Hz/iGslmFPQrYcotmjbS/T489J+rTYJk71asMMC8MVV7AEdLwBZsu+dCTyOfczSCswmFd2oQiiYkFVa7CrD1mKUYcjZ1Mxmq4VIfRm6tIKTKAKliajZwFav5eJ5vwmPqczOkiAE/0/aK59CC6RT9S97SpdvWC3rjOTY5LxkvydKu8WUYla6ZKHvaZxfDgsK5g+Od+skwXgk9u1WUNCUbDdPkBGdUX0QhhFvMba6fhqnDMW1AbbwF4qZkTOGn2T4X+Xp1VNa/4Rkk0otYf0rTiJ8Q+kbIw0VW6RN70oQXl8IFdBhsK551Wc8IaID+rh+cB52XGk8891KpdKU6ADnV+4YV74+eE6EEVgDBXBmQQIZHbTkMdxUkAd0JdepwDNdrWziXWXQM2w+i8x4wxPofnOU3b2vR82WnAxBPVsE66d8sXRuCZbPj3nDrHIEocTN4EaCfIFThU3A8rSOxo1sQRCeJ05xu5VUpzwZ9TkCxpF0g7tTSeEF4UlAy0tkINc6IW7ws=
 addons:
   apt:
     packages:
-      - gfortran
-      - libblas-dev
-      - liblapack-dev
-      - python-scipy
-      - python-pip
+    - gfortran
+    - libblas-dev
+    - liblapack-dev
+    - python-scipy
+    - python-pip
 install:
-  - travis_wait pip install -r requirements.txt
-before_script: 
-  - python setup.py develop
+- travis_wait pip install -r requirements.txt
+before_script:
+- python setup.py develop
 script:
-  - nosetests twod_materials
+- nosetests twod_materials
 branches:
   only:
-    - master
+  - master
 notifications:
   email:
     recipients:
-      - mashton@ufl.edu
+    - mashton@ufl.edu
     on_success: change
     on_failure: always

@@ -17,7 +17,7 @@ addons:
     - python-scipy
     - python-pip
 install:
-- travis_wait pip install -r requirements.txt
+- travis_wait pip install -q -r requirements.txt
 before_script:
 - python setup.py develop
 script:

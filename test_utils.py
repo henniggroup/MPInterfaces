@@ -28,7 +28,7 @@ try:
 except IOError:
     try:
         MPR = MPRester(
-            os.environ('MP_API')
+            os.environ['MP_API']
             )
     except KeyError:
         MPR = MPRester(raw_input('No API key found. Please enter manually: '))

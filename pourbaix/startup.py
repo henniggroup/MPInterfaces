@@ -9,9 +9,17 @@ from pymatgen.matproj.rest import MPRester
 from monty.serialization import loadfn
 
 
-MPR = MPRester(
-    loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
-    )
+try:
+    MPR = MPRester(
+        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
+        )
+except IOError:
+    try:
+        MPR = MPRester(
+            os.environ('MP_API')
+            )
+    except KeyError:
+        MPR = MPRester(raw_input('No API key found. Please enter manually: '))
 
 
 class Calibrator():

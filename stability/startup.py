@@ -22,9 +22,18 @@ INCAR_DICT = {
     'PREC': 'High', 'SIGMA': 0.1, 'LVTOT': True, 'LVHAR': True
     }
 KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
-MPR = MPRester(
-    loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
-    )
+
+try:
+    MPR = MPRester(
+        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
+        )
+except IOError:
+    try:
+        MPR = MPRester(
+            os.environ('MP_API')
+            )
+    except KeyError:
+        MPR = MPRester(raw_input('No API key found. Please enter manually: '))
 
 
 def relax(directories, submit=True):

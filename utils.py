@@ -5,8 +5,15 @@ from pymatgen.core.structure import Structure
 from monty.serialization import loadfn
 
 
-POTENTIAL_PATH = loadfn(
-    os.path.join(os.path.expanduser('~'), 'config.yaml'))['potentials']
+try:
+    POTENTIAL_PATH = loadfn(
+        os.path.join(os.path.expanduser('~'), 'config.yaml'))['potentials']
+except IOError:
+    try:
+        POTENTIAL_PATH = os.environ['VASP_PSP_DIR']
+    except KeyError:
+        POTENTIAL_PATH = raw_input('No path for pseudopotentials found.'
+                                   'Please enter manually: ')
 
 
 def is_converged(directory):
@@ -170,7 +177,7 @@ def add_vacuum(delta, cut=0.9):
     os.remove('new_POSCAR')
 
 
-def write_potcar(types='None'):
+def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
     '''
     Writes a POTCAR file based on a list of types.
 
@@ -196,7 +203,7 @@ def write_potcar(types='None'):
             elements[i] += '_{}'.format(types[i])
 
         # If specified pseudopotential doesn't exist, try other variations.
-        if os.path.exists('{}/{}/POTCAR'.format(POTENTIAL_PATH, elements[i])):
+        if os.path.exists('{}/{}/POTCAR'.format(pot_path, elements[i])):
             pass
         else:
             print 'Potential file for {} does not exist. Looking for best'\
@@ -208,24 +215,24 @@ def write_potcar(types='None'):
                 elements[i] = elements[i][:-length]
             elements[i] += '_sv'
             if os.path.exists('{}/{}/POTCAR'.format(
-                    POTENTIAL_PATH, elements[i])):
+                    pot_path, elements[i])):
                 print 'Found one! {} will work.'.format(elements[i])
             else:
                 elements[i] = elements[i][:-3]
                 elements[i] += '_pv'
                 if os.path.exists('{}/{}/POTCAR'.format(
-                        POTENTIAL_PATH, elements[i])):
+                        pot_path, elements[i])):
                     print 'Found one! {} will work.'.format(elements[i])
                 else:
                     elements[i] = elements[i][:-3]
                     elements[i] += '_3'
                     if os.path.exists('{}/{}/POTCAR'.format(
-                            POTENTIAL_PATH, elements[i])):
+                            pot_path, elements[i])):
                         print 'Found one! {} will work.'.format(elements[i])
                     else:
                         elements[i] = elements[i][:-2]
                         if os.path.exists('{}/{}/POTCAR'.format(
-                                POTENTIAL_PATH, elements[i])):
+                                pot_path, elements[i])):
                             print ('Found one! {} will '
                                    'work.'.format(elements[i]))
                         else:
@@ -234,7 +241,7 @@ def write_potcar(types='None'):
 
     # Create paths, open files, and write files to POTCAR for each potential.
     for element in elements:
-        potentials.append('{}/{}/POTCAR'.format(POTENTIAL_PATH, element))
+        potentials.append('{}/{}/POTCAR'.format(pot_path, element))
     outfile = open('POTCAR', 'w')
     for potential in potentials:
         infile = open(potential)

@@ -1,6 +1,7 @@
 import os
 
 from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.outputs import Vasprun
 
 from monty.serialization import loadfn
 
@@ -23,13 +24,12 @@ def is_converged(directory):
     """
 
     try:
-        if 'reached required accuracy' in open(
-            '{}/job.log'.format(directory)
-                ).read():
+        if Vasprun('vasprun.xml').converged:
             return True
         else:
             return False
-    except IOError:
+
+    except:
         return False
 
 

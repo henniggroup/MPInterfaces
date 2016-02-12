@@ -38,38 +38,29 @@ except IOError:
                          ' mp_api: your_api_key')
 
 
-def relax(directories, submit=True):
+def relax(submit=True):
     """
     Should be run before pretty much anything else, in order to get the
-    right energies of the 2D materials.
+    right energy of the 2D material.
     """
 
-    for directory in directories:
-        if not utl.is_converged(directory):
-            os.chdir(directory)
+    directory = os.getcwd().split('/')[-1]
+    # Ensure 20A interlayer vacuum
+    utl.add_vacuum(20 - utl.get_spacing(), 0.9)
+    # vdw_kernel.bindat file required for VDW calculations.
+    os.system('cp {} .'.format(KERNEL_PATH))
+    # KPOINTS
+    Kpoints.automatic_density(Structure.from_file('POSCAR'),
+                              1000).write_file('KPOINTS')
+    # INCAR
+    Incar.from_dict(INCAR_DICT).write_file('INCAR')
+    # POTCAR
+    utl.write_potcar()
+    # Submission script
+    utl.write_runjob(directory, 1, 8, '600mb', '6:00:00', 'vasp_noz')
 
-            # Ensure 20A interlayer vacuum
-            utl.add_vacuum(20 - utl.get_spacing(), 0.9)
-
-            # vdw_kernel.bindat file required for VDW calculations.
-            os.system('cp {} .'.format(KERNEL_PATH))
-
-            # KPOINTS
-            Kpoints.automatic_density(Structure.from_file('POSCAR'),
-                                      1000).write_file('KPOINTS')
-
-            # INCAR
-            Incar.from_dict(INCAR_DICT).write_file('INCAR')
-
-            # POTCAR
-            utl.write_potcar()
-
-            # Submission script
-            utl.write_runjob(directory, 1, 8, '600mb', '6:00:00', 'vasp_noz')
-
-            if submit:
-                os.system('qsub runjob')
-            os.chdir('../')
+    if submit:
+        os.system('qsub runjob')
 
 
 def relax_competing_species(competing_species, submit=True):

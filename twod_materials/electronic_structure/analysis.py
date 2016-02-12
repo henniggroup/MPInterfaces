@@ -1,6 +1,7 @@
 import os
 
 from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.electronic_structure.plotter import BSPlotter
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -34,7 +35,7 @@ def get_band_structures(directories):
             vbm = vasprun.get_band_structure().get_vbm()
             efermi = vasprun.efermi
             band_gaps[directory] = {'CBM': cbm, 'VBM': vbm,
-                                    'Direct': is_direct, 'E_Fermi':efermi}
+                                    'Direct': is_direct, 'E_Fermi': efermi}
         else:
             band_gaps[directory] = False
         os.chdir('../')
@@ -149,3 +150,10 @@ def plot_band_alignments(band_gaps):
     ax.xaxis.set_ticks_position('bottom')
 
     plt.savefig('band_alignments.pdf', transparent=True)
+
+
+def plot_band_structure():
+    vasprun = Vasprun('vasprun.xml')
+    bsp = BSPlotter(vasprun.get_band_structure('KPOINTS', line_mode=True,
+                                               efermi=vasprun.efermi))
+    bsp.save_plot('band_structure.pdf', transparent=True, ylim=(-5, 5))

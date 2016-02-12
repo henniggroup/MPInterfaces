@@ -1,10 +1,6 @@
 """
 Create pourbaix diagrams for 2D materials against their ions in solution using
 the scheme outlined in PHYSICAL REVIEW B 85, 235438 (2012)
-
-Authors:
-Michael Ashton
-Kiran Mathew
 """
 
 import os

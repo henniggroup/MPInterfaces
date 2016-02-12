@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from pymatgen.io.vasp.outputs import Vasprun
 
 
-def plot_friction_surface(directory):
+def plot_friction_surface():
     """
     Collect the energies along a 10x10 grid of static energy
     calculations to plot the Gamma surface between two layers of the 2D

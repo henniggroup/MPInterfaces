@@ -41,7 +41,7 @@ if __name__ == '__main__':
         if len(finished) == len(directories):
             print '>> Plotting band structures'
             for directory in finished:
-                os.chdir('{}/bandstructure')
+                os.chdir('{}/bandstructure'.format(directory))
                 plot_band_structure()
                 os.chdir('../../')
             loop = False

@@ -38,7 +38,7 @@ except IOError:
 
 class UtilsTest(unittest.TestCase):
 
-    def test_is_converged_with_True_and_False_controls(self):
+    def test_is_converged_with_controls(self):
         print os.getcwd()
         false_control = is_converged('./')
         true_control = is_converged(os.path.join(PACKAGE_PATH,
@@ -46,7 +46,7 @@ class UtilsTest(unittest.TestCase):
         self.assertTrue(true_control)
         self.assertFalse(false_control)
 
-    def test_add_vacuum_with_several_odd_structures(self):
+    def test_add_vacuum_with_odd_structures(self):
         structure = MPR.get_structure_by_material_id('mp-2798')  # SiP
         top_layer = []
         for i in range(len(structure.sites)):

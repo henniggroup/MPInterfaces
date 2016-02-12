@@ -23,7 +23,6 @@ def remove_z_kpoints():
             kpts.write(line)
         i = 4
         while i < len(kpoint_lines):
-            print kpoint_lines[i]
             if (
                 not float(kpoint_lines[i].split()[2]) and
                 not float(kpoint_lines[i+1].split()[2])

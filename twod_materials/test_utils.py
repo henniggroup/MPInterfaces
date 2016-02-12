@@ -39,13 +39,10 @@ except IOError:
 class UtilsTest(unittest.TestCase):
 
     def test_is_converged_with_True_and_False_controls(self):
-        with open('job.log', 'w') as joblog:
-            joblog.write('reached required accuracy\n')
-        true_control = is_converged('./')
-        with open('job.log', 'w') as joblog:
-            joblog.write(' ')
-        false_control = is_converged('.')
-        os.system('rm job.log')
+        print os.getcwd()
+        false_control = is_converged('./')
+        true_control = is_converged(os.path.join(PACKAGE_PATH,
+                                                 'stability/tests/BiTeCl'))
         self.assertTrue(true_control)
         self.assertFalse(false_control)
 

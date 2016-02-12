@@ -6,13 +6,14 @@ from twod_materials.stability.analysis import (get_competing_species,
                                                get_hull_distances)
 
 
-root = os.getcwd()
+ROOT = os.getcwd()
 os.chdir('twod_materials/stability/tests')
 
 
 class AnalysisTest(unittest.TestCase):
 
     def test_get_hull_distances_for_BiTeCl(self):
+        print os.getcwd()
         self.assertEqual(get_hull_distances(['BiTeCl']),
                          {u'BiTeCl': 0.10335952666666692})
 
@@ -22,4 +23,4 @@ class AnalysisTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-    os.chdir(root)
+    os.chdir(ROOT)

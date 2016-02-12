@@ -24,7 +24,7 @@ def is_converged(directory):
     """
 
     try:
-        if Vasprun('vasprun.xml').converged:
+        if Vasprun('{}/vasprun.xml'.format(directory)).converged:
             return True
         else:
             return False

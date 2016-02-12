@@ -44,7 +44,7 @@ def relax(submit=True):
     right energy of the 2D material.
     """
 
-    if not utl.is_converged('.'):
+    if not utl.is_converged('./'):
         directory = os.getcwd().split('/')[-1]
         # Ensure 20A interlayer vacuum
         utl.add_vacuum(20 - utl.get_spacing(), 0.9)

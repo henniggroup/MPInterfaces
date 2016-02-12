@@ -35,7 +35,7 @@ if __name__ == '__main__':
         finished = []
 
         for directory in directories:
-            if is_converged(directory):
+            if is_converged('{}/bandstructure'.format(directory)):
                 finished.append(directory)
 
         if len(finished) == len(directories):

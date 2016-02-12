@@ -156,4 +156,4 @@ def plot_band_structure():
     vasprun = Vasprun('vasprun.xml')
     bsp = BSPlotter(vasprun.get_band_structure('KPOINTS', line_mode=True,
                                                efermi=vasprun.efermi))
-    bsp.save_plot('band_structure.pdf', ylim=(-5, 5))
+    bsp.save_plot('band_structure.eps', ylim=(-5, 5))

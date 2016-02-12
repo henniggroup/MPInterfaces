@@ -30,7 +30,7 @@ import twod_materials
 
 PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
 PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-PACKAGE_PATH = os.path.join(PACKAGE_PATH, 'pourbaix')
+PACKAGE_PATH = os.path.join(PACKAGE_PATH, 'twod_materials/pourbaix')
 
 ION_DATA = loadfn(os.path.join(PACKAGE_PATH, 'ions.yaml'))
 END_MEMBERS = loadfn(os.path.join(PACKAGE_PATH, 'end_members.yaml'))
@@ -173,7 +173,7 @@ class Pourbaix2D():
                           fontsize=20)
             plot.savefig('{}_{}meV.pdf'.format(
                 self._composition.reduced_formula, metastability),
-                         transparent=True)
+                transparent=True)
         else:
             plot.savefig('{}.pdf'.format(self._composition.reduced_formula),
                          transparent=True)

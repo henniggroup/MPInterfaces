@@ -52,7 +52,7 @@ def run_linemode_calculation(submit=True):
         Incar.from_dict(incar_dict).write_file('INCAR')
         structure = Structure.from_file('POSCAR')
         kpath = HighSymmKpath(structure)
-        Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
+        Kpoints.automatic_linemode(40, kpath).write_file('KPOINTS')
         remove_z_kpoints()
         write_runjob(directory, 1, 16, '600mb', '6:00:00', 'vasp')
 

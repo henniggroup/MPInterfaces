@@ -130,7 +130,8 @@ def plot_hull_distances(hull_distances):
     Create a bar graph of the formation energies of the 2D materials.
     """
 
-    ax = plt.figure(figsize=(12, 10)).gca()
+    hsize = 12 + (len(hull_distances) - 4) / 3
+    ax = plt.figure(figsize=(hsize, 10)).gca()
     ax.set_ylim(0, 700)
     ax.set_xlim(0, len(hull_distances))
 
@@ -158,7 +159,7 @@ def plot_hull_distances(hull_distances):
         i += 1
 
     ax.set_xticks([x + 0.5 for x in range(len(hull_distances))])
-    ax.set_xticklabels(x_ticklabels, family='serif', size=20)
+    ax.set_xticklabels(x_ticklabels, family='serif', size=20, rotation=60)
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
     ax.set_ylabel(r'$\mathrm{E_F\/(meV/atom)}$', size=20)
 

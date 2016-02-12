@@ -35,27 +35,19 @@ class Nanoparticle(Molecule):
     Construct nanoparticle using wulff construction
     """
 
-    def __init__(self, structure, rmax=15, hkl_family=[(1, 0, 0), (1, 1, 1)],
-                 surface_energies=[28, 25], scell=None):
+    def __init__(self, structure, rmax=15, 
+                 hkl_family=[(1, 0, 0), (1, 1, 1)],
+                 surface_energies=[28, 25] ):
         self.structure = structure
         self.rmax = rmax
         self.hkl_family = hkl_family
         self.surface_energies = surface_energies
-        if scell is None:
-            ncella = int(np.ceil(2 * rmax / structure.lattice.a))
-            ncellb = int(np.ceil(2 * rmax / structure.lattice.b))
-            ncellc = int(np.ceil(2 * rmax / structure.lattice.c))
-            self.scell = [ncella, ncellb, ncellc]
-        else:
-            self.scell = scell
-        self.structure.make_supercell(self.scell)
+        spherical_neighbors = self.structure.get_sites_in_sphere([0.0,0.0,0.0], self.rmax)
         recp_lattice = self.structure.lattice.reciprocal_lattice_crystallographic
         self.recp_lattice = recp_lattice.scale(1)
         self.set_miller_family()
-        Molecule.__init__(self, [site.species_and_occu
-                                 for site in self.structure.sites],
-                          self.structure.cart_coords, charge=0)
-        # self._sites = list(self._sites)
+        Molecule.__init__(self, [sn[0].species_and_occu for sn in spherical_neighbors],
+                          [sn[0].coords for sn in spherical_neighbors], charge=0)
 
     def set_miller_family(self):
         """

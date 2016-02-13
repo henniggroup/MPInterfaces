@@ -43,23 +43,24 @@ def run_linemode_calculation(submit=True):
     if is_converged('.'):
         if not os.path.isdir('bandstructure'):
             os.mkdir('bandstructure')
-        os.chdir('bandstructure')
-        os.system('cp ../CONTCAR ./POSCAR')
-        os.system('cp ../POTCAR ./')
-        os.system('cp ../vdw_kernel.bindat ./')
-        incar_dict = Incar.from_file('../INCAR').as_dict()
-        incar_dict.update({'NSW': 0})
-        Incar.from_dict(incar_dict).write_file('INCAR')
-        structure = Structure.from_file('POSCAR')
-        kpath = HighSymmKpath(structure)
-        Kpoints.automatic_linemode(40, kpath).write_file('KPOINTS')
-        remove_z_kpoints()
-        write_runjob(directory, 1, 16, '600mb', '6:00:00', 'vasp')
+        if not is_converged('bandstructure'):
+            os.chdir('bandstructure')
+            os.system('cp ../CONTCAR ./POSCAR')
+            os.system('cp ../POTCAR ./')
+            os.system('cp ../vdw_kernel.bindat ./')
+            incar_dict = Incar.from_file('../INCAR').as_dict()
+            incar_dict.update({'NSW': 0})
+            Incar.from_dict(incar_dict).write_file('INCAR')
+            structure = Structure.from_file('POSCAR')
+            kpath = HighSymmKpath(structure)
+            Kpoints.automatic_linemode(40, kpath).write_file('KPOINTS')
+            remove_z_kpoints()
+            write_runjob(directory, 1, 16, '600mb', '6:00:00', 'vasp')
 
-        if submit:
-            os.system('qsub runjob')
+            if submit:
+                os.system('qsub runjob')
 
-        os.chdir('../')
+            os.chdir('../')
 
 
 def run_hse_calculation(submit=True):

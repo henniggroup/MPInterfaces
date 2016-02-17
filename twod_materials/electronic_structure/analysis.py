@@ -9,6 +9,8 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
+from twod_materials.utils import is_converged
+
 
 def plot_band_alignments(directories):
     """
@@ -19,37 +21,38 @@ def plot_band_alignments(directories):
     band_gaps = {}
 
     for directory in directories:
-        os.chdir('{}/bandstructure'.format(directory))
-        vasprun = Vasprun('vasprun.xml')
-        band_gap = vasprun.get_band_structure().get_band_gap()
+        if is_converged('{}/bandstructure'.format(directory)):
+            os.chdir('{}/bandstructure'.format(directory))
+            vasprun = Vasprun('vasprun.xml')
+            band_gap = vasprun.get_band_structure().get_band_gap()
 
-        # Vacuum level energy from LOCPOT.
-        locpot = Locpot.from_file('LOCPOT')
-        evac = locpot.get_average_along_axis(2)[-5]
+            # Vacuum level energy from LOCPOT.
+            locpot = Locpot.from_file('LOCPOT')
+            evac = locpot.get_average_along_axis(2)[-5]
 
-        try:
-            transition = band_gap['transition'].split('-')
+            try:
+                transition = band_gap['transition'].split('-')
 
-            if transition[0] == transition[1]:
-                is_direct = True
-            else:
+                if transition[0] == transition[1]:
+                    is_direct = True
+                else:
+                    is_direct = False
+
+                is_metal = False
+                cbm = vasprun.get_band_structure().get_cbm()
+                vbm = vasprun.get_band_structure().get_vbm()
+
+            except AttributeError:
+                cbm = None
+                vbm = None
+                is_metal = True
                 is_direct = False
 
-            is_metal = False
-            cbm = vasprun.get_band_structure().get_cbm()
-            vbm = vasprun.get_band_structure().get_vbm()
+            band_gaps[directory] = {'CBM': cbm, 'VBM': vbm,
+                                    'Direct': is_direct, 'Metal': is_metal,
+                                    'E_vac': evac}
 
-        except AttributeError:
-            cbm = None
-            vbm = None
-            is_metal = True
-            is_direct = False
-
-        band_gaps[directory] = {'CBM': cbm, 'VBM': vbm,
-                                'Direct': is_direct, 'Metal': is_metal,
-                                'E_vac': evac}
-
-        os.chdir('../../')
+            os.chdir('../../')
 
     ax = plt.figure(figsize=(16, 10)).gca()
 

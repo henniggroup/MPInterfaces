@@ -138,9 +138,10 @@ def plot_hull_distances(hull_distances):
 
     x_ticklabels = []
     i = 0
-    for compound in sorted(hull_distances.items(), key=operator.itemgetter(1)):
-        x_ticklabels.append(compound)
-        hull_distance = hull_distances[compound] * 1000
+    for compound in sorted(
+            hull_distances.items(), key=operator.itemgetter(1)):
+        x_ticklabels.append(compound[0])
+        hull_distance = hull_distances[compound[0]] * 1000
 
         # Good chance of stability
         if hull_distance < 100:

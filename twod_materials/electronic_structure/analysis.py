@@ -56,7 +56,7 @@ def plot_band_alignments(directories):
 
     ax = plt.figure(figsize=(16, 10)).gca()
 
-    x_max = len(band_gaps)*1.625
+    x_max = len(band_gaps)*1.315
     ax.set_xlim(0, x_max)
 
     # Rectangle representing band edges of water.
@@ -122,28 +122,31 @@ def plot_band_alignments(directories):
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
 
     # Add a legend
+    height = y_min
     if are_directs:
-        ax.add_patch(plt.Rectangle((i*1.1, y_min), width=x_max*0.1,
+        ax.add_patch(plt.Rectangle((i*1.165, height), width=i*0.15,
                                    height=(-y_min*0.1), facecolor='#002b80',
                                    edgecolor='#e68a00', linewidth=5))
-        ax.text(i*1.18, y_min*0.95, 'Direct', family='serif', color='w',
-                size=20, horizontalalignment='center',
+        ax.text(i*1.24, height - y_min * 0.05, 'Direct', family='serif',
+                color='w', size=20, horizontalalignment='center',
                 verticalalignment='center')
+        height -= y_min * 0.15
 
     if are_indirects:
-        ax.add_patch(plt.Rectangle((i*1.3, y_min), width=x_max*0.1,
+        ax.add_patch(plt.Rectangle((i*1.165, height), width=i*0.15,
                                    height=(-y_min*0.1), facecolor='#002b80',
                                    linewidth=0))
-        ax.text(i*1.38, y_min*0.95, 'Indirect', family='serif', size=20,
-                color='w', horizontalalignment='center',
+        ax.text(i*1.24, height - y_min * 0.05, 'Indirect', family='serif',
+                size=20, color='w', horizontalalignment='center',
                 verticalalignment='center')
+        height -= y_min * 0.15
 
     if are_metals:
-        ax.add_patch(plt.Rectangle((i*1.5, y_min), width=x_max*0.1,
+        ax.add_patch(plt.Rectangle((i*1.165, height), width=i*0.15,
                                    height=(-y_min*0.1), facecolor='#404040',
                                    linewidth=0))
-        ax.text(i*1.58, y_min*0.95, 'Metal', family='serif', size=20,
-                color='w', horizontalalignment='center',
+        ax.text(i*1.24, height - y_min * 0.05, 'Metal', family='serif',
+                size=20, color='w', horizontalalignment='center',
                 verticalalignment='center')
 
     # Axes are hideous.

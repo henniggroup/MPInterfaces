@@ -126,7 +126,7 @@ def plot_band_alignments(directories):
         ax.add_patch(plt.Rectangle((i*1.1, y_min), width=x_max*0.1,
                                    height=(-y_min*0.1), facecolor='#002b80',
                                    edgecolor='#e68a00', linewidth=5))
-        ax.text(i*1.18, y_min*0.8, 'Direct', family='serif', color='w',
+        ax.text(i*1.18, y_min*0.95, 'Direct', family='serif', color='w',
                 size=20, horizontalalignment='center',
                 verticalalignment='center')
 
@@ -134,7 +134,7 @@ def plot_band_alignments(directories):
         ax.add_patch(plt.Rectangle((i*1.3, y_min), width=x_max*0.1,
                                    height=(-y_min*0.1), facecolor='#002b80',
                                    linewidth=0))
-        ax.text(i*1.38, y_min*0.8, 'Indirect', family='serif', size=20,
+        ax.text(i*1.38, y_min*0.95, 'Indirect', family='serif', size=20,
                 color='w', horizontalalignment='center',
                 verticalalignment='center')
 

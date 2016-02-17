@@ -1,6 +1,8 @@
 import os
 
-from pymatgen.io.vasp.outputs import Vasprun
+import numpy as np
+
+from pymatgen.io.vasp.outputs import Vasprun, Locpot
 from pymatgen.electronic_structure.plotter import BSPlotter
 
 import matplotlib as mpl
@@ -8,65 +10,75 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 
-def get_band_structures(directories):
+def plot_band_alignments(directories):
     """
-    Return information on the band structures of all compounds.
-    {'CBM': conduction band minimum (energy & location),
-     'VBM': valence band maximum (energy & location),
-     'Direct': Boolean,
-     'E_Fermi': Fermi energy}
+    Plot CBM's and VBM's of all compounds together, relative to the band
+    edges of H2O.
     """
 
     band_gaps = {}
+
     for directory in directories:
-        os.chdir(directory)
+        os.chdir('{}/bandstructure'.format(directory))
         vasprun = Vasprun('vasprun.xml')
         band_gap = vasprun.get_band_structure().get_band_gap()
 
-        transition = band_gap['transition'].split('-')
+        # Vacuum level energy from LOCPOT.
+        locpot = Locpot.from_file('LOCPOT')
+        evac = locpot.get_average_along_axis(2)[-5]
 
-        if transition[0] == transition[1]:
-            is_direct = True
-        else:
-            is_direct = False
+        try:
+            transition = band_gap['transition'].split('-')
 
-        if band_gap['energy']:
+            if transition[0] == transition[1]:
+                is_direct = True
+            else:
+                is_direct = False
+
+            is_metal = False
             cbm = vasprun.get_band_structure().get_cbm()
             vbm = vasprun.get_band_structure().get_vbm()
-            efermi = vasprun.efermi
-            band_gaps[directory] = {'CBM': cbm, 'VBM': vbm,
-                                    'Direct': is_direct, 'E_Fermi': efermi}
-        else:
-            band_gaps[directory] = False
-        os.chdir('../')
 
-    return band_gaps
+        except AttributeError:
+            cbm = None
+            vbm = None
+            is_metal = True
+            is_direct = False
 
+        band_gaps[directory] = {'CBM': cbm, 'VBM': vbm,
+                                'Direct': is_direct, 'Metal': is_metal,
+                                'E_vac': evac}
 
-def plot_band_alignments(band_gaps):
-    """
-    Plot CBM's and VBM's of all compounds together, relative to certain
-    CO2 reduction reaction enthalpies.
-    """
+        os.chdir('../../')
 
     ax = plt.figure(figsize=(16, 10)).gca()
 
     x_max = len(band_gaps)*1.625
     ax.set_xlim(0, x_max)
 
+    # Rectangle representing band edges of water.
+    ax.add_patch(plt.Rectangle((0, -5.67), height=1.23, width=len(band_gaps),
+                 facecolor='#00cc99', linewidth=0))
+    ax.text(len(band_gaps)*1.01, -4.44, r'$\mathrm{H+/H_2}$', size=20,
+            verticalalignment='center')
+    ax.text(len(band_gaps)*1.01, -5.67, r'$\mathrm{O2/H_2O}$', size=20,
+            verticalalignment='center')
+
     x_ticklabels = []
     vbms = []
     for compound in band_gaps:
         vbms.append(band_gaps[compound]['VBM']['energy'])
 
-    y_min = min(vbms) - 0.5
+    y_min = -8
 
     i = 0
     for compound in band_gaps:
         x_ticklabels.append(compound)
-#        efermi = band_gaps[compound]['E_Fermi']
-        cbm = band_gaps[compound]['CBM']['energy']  # - efermi?
-        vbm = band_gaps[compound]['VBM']['energy']  # - efermi?
+
+        # Plot all energies relative to their vacuum level.
+        evac = band_gaps[compound]['E_vac']
+        cbm = band_gaps[compound]['CBM']['energy'] - evac
+        vbm = band_gaps[compound]['VBM']['energy'] - evac
 
         # Add a box around direct gap compounds to distinguish them.
         if band_gaps[compound]['Direct']:
@@ -74,74 +86,53 @@ def plot_band_alignments(band_gaps):
         else:
             linewidth = 0
 
+        # Metals are grey.
+        if band_gaps[compound]['Metal']:
+            color_code = '#404040'
+        else:
+            color_code = '#002b80'
+
         # CBM
         ax.add_patch(plt.Rectangle((i, cbm), height=-cbm, width=0.8,
-                                   facecolor="#002b80", linewidth=linewidth,
+                                   facecolor=color_code, linewidth=linewidth,
                                    edgecolor="#e68a00"))
         # VBM
         ax.add_patch(plt.Rectangle((i, y_min),
                                    height=(vbm - y_min), width=0.8,
-                                   facecolor="#002b80", linewidth=linewidth,
+                                   facecolor=color_code, linewidth=linewidth,
                                    edgecolor="#e68a00"))
 
         i += 1
 
-    ax.set_ylim(y_min, 0)
-
-    # CO_2 + e^- --> CO^{2-} (-1.9 eV)
-    ax.plot([0, i], [-1.9, -1.9], color='k', alpha=0.6, linewidth=4)
-    ax.text(i*1.05, -1.94, r'$\mathrm{CO_2+\/e^-\/\rightarrow\/CO^-_2}$',
-            size=20)
-
-    # CO_2 + 2H^+ + 2e^- --> HCO_2H (-0.61 eV)
-    ax.plot([0, i], [-0.61, -0.61], color='k', alpha=0.6, linewidth=4)
-    ax.text(i*1.05, -0.7,
-            r'$\mathrm{CO_2\/+\/2H^+\/+\/2e^-\/\rightarrow\/HCO_2H}$', size=20)
-
-    # CO_2 + 2H^+ + 2e^- --> CO + H_2O (-0.53 eV)
-    ax.plot([0, i], [-0.53, -0.53], color='k', alpha=0.6, linewidth=4)
-    ax.text(i*1.05, -0.59,
-            r'$\mathrm{CO_2\/+\/2H^+\/+\/2e^-\/\rightarrow\/CO\/+\/H_2O}$',
-            size=20)
-
-    # CO_2 + 4H^+ + 4e^- --> HCHO + H_2O (-0.48 eV)
-    ax.plot([0, i], [-0.48, -0.48], color='k', alpha=0.6, linewidth=4)
-    ax.text(i*1.05, -0.48,
-            r'$\mathrm{CO_2\/+\/4H^+\/+\/4e^-\/\rightarrow\/HCHO\/+\/H_2O}$',
-            size=20)
-
-    # CO_2 + 6H^+ + 6e^- --> CH_3OH + H_2O (-0.38 eV)
-    ax.plot([0, i], [-0.38, -0.38], color='k', alpha=0.6, linewidth=4)
-    ax.text(i*1.05, -0.37,
-            r'$\mathrm{CO_2\/+\/6H^+\/+\/6e^-\/\rightarrow\/CH_3OH\/+\/H_2O}$',
-            size=20)
-
-    # CO_2 + 8H^+ + 8e^- --> CH_4 + 2H_2O (-0.24 eV)
-    ax.plot([0, i], [-0.24, -0.24], color='k', alpha=0.6, linewidth=4)
-    ax.text(i*1.05, -0.24,
-            r'$\mathrm{CO_2\/+\/8H^+\/+\/8e^-\/\rightarrow\/CH_4\/+\/2H_2O}$',
-            size=20)
+    ax.set_ylim(y_min, -2)
 
     # Set tick labels
     ax.set_xticks([n + 0.4 for n in range(i)])
     ax.set_xticklabels(x_ticklabels, family='serif', size=20, rotation=60)
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
 
-    # Add a legend to explain that direct gaps are in boxes.
-    ax.add_patch(plt.Rectangle((i*1.1, y_min + (-y_min*0.15)), width=x_max*0.1,
+    # Add a legend
+    ax.add_patch(plt.Rectangle((i*1.1, y_min), width=x_max*0.1,
                                height=(-y_min*0.1), facecolor='#002b80',
                                edgecolor='#e68a00', linewidth=5))
     ax.text(i*1.18, y_min*0.8, 'Direct', family='serif', color='w',
             size=20, horizontalalignment='center', verticalalignment='center')
 
-    ax.add_patch(plt.Rectangle((i*1.1, y_min), width=x_max*0.1,
+    ax.add_patch(plt.Rectangle((i*1.2, y_min), width=x_max*0.1,
                                height=(-y_min*0.1), facecolor='#002b80',
                                linewidth=0))
-    ax.text(i*1.18, y_min*0.95, 'Indirect', family='serif', size=20,
+    ax.text(i*1.28, y_min*0.8, 'Indirect', family='serif', size=20,
             color='w', horizontalalignment='center',
             verticalalignment='center')
 
-    # Too many axes are hideous.
+    ax.add_patch(plt.Rectangle((i*1.3, y_min), width=x_max*0.1,
+                               height=(-y_min*0.1), facecolor='#404040',
+                               linewidth=0))
+    ax.text(i*1.38, y_min*0.95, 'Metal', family='serif', size=20,
+            color='w', horizontalalignment='center',
+            verticalalignment='center')
+
+    # Axes are hideous.
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
@@ -157,3 +148,101 @@ def plot_band_structure():
     bsp = BSPlotter(vasprun.get_band_structure('KPOINTS', line_mode=True,
                                                efermi=vasprun.efermi))
     bsp.save_plot('band_structure.eps', ylim=(-5, 5))
+
+
+def get_effective_mass():
+    """
+    Returns qualitative, but not exactly quantitatively accurate
+    effective masses from a band structure. Uses parabolic
+    fitting to determine the band curvature at the CBM
+    for electrons and at the VBM for holes. This curvature enters
+    the equation m* = (hbar)**2 / (d^2E/dk^2).
+
+    *NOTE* Only works for semiconductors and linemode calculations.
+           >30 k-points per string recommended to obtain
+           reliable curvatures.
+    """
+
+    H_BAR = 6.582119514e-16  # eV*s
+    M_0 = 9.10938356e-31  # kg
+
+    band_structure = Vasprun('vasprun.xml').get_band_structure()
+
+    cbm_band_index = band_structure.get_cbm()['band_index'][1][0]
+    cbm_kpoint_index = band_structure.get_cbm()['kpoint_index'][0]
+
+    vbm_band_index = band_structure.get_vbm()['band_index'][1][0]
+    vbm_kpoint_index = band_structure.get_vbm()['kpoint_index'][0]
+
+    e_k = {'left': [], 'right': []}
+    e_E = {'left': [], 'right': []}
+    h_k = {'left': [], 'right': []}
+    h_E = {'left': [], 'right': []}
+
+    e_ref_coords = band_structure.kpoints[cbm_kpoint_index]._ccoords
+    h_ref_coords = band_structure.kpoints[vbm_kpoint_index]._ccoords
+
+    for n in range(-6, 1):
+        e_coords = band_structure.kpoints[cbm_kpoint_index + n]._ccoords
+        h_coords = band_structure.kpoints[vbm_kpoint_index + n]._ccoords
+
+        e_k['left'].append(
+            ((e_coords[0] - e_ref_coords[0])**2 +
+             (e_coords[1] - e_ref_coords[1])**2 +
+             (e_coords[2] - e_ref_coords[2])**2)**0.5
+            )
+        h_k['left'].append(
+            ((h_coords[0] - h_ref_coords[0])**2 +
+             (h_coords[1] - h_ref_coords[1])**2 +
+             (h_coords[2] - h_ref_coords[2])**2)**0.5
+            )
+
+        e_energy = band_structure.bands[1][cbm_band_index][cbm_kpoint_index + n]
+        h_energy = band_structure.bands[1][vbm_band_index][vbm_kpoint_index + n]
+
+        e_E['left'].append(e_energy)
+        h_E['left'].append(h_energy)
+
+    for n in range(1, 7):
+        e_coords = band_structure.kpoints[cbm_kpoint_index + n]._ccoords
+        h_coords = band_structure.kpoints[vbm_kpoint_index + n]._ccoords
+
+        e_k['right'].append(
+            ((e_coords[0] - e_ref_coords[0])**2 +
+             (e_coords[1] - e_ref_coords[1])**2 +
+             (e_coords[2] - e_ref_coords[2])**2)**0.5
+            )
+        h_k['right'].append(
+            ((h_coords[0] - h_ref_coords[0])**2 +
+             (h_coords[1] - h_ref_coords[1])**2 +
+             (h_coords[2] - h_ref_coords[2])**2)**0.5
+            )
+
+        e_energy = band_structure.bands[1][cbm_band_index][cbm_kpoint_index + n]
+        h_energy = band_structure.bands[1][vbm_band_index][vbm_kpoint_index + n]
+
+        e_E['right'].append(e_energy)
+        h_E['right'].append(h_energy)
+
+    e_l_fit = np.polyfit(e_k['left'], e_E['left'], 2)
+    e_r_fit = np.polyfit(e_k['right'], e_E['right'], 2)
+    h_l_fit = np.polyfit(h_k['left'], h_E['left'], 2)
+    h_r_fit = np.polyfit(h_k['right'], h_E['right'], 2)
+
+    e_l_function = np.poly1d(e_l_fit)
+    e_r_function = np.poly1d(e_r_fit)
+    h_l_function = np.poly1d(h_l_fit)
+    h_r_function = np.poly1d(h_r_fit)
+
+    e_l_curvature = e_l_function.deriv().deriv()[0]
+    e_r_curvature = e_r_function.deriv().deriv()[0]
+    h_l_curvature = h_l_function.deriv().deriv()[0]
+    h_r_curvature = h_r_function.deriv().deriv()[0]
+
+    e_m_eff_l = 10 * ((H_BAR ** 2) / e_l_curvature) / M_0
+    e_m_eff_r = 10 * ((H_BAR ** 2) / e_r_curvature) / M_0
+    h_m_eff_l = -10 * ((H_BAR ** 2) / h_l_curvature) / M_0
+    h_m_eff_r = -10 * ((H_BAR ** 2) / h_r_curvature) / M_0
+
+    return {'electron': [e_m_eff_l, e_m_eff_r], 'hole': [h_m_eff_l, h_m_eff_r]}
+

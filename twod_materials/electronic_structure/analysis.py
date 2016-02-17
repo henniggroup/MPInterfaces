@@ -75,6 +75,10 @@ def plot_band_alignments(directories):
     y_min = -8
 
     i = 0
+
+    # Nothing but lies.
+    are_directs, are_indirects, are_metals = False, False, False
+
     for compound in band_gaps:
         x_ticklabels.append(compound)
 
@@ -85,12 +89,15 @@ def plot_band_alignments(directories):
 
         # Add a box around direct gap compounds to distinguish them.
         if band_gaps[compound]['Direct']:
+            are_directs = True
             linewidth = 5
         else:
+            are_indirects = True
             linewidth = 0
 
         # Metals are grey.
         if band_gaps[compound]['Metal']:
+            are_metals = True
             color_code = '#404040'
         else:
             color_code = '#002b80'
@@ -115,25 +122,29 @@ def plot_band_alignments(directories):
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
 
     # Add a legend
-    ax.add_patch(plt.Rectangle((i*1.1, y_min), width=x_max*0.1,
-                               height=(-y_min*0.1), facecolor='#002b80',
-                               edgecolor='#e68a00', linewidth=5))
-    ax.text(i*1.18, y_min*0.8, 'Direct', family='serif', color='w',
-            size=20, horizontalalignment='center', verticalalignment='center')
+    if are_directs:
+        ax.add_patch(plt.Rectangle((i*1.1, y_min), width=x_max*0.1,
+                                   height=(-y_min*0.1), facecolor='#002b80',
+                                   edgecolor='#e68a00', linewidth=5))
+        ax.text(i*1.18, y_min*0.8, 'Direct', family='serif', color='w',
+                size=20, horizontalalignment='center',
+                verticalalignment='center')
 
-    ax.add_patch(plt.Rectangle((i*1.2, y_min), width=x_max*0.1,
-                               height=(-y_min*0.1), facecolor='#002b80',
-                               linewidth=0))
-    ax.text(i*1.28, y_min*0.8, 'Indirect', family='serif', size=20,
-            color='w', horizontalalignment='center',
-            verticalalignment='center')
+    if are_indirects:
+        ax.add_patch(plt.Rectangle((i*1.3, y_min), width=x_max*0.1,
+                                   height=(-y_min*0.1), facecolor='#002b80',
+                                   linewidth=0))
+        ax.text(i*1.38, y_min*0.8, 'Indirect', family='serif', size=20,
+                color='w', horizontalalignment='center',
+                verticalalignment='center')
 
-    ax.add_patch(plt.Rectangle((i*1.3, y_min), width=x_max*0.1,
-                               height=(-y_min*0.1), facecolor='#404040',
-                               linewidth=0))
-    ax.text(i*1.38, y_min*0.95, 'Metal', family='serif', size=20,
-            color='w', horizontalalignment='center',
-            verticalalignment='center')
+    if are_metals:
+        ax.add_patch(plt.Rectangle((i*1.5, y_min), width=x_max*0.1,
+                                   height=(-y_min*0.1), facecolor='#404040',
+                                   linewidth=0))
+        ax.text(i*1.58, y_min*0.95, 'Metal', family='serif', size=20,
+                color='w', horizontalalignment='center',
+                verticalalignment='center')
 
     # Axes are hideous.
     ax.spines['top'].set_visible(False)

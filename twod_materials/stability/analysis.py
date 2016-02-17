@@ -1,5 +1,7 @@
 import os
 
+import operator
+
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.core.structure import Structure
@@ -79,14 +81,12 @@ def get_hull_distances(directories):
 
     # Determine which competing species have been relaxed in the current
     # framework and store them in a dictionary ({formula: entry}).
-    print os.getcwd()
     if os.path.isdir('all_competitors'):
         os.chdir('all_competitors')
         for comp_dir in [
             dir for dir in os.listdir(os.getcwd()) if os.path.isdir(dir) and
             is_converged(dir)
                 ]:
-            print os.getcwd()
             vasprun = Vasprun('{}/vasprun.xml'.format(comp_dir))
             composition = vasprun.final_structure.composition
             energy = vasprun.final_energy
@@ -94,7 +94,6 @@ def get_hull_distances(directories):
         os.chdir('../')
 
     for directory in directories:
-        print os.getcwd()
         os.chdir(directory)
         composition = Structure.from_file('POSCAR').composition
         try:
@@ -139,7 +138,7 @@ def plot_hull_distances(hull_distances):
 
     x_ticklabels = []
     i = 0
-    for compound in hull_distances:
+    for compound in sorted(hull_distances.items(), key=operator.itemgetter(1)):
         x_ticklabels.append(compound)
         hull_distance = hull_distances[compound] * 1000
 
@@ -160,7 +159,7 @@ def plot_hull_distances(hull_distances):
                                    facecolor=plt.cm.jet(color_code)))
         i += 1
 
-    ax.set_xticks(range(len(hull_distances)))
+    ax.set_xticks([x + 0.5 for x in range(len(hull_distances))])
     ax.set_xticklabels(x_ticklabels, family='serif', size=20, rotation=60)
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
     ax.set_ylabel(r'$\mathrm{E_F\/(meV/atom)}$', size=20)

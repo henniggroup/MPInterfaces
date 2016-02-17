@@ -140,7 +140,16 @@ def plot_hull_distances(hull_distances):
     i = 0
     for compound in sorted(
             hull_distances.items(), key=operator.itemgetter(1)):
-        x_ticklabels.append(compound[0])
+
+        proper_formula = ''
+        for char in compound[0]:
+            try:
+                int(char)
+                proper_formula += '_{}'.format(char)
+            except ValueError:
+                proper_formula += char
+
+        x_ticklabels.append(r'$\mathrm{%s}$' % proper_formula)
         hull_distance = hull_distances[compound[0]] * 1000
 
         # Good chance of stability

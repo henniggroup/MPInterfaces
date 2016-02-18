@@ -265,7 +265,7 @@ def get_effective_mass():
     # 2nd order fits
     e_l_fit = np.poly1d(
         np.polyfit(k['electron']['left'], E['electron']['left'], 2))
-    e_r_fit = npt.poly1d(
+    e_r_fit = np.poly1d(
         np.polyfit(k['electron']['right'], E['electron']['right'], 2))
     h_l_fit = np.poly1d(
         np.polyfit(k['hole']['left'], E['hole']['left'], 2))
@@ -284,5 +284,5 @@ def get_effective_mass():
     h_m_eff_l = -10 * ((H_BAR ** 2) / h_l_curvature) / M_0
     h_m_eff_r = -10 * ((H_BAR ** 2) / h_r_curvature) / M_0
 
-    return {'electron': {'left':e_m_eff_l, 'right': e_m_eff_r},
+    return {'electron': {'left': e_m_eff_l, 'right': e_m_eff_r},
             'hole': {'left': h_m_eff_l, 'right': h_m_eff_r}}

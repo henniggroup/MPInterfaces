@@ -4,6 +4,7 @@ import numpy as np
 
 from pymatgen.io.vasp.outputs import Vasprun, Locpot
 from pymatgen.electronic_structure.plotter import BSPlotter
+from pymatgen.electronic_structure.core import Spin
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -169,97 +170,119 @@ def plot_band_structure():
 
 def get_effective_mass():
     """
-    Returns qualitative, but not exactly quantitatively accurate
-    effective masses from a band structure. Uses parabolic
+    Returns effective masses from a band structure. Uses parabolic
     fitting to determine the band curvature at the CBM
     for electrons and at the VBM for holes. This curvature enters
     the equation m* = (hbar)**2 / (d^2E/dk^2).
 
-    *NOTE* Only works for semiconductors and linemode calculations.
+    To consider anisotropy, the k-space directions to the left and right
+    of the CBM/VBM in the band diagram are given separately.
+
+    *NOTE* Only works for semiconductors and linemode calculations (non-
+           spin polarized).
            >30 k-points per string recommended to obtain
            reliable curvatures.
+
+    *NOTE* The parabolic fit can be quite sensitive to the number of
+           k-points fit to, so it might be worthwhile adjusting N_KPTS
+           to obtain some sense of the error bar.
+
+    TODO: Warn user if CBM/VBM is at the edge of the diagram, and which
+          direction (either left or right) was not actually fit to.
+          Until fixed, this (most likely) explains any negative masses
+          returned.
     """
 
     H_BAR = 6.582119514e-16  # eV*s
     M_0 = 9.10938356e-31  # kg
+    N_KPTS = 6  # Number of k-points included in the parabola.
+
+    spin_up = Spin(1)
 
     band_structure = Vasprun('vasprun.xml').get_band_structure()
 
-    cbm_band_index = band_structure.get_cbm()['band_index'][1][0]
+    # Locations of CBM and VBM in band_structure.bands
+    cbm_band_index = band_structure.get_cbm()['band_index'][spin_up][0]
     cbm_kpoint_index = band_structure.get_cbm()['kpoint_index'][0]
 
-    vbm_band_index = band_structure.get_vbm()['band_index'][1][0]
+    vbm_band_index = band_structure.get_vbm()['band_index'][spin_up][0]
     vbm_kpoint_index = band_structure.get_vbm()['kpoint_index'][0]
 
-    e_k = {'left': [], 'right': []}
-    e_E = {'left': [], 'right': []}
-    h_k = {'left': [], 'right': []}
-    h_E = {'left': [], 'right': []}
+    k = {'electron': {'left': [], 'right': []},
+         'hole': {'left': [], 'right': []}}
+    E = {'electron': {'left': [], 'right': []},
+         'hole': {'left': [], 'right': []}}
 
     e_ref_coords = band_structure.kpoints[cbm_kpoint_index]._ccoords
     h_ref_coords = band_structure.kpoints[vbm_kpoint_index]._ccoords
 
-    for n in range(-6, 1):
+    for n in range(-N_KPTS, 1):
         e_coords = band_structure.kpoints[cbm_kpoint_index + n]._ccoords
         h_coords = band_structure.kpoints[vbm_kpoint_index + n]._ccoords
 
-        e_k['left'].append(
+        k['electron']['left'].append(
             ((e_coords[0] - e_ref_coords[0])**2 +
              (e_coords[1] - e_ref_coords[1])**2 +
              (e_coords[2] - e_ref_coords[2])**2)**0.5
             )
-        h_k['left'].append(
+        k['hole']['left'].append(
             ((h_coords[0] - h_ref_coords[0])**2 +
              (h_coords[1] - h_ref_coords[1])**2 +
              (h_coords[2] - h_ref_coords[2])**2)**0.5
             )
 
-        e_energy = band_structure.bands[1][cbm_band_index][cbm_kpoint_index + n]
-        h_energy = band_structure.bands[1][vbm_band_index][vbm_kpoint_index + n]
+        e_energy = band_structure.bands[
+            spin_up][cbm_band_index][cbm_kpoint_index + n]
+        h_energy = band_structure.bands[
+            spin_up][vbm_band_index][vbm_kpoint_index + n]
 
-        e_E['left'].append(e_energy)
-        h_E['left'].append(h_energy)
+        E['electron']['left'].append(e_energy)
+        E['hole']['left'].append(h_energy)
 
-    for n in range(1, 7):
+    for n in range(1, 1 + N_KPTS):
         e_coords = band_structure.kpoints[cbm_kpoint_index + n]._ccoords
         h_coords = band_structure.kpoints[vbm_kpoint_index + n]._ccoords
 
-        e_k['right'].append(
+        k['electron']['right'].append(
             ((e_coords[0] - e_ref_coords[0])**2 +
              (e_coords[1] - e_ref_coords[1])**2 +
              (e_coords[2] - e_ref_coords[2])**2)**0.5
             )
-        h_k['right'].append(
+        k['hole']['right'].append(
             ((h_coords[0] - h_ref_coords[0])**2 +
              (h_coords[1] - h_ref_coords[1])**2 +
              (h_coords[2] - h_ref_coords[2])**2)**0.5
             )
 
-        e_energy = band_structure.bands[1][cbm_band_index][cbm_kpoint_index + n]
-        h_energy = band_structure.bands[1][vbm_band_index][vbm_kpoint_index + n]
+        e_energy = band_structure.bands[
+            spin_up][cbm_band_index][cbm_kpoint_index + n]
+        h_energy = band_structure.bands[
+            spin_up][vbm_band_index][vbm_kpoint_index + n]
 
-        e_E['right'].append(e_energy)
-        h_E['right'].append(h_energy)
+        E['electron']['right'].append(e_energy)
+        E['hole']['right'].append(h_energy)
 
-    e_l_fit = np.polyfit(e_k['left'], e_E['left'], 2)
-    e_r_fit = np.polyfit(e_k['right'], e_E['right'], 2)
-    h_l_fit = np.polyfit(h_k['left'], h_E['left'], 2)
-    h_r_fit = np.polyfit(h_k['right'], h_E['right'], 2)
+    # 2nd order fits
+    e_l_fit = np.poly1d(
+        np.polyfit(k['electron']['left'], E['electron']['left'], 2))
+    e_r_fit = npt.poly1d(
+        np.polyfit(k['electron']['right'], E['electron']['right'], 2))
+    h_l_fit = np.poly1d(
+        np.polyfit(k['hole']['left'], E['hole']['left'], 2))
+    h_r_fit = np.poly1d(
+        np.polyfit(k['hole']['right'], E['hole']['right'], 2))
 
-    e_l_function = np.poly1d(e_l_fit)
-    e_r_function = np.poly1d(e_r_fit)
-    h_l_function = np.poly1d(h_l_fit)
-    h_r_function = np.poly1d(h_r_fit)
+    # Curvatures
+    e_l_curvature = e_l_fit.deriv().deriv()[0]
+    e_r_curvature = e_r_fit.deriv().deriv()[0]
+    h_l_curvature = h_l_fit.deriv().deriv()[0]
+    h_r_curvature = h_r_fit.deriv().deriv()[0]
 
-    e_l_curvature = e_l_function.deriv().deriv()[0]
-    e_r_curvature = e_r_function.deriv().deriv()[0]
-    h_l_curvature = h_l_function.deriv().deriv()[0]
-    h_r_curvature = h_r_function.deriv().deriv()[0]
-
+    # Unit conversion
     e_m_eff_l = 10 * ((H_BAR ** 2) / e_l_curvature) / M_0
     e_m_eff_r = 10 * ((H_BAR ** 2) / e_r_curvature) / M_0
     h_m_eff_l = -10 * ((H_BAR ** 2) / h_l_curvature) / M_0
     h_m_eff_r = -10 * ((H_BAR ** 2) / h_r_curvature) / M_0
 
-    return {'electron': [e_m_eff_l, e_m_eff_r], 'hole': [h_m_eff_l, h_m_eff_r]}
-
+    return {'electron': {'left':e_m_eff_l, 'right': e_m_eff_r},
+            'hole': {'left': h_m_eff_l, 'right': h_m_eff_r}}

@@ -172,6 +172,6 @@ def plot_hull_distances(hull_distances):
     ax.set_xticks([x + 0.5 for x in range(len(hull_distances))])
     ax.set_xticklabels(x_ticklabels, family='serif', size=20, rotation=60)
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
-    ax.set_ylabel(r'$\mathrm{E_F\/(meV/atom)}$', size=20)
+    ax.set_ylabel(r'$\mathrm{E_F\/(meV/atom)}$', size=40)
 
     plt.savefig('stability_plot.pdf', transparent=True)

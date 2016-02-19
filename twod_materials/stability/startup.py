@@ -91,3 +91,27 @@ def relax_competing_species(competing_species, submit=True):
                 os.system('qsub runjob')
             os.chdir('../')
     os.chdir('../')
+
+
+def relax_3d(submit=True):
+    """
+    Standard relaxation for a single directory of a bulk material.
+    """
+
+    if not utl.get_status('.') and not utl.is_converged('.'):
+        directory = os.getcwd().split('/')[-1]
+
+        # vdw_kernel.bindat file required for VDW calculations.
+        os.system('cp {} .'.format(KERNEL_PATH))
+        # KPOINTS
+        Kpoints.automatic_density(Structure.from_file('POSCAR'),
+                                  1000).write_file('KPOINTS')
+        # INCAR
+        Incar.from_dict(INCAR_DICT).write_file('INCAR')
+        # POTCAR
+        utl.write_potcar()
+        # Submission script
+        utl.write_runjob(directory, 1, 8, '600mb', '6:00:00', 'vasp')
+
+        if submit:
+            os.system('qsub runjob')

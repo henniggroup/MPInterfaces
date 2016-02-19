@@ -44,7 +44,7 @@ def relax(submit=True):
     right energy of the 2D material.
     """
 
-    if not utl.is_converged('./'):
+    if not utl.get_status('.') and not utl.is_converged('.'):
         directory = os.getcwd().split('/')[-1]
         # Ensure 20A interlayer vacuum
         utl.add_vacuum(20 - utl.get_spacing(), 0.9)
@@ -78,7 +78,7 @@ def relax_competing_species(competing_species, submit=True):
     for specie in competing_species:
         if not os.path.isdir(specie[0]):
             os.mkdir(specie[0])
-        if not utl.is_converged(specie[0]):
+        if not utl.get_status(specie[0]) and not utl.is_converged(specie[0]):
             os.chdir(specie[0])
             os.system('cp {} .'.format(KERNEL_PATH))
             structure = MPR.get_structure_by_material_id(specie[1])

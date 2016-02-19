@@ -1,6 +1,6 @@
 import os
 
-from twod_materials.utils import is_converged, write_runjob
+from twod_materials.utils import is_converged, write_runjob, get_status
 
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.inputs import Kpoints, Incar
@@ -40,7 +40,7 @@ def run_linemode_calculation(submit=True):
     """
 
     directory = os.getcwd().split('/')[-1]
-    if is_converged('.'):
+    if is_converged('.') and not get_status('.'):
         if not os.path.isdir('bandstructure'):
             os.mkdir('bandstructure')
         if not is_converged('bandstructure'):

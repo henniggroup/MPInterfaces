@@ -43,13 +43,13 @@ def get_status(directory=os.getcwd()):
     'Q': queued
     'E': error
     'H': hold
-    None: No job in this directory
+    'None': No job in this directory
     """
 
     WORKING_DIR = directory
     os.system("qstat -f| grep -A 30 'mashton' >> my_jobs.txt")
     lines = open('my_jobs.txt').readlines()
-    job_state = 'None'
+    job_state = None
     for i in range(len(lines)):
         if 'Output_Path' in lines[i]:
             joined_line = ''.join([lines[i].strip(), lines[i+1].strip()])

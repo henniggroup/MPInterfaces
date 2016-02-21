@@ -9,12 +9,17 @@ from monty.serialization import loadfn
 try:
     POTENTIAL_PATH = loadfn(
         os.path.join(os.path.expanduser('~'), 'config.yaml'))['potentials']
+    USR = loadfn(os.path.join(os.path.expanduser('~'),
+                 'config.yaml'))['username']
+
 except IOError:
     try:
         POTENTIAL_PATH = os.environ['VASP_PSP_DIR']
+        USR = os.environ['USERNAME']
     except KeyError:
-        raise ValueError('No Potentials directory found. Please check'
-                         ' that your ~/config.yaml contains the field'
+        raise ValueError('No config.yaml file found. Please check'
+                         ' that your config.yaml is located in ~/ and'
+                         ' contains the field'
                          ' potentials: /path/to/your/POTCAR/files/')
 
 
@@ -33,7 +38,7 @@ def is_converged(directory):
         return False
 
 
-def get_status(directory=os.getcwd()):
+def get_status():
     """
     Return the state of job in a directory. Designed for use on
     HiperGator.
@@ -46,8 +51,8 @@ def get_status(directory=os.getcwd()):
     'None': No job in this directory
     """
 
-    WORKING_DIR = directory
-    os.system("qstat -f| grep -A 30 'mashton' >> my_jobs.txt")
+    WORKING_DIR = os.getcwd()
+    os.system("qstat -f| grep -A 30 '{}' >> my_jobs.txt".format(USR))
     lines = open('my_jobs.txt').readlines()
     job_state = None
     for i in range(len(lines)):

@@ -40,7 +40,7 @@ def run_linemode_calculation(submit=True):
     """
 
     directory = os.getcwd().split('/')[-1]
-    if is_converged('.') and not get_status('.'):
+    if is_converged(os.getcwd()) and not get_status(os.getcwd()):
         if not os.path.isdir('bandstructure'):
             os.mkdir('bandstructure')
         if not is_converged('bandstructure'):

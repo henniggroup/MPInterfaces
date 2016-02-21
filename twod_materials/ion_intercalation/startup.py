@@ -41,16 +41,35 @@ def inject_ions(ion, atomic_fraction):
     interstitial_sites.sort(key=operator.itemgetter(1))
     interstitial_sites.reverse()
 
+    i = 0
     while n_ions / (structure.num_sites + 1) <= atomic_fraction:
         try:
             structure.append(species=specie,
-                             coords=interstitial_sites[int(n_ions) - 1][0],
+                             coords=interstitial_sites[i][0],
                              validate_proximity=True)
+            n_ions += 1
+            i += 1
+
+            evaluator = ValenceIonicRadiusEvaluator(structure)
+            interstitial = Interstitial(structure, radii=evaluator.radii,
+                                        valences=evaluator.valences)
+
+            interstitial_sites = [
+                (site._fcoords, site.properties.get('voronoi_radius', None))
+                for site in interstitial._defect_sites
+                ]
+
+            # Sort the interstitial sites by their voronoi radii.
+            interstitial_sites.sort(key=operator.itemgetter(1))
+            interstitial_sites.reverse()
+
+        except ValueError:
+            i += 1
+
         except IndexError:
             raise ValueError('The atomic_fraction specified exceeds the '
                              'number of available interstitial sites in this '
                              'structure. Please choose a smaller '
                              'atomic_fraction.')
-        n_ions += 1
 
     return structure

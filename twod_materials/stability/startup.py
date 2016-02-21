@@ -33,8 +33,9 @@ except IOError:
             os.environ['MP_API']
             )
     except KeyError:
-        raise ValueError('No Materials Project API key found. Please check'
-                         ' that your ~/config.yaml contains the field'
+        raise ValueError('No config.yaml file found. Please check'
+                         ' that your config.yaml is in your home directory'
+                         ' and contains the field'
                          ' mp_api: your_api_key')
 
 
@@ -44,7 +45,7 @@ def relax(submit=True):
     right energy of the 2D material.
     """
 
-    if not utl.get_status('.') and not utl.is_converged('.'):
+    if not utl.get_status(os.getcwd()) and not utl.is_converged(os.getcwd()):
         directory = os.getcwd().split('/')[-1]
         # Ensure 20A interlayer vacuum
         utl.add_vacuum(20 - utl.get_spacing(), 0.9)
@@ -78,7 +79,8 @@ def relax_competing_species(competing_species, submit=True):
     for specie in competing_species:
         if not os.path.isdir(specie[0]):
             os.mkdir(specie[0])
-        if not utl.get_status(specie[0]) and not utl.is_converged(specie[0]):
+        directory = os.path.join(os.getcwd(), specie[0])
+        if not utl.get_status(directory) and not utl.is_converged(directory):
             os.chdir(specie[0])
             os.system('cp {} .'.format(KERNEL_PATH))
             structure = MPR.get_structure_by_material_id(specie[1])
@@ -98,7 +100,7 @@ def relax_3d(submit=True):
     Standard relaxation for a single directory of a bulk material.
     """
 
-    if not utl.get_status('.') and not utl.is_converged('.'):
+    if not utl.get_status(os.get_cwd()) and not utl.is_converged(os.getcwd()):
         directory = os.getcwd().split('/')[-1]
 
         # vdw_kernel.bindat file required for VDW calculations.

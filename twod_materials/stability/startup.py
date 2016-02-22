@@ -45,7 +45,7 @@ def relax(submit=True):
     right energy of the 2D material.
     """
 
-    if not utl.get_status(os.getcwd()) and not utl.is_converged(os.getcwd()):
+    if not utl.get)status(os.getcwd()) and not utl.is_converged(os.getcwd()):
         directory = os.getcwd().split('/')[-1]
         # Ensure 20A interlayer vacuum
         utl.add_vacuum(20 - utl.get_spacing(), 0.9)
@@ -100,7 +100,7 @@ def relax_3d(submit=True):
     Standard relaxation for a single directory of a bulk material.
     """
 
-    if not utl.get_status(os.get_cwd()) and not utl.is_converged(os.getcwd()):
+    if not utl.get_status(os.getcwd()) and not utl.is_converged(os.getcwd()):
         directory = os.getcwd().split('/')[-1]
 
         # vdw_kernel.bindat file required for VDW calculations.

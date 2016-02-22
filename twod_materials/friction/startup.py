@@ -23,7 +23,6 @@ def run_friction_calculations(submit=True):
     max_height = max([site.coords[2] for site in structure.sites])
     min_height = min([site.coords[2] for site in structure.sites])
     thickness = max_height - min_height
-    print thickness
 
     # Make a new layer.
     new_sites = []

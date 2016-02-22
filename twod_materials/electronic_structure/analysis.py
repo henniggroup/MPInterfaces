@@ -170,13 +170,13 @@ def plot_band_structure():
 
 def get_effective_mass():
     """
-    Returns effective masses from a band structure. Uses parabolic
+    Returns effective masses from a band structure, using parabolic
     fitting to determine the band curvature at the CBM
     for electrons and at the VBM for holes. This curvature enters
     the equation m* = (hbar)**2 / (d^2E/dk^2).
 
     To consider anisotropy, the k-space directions to the left and right
-    of the CBM/VBM in the band diagram are given separately.
+    of the CBM/VBM in the band diagram are returned separately.
 
     *NOTE* Only works for semiconductors and linemode calculations (non-
            spin polarized).

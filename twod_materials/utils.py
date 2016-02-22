@@ -38,7 +38,7 @@ def is_converged(directory):
         return False
 
 
-def get_status():
+def get_status(directory):
     """
     Return the state of job in a directory. Designed for use on
     HiperGator.
@@ -51,14 +51,13 @@ def get_status():
     'None': No job in this directory
     """
 
-    WORKING_DIR = os.getcwd()
     os.system("qstat -f| grep -A 30 '{}' >> my_jobs.txt".format(USR))
     lines = open('my_jobs.txt').readlines()
     job_state = None
     for i in range(len(lines)):
         if 'Output_Path' in lines[i]:
             joined_line = ''.join([lines[i].strip(), lines[i+1].strip()])
-            if WORKING_DIR in joined_line:
+            if directory in joined_line:
                 for j in range(i, 0, -1):
                     if 'job_state' in lines[j]:
                         job_state = lines[j].split('=')[1].strip()

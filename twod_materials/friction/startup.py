@@ -14,22 +14,28 @@ def run_friction_calculations(submit=True):
 
     os.system('cp CONTCAR POSCAR')
 
-    # Pad the bottom layer with 3 Angstroms of vacuum.
-    utl.add_vacuum(3 - utl.get_spacing(), 0.8)
+    # Pad the bottom layer with 20 Angstroms of vacuum.
+    utl.add_vacuum(20 - utl.get_spacing(), 0.8)
     structure = Structure.from_file('POSCAR')
     n_sites_per_layer = structure.num_sites
 
-    # Make another layer.
-    structure.make_supercell([1, 1, 2])
-    structure.to('POSCAR', 'POSCAR')
+    # Get the thickness of the material.
+    max_height = max([site.coords[2] for site in structure.sites])
+    min_height = min([site.coords[2] for site in structure.sites])
+    thickness = max_height - min_height
+    print thickness
 
-    # Add 12 Angstroms of vacuum to prevent periodic interactions.
-    utl.add_vacuum(12, 0.9)
-
-    c_coords = []
+    # Make a new layer.
+    new_sites = []
     for site in structure.sites:
-        c_coords.append(site.c)
-    bottom_layer_max_height = sorted(c_coords)[n_sites_per_layer - 1]
+        new_sites.append((site.specie,
+                          [site.coords[0], site.coords[1],
+                           site.coords[2] + thickness + 3]))
+
+    for site in new_sites:
+        structure.append(site[0], site[1], coords_are_cartesian=True)
+
+    structure.to('POSCAR', 'POSCAR')
 
     for x in range(10):
         for y in range(10):
@@ -42,10 +48,10 @@ def run_friction_calculations(submit=True):
             os.system('cp INCAR {}/'.format(dir))
             os.system('cp KPOINTS {}/'.format(dir))
             os.system('cp POSCAR {}/'.format(dir))
-            os.system('cp POTCAR {}/'.format(dir))
             os.system('cp vdw_kernel.bindat {}/'.format(dir))
 
             os.chdir(dir)
+            utl.write_potcar()
             incar_dict = Incar.from_file('INCAR').as_dict()
             incar_dict.update({'NSW': 0, 'LAECHG': False, 'LCHARG': False,
                                'LWAVE': False})
@@ -54,18 +60,15 @@ def run_friction_calculations(submit=True):
             # Shift the top layer
             poscar_lines = open('POSCAR').readlines()
             with open('POSCAR', 'w') as poscar:
-                for line in poscar_lines[:8]:
+                for line in poscar_lines[:8 + n_sites_per_layer]:
                     poscar.write(line)
-                for line in poscar_lines[8:8 + structure.num_sites]:
+                for line in poscar_lines[8 + n_sites_per_layer:]:
                     split_line = line.split()
-                    if float(split_line[2]) > bottom_layer_max_height:
-                        new_coords = [float(split_line[0]) + float(x)/10.0,
-                                      float(split_line[1]) + float(y)/10.0,
-                                      float(split_line[2])]
-                        poscar.write(' '.join([str(i) for i in new_coords])
-                                     + '\n')
-                    else:
-                        poscar.write(line)
+                    new_coords = [float(split_line[0]) + float(x)/10.0,
+                                  float(split_line[1]) + float(y)/10.0,
+                                  float(split_line[2])]
+                    poscar.write(' '.join([str(i) for i in new_coords])
+                                 + '\n')
 
             utl.write_runjob(dir, 1, 8, '400mb', '1:00:00', 'vasp')
 
@@ -74,3 +77,4 @@ def run_friction_calculations(submit=True):
 
             os.chdir('../')
     os.system('cp CONTCAR POSCAR')
+

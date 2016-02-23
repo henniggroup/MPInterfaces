@@ -121,4 +121,4 @@ def plot_lithium_hull_and_voltages():
     ax2.yaxis.set_label_position("right")
     ax2.set_ylabel(r'$\mathrm{Potential\/vs.\/Li/Li^+\/(V)}$', size=20)
 
-    plt.savefig('lithium_hull.eps')
+    plt.savefig('lithium_hull.pdf', transparent=True)

@@ -6,10 +6,13 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
 
 
-def run_friction_calculations(submit=True):
+def run_friction_calculations(spacing, submit=True):
     """
     Setup a 10x10 grid of static energy calculations to plot the Gamma
     surface between two layers of the 2D material.
+
+    spacing: vertical distance (in angstroms) between the top of the
+        bottom layer and the bottom of the top layer.
     """
 
     os.system('cp CONTCAR POSCAR')
@@ -29,7 +32,7 @@ def run_friction_calculations(submit=True):
     for site in structure.sites:
         new_sites.append((site.specie,
                           [site.coords[0], site.coords[1],
-                           site.coords[2] + thickness + 3]))
+                           site.coords[2] + thickness + spacing]))
 
     for site in new_sites:
         structure.append(site[0], site[1], coords_are_cartesian=True)

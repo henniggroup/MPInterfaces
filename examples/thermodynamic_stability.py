@@ -25,10 +25,7 @@ directories = [dir for dir in os.listdir(os.getcwd()) if os.path.isdir(dir)
 if __name__ == '__main__':
 
     competing_species = get_competing_species(directories)
-    os.mkdir('all_competitors')
-    oa.chdir('all_competitors')
-    for directory in competing_species:
-        
+    relax_competing_species(competing_species)
 
     for directory in directories:
         os.chdir(directory)

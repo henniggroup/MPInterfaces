@@ -69,9 +69,6 @@ def plot_band_alignments(directories):
             verticalalignment='center')
 
     x_ticklabels = []
-    vbms = []
-    for compound in band_gaps:
-        vbms.append(band_gaps[compound]['VBM']['energy'])
 
     y_min = -8
 
@@ -85,20 +82,25 @@ def plot_band_alignments(directories):
 
         # Plot all energies relative to their vacuum level.
         evac = band_gaps[compound]['E_vac']
-        cbm = band_gaps[compound]['CBM']['energy'] - evac
-        vbm = band_gaps[compound]['VBM']['energy'] - evac
+        if band_gaps[compound]['Metal']:
+            cbm = -8
+            vbm = -2
+        else:
+            cbm = band_gaps[compound]['CBM']['energy'] - evac
+            vbm = band_gaps[compound]['VBM']['energy'] - evac
 
         # Add a box around direct gap compounds to distinguish them.
         if band_gaps[compound]['Direct']:
             are_directs = True
             linewidth = 5
-        else:
+        elif not band_gaps[compound]['Metal']:
             are_indirects = True
             linewidth = 0
 
         # Metals are grey.
         if band_gaps[compound]['Metal']:
             are_metals = True
+            linewidth = 0
             color_code = '#404040'
         else:
             color_code = '#002b80'
@@ -150,13 +152,15 @@ def plot_band_alignments(directories):
                 size=20, color='w', horizontalalignment='center',
                 verticalalignment='center')
 
-    # Axes are hideous.
+    # Who needs axes?
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
+
+    ax.set_ylabel('eV', family='serif', size=24)
 
     plt.savefig('band_alignments.pdf', transparent=True)
 

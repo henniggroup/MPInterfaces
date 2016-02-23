@@ -88,7 +88,8 @@ def relax_competing_species(competing_species, submit=True):
             Kpoints.automatic_density(structure, 1000).write_file('KPOINTS')
             Incar.from_dict(INCAR_DICT).write_file('INCAR')
             utl.write_potcar()
-            utl.write_runjob(specie[0], 1, 8, '600mb', '6:00:00', 'vasp')
+            utl.write_runjob('{}_3d'.format(
+                specie[0]), 1, 8, '600mb', '6:00:00', 'vasp')
             if submit:
                 os.system('qsub runjob')
             os.chdir('../')
@@ -113,7 +114,8 @@ def relax_3d(submit=True):
         # POTCAR
         utl.write_potcar()
         # Submission script
-        utl.write_runjob(directory, 1, 8, '600mb', '6:00:00', 'vasp')
+        utl.write_runjob(
+            '{}_3d'.format(directory), 1, 8, '600mb', '6:00:00', 'vasp')
 
         if submit:
             os.system('qsub runjob')

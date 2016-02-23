@@ -36,14 +36,15 @@ if __name__ == '__main__':
             for subdirectory in [
                     dir for dir in os.listdir(os.getcwd())
                     if os.path.isdir(dir)]:
-                if not is_converged(directory):
+                if not is_converged(subdirectory):
                     converged[directory] = False
                     break
-            if converged[directory]:
-                print '>> Plotting gamma surface for {}'.format(directory)
-                plot_gamma_surface()
-            else:
+
+            if not converged[directory]:
                 print '>> Not all directories converged'
                 loop = True
+
+            print '>> Plotting gamma surface for {}'.format(directory)
+            plot_gamma_surface()
 
             os.chdir('../')

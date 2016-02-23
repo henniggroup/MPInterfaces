@@ -55,7 +55,8 @@ def run_linemode_calculation(submit=True):
             kpath = HighSymmKpath(structure)
             Kpoints.automatic_linemode(40, kpath).write_file('KPOINTS')
             remove_z_kpoints()
-            write_runjob(directory, 1, 16, '600mb', '6:00:00', 'vasp')
+            write_runjob('{}_pbebands'.format(
+                directory), 1, 16, '600mb', '6:00:00', 'vasp')
 
             if submit:
                 os.system('qsub runjob')
@@ -96,7 +97,8 @@ def run_hse_calculation(submit=True):
         os.system('cp ../POTCAR ./POTCAR')
         os.system('cp ../vdw_kernel.bindat ./')
         Incar.from_dict(HSE_INCAR_DICT).write_file('INCAR')
-        write_runjob(directory, 1, 32, '1200mb', '150:00:00', 'vasp')
+        write_runjob('{}_hsebands'.format(
+            directory), 1, 32, '1200mb', '150:00:00', 'vasp')
 
         # Re-use the irreducible brillouin zone KPOINTS from a
         # previous GGA run.

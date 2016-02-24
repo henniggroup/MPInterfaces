@@ -115,10 +115,15 @@ def plot_lithium_hull_and_voltages():
     ax.text(0.99, 0.002, 'Li', family='serif', size=20,
             horizontalalignment='right')
 
-    ax.set_xlabel(r'$\mathrm{at\/\%\/Li}$', size=20)
-    ax.set_ylabel(r'$\mathrm{E_F\/(eV/atom)}$', size=20)
+    ax.set_xticklabels(ax.get_xticks(), family='serif', size=20)
+    ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
+    ax2.set_xticklabels(ax.get_xticks(), family='serif', size=20)
+    ax2.set_yticklabels(ax.get_yticks(), family='serif', size=20)
+
+    ax.set_xlabel(r'$\mathrm{at\/\%\/Li}$', size=28)
+    ax.set_ylabel(r'$\mathrm{E_F\/(eV/atom)}$', size=28)
 
     ax2.yaxis.set_label_position("right")
-    ax2.set_ylabel(r'$\mathrm{Potential\/vs.\/Li/Li^+\/(V)}$', size=20)
+    ax2.set_ylabel(r'$\mathrm{Potential\/vs.\/Li/Li^+\/(V)}$', size=28)
 
     plt.savefig('lithium_hull.pdf', transparent=True)

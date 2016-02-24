@@ -175,3 +175,24 @@ def plot_hull_distances(hull_distances):
     ax.set_ylabel(r'$\mathrm{E_F\/(meV/atom)}$', size=40)
 
     plt.savefig('stability_plot.pdf', transparent=True)
+
+
+def all_converged(two_d, three_d):
+    """
+    True if all two_d directories and three_d competing_species have
+    converged, otherwise false.
+    """
+
+    finished_2d, finished_3d = [], []
+    for directory in two_d:
+        if is_converged(directory):
+            finished_2d.append(directory)
+    for directory in three_d:
+        if is_converged('all_competitors/{}'.format(directory[0])):
+            finished_3d.append(directory[0])
+    if len(finished_2d + finished_3d) == len(
+            two_d + three_d):
+        all_converged = True
+    else:
+        all_converged = False
+    return all_converged

@@ -6,7 +6,17 @@ from pymatgen.analysis.defects.point_defects import (
 
 import operator
 
+from monty.dev import requires
 
+try:
+    import zeo
+    zeo_found = True
+except ImportError:
+    zeo_found = False
+
+
+@requires(zeo_found, 'get_voronoi_nodes requires Zeo++ cython extension to be '
+          'installed. Please contact developers of Zeo++ to obtain it.')
 def inject_ions(ion, atomic_fraction):
     """
     Adds ions to a percentage of interstitial sites into the POSCAR

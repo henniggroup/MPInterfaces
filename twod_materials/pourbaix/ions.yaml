@@ -71,9 +71,10 @@ IonCorrection: # All values are given per atom.
 ### Formation Energies obtained from NIST
 ### tables or Pourbaix's Atlas. The Atlas
 ### is only used for species not in the
-### NIST tables.
+### NIST tables. All values are eV per
+### formula unit.
 
-ExpFormEnergy: # All values are given per formula unit
+ExpFormEnergy:
   Li:
     Li[+]: -3.04
     Li2O2: -6.886
@@ -204,11 +205,46 @@ ExpFormEnergy: # All values are given per formula unit
     Cr[2+]: -1.8256665
     Cr[3+]: -2.2332975
   Mn:
+    Mn[2+]: -2.364
+    MnO4[-]: -4.365
+    MnO4[2-]: -5.189
+    MnOH[+]: -4.197
+    Mn(OH)3[-]: -7.713
   Fe:
+    Fe[2+]: -0.818
+    Fe[3+]: -0.049
+    FeO2[2-]: -3.060
+    FeOH[+]: -2.875
+    FeOH[2+]: -2.378
+    HFeO2[-]: -3.914
+    Fe(OH)2[+]: -4.539
+    Fe(OH)3: -6.833
+    Fe(OH)3[-]: -6.373
+    Fe(OH)4[2-]: -7.977
+    Fe2(OH)2[4+]: -4.843
   Co:
+    Co[2+]: -0.564
+    Co[3+]: 1.389
+    HCoO2[-]: -4.223
+    Co(OH)2: 4.370
   Ni:
+    Ni[2+]: -0.472
+    NiOH[+]: -2.359
+    Ni(OH)2: -3.733
   Cu:
+    Cu[+]: 0.518
+    Cu[2+]: 0.679
+    CuO2[2-]: -1.903
+    HCuO2[-]: -2.679
+    Cu(OH)2: -2.581
   Zn:
+    Zn[2+]: -1.524
+    ZnO2[2-]: -3.982
+    ZnOH[+]: -3.421
+    HZnO2[-]: -4.737
+    Zn(OH)2: -5.418
+    Zn(OH)3[-]: -7.195
+    Zn(OH)4[2-]: -8.898
   Ga: 
     Ga[3+]: -1.587159
     Ga[2+]: -0.9106650000000001
@@ -252,6 +288,9 @@ ExpFormEnergy: # All values are given per formula unit
     Sr[2+]: -5.798
     SrOH[+]: -7.476
   Y:
+    Y[3+]: -7.191
+    Y(OH)[2+]: -9.111
+    Y2(OH)2[4+]: -18.451
   Zr: 
     Zr[4+]: -5.774
     ZrOH[3+]: -8.25
@@ -267,10 +306,19 @@ ExpFormEnergy: # All values are given per formula unit
     MoO4[2-]: -8.6641
     Mo[3+]: -0.5982
   Tc:
+    HTcO4: -7.504
   Ru:
+    RuO4: -1.526
+    RuO4[-]: -2.544
+    RuO4[2-]: -3.148
+    Ru(OH)2[2+]: -2.208
   Rh:
   Pd:
+    Pd[2+]: 1.829
   Ag:
+    Ag[+]: 0.799
+    AgOH: -0.953
+    Ag(OH)2[-]: -2.697
   Cd: 
     Cd[2+]: -0.8057217000000001
     HCdO2[-]: -3.7510725000000003
@@ -323,12 +371,32 @@ ExpFormEnergy: # All values are given per formula unit
   Ta: 
     TaO2[+]: -8.7327064
   W:
+    WO4[2-]: -11.149
+    HW6O21[5-]: -60.517
   Re:
+    Re[+]: -0.342
+    Re[-]: 0.105
+    ReO4[-]: -7.198
+    HReO4: -7.198 #Yes, it's the same as the one above.
   Os:
+    OsO4: -301.85
+    HOsO5[-]: -470.2
+    H2OsO5: -538.95
   Ir:
   Pt:
+    Pt[2+]: 2.641
   Au:
+    AuO3[3-]: -0.537
+    HAuO3[2-]: -1.474
+    H2AuO3[-]: -2.262
+    Au(OH)3: -2.937
   Hg:
+    Hg: 0.407
+    Hg[2+]: 1.704
+    Hg2[2+]: 1.591
+    HgOH[+]: -0.542
+    HHgO2[-]: -1.972
+    Hg(OH)2[-]: -2.848
   Tl: 
     TlOH: -1.48785315
     Tl[3+]: 2.16825

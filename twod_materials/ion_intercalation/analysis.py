@@ -100,7 +100,7 @@ def plot_lithium_hull_and_voltages():
     voltage_profile_x = [tup[0] for tup in voltage_profile]
     voltage_profile_y = [tup[1] for tup in voltage_profile]
 
-    ax = plt.figure(figsize=(10, 10)).gca()
+    ax = plt.figure(figsize=(14, 10)).gca()
 
     ax.plot([0, 1], [0, 0], 'k--')
     ax.plot(convex_li_fractions, convex_formation_energies, 'b-', marker='o',
@@ -117,8 +117,7 @@ def plot_lithium_hull_and_voltages():
 
     ax.set_xticklabels(ax.get_xticks(), family='serif', size=20)
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
-    ax2.set_xticklabels(ax.get_xticks(), family='serif', size=20)
-    ax2.set_yticklabels(ax.get_yticks(), family='serif', size=20)
+    ax2.set_yticklabels(ax2.get_yticks(), family='serif', size=20)
 
     ax.set_xlabel(r'$\mathrm{at\/\%\/Li}$', size=28)
     ax.set_ylabel(r'$\mathrm{E_F\/(eV/atom)}$', size=28)

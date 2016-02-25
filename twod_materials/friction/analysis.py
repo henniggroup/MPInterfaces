@@ -1,10 +1,13 @@
 import os
 
+import numpy as np
+
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.core.structure import Structure
 
 import warnings
 
@@ -15,6 +18,9 @@ def plot_gamma_surface():
     calculations to plot the Gamma surface between two layers of the 2D
     material.
     """
+
+    lattice = Structure.from_file('CONTCAR').lattice
+    area = np.cross(lattice._matrix[0], lattice._matrix[1])[2]
 
     ax = plt.figure(figsize=(10, 10)).gca()
 
@@ -33,7 +39,7 @@ def plot_gamma_surface():
             dir = '{}x{}'.format(x, y)
             os.chdir(dir)
             try:
-                energy = Vasprun('vasprun.xml').final_energy
+                energy = Vasprun('vasprun.xml').final_energy / area
                 ENERGY_ARRAY[x].append(energy)
             except:
                 not_converged.append('{}x{}'.format(x, y))

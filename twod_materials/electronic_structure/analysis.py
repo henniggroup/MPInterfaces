@@ -2,8 +2,8 @@ import os
 
 import numpy as np
 
-from pymatgen.io.vasp.outputs import Vasprun, Locpot
-from pymatgen.electronic_structure.plotter import BSPlotter
+from pymatgen.io.vasp.outputs import BSVasprun, Locpot
+from pymatgen.electronic_structure.plotter import BSPlotter, BSPlotterProjected
 from pymatgen.electronic_structure.core import Spin
 
 import matplotlib as mpl
@@ -24,7 +24,7 @@ def plot_band_alignments(directories):
     for directory in directories:
         if is_converged('{}/bandstructure'.format(directory)):
             os.chdir('{}/bandstructure'.format(directory))
-            vasprun = Vasprun('vasprun.xml')
+            vasprun = BSVasprun('vasprun.xml')
             band_gap = vasprun.get_band_structure().get_band_gap()
 
             # Vacuum level energy from LOCPOT.
@@ -165,11 +165,51 @@ def plot_band_alignments(directories):
     plt.savefig('band_alignments.pdf', transparent=True)
 
 
-def plot_band_structure():
-    vasprun = Vasprun('vasprun.xml')
+def plot_normal_band_structure():
+    """
+    Plot a PDF standard band structure with no projections.
+    """
+    vasprun = BSVasprun('vasprun.xml')
     bsp = BSPlotter(vasprun.get_band_structure('KPOINTS', line_mode=True,
                                                efermi=vasprun.efermi))
     bsp.save_plot('band_structure.eps', ylim=(-5, 5))
+
+
+def plot_color_projected_bands():
+    """
+    Plot a single band structure where the color of the band indicates
+    the elemental character of the eigenvalue.
+    """
+    vasprun = BSVasprun('vasprun.xml', parse_projected_eigen=True)
+    bs = vasprun.get_band_structure('KPOINTS', line_mode=True)
+    bspp = BSPlotterProjected(bs)
+    bspp.get_elt_projected_plots_color().savefig(
+        'color_projected_bands.pdf')
+
+
+def plot_elt_projected_bands():
+    """
+    Plot separate band structures for each element where the size of the
+    markers indicates the elemental character of the eigenvalue.
+    """
+    vasprun = BSVasprun('vasprun.xml', parse_projected_eigen=True)
+    bs = vasprun.get_band_structure('KPOINTS', line_mode=True)
+    bspp = BSPlotterProjected(bs)
+    bspp.get_elt_projected_plots().savefig('elt_projected_bands.pdf')
+
+
+def plot_orb_projected_bands(orbitals):
+    """
+    Plot a separate band structure for each orbital of each element in
+    orbitals.
+
+    orbitals (dict): {element: [orbitals]}
+        e.g. {'Mo': ['s', 'p', 'd'], 'S': ['p']}
+    """
+    vasprun = BSVasprun('vasprun.xml', parse_projected_eigen=True)
+    bs = vasprun.get_band_structure('KPOINTS', line_mode=True)
+    bspp = BSPlotterProjected(bs)
+    bspp.get_projected_plots_dots(orbitals).savefig('orb_projected_bands.pdf')
 
 
 def get_effective_mass():
@@ -203,7 +243,7 @@ def get_effective_mass():
 
     spin_up = Spin(1)
 
-    band_structure = Vasprun('vasprun.xml').get_band_structure()
+    band_structure = BSVasprun('vasprun.xml').get_band_structure()
 
     # Locations of CBM and VBM in band_structure.bands
     cbm_band_index = band_structure.get_cbm()['band_index'][spin_up][0]

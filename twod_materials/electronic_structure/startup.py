@@ -2,7 +2,6 @@ import os
 
 from twod_materials.utils import is_converged, write_runjob, get_status
 
-from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.core.structure import Structure
@@ -73,46 +72,37 @@ def run_hse_calculation(submit=True):
     details.
     """
 
-    directory = os.getcwd().split('/')[-1]
-    vasprun = Vasprun('vasprun.xml')
-    band_gap = vasprun.get_band_structure().get_band_gap()
-    kpath = []
-    if band_gap['energy']:
-        transition = band_gap['transition'].split('-')
+    HSE_INCAR_DICT = {'LHFCALC': True, 'HFSCREEN': 0.2, 'AEXX': 0.25,
+                      'ALGO': 'D', 'TIME': 0.4, 'LDIAG': True}
 
-        # Amount to increment along the kpath to result in 10
-        # points total.
-        increment = ((transition[1][0] - transition[0][0]) / 9,
-                     (transition[1][1] - transition[0][1]) / 9,
-                     (transition[1][2] - transition[0][2] / 9))
+    if not os.path.isdir('HSE'):
+        os.mkdir('HSE')
+    os.chdir('HSE')
+    os.system('cp ../CONTCAR ./POSCAR')
+    os.system('cp ../POTCAR ./POTCAR')
+    os.system('cp ../vdw_kernel.bindat ./')
+    os.system('cp ../INCAR ./')
+    incar_dict = Incar.from_file('INCAR').as_dict()
+    incar_dict.update(HSE_INCAR_DICT)
+    Incar.from_dict(incar_dict).write_file('INCAR')
+    write_runjob('{}_hsebands'.format(
+        os.getcwd().split('/')[-3]), 1, 32, '1200mb', '150:00:00', 'vasp')
 
-        for i in range(10):
-            kpath.append((transition[0] + increment[0] * i),
-                         (transition[1] + increment[1] * i),
-                         (transition[2] + increment[2] * i))
+    # Re-use the irreducible brillouin zone KPOINTS from a
+    # previous GGA run.
+    os.system('cp ../../IBZKPT ./KPOINTS')
+    kpoints_lines = open('KPOINTS').readlines()
+    n_ibz_kpts = int(kpoints_lines[1].split()[0])
+    kpath = HighSymmKpath(Structure.from_file('POSCAR'))
+    twod_kpts = [kpt for kpt in kpath.get_kpoints(line_density=10)[0]
+                 if not kpt[2]]
+    with open('KPOINTS', 'w') as kpts:
+        kpts.write(kpoints_lines[0])
+        kpts.write('{}\n'.format(n_ibz_kpts + len(twod_kpts)))
+        for line in kpoints_lines[2:]:
+            kpts.write(line)
+        for kpoint in twod_kpts:
+            kpts.write('{} 0\n'.format(' '.join([str(c) for c in kpoint])))
 
-        if not os.path.isdir('HSE'):
-            os.mkdir('HSE')
-        os.chdir('HSE')
-        os.system('cp ../CONTCAR ./POSCAR')
-        os.system('cp ../POTCAR ./POTCAR')
-        os.system('cp ../vdw_kernel.bindat ./')
-        Incar.from_dict(HSE_INCAR_DICT).write_file('INCAR')
-        write_runjob('{}_hsebands'.format(
-            directory), 1, 32, '1200mb', '150:00:00', 'vasp')
-
-        # Re-use the irreducible brillouin zone KPOINTS from a
-        # previous GGA run.
-        os.system('cp ../IBZKPT ./KPOINTS')
-        kpoints_lines = open('KPOINTS').readlines()
-        n_kpts = int(kpoints_lines[1].split()[0])
-        with open('KPOINTS', 'w') as kpts:
-            kpts.write(kpoints_lines[0])
-            kpts.write('{}\n'.format(n_kpts + 10))
-            for line in kpoints_lines[2:]:
-                kpts.write(line)
-            for kpoint in kpath:
-                kpts.write('{}\n'.format(' '.join(kpoint)))
-
-        if submit:
-            os.system('qsub runjob')
+    if submit:
+        os.system('qsub runjob')

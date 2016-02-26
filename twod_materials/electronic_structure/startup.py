@@ -82,6 +82,7 @@ def run_hse_calculation(submit=True):
     os.system('cp ../POTCAR ./POTCAR')
     os.system('cp ../vdw_kernel.bindat ./')
     os.system('cp ../INCAR ./')
+    os.system('cp ../WAVECAR ./')
     incar_dict = Incar.from_file('INCAR').as_dict()
     incar_dict.update(HSE_INCAR_DICT)
     Incar.from_dict(incar_dict).write_file('INCAR')

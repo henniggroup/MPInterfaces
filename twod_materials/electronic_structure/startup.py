@@ -49,7 +49,8 @@ def run_linemode_calculation(submit=True):
             os.system('cp ../vdw_kernel.bindat ./')
             incar_dict = Incar.from_file('../INCAR').as_dict()
             incar_dict.update(
-                {'NSW': 0, 'LVTOT': True, 'LVHAR': True, 'LORBIT': 11})
+                {'NSW': 0, 'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
+                 'LWAVE': True})
             Incar.from_dict(incar_dict).write_file('INCAR')
             structure = Structure.from_file('POSCAR')
             kpath = HighSymmKpath(structure)
@@ -107,3 +108,5 @@ def run_hse_calculation(submit=True):
 
     if submit:
         os.system('qsub runjob')
+
+    os.chdir('../')

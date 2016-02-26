@@ -97,20 +97,10 @@ def run_hse_calculation(submit=True):
     n_ibz_kpts = int(kpoints_lines[1].split()[0])
     kpath = HighSymmKpath(Structure.from_file('POSCAR'))
 
-    # This is annoying, but required to ensure no Kpoints are identical
-    # when dividing up the kpath. If that happened, a ZeroDivisionError
-    # would be thrown and the code would stop.
-    points = []
-    keep_path = dict(kpath._kpath['kpoints'])
-    for kpoint in kpath._kpath['kpoints']:
-        if any((kpath._kpath['kpoints'][kpoint] == x).all() for x in points):
-            del keep_path[kpoint]
-        else:
-            points.append(kpath._kpath['kpoints'][kpoint])
-
-    kpath._kpath['kpoints'] = keep_path
-
-    # Only use Kpoints without a z-component.
+    # Only use Kpoints without a z-component. If this command fails with
+    # A ZeroDivision error, it's because two kpoints are identical in
+    # the HighSymmKpath object. To circumvent this, add `if distance:`
+    # to pymatgen/symmetry/bandstructure.py between lines 184 and 185.
     twod_kpts = [kpt for kpt in kpath.get_kpoints(line_density=10)[0]
                  if not kpt[2]]
 

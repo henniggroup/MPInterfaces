@@ -88,7 +88,7 @@ def run_hse_calculation(submit=True):
     incar_dict.update(HSE_INCAR_DICT)
     Incar.from_dict(incar_dict).write_file('INCAR')
     write_runjob('{}_hsebands'.format(
-        os.getcwd().split('/')[-3]), 1, 32, '1200mb', '150:00:00', 'vasp')
+        os.getcwd().split('/')[-3]), 1, 16, '1000mb', '240:00:00', 'vasp')
 
     # Re-use the irreducible brillouin zone KPOINTS from a
     # previous GGA run.

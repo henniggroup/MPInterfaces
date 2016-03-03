@@ -74,7 +74,7 @@ def plot_ion_hull_and_voltages(ion='Li'):
             / (sorted_data[i][0] - sorted_data[i + 1][0])
         )
 
-        if out_slope >= in_slope:
+        if out_slope >= in_slope and sorted_data[i][2] < 0:
             convex_points.append(sorted_data[i])
             voltage = -(
                 ((sorted_data[i][3] - sorted_data[k][3])
@@ -119,10 +119,10 @@ def plot_ion_hull_and_voltages(ion='Li'):
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
     ax2.set_yticklabels(ax2.get_yticks(), family='serif', size=20)
 
-    ax.set_xlabel(r'$\mathrm{at\/\%\/%s}$' % ion, size=28)
+    ax.set_xlabel(r'$\mathrm{at\/ \% \/ %s}$' % ion, size=28)
     ax.set_ylabel(r'$\mathrm{E_F\/(eV/atom)}$', size=28)
 
-    ax2.yaxis.set_label_position("right")
+    ax2.yaxis.set_label_position('right')
     if ion == 'Li':
         ax2.set_ylabel(r'$\mathrm{Potential\/vs.\/Li/Li^+\/(V)}$', size=28)
     elif ion == 'Mg':

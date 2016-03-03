@@ -21,7 +21,7 @@ def plot_ion_hull_and_voltages(ion='Li'):
 
     # Calculated with the relax_3d() function
     # in twod_materials.stability.startup
-    ion_ev_fu = {'Li': -1.7540797}
+    ion_ev_fu = {'Li': -1.7540797, 'Mg': -1.31976062, 'Al': -3.19134607}
 
     energy = Vasprun('vasprun.xml').final_energy
     composition = Structure.from_file('POSCAR').composition

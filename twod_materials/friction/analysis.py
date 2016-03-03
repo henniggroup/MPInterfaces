@@ -64,6 +64,7 @@ def plot_gamma_surface():
 
     abs_minimum = min(minima)
     abs_maximum = max(maxima)
+    print abs_maximum
 
     for x in range(11):
         for y in range(11):

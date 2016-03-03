@@ -119,7 +119,7 @@ def plot_ion_hull_and_voltages(ion='Li'):
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
     ax2.set_yticklabels(ax2.get_yticks(), family='serif', size=20)
 
-    ax.set_xlabel(r'$\mathrm{at\/ \% \/ %s}$' % ion, size=28)
+    ax.set_xlabel('at% {}'.format(ion), family='serif', size=28)
     ax.set_ylabel(r'$\mathrm{E_F\/(eV/atom)}$', size=28)
 
     ax2.yaxis.set_label_position('right')

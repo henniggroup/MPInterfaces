@@ -42,29 +42,29 @@ def run_linemode_calculation(submit=True):
                       'LWAVE': True, 'ICHARG': 11}
 
     directory = os.getcwd().split('/')[-1]
-    if is_converged(os.getcwd()) and not get_status(os.getcwd()):
-        if not os.path.isdir('pbe_bands'):
-            os.mkdir('pbe_bands')
-        if not is_converged('pbe_bands'):
-            os.chdir('pbe_bands')
-            os.system('cp ../CONTCAR ./POSCAR')
-            os.system('cp ../POTCAR ./')
-            os.system('cp ../CHGCAR ./')
-            os.system('cp ../vdw_kernel.bindat ./')
-            incar_dict = Incar.from_file('../INCAR').as_dict()
-            incar_dict.update(PBE_INCAR_DICT)
-            Incar.from_dict(incar_dict).write_file('INCAR')
-            structure = Structure.from_file('POSCAR')
-            kpath = HighSymmKpath(structure)
-            Kpoints.automatic_linemode(40, kpath).write_file('KPOINTS')
-            remove_z_kpoints()
-            write_runjob('{}_pbebands'.format(
-                directory), 1, 16, '600mb', '6:00:00', 'vasp')
 
-            if submit:
-                os.system('qsub runjob')
+    if not os.path.isdir('pbe_bands'):
+        os.mkdir('pbe_bands')
+    if not is_converged('pbe_bands'):
+        os.chdir('pbe_bands')
+        os.system('cp ../CONTCAR ./POSCAR')
+        os.system('cp ../POTCAR ./')
+        os.system('cp ../CHGCAR ./')
+        os.system('cp ../vdw_kernel.bindat ./')
+        incar_dict = Incar.from_file('../INCAR').as_dict()
+        incar_dict.update(PBE_INCAR_DICT)
+        Incar.from_dict(incar_dict).write_file('INCAR')
+        structure = Structure.from_file('POSCAR')
+        kpath = HighSymmKpath(structure)
+        Kpoints.automatic_linemode(40, kpath).write_file('KPOINTS')
+        remove_z_kpoints()
+        write_runjob('{}_pbebands'.format(
+            directory), 1, 16, '600mb', '6:00:00', 'vasp')
 
-            os.chdir('../')
+        if submit:
+            os.system('qsub runjob')
+
+        os.chdir('../')
 
 
 def run_hse_calculation(submit=True):

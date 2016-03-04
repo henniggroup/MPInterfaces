@@ -30,4 +30,9 @@ In almost all cases, before doing anything else, the user should use the
 relax() function to optimize the structures of the 2D materials using 
 the framework of input parameters included here.
 
+Please ensure that a compiled version of vasp exists in your ~/bin, and 
+that a specially compiled vasp with no relaxation in the z-direction also 
+exists in your ~/bin. They should be called `vasp` and `vasp_noz`, 
+respectively.
+
 See the examples folder for some sample workflows.

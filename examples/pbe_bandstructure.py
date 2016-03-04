@@ -14,8 +14,9 @@ from twod_materials.utils import is_converged
 from twod_materials.electronic_structure.startup import (
     run_linemode_calculation
     )
-from twod_materials.electronic_structure.analysis import plot_band_structure
-
+from twod_materials.electronic_structure.analysis import (
+    plot_normal_band_structure
+    )
 
 INTERVAL = 360  # Seconds between convergence checks
 
@@ -42,7 +43,7 @@ if __name__ == '__main__':
             print '>> Plotting band structures'
             for directory in finished:
                 os.chdir('{}/bandstructure'.format(directory))
-                plot_band_structure()
+                plot_normal_band_structure()
                 os.chdir('../../')
             loop = False
         else:

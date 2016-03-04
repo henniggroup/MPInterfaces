@@ -105,7 +105,7 @@ def run_hse_calculation(submit=True):
     # A ZeroDivision error, it's because two kpoints are identical in
     # the HighSymmKpath object. To circumvent this, add `if distance:`
     # to pymatgen/symmetry/bandstructure.py between lines 184 and 185.
-    twod_kpts = [kpt for kpt in kpath.get_kpoints(line_density=10)[0]
+    twod_kpts = [kpt for kpt in kpath.get_kpoints(line_density=40)[0]
                  if not kpt[2]]
 
     with open('KPOINTS', 'w') as kpts:

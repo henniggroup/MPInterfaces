@@ -38,19 +38,21 @@ def run_linemode_calculation(submit=True):
     high symmetry k-paths.
     """
 
+    PBE_INCAR_DICT = {'NSW': 0, 'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
+                      'LWAVE': True, 'ICHARG': 11}
+
     directory = os.getcwd().split('/')[-1]
     if is_converged(os.getcwd()) and not get_status(os.getcwd()):
-        if not os.path.isdir('bandstructure'):
-            os.mkdir('bandstructure')
-        if not is_converged('bandstructure'):
-            os.chdir('bandstructure')
+        if not os.path.isdir('pbe_bands'):
+            os.mkdir('pbe_bands')
+        if not is_converged('pbe_bands'):
+            os.chdir('pbe_bands')
             os.system('cp ../CONTCAR ./POSCAR')
             os.system('cp ../POTCAR ./')
+            os.system('cp ../CHGCAR ./')
             os.system('cp ../vdw_kernel.bindat ./')
             incar_dict = Incar.from_file('../INCAR').as_dict()
-            incar_dict.update(
-                {'NSW': 0, 'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
-                 'LWAVE': True})
+            incar_dict.update(PBE_INCAR_DICT)
             Incar.from_dict(incar_dict).write_file('INCAR')
             structure = Structure.from_file('POSCAR')
             kpath = HighSymmKpath(structure)
@@ -74,11 +76,13 @@ def run_hse_calculation(submit=True):
     """
 
     HSE_INCAR_DICT = {'LHFCALC': True, 'HFSCREEN': 0.2, 'AEXX': 0.25,
-                      'ALGO': 'D', 'TIME': 0.4, 'LDIAG': True}
+                      'ALGO': 'D', 'TIME': 0.4, 'LDIAG': True, 'NSW': 0,
+                      'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
+                      'LWAVE': True, 'NPAR': 5}
 
-    if not os.path.isdir('HSE'):
-        os.mkdir('HSE')
-    os.chdir('HSE')
+    if not os.path.isdir('hse_bands'):
+        os.mkdir('hse_bands')
+    os.chdir('hse_bands')
     os.system('cp ../CONTCAR ./POSCAR')
     os.system('cp ../POTCAR ./POTCAR')
     os.system('cp ../vdw_kernel.bindat ./')
@@ -88,11 +92,11 @@ def run_hse_calculation(submit=True):
     incar_dict.update(HSE_INCAR_DICT)
     Incar.from_dict(incar_dict).write_file('INCAR')
     write_runjob('{}_hsebands'.format(
-        os.getcwd().split('/')[-3]), 1, 16, '1000mb', '240:00:00', 'vasp')
+        os.getcwd().split('/')[-3]), 1, 30, '1800mb', '240:00:00', 'vasp')
 
     # Re-use the irreducible brillouin zone KPOINTS from a
     # previous GGA run.
-    os.system('cp ../../IBZKPT ./KPOINTS')
+    os.system('cp ../IBZKPT ./KPOINTS')
     kpoints_lines = open('KPOINTS').readlines()
     n_ibz_kpts = int(kpoints_lines[1].split()[0])
     kpath = HighSymmKpath(Structure.from_file('POSCAR'))

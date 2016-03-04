@@ -65,7 +65,7 @@ def plot_band_alignments(directories):
                  facecolor='#00cc99', linewidth=0))
     ax.text(len(band_gaps)*1.01, -4.44, r'$\mathrm{H+/H_2}$', size=20,
             verticalalignment='center')
-    ax.text(len(band_gaps)*1.01, -5.67, r'$\mathrm{O2/H_2O}$', size=20,
+    ax.text(len(band_gaps)*1.01, -5.67, r'$\mathrm{O_2/H_2O}$', size=20,
             verticalalignment='center')
 
     x_ticklabels = []

@@ -172,7 +172,7 @@ def plot_normal_band_structure():
     vasprun = BSVasprun('vasprun.xml')
     bsp = BSPlotter(vasprun.get_band_structure('KPOINTS', line_mode=True,
                                                efermi=vasprun.efermi))
-    bsp.save_plot('band_structure.eps', ylim=(-5, 5))
+    bsp.save_plot('band_structure.pdf', ylim=(-5, 5))
 
 
 def plot_color_projected_bands():

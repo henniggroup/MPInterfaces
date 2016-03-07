@@ -13,17 +13,26 @@ import matplotlib.pyplot as plt
 from twod_materials.utils import is_converged
 
 
-def plot_band_alignments(directories):
+def plot_band_alignments(directories, run_type='PBE'):
     """
     Plot CBM's and VBM's of all compounds together, relative to the band
     edges of H2O.
+
+    args:
+        run_type: 'PBE' or 'HSE', so that the function knows which
+            subdirectory to go into.
     """
+
+    if run_type == 'HSE':
+        subdirectory = 'hse_bands'
+    else:
+        subdirectory = 'pbe_bands'
 
     band_gaps = {}
 
     for directory in directories:
-        if is_converged('{}/bandstructure'.format(directory)):
-            os.chdir('{}/bandstructure'.format(directory))
+        if is_converged('{}/{}'.format(directory, subdirectory)):
+            os.chdir('{}/{}'.format(directory, subdirectory))
             vasprun = BSVasprun('vasprun.xml')
             band_gap = vasprun.get_band_structure().get_band_gap()
 

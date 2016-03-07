@@ -54,6 +54,12 @@ def relax(submit=True):
         # KPOINTS
         Kpoints.automatic_density(Structure.from_file('POSCAR'),
                                   1000).write_file('KPOINTS')
+        kpts_lines = open('KPOINTS').readlines()
+        with open('KPOINTS', 'w') as kpts:
+            for line in kpts_lines[:3]:
+                kpts.write(line)
+            kpts.write(kpts_lines[3].split()[0] + ' '
+                       + kpts_lines[3].split()[1] + ' 1')
         # INCAR
         Incar.from_dict(INCAR_DICT).write_file('INCAR')
         # POTCAR

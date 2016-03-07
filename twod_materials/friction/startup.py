@@ -1,5 +1,7 @@
 import os
 
+import math
+
 import twod_materials.utils as utl
 
 from pymatgen.core.structure import Structure
@@ -39,8 +41,11 @@ def run_friction_calculations(spacing, submit=True):
 
     structure.to('POSCAR', 'POSCAR')
 
-    for x in range(10):
-        for y in range(10):
+    n_divs_x = math.ceil(structure.lattice.a * 2.5)
+    n_divs_y = math.ceil(structure.lattice.b * 2.5)
+
+    for x in range(n_divs_x):
+        for y in range(n_divs_y):
             dir = '{}x{}'.format(x, y)
 
             if not os.path.isdir(dir):
@@ -79,4 +84,3 @@ def run_friction_calculations(spacing, submit=True):
 
             os.chdir('../')
     os.system('cp CONTCAR POSCAR')
-

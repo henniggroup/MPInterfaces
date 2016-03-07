@@ -192,8 +192,7 @@ def plot_color_projected_bands():
     vasprun = BSVasprun('vasprun.xml', parse_projected_eigen=True)
     bs = vasprun.get_band_structure('KPOINTS', line_mode=True)
     bspp = BSPlotterProjected(bs)
-    bspp.get_elt_projected_plots_color().savefig(
-        'color_projected_bands.pdf')
+    bspp.get_elt_projected_plots_color().savefig('color_projected_bands.pdf')
 
 
 def plot_elt_projected_bands():

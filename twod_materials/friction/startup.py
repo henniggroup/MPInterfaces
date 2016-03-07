@@ -41,8 +41,8 @@ def run_friction_calculations(spacing, submit=True):
 
     structure.to('POSCAR', 'POSCAR')
 
-    n_divs_x = math.ceil(structure.lattice.a * 2.5)
-    n_divs_y = math.ceil(structure.lattice.b * 2.5)
+    n_divs_x = int(math.ceil(structure.lattice.a * 2.5))
+    n_divs_y = int(math.ceil(structure.lattice.b * 2.5))
 
     for x in range(n_divs_x):
         for y in range(n_divs_y):

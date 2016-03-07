@@ -2,6 +2,8 @@ import os
 
 import numpy as np
 
+import math
+
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
@@ -24,13 +26,16 @@ def plot_gamma_surface():
 
     ax = plt.figure(figsize=(10, 10)).gca()
 
-    ax.set_xlim(0, 11)
-    ax.set_ylim(0, 11)
+    n_divs_x = int(math.ceil(lattice.a * 2.5))
+    n_divs_y = int(math.ceil(lattice.b * 2.5))
+
+    ax.set_xlim(0, n_divs_x)
+    ax.set_ylim(0, n_divs_y)
 
     ENERGY_ARRAY = []
 
-    X_VALUES = range(10)
-    Y_VALUES = range(10)
+    X_VALUES = range(n_divs_x)
+    Y_VALUES = range(n_divs_y)
 
     not_converged = []
     for x in X_VALUES:
@@ -48,7 +53,7 @@ def plot_gamma_surface():
         ENERGY_ARRAY[x].append(ENERGY_ARRAY[x][0])
 
     ENERGY_ARRAY.append([])
-    ENERGY_ARRAY[10] = ENERGY_ARRAY[0]
+    ENERGY_ARRAY[n_divs_x] = ENERGY_ARRAY[0]
 
     if not_converged:
         warnings.warn('{} did not converge.'.format(not_converged))
@@ -66,8 +71,8 @@ def plot_gamma_surface():
     abs_maximum = max(maxima)
     print abs_maximum
 
-    for x in range(11):
-        for y in range(11):
+    for x in range(n_divs_x):
+        for y in range(n_divs_y):
 
             # Plot all energies relative to the global minimum.
             scaled_energy = ENERGY_ARRAY[x][y] - abs_minimum

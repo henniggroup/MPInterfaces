@@ -1,6 +1,6 @@
 import os
 
-from twod_materials.utils import is_converged, write_runjob, get_status
+from twod_materials.utils import is_converged, write_runjob
 
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -105,8 +105,8 @@ def run_hse_calculation(submit=True):
     # A ZeroDivision error, it's because two kpoints are identical in
     # the HighSymmKpath object. To circumvent this, add `if distance:`
     # to pymatgen/symmetry/bandstructure.py between lines 184 and 185.
-    twod_kpts = [kpt for kpt in kpath.get_kpoints(line_density=40)[0]
-                 if not kpt[2]]
+    twod_kpts = [kpt for kpt in kpath.get_kpoints(
+        line_density=40, coords_are_cartesian=False)[0] if not kpt[2]]
 
     with open('KPOINTS', 'w') as kpts:
         kpts.write(kpoints_lines[0])

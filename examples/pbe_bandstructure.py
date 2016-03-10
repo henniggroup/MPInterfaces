@@ -36,13 +36,13 @@ if __name__ == '__main__':
         finished = []
 
         for directory in directories:
-            if is_converged('{}/bandstructure'.format(directory)):
+            if is_converged('{}/pbe_bands'.format(directory)):
                 finished.append(directory)
 
         if len(finished) == len(directories):
             print '>> Plotting band structures'
             for directory in finished:
-                os.chdir('{}/bandstructure'.format(directory))
+                os.chdir('{}/pbe_bands'.format(directory))
                 plot_normal_band_structure()
                 os.chdir('../../')
             loop = False

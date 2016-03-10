@@ -10,14 +10,14 @@ from pymatgen.core.structure import Structure
 HSE_INCAR_DICT = {}
 
 
-def remove_z_kpoints():
+def remove_z_kpoints(filename='KPOINTS'):
     """
     Strips all paths from a linemode KPOINTS that include a z-component,
     since these are not relevant for 2D materials.
     """
 
-    kpoint_lines = open('KPOINTS').readlines()
-    with open('KPOINTS', 'w') as kpts:
+    kpoint_lines = open(filename).readlines()
+    with open(filename, 'w') as kpts:
         for line in kpoint_lines[:4]:
             kpts.write(line)
         i = 4
@@ -56,7 +56,7 @@ def run_linemode_calculation(submit=True):
         Incar.from_dict(incar_dict).write_file('INCAR')
         structure = Structure.from_file('POSCAR')
         kpath = HighSymmKpath(structure)
-        Kpoints.automatic_linemode(40, kpath).write_file('KPOINTS')
+        Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
         remove_z_kpoints()
         write_runjob('{}_pbebands'.format(
             directory), 1, 16, '600mb', '6:00:00', 'vasp')
@@ -96,25 +96,41 @@ def run_hse_calculation(submit=True):
 
     # Re-use the irreducible brillouin zone KPOINTS from a
     # previous GGA run.
-    os.system('cp ../IBZKPT ./KPOINTS')
-    kpoints_lines = open('KPOINTS').readlines()
-    n_ibz_kpts = int(kpoints_lines[1].split()[0])
+    ibz_lines = open('../IBZKPT').readlines()
+    n_ibz_kpts = int(ibz_lines[1].split()[0])
     kpath = HighSymmKpath(Structure.from_file('POSCAR'))
+    Kpoints.automatic_linemode(20, kpath).write_file('linemode_KPOINTS')
+    remove_z_kpoints(filename='linemode_KPOINTS')
+    linemode_lines = open('linemode_KPOINTS').readlines()
 
-    # Only use Kpoints without a z-component. If this command fails with
-    # A ZeroDivision error, it's because two kpoints are identical in
-    # the HighSymmKpath object. To circumvent this, add `if distance:`
-    # to pymatgen/symmetry/bandstructure.py between lines 184 and 185.
-    twod_kpts = [kpt for kpt in kpath.get_kpoints(
-        line_density=40, coords_are_cartesian=False)[0] if not kpt[2]]
+    abs_path = []
+    i = 4
+    while i < len(linemode_lines):
+        start_kpt = [float(coord) for coord in linemode_lines[i].split()[:3]]
+        end_kpt = [float(coord) for coord in linemode_lines[i+1].split()[:3]]
+        increments = [
+            (end_kpt[0] - start_kpt[0]) / 20,
+            (end_kpt[1] - start_kpt[1]) / 20,
+            (end_kpt[2] - start_kpt[2]) / 20
+        ]
+        for n in range(21):
+            abs_path.append(
+                [str(start_kpt[0] + increments[0] * n),
+                 str(start_kpt[1] + increments[1] * n),
+                 str(start_kpt[2] + increments[2] * n)]
+                )
+        i += 3
+
+    n_linemode_kpts = len(abs_path)
 
     with open('KPOINTS', 'w') as kpts:
-        kpts.write(kpoints_lines[0])
-        kpts.write('{}\n'.format(n_ibz_kpts + len(twod_kpts)))
-        for line in kpoints_lines[2:]:
+        kpts.write('Automatically generated mesh\n')
+        kpts.write('{}\n'.format(n_ibz_kpts + n_linemode_kpts))
+        kpts.write('Reciprocal Lattice\n')
+        for line in ibz_lines[3:]:
             kpts.write(line)
-        for kpoint in twod_kpts:
-            kpts.write('{} 0\n'.format(' '.join([str(c) for c in kpoint])))
+        for point in abs_path:
+            kpts.write('{} 0\n'.format(' '.join(point)))
 
     if submit:
         os.system('qsub runjob')

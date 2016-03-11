@@ -87,35 +87,39 @@ def plot_gamma_surface():
                     )
 
             # Label the energy if it's a saddle point or local maximum.
-            if (
-                (ENERGY_ARRAY[x-1][y] > ENERGY_ARRAY[x][y] <
-                 ENERGY_ARRAY[x+1][y] and ENERGY_ARRAY[x][y-1] <
-                 ENERGY_ARRAY[x][y] > ENERGY_ARRAY[x][y+1])
-                or
-                (ENERGY_ARRAY[x-1][y] < ENERGY_ARRAY[x][y] >
-                 ENERGY_ARRAY[x+1][y] and ENERGY_ARRAY[x][y-1] >
-                 ENERGY_ARRAY[x][y] < ENERGY_ARRAY[x][y+1])
-                or
-                (ENERGY_ARRAY[x-1][y-1] > ENERGY_ARRAY[x][y] <
-                 ENERGY_ARRAY[x+1][y+1] and ENERGY_ARRAY[x+1][y-1] <
-                 ENERGY_ARRAY[x][y] > ENERGY_ARRAY[x-1][y+1])
-                or
-                (ENERGY_ARRAY[x-1][y] < ENERGY_ARRAY[x][y] >
-                 ENERGY_ARRAY[x+1][y] and ENERGY_ARRAY[x][y-1] >
-                 ENERGY_ARRAY[x][y] < ENERGY_ARRAY[x][y+1])
-                or
-                (ENERGY_ARRAY[x][y] > max([ENERGY_ARRAY[x-1][y-1],
-                                           ENERGY_ARRAY[x+1][y+1],
-                                           ENERGY_ARRAY[x-1][y+1],
-                                           ENERGY_ARRAY[x+1][y-1],
-                                           ENERGY_ARRAY[x-1][y],
-                                           ENERGY_ARRAY[x+1][y],
-                                           ENERGY_ARRAY[x][y-1],
-                                           ENERGY_ARRAY[x][y+1]]))
-                    ):
-                ax.text(x+0.45, y+0.45, round(scaled_energy*1000, 2),
-                        family='serif', size=20, horizontalalignment='center',
-                        verticalalignment='center')
+            try:
+                if (
+                    (ENERGY_ARRAY[x-1][y] > ENERGY_ARRAY[x][y] <
+                     ENERGY_ARRAY[x+1][y] and ENERGY_ARRAY[x][y-1] <
+                     ENERGY_ARRAY[x][y] > ENERGY_ARRAY[x][y+1])
+                    or
+                    (ENERGY_ARRAY[x-1][y] < ENERGY_ARRAY[x][y] >
+                     ENERGY_ARRAY[x+1][y] and ENERGY_ARRAY[x][y-1] >
+                     ENERGY_ARRAY[x][y] < ENERGY_ARRAY[x][y+1])
+                    or
+                    (ENERGY_ARRAY[x-1][y-1] > ENERGY_ARRAY[x][y] <
+                     ENERGY_ARRAY[x+1][y+1] and ENERGY_ARRAY[x+1][y-1] <
+                     ENERGY_ARRAY[x][y] > ENERGY_ARRAY[x-1][y+1])
+                    or
+                    (ENERGY_ARRAY[x-1][y] < ENERGY_ARRAY[x][y] >
+                     ENERGY_ARRAY[x+1][y] and ENERGY_ARRAY[x][y-1] >
+                     ENERGY_ARRAY[x][y] < ENERGY_ARRAY[x][y+1])
+                    or
+                    (ENERGY_ARRAY[x][y] > max([ENERGY_ARRAY[x-1][y-1],
+                                               ENERGY_ARRAY[x+1][y+1],
+                                               ENERGY_ARRAY[x-1][y+1],
+                                               ENERGY_ARRAY[x+1][y-1],
+                                               ENERGY_ARRAY[x-1][y],
+                                               ENERGY_ARRAY[x+1][y],
+                                               ENERGY_ARRAY[x][y-1],
+                                               ENERGY_ARRAY[x][y+1]]))
+                        ):
+                    ax.text(x+0.45, y+0.45, round(scaled_energy*1000, 2),
+                            family='serif', size=20,
+                            horizontalalignment='center',
+                            verticalalignment='center')
+            except IndexError:
+                pass
 
             ax.add_patch(plt.Rectangle((x, y), width=1, height=1,
                                        facecolor=color_code,

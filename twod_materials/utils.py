@@ -316,7 +316,7 @@ def write_slurm_runjob(name, ntasks, pmem, walltime, binary):
     '''
     runjob = open('runjob', 'w')
     runjob.write('#!/bin/bash\n')
-    runjob.write('#SBATCH -N {}\n'.format(name))
+    runjob.write('#SBATCH --job-name={}\n'.format(name))
     runjob.write('#SBATCH -o out_%j.log\n')
     runjob.write('#SBATCH -e err_%j.log\n')
     runjob.write('#SBATCH --qos=hennig-b\n')

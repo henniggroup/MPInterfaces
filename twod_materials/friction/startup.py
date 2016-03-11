@@ -8,6 +8,12 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
 
 
+if '/ufrc/' in os.getcwd():
+    HIPERGATOR = 2
+elif '/scratch/' in os.getcwd():
+    HIPERGATOR = 1
+
+
 def run_friction_calculations(submit=True):
     """
     Setup a 3D grid of static energy calculations to plot the Gamma
@@ -27,71 +33,74 @@ def run_friction_calculations(submit=True):
         os.mkdir('friction')
     os.chdir('friction')
 
-    for spacing in [2.5, 2.75, 3, 3.25, 3.5, 3.75, 4]:
-        if not os.path.isdir(str(spacing)):
-            os.mkdir(str(spacing))
-        os.chdir(str(spacing))
-        os.system('cp ../../CONTCAR POSCAR')
-        utl.add_vacuum(20 - utl.get_spacing(), 0.8)
-        structure = Structure.from_file('POSCAR')
-        n_sites_per_layer = structure.num_sites
+    os.system('cp ../CONTCAR POSCAR')
+    utl.add_vacuum(20 - utl.get_spacing(), 0.8)
+    structure = Structure.from_file('POSCAR')
+    n_sites_per_layer = structure.num_sites
 
-        # Get the thickness of the material.
-        max_height = max([site.coords[2] for site in structure.sites])
-        min_height = min([site.coords[2] for site in structure.sites])
-        thickness = max_height - min_height
+    # Get the thickness of the material.
+    max_height = max([site.coords[2] for site in structure.sites])
+    min_height = min([site.coords[2] for site in structure.sites])
+    thickness = max_height - min_height
 
-        # Make a new layer.
-        new_sites = []
-        for site in structure.sites:
-            new_sites.append((site.specie,
-                              [site.coords[0], site.coords[1],
-                               site.coords[2] + thickness + spacing]))
+    # Make a new layer.
+    new_sites = []
+    for site in structure.sites:
+        new_sites.append((site.specie,
+                          [site.coords[0], site.coords[1],
+                           site.coords[2] + thickness + 3.5]))
 
-        for site in new_sites:
-            structure.append(site[0], site[1], coords_are_cartesian=True)
+    for site in new_sites:
+        structure.append(site[0], site[1], coords_are_cartesian=True)
 
-        structure.to('POSCAR', 'POSCAR')
+    structure.to('POSCAR', 'POSCAR')
 
-        for x in range(n_divs_x):
-            for y in range(n_divs_y):
-                dir = '{}x{}'.format(x, y)
+    for x in range(n_divs_x):
+        for y in range(n_divs_y):
+            dir = '{}x{}'.format(x, y)
 
-                if not os.path.isdir(dir):
-                    os.mkdir(dir)
+            if not os.path.isdir(dir):
+                os.mkdir(dir)
 
-                # Copy input files
-                os.chdir(dir)
-                os.system('cp ../../../INCAR .')
-                os.system('cp ../../../KPOINTS .')
-                os.system('cp ../POSCAR .')
-                os.system('cp ../../../vdw_kernel.bindat .')
+            # Copy input files
+            os.chdir(dir)
+            print os.getcwd()
+            os.system('cp ../../INCAR .')
+            os.system('cp ../../KPOINTS .')
+            os.system('cp ../POSCAR .')
+            os.system('cp ../../vdw_kernel.bindat .')
 
-                utl.write_potcar()
-                incar_dict = Incar.from_file('INCAR').as_dict()
-                incar_dict.update({'NSW': 0, 'LAECHG': False, 'LCHARG': False,
-                                   'LWAVE': False})
-                Incar.from_dict(incar_dict).write_file('INCAR')
+            utl.write_potcar()
+            incar_dict = Incar.from_file('INCAR').as_dict()
+            incar_dict.update({'NSW': 0, 'LAECHG': False, 'LCHARG': False,
+                               'LWAVE': False})
+            Incar.from_dict(incar_dict).write_file('INCAR')
 
-                # Shift the top layer
-                poscar_lines = open('POSCAR').readlines()
-                with open('POSCAR', 'w') as poscar:
-                    for line in poscar_lines[:8 + n_sites_per_layer]:
-                        poscar.write(line)
-                    for line in poscar_lines[8 + n_sites_per_layer:]:
-                        split_line = line.split()
-                        new_coords = [
-                            float(split_line[0]) + float(x)/float(n_divs_x),
-                            float(split_line[1]) + float(y)/float(n_divs_y),
-                            float(split_line[2])]
-                        poscar.write(' '.join([str(i) for i in new_coords])
-                                     + '\n')
+            # Shift the top layer
+            poscar_lines = open('POSCAR').readlines()
+            with open('POSCAR', 'w') as poscar:
+                for line in poscar_lines[:8 + n_sites_per_layer]:
+                    poscar.write(line)
+                for line in poscar_lines[8 + n_sites_per_layer:]:
+                    split_line = line.split()
+                    new_coords = [
+                        float(split_line[0]) + float(x)/float(n_divs_x),
+                        float(split_line[1]) + float(y)/float(n_divs_y),
+                        float(split_line[2])]
+                    poscar.write(' '.join([str(i) for i in new_coords])
+                                 + '\n')
 
-                utl.write_runjob(dir, 1, 8, '400mb', '1:00:00', 'vasp')
+            if HIPERGATOR == 1:
+                utl.write_pbs_runjob(dir, 1, 4, '400mb', '1:00:00', 'vasp')
+                submission_command = 'qsub runjob'
 
-                if submit:
-                    os.system('qsub runjob')
+            elif HIPERGATOR == 2:
+                utl.write_slurm_runjob(dir, 4, '400mb', '1:00:00', 'vasp')
+                submission_command = 'sbatch runjob'
 
-                os.chdir('../')
-        os.chdir('../')
+            if submit:
+                os.system(submission_command)
+
+            os.chdir('../')
+
     os.chdir('../')

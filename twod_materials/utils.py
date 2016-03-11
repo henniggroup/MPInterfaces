@@ -286,10 +286,11 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
     outfile.close()
 
 
-def write_runjob(name, nnodes, nprocessors, pmem, walltime, binary):
+def write_pbs_runjob(name, nnodes, nprocessors, pmem, walltime, binary):
     '''
     writes a runjob based on a name, nnodes, nprocessors, walltime, and
-    binary. Designed for runjobs on the Hennig group_list on HiperGator.
+    binary. Designed for runjobs on the Hennig group_list on HiperGator
+    1 (PBS).
     '''
     runjob = open('runjob', 'w')
     runjob.write('#!/bin/sh\n')
@@ -302,6 +303,30 @@ def write_runjob(name, nnodes, nprocessors, pmem, walltime, binary):
     runjob.write('#PBS -l pmem={}\n'.format(pmem))
     runjob.write('#PBS -W group_list=hennig\n\n')
     runjob.write('cd $PBS_O_WORKDIR\n\n')
+    runjob.write('mpirun ~/bin/{} > job.log\n\n'.format(binary))
+    runjob.write('echo \'Done.\'\n')
+    runjob.close()
+
+
+def write_slurm_runjob(name, ntasks, pmem, walltime, binary):
+    '''
+    writes a runjob based on a name, nnodes, nprocessors, walltime, and
+    binary. Designed for runjobs on the Hennig group_list on HiperGator
+    1 (PBS).
+    '''
+    runjob = open('runjob', 'w')
+    runjob.write('#!/bin/bash\n')
+    runjob.write('#SBATCH -N {}\n'.format(name))
+    runjob.write('#SBATCH -o out_%j.log\n')
+    runjob.write('#SBATCH -e err_%j.log\n')
+    runjob.write('#SBATCH --qos=hennig-b\n')
+    runjob.write('#SBATCH -t {}\n'.format(walltime))
+    runjob.write('#SBATCH --ntasks={}\n'.format(ntasks))
+    runjob.write('#SBATCH --mem-per-cpu={}\n\n'.format(pmem))
+    runjob.write('cd $SLURM_O_WORKDIR\n\n')
+    runjob.write('module load intel/2016.0.109\n')
+    runjob.write('module load openmpi/1.10.1\n')
+    runjob.write('module load vasp/5.4.1\n\n')
     runjob.write('mpirun ~/bin/{} > job.log\n\n'.format(binary))
     runjob.write('echo \'Done.\'\n')
     runjob.close()

@@ -1,6 +1,8 @@
 import os
 
-from twod_materials.utils import is_converged, write_runjob
+from twod_materials.utils import (
+    is_converged, write_pbs_runjob,
+    write_slurm_runjob)
 
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -8,6 +10,11 @@ from pymatgen.core.structure import Structure
 
 
 HSE_INCAR_DICT = {}
+
+if '/ufrc/' in os.getcwd():
+    HIPERGATOR = 2
+elif '/scratch/' in os.getcwd():
+    HIPERGATOR = 1
 
 
 def remove_z_kpoints(filename='KPOINTS'):
@@ -58,11 +65,16 @@ def run_linemode_calculation(submit=True):
         kpath = HighSymmKpath(structure)
         Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
         remove_z_kpoints()
-        write_runjob('{}_pbebands'.format(
-            directory), 1, 16, '600mb', '6:00:00', 'vasp')
+        if HIPERGATOR == 1:
+            write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00', 'vasp')
+            submission_command = 'qsub runjob'
+
+        elif HIPERGATOR == 2:
+            write_slurm_runjob(directory, 16, '800mb', '6:00:00', 'vasp')
+            submission_command = 'sbatch runjob'
 
         if submit:
-            os.system('qsub runjob')
+            os.system(submission_command)
 
         os.chdir('../')
 
@@ -91,8 +103,6 @@ def run_hse_calculation(submit=True):
     incar_dict = Incar.from_file('INCAR').as_dict()
     incar_dict.update(HSE_INCAR_DICT)
     Incar.from_dict(incar_dict).write_file('INCAR')
-    write_runjob('{}_hsebands'.format(
-        os.getcwd().split('/')[-2]), 1, 30, '1800mb', '240:00:00', 'vasp')
 
     # Re-use the irreducible brillouin zone KPOINTS from a
     # previous GGA run.
@@ -132,7 +142,17 @@ def run_hse_calculation(submit=True):
         for point in abs_path:
             kpts.write('{} 0\n'.format(' '.join(point)))
 
+    if HIPERGATOR == 1:
+        write_pbs_runjob('{}_hsebands'.format(
+            os.getcwd().split('/')[-2]), 1, 30, '1800mb', '100:00:00', 'vasp')
+        submission_command = 'qsub runjob'
+
+    elif HIPERGATOR == 2:
+        write_slurm_runjob('{}_hsebands'.format(
+            os.getcwd().split('/')[-2]), 30, '1800mb', '1:00:00', 'vasp')
+        submission_command = 'sbatch runjob'
+
     if submit:
-        os.system('qsub runjob')
+        os.system(submission_command)
 
     os.chdir('../')

@@ -23,6 +23,11 @@ INCAR_DICT = {
     }
 KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
 
+if '/ufrc/' in os.getcwd():
+    HIPERGATOR = 2
+elif '/scratch/' in os.getcwd():
+    HIPERGATOR = 1
+
 try:
     MPR = MPRester(
         loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
@@ -65,10 +70,18 @@ def relax(submit=True):
         # POTCAR
         utl.write_potcar()
         # Submission script
-        utl.write_runjob(directory, 1, 8, '600mb', '6:00:00', 'vasp_noz')
+        if HIPERGATOR == 1:
+            utl.write_pbs_runjob(directory, 1, 8, '600mb', '6:00:00',
+                                 'vasp_noz')
+            submission_command = 'qsub runjob'
+
+        elif HIPERGATOR == 2:
+            utl.write_slurm_runjob(directory, 8, '600mb', '6:00:00',
+                                   'vasp_noz')
+            submission_command = 'sbatch runjob'
 
         if submit:
-            os.system('qsub runjob')
+            os.system(submission_command)
 
 
 def relax_competing_species(competing_species, submit=True):
@@ -94,10 +107,19 @@ def relax_competing_species(competing_species, submit=True):
             Kpoints.automatic_density(structure, 1000).write_file('KPOINTS')
             Incar.from_dict(INCAR_DICT).write_file('INCAR')
             utl.write_potcar()
-            utl.write_runjob('{}_3d'.format(
-                specie[0]), 1, 8, '600mb', '6:00:00', 'vasp')
+            if HIPERGATOR == 1:
+                utl.write_pbs_runjob('{}_3d'.format(specie[0]), 1, 8, '600mb',
+                                     '6:00:00', 'vasp')
+                submission_command = 'qsub runjob'
+
+            elif HIPERGATOR == 2:
+                utl.write_slurm_runjob('{}_3d'.format(specie[0]), 8, '600mb',
+                                       '6:00:00', 'vasp')
+                submission_command = 'sbatch runjob'
+
             if submit:
-                os.system('qsub runjob')
+                os.system(submission_command)
+
             os.chdir('../')
     os.chdir('../')
 
@@ -120,8 +142,15 @@ def relax_3d(submit=True):
         # POTCAR
         utl.write_potcar()
         # Submission script
-        utl.write_runjob(
-            '{}_3d'.format(directory), 1, 8, '600mb', '6:00:00', 'vasp')
+        if HIPERGATOR == 1:
+            utl.write_pbs_runjob('{}_3d'.format(directory), 1, 8, '600mb',
+                                 '6:00:00', 'vasp')
+            submission_command = 'qsub runjob'
+
+        elif HIPERGATOR == 2:
+            utl.write_slurm_runjob('{}_3d'.format(directory), 8, '600mb',
+                                   '6:00:00', 'vasp')
+            submission_command = 'sbatch runjob'
 
         if submit:
-            os.system('qsub runjob')
+            os.system(submission_command)

@@ -23,6 +23,11 @@ except IOError:
                          ' that your ~/config.yaml contains the field'
                          ' mp_api: your_api_key')
 
+if '/ufrc/' in os.getcwd():
+    HIPERGATOR = 2
+elif '/scratch/' in os.getcwd():
+    HIPERGATOR = 1
+
 
 class Calibrator():
 
@@ -95,10 +100,21 @@ class Calibrator():
             utl.write_potcar([self._potcar_dict[el] for el in elements])
 
             # Runjob
-            utl.write_runjob('{}_cal'.format(elt), self._ncores, self._nprocs,
-                            self._pmem, self._walltime, self._binary)
+
+            if HIPERGATOR == 1:
+                utl.write_pbs_runjob('{}_cal'.format(elt), self._ncores,
+                                     self._nprocs, self._pmem, self._walltime,
+                                     self._binary)
+                submission_command = 'qsub runjob'
+
+            elif HIPERGATOR == 2:
+                utl.write_slurm_runjob('{}_cal'.format(elt), self._nprocs,
+                                       self._pmem, self._walltime,
+                                       self._binary)
+                submission_command = 'sbatch runjob'
+
             if submit:
-                os.system('qsub runjob')
+                os.system(submission_command)
 
             # Set up reference oxide compound subdirectory.
             if elt not in ['O', 'S', 'F', 'Cl', 'Br', 'I']:
@@ -126,11 +142,20 @@ class Calibrator():
                 utl.write_potcar([self._potcar_dict[el] for el in elements])
 
                 # Runjob
-                utl.write_runjob('{}_cal'.format(elt), self._ncores,
-                                self._nprocs, self._pmem, self._walltime,
-                                self._binary)
+                if HIPERGATOR == 1:
+                    utl.write_pbs_runjob('{}_cal'.format(elt), self._ncores,
+                                         self._nprocs, self._pmem,
+                                         self._walltime, self._binary)
+                    submission_command = 'qsub runjob'
+
+                elif HIPERGATOR == 2:
+                    utl.write_slurm_runjob('{}_cal'.format(elt), self._nprocs,
+                                           self._pmem, self._walltime,
+                                           self._binary)
+                    submission_command = 'sbatch runjob'
+
                 if submit:
-                    os.system('qsub runjob')
+                    os.system(submission_command)
 
                 os.chdir('../')
             os.chdir('../')

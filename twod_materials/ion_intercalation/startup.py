@@ -14,6 +14,11 @@ try:
 except ImportError:
     zeo_found = False
 
+if '/ufrc/' in os.getcwd():
+    HIPERGATOR = 2
+elif '/scratch/' in os.getcwd():
+    HIPERGATOR = 1
+
 
 @requires(zeo_found, 'get_voronoi_nodes requires Zeo++ cython extension to be '
           'installed. Please contact developers of Zeo++ to obtain it.')

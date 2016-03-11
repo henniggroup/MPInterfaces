@@ -7,13 +7,17 @@ import twod_materials.utils as utl
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
 
+import twod_materials
+
+
+PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
+PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
+KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
 
 if '/ufrc/' in os.getcwd():
     HIPERGATOR = 2
 elif '/scratch/' in os.getcwd():
     HIPERGATOR = 1
-
-KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
 
 
 def run_friction_calculations(submit=True):

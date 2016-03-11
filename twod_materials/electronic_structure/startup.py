@@ -114,19 +114,22 @@ def run_hse_calculation(submit=True):
     abs_path = []
     i = 4
     while i < len(linemode_lines):
-        start_kpt = [float(coord) for coord in linemode_lines[i].split()[:3]]
-        end_kpt = [float(coord) for coord in linemode_lines[i+1].split()[:3]]
+        start_kpt = linemode_lines[i].split()
+        end_kpt = linemode_lines[i+1].split()
         increments = [
-            (end_kpt[0] - start_kpt[0]) / 20,
-            (end_kpt[1] - start_kpt[1]) / 20,
-            (end_kpt[2] - start_kpt[2]) / 20
+            (float(end_kpt[0]) - float(start_kpt[0])) / 20,
+            (float(end_kpt[1]) - float(start_kpt[1])) / 20,
+            (float(end_kpt[2]) - float(start_kpt[2])) / 20
         ]
-        for n in range(21):
+
+        abs_path.append(start_kpt[:3] + ['0', start_kpt[4]])
+        for n in range(1, 20):
             abs_path.append(
-                [str(start_kpt[0] + increments[0] * n),
-                 str(start_kpt[1] + increments[1] * n),
-                 str(start_kpt[2] + increments[2] * n)]
+                [str(float(start_kpt[0]) + increments[0] * n),
+                 str(float(start_kpt[1]) + increments[1] * n),
+                 str(float(start_kpt[2]) + increments[2] * n), '0']
                 )
+        abs_path.append(end_kpt[:3] + ['0', end_kpt[4]])
         i += 3
 
     n_linemode_kpts = len(abs_path)
@@ -138,7 +141,7 @@ def run_hse_calculation(submit=True):
         for line in ibz_lines[3:]:
             kpts.write(line)
         for point in abs_path:
-            kpts.write('{} 0\n'.format(' '.join(point)))
+            kpts.write('{}\n'.format(' '.join(point)))
 
     if HIPERGATOR == 1:
         write_pbs_runjob('{}_hsebands'.format(
@@ -152,5 +155,7 @@ def run_hse_calculation(submit=True):
 
     if submit:
         os.system(submission_command)
+
+    os.system('rm linemode_KPOINTS')
 
     os.chdir('../')

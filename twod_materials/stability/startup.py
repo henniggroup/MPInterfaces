@@ -71,12 +71,12 @@ def relax(submit=True):
         utl.write_potcar()
         # Submission script
         if HIPERGATOR == 1:
-            utl.write_pbs_runjob(directory, 1, 8, '600mb', '6:00:00',
+            utl.write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00',
                                  'vasp_noz')
             submission_command = 'qsub runjob'
 
         elif HIPERGATOR == 2:
-            utl.write_slurm_runjob(directory, 8, '600mb', '6:00:00',
+            utl.write_slurm_runjob(directory, 16, '800mb', '6:00:00',
                                    'vasp_noz')
             submission_command = 'sbatch runjob'
 

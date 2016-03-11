@@ -37,6 +37,8 @@ def plot_gamma_surface():
     X_VALUES = range(n_divs_x)
     Y_VALUES = range(n_divs_y)
 
+    os.chdir('friction')
+
     not_converged = []
     for x in X_VALUES:
         ENERGY_ARRAY.append([])
@@ -51,6 +53,8 @@ def plot_gamma_surface():
                 ENERGY_ARRAY[x].append(0)
             os.chdir('../')
         ENERGY_ARRAY[x].append(ENERGY_ARRAY[x][0])
+
+    os.chdir('../')
 
     ENERGY_ARRAY.append([])
     ENERGY_ARRAY[n_divs_x] = ENERGY_ARRAY[0]
@@ -69,7 +73,6 @@ def plot_gamma_surface():
 
     abs_minimum = min(minima)
     abs_maximum = max(maxima)
-    print abs_maximum
 
     for x in range(n_divs_x):
         for y in range(n_divs_y):

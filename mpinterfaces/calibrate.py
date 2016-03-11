@@ -736,12 +736,10 @@ class CalibrateSlab(Calibrate):
         z_upper_bound = None
         if bottom:
             z_lower_bound = np.unique(z_coords)[n_layers - 1]
-            sd_flags[[i for i, coords in enumerate(slab.frac_coords)
-                      if coords[2] <= z_lower_bound]] = np.ones((1, 3))
+            sd_flags[np.where(z_coords <= z_lower_bound)] = np.ones((1, 3))
         if top:
             z_upper_bound = np.unique(z_coords)[-n_layers]
-            sd_flags[[i for i, coords in enumerate(slab.frac_coords)
-                      if coords[2] >= z_upper_bound]] = np.ones((1, 3))
+            sd_flags[np.where(z_coords >= z_upper_bound)] = np.ones((1, 3))
         return sd_flags.tolist()
 
     def set_reconstructed_surface(self, sites_to_add):

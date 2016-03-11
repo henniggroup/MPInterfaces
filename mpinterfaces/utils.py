@@ -539,3 +539,33 @@ def get_logger(log_file_name):
     fh.setFormatter(formatter)
     loggr.addHandler(fh)
     return loggr
+
+
+def set_sd_flags(poscar_input=None, n_layers=2, top=True, bottom=True, 
+                 poscar_output='POSCAR2'):
+    """
+    set the relaxation flags for top and bottom layers of interface.        
+    The upper and lower bounds of the z coordinate are determined
+    based on the slab. 
+    Args:
+         poscar_input: input poscar file name
+         n_layers: number of layers to be relaxed
+         top: whether n_layers from top are be relaxed
+         bottom: whether n_layers from bottom are be relaxed
+         poscar_output: output poscar file name
+    Returns:
+         None
+         writes the modified poscar file
+    """
+    poscar1 = Poscar.from_file(poscar_input)
+    sd_flags = np.zeros_like(poscar1.structure.frac_coords)
+    z_coords = poscar1.structure.frac_coords[:, 2]
+    z_lower_bound, z_upper_bound = None, None
+    if bottom:
+        z_lower_bound = np.unique(z_coords)[n_layers - 1]
+        sd_flags[np.where(z_coords <= z_lower_bound)] = np.ones((1, 3))
+    if top:
+        z_upper_bound = np.unique(z_coords)[-n_layers]
+        sd_flags[np.where(z_coords >= z_upper_bound)] = np.ones((1, 3))
+    poscar2 = Poscar(poscar1.structure, selective_dynamics=sd_flags.tolist())
+    poscar2.write_file(filename=poscar_output)

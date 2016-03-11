@@ -74,8 +74,8 @@ def plot_gamma_surface():
     abs_minimum = min(minima)
     abs_maximum = max(maxima)
 
-    for x in range(n_divs_x):
-        for y in range(n_divs_y):
+    for x in range(n_divs_x + 1):
+        for y in range(n_divs_y + 1):
 
             # Plot all energies relative to the global minimum.
             scaled_energy = ENERGY_ARRAY[x][y] - abs_minimum

@@ -9,8 +9,6 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.core.structure import Structure
 
 
-HSE_INCAR_DICT = {}
-
 if '/ufrc/' in os.getcwd():
     HIPERGATOR = 2
 elif '/scratch/' in os.getcwd():
@@ -90,7 +88,7 @@ def run_hse_calculation(submit=True):
     HSE_INCAR_DICT = {'LHFCALC': True, 'HFSCREEN': 0.2, 'AEXX': 0.25,
                       'ALGO': 'D', 'TIME': 0.4, 'LDIAG': True, 'NSW': 0,
                       'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
-                      'LWAVE': True, 'NPAR': 5}
+                      'LWAVE': True, 'NPAR': 8}
 
     if not os.path.isdir('hse_bands'):
         os.mkdir('hse_bands')
@@ -144,12 +142,12 @@ def run_hse_calculation(submit=True):
 
     if HIPERGATOR == 1:
         write_pbs_runjob('{}_hsebands'.format(
-            os.getcwd().split('/')[-2]), 1, 30, '1800mb', '100:00:00', 'vasp')
+            os.getcwd().split('/')[-2]), 2, 64, '1800mb', '100:00:00', 'vasp')
         submission_command = 'qsub runjob'
 
     elif HIPERGATOR == 2:
         write_slurm_runjob('{}_hsebands'.format(
-            os.getcwd().split('/')[-2]), 30, '1800mb', '100:00:00', 'vasp')
+            os.getcwd().split('/')[-2]), 64, '1800mb', '100:00:00', 'vasp')
         submission_command = 'sbatch runjob'
 
     if submit:

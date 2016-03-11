@@ -78,7 +78,7 @@ def run_friction_calculations(submit=True):
             utl.write_potcar()
             incar_dict = Incar.from_file('INCAR').as_dict()
             incar_dict.update({'NSW': 0, 'LAECHG': False, 'LCHARG': False,
-                               'LWAVE': False})
+                               'LWAVE': False, 'NPAR': ''})
             Incar.from_dict(incar_dict).write_file('INCAR')
 
             # Shift the top layer

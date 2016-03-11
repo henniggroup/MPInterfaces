@@ -13,6 +13,8 @@ if '/ufrc/' in os.getcwd():
 elif '/scratch/' in os.getcwd():
     HIPERGATOR = 1
 
+KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
+
 
 def run_friction_calculations(submit=True):
     """
@@ -64,11 +66,10 @@ def run_friction_calculations(submit=True):
 
             # Copy input files
             os.chdir(dir)
-            print os.getcwd()
             os.system('cp ../../INCAR .')
             os.system('cp ../../KPOINTS .')
             os.system('cp ../POSCAR .')
-            os.system('cp ../../vdw_kernel.bindat .')
+            os.system('cp {} .'.format(KERNEL_PATH))
 
             utl.write_potcar()
             incar_dict = Incar.from_file('INCAR').as_dict()

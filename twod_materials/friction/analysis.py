@@ -29,8 +29,8 @@ def plot_gamma_surface():
     n_divs_x = int(math.ceil(lattice.a * 2.5))
     n_divs_y = int(math.ceil(lattice.b * 2.5))
 
-    ax.set_xlim(0, n_divs_x)
-    ax.set_ylim(0, n_divs_y)
+    ax.set_xlim(0, n_divs_x + 1)
+    ax.set_ylim(0, n_divs_y + 1)
 
     ENERGY_ARRAY = []
 

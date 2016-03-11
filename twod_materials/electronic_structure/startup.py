@@ -149,7 +149,7 @@ def run_hse_calculation(submit=True):
 
     elif HIPERGATOR == 2:
         write_slurm_runjob('{}_hsebands'.format(
-            os.getcwd().split('/')[-2]), 30, '1800mb', '1:00:00', 'vasp')
+            os.getcwd().split('/')[-2]), 30, '1800mb', '100:00:00', 'vasp')
         submission_command = 'sbatch runjob'
 
     if submit:

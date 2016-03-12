@@ -54,8 +54,6 @@ def plot_gamma_surface():
             os.chdir('../')
         ENERGY_ARRAY[x].append(ENERGY_ARRAY[x][0])
 
-    os.chdir('../')
-
     ENERGY_ARRAY.append([])
     ENERGY_ARRAY[n_divs_x] = ENERGY_ARRAY[0]
 
@@ -129,3 +127,4 @@ def plot_gamma_surface():
     ax.axes.get_xaxis().set_ticks([])
 
     plt.savefig('gamma_surface.pdf', transparent=True)
+    os.chdir('../')

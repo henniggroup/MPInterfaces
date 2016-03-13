@@ -101,7 +101,7 @@ def plot_band_alignments(directories, run_type='PBE'):
         # Add a box around direct gap compounds to distinguish them.
         if band_gaps[compound]['Direct']:
             are_directs = True
-            linewidth = 3
+            linewidth = 5
         elif not band_gaps[compound]['Metal']:
             are_indirects = True
             linewidth = 0

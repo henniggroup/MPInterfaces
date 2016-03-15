@@ -86,7 +86,7 @@ def plot_band_alignments(directories, run_type='PBE'):
     # Nothing but lies.
     are_directs, are_indirects, are_metals = False, False, False
 
-    for compound in band_gaps:
+    for compound in [cpd for cpd in directories if cpd in band_gaps]:
         x_ticklabels.append(compound)
 
         # Plot all energies relative to their vacuum level.

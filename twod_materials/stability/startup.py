@@ -44,13 +44,13 @@ except IOError:
                          ' mp_api: your_api_key')
 
 
-def relax(submit=True):
+def relax(submit=True, force_overwrite=False):
     """
     Should be run before pretty much anything else, in order to get the
     right energy of the 2D material.
     """
 
-    if not utl.is_converged(os.getcwd()):
+    if force_overwrite or not utl.is_converged(os.getcwd()):
         directory = os.getcwd().split('/')[-1]
         # Ensure 20A interlayer vacuum
         utl.add_vacuum(20 - utl.get_spacing(), 0.9)
@@ -84,7 +84,8 @@ def relax(submit=True):
             os.system(submission_command)
 
 
-def relax_competing_species(competing_species, submit=True):
+def relax_competing_species(competing_species, submit=True,
+                            force_overwrite=False):
     """
     After obtaining the competing species, relax them with the same
     input parameters as the 2D materials in order to ensure
@@ -99,7 +100,7 @@ def relax_competing_species(competing_species, submit=True):
         if not os.path.isdir(specie[0]):
             os.mkdir(specie[0])
         directory = os.path.join(os.getcwd(), specie[0])
-        if not utl.is_converged(directory):
+        if force_overwrite or not utl.is_converged(directory):
             os.chdir(specie[0])
             os.system('cp {} .'.format(KERNEL_PATH))
             structure = MPR.get_structure_by_material_id(specie[1])
@@ -124,12 +125,12 @@ def relax_competing_species(competing_species, submit=True):
     os.chdir('../')
 
 
-def relax_3d(submit=True):
+def relax_3d(submit=True, force_overwrite=False):
     """
     Standard relaxation for a single directory of a bulk material.
     """
 
-    if not utl.is_converged(os.getcwd()):
+    if force_overwrite or not utl.is_converged(os.getcwd()):
         directory = os.getcwd().split('/')[-1]
 
         # vdw_kernel.bindat file required for VDW calculations.

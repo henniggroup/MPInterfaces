@@ -37,7 +37,7 @@ def remove_z_kpoints(filename='KPOINTS'):
             i += 3
 
 
-def run_linemode_calculation(submit=True):
+def run_linemode_calculation(submit=True, force_overwrite=False):
     """
     Setup and submit a normal PBE calculation for band structure along
     high symmetry k-paths.
@@ -50,7 +50,7 @@ def run_linemode_calculation(submit=True):
 
     if not os.path.isdir('pbe_bands'):
         os.mkdir('pbe_bands')
-    if not is_converged('pbe_bands'):
+    if force_overwrite or not is_converged('pbe_bands'):
         os.chdir('pbe_bands')
         os.system('cp ../CONTCAR ./POSCAR')
         os.system('cp ../POTCAR ./')
@@ -77,7 +77,7 @@ def run_linemode_calculation(submit=True):
         os.chdir('../')
 
 
-def run_hse_calculation(submit=True):
+def run_hse_calculation(submit=True, force_overwrite=False):
     """
     Setup/submit an HSE06 calculation to get an accurate band structure.
     Requires a previous WAVECAR and IBZKPT from a PBE run. See
@@ -92,70 +92,71 @@ def run_hse_calculation(submit=True):
 
     if not os.path.isdir('hse_bands'):
         os.mkdir('hse_bands')
-    os.chdir('hse_bands')
-    os.system('cp ../CONTCAR ./POSCAR')
-    os.system('cp ../POTCAR ./POTCAR')
-    os.system('cp ../vdw_kernel.bindat ./')
-    os.system('cp ../INCAR ./')
-    os.system('cp ../WAVECAR ./')
-    incar_dict = Incar.from_file('INCAR').as_dict()
-    incar_dict.update(HSE_INCAR_DICT)
-    Incar.from_dict(incar_dict).write_file('INCAR')
+    if force_overwrite or not is_converged('hse_bands'):
+        os.chdir('hse_bands')
+        os.system('cp ../CONTCAR ./POSCAR')
+        os.system('cp ../POTCAR ./POTCAR')
+        os.system('cp ../vdw_kernel.bindat ./')
+        os.system('cp ../INCAR ./')
+        os.system('cp ../WAVECAR ./')
+        incar_dict = Incar.from_file('INCAR').as_dict()
+        incar_dict.update(HSE_INCAR_DICT)
+        Incar.from_dict(incar_dict).write_file('INCAR')
 
-    # Re-use the irreducible brillouin zone KPOINTS from a
-    # previous GGA run.
-    ibz_lines = open('../IBZKPT').readlines()
-    n_ibz_kpts = int(ibz_lines[1].split()[0])
-    kpath = HighSymmKpath(Structure.from_file('POSCAR'))
-    Kpoints.automatic_linemode(20, kpath).write_file('linemode_KPOINTS')
-    remove_z_kpoints(filename='linemode_KPOINTS')
-    linemode_lines = open('linemode_KPOINTS').readlines()
+        # Re-use the irreducible brillouin zone KPOINTS from a
+        # previous GGA run.
+        ibz_lines = open('../IBZKPT').readlines()
+        n_ibz_kpts = int(ibz_lines[1].split()[0])
+        kpath = HighSymmKpath(Structure.from_file('POSCAR'))
+        Kpoints.automatic_linemode(20, kpath).write_file('linemode_KPOINTS')
+        remove_z_kpoints(filename='linemode_KPOINTS')
+        linemode_lines = open('linemode_KPOINTS').readlines()
 
-    abs_path = []
-    i = 4
-    while i < len(linemode_lines):
-        start_kpt = linemode_lines[i].split()
-        end_kpt = linemode_lines[i+1].split()
-        increments = [
-            (float(end_kpt[0]) - float(start_kpt[0])) / 20,
-            (float(end_kpt[1]) - float(start_kpt[1])) / 20,
-            (float(end_kpt[2]) - float(start_kpt[2])) / 20
-        ]
+        abs_path = []
+        i = 4
+        while i < len(linemode_lines):
+            start_kpt = linemode_lines[i].split()
+            end_kpt = linemode_lines[i+1].split()
+            increments = [
+                (float(end_kpt[0]) - float(start_kpt[0])) / 20,
+                (float(end_kpt[1]) - float(start_kpt[1])) / 20,
+                (float(end_kpt[2]) - float(start_kpt[2])) / 20
+            ]
 
-        abs_path.append(start_kpt[:3] + ['0', start_kpt[4]])
-        for n in range(1, 20):
-            abs_path.append(
-                [str(float(start_kpt[0]) + increments[0] * n),
-                 str(float(start_kpt[1]) + increments[1] * n),
-                 str(float(start_kpt[2]) + increments[2] * n), '0']
-                )
-        abs_path.append(end_kpt[:3] + ['0', end_kpt[4]])
-        i += 3
+            abs_path.append(start_kpt[:3] + ['0', start_kpt[4]])
+            for n in range(1, 20):
+                abs_path.append(
+                    [str(float(start_kpt[0]) + increments[0] * n),
+                     str(float(start_kpt[1]) + increments[1] * n),
+                     str(float(start_kpt[2]) + increments[2] * n), '0']
+                    )
+            abs_path.append(end_kpt[:3] + ['0', end_kpt[4]])
+            i += 3
 
-    n_linemode_kpts = len(abs_path)
+        n_linemode_kpts = len(abs_path)
 
-    with open('KPOINTS', 'w') as kpts:
-        kpts.write('Automatically generated mesh\n')
-        kpts.write('{}\n'.format(n_ibz_kpts + n_linemode_kpts))
-        kpts.write('Reciprocal Lattice\n')
-        for line in ibz_lines[3:]:
-            kpts.write(line)
-        for point in abs_path:
-            kpts.write('{}\n'.format(' '.join(point)))
+        with open('KPOINTS', 'w') as kpts:
+            kpts.write('Automatically generated mesh\n')
+            kpts.write('{}\n'.format(n_ibz_kpts + n_linemode_kpts))
+            kpts.write('Reciprocal Lattice\n')
+            for line in ibz_lines[3:]:
+                kpts.write(line)
+            for point in abs_path:
+                kpts.write('{}\n'.format(' '.join(point)))
 
-    if HIPERGATOR == 1:
-        write_pbs_runjob('{}_hsebands'.format(
-            os.getcwd().split('/')[-2]), 2, 64, '1800mb', '50:00:00', 'vasp')
-        submission_command = 'qsub runjob'
+        if HIPERGATOR == 1:
+            write_pbs_runjob('{}_hsebands'.format(
+                os.getcwd().split('/')[-2]), 2, 64, '1800mb', '50:00:00', 'vasp')
+            submission_command = 'qsub runjob'
 
-    elif HIPERGATOR == 2:
-        write_slurm_runjob('{}_hsebands'.format(
-            os.getcwd().split('/')[-2]), 64, '1800mb', '50:00:00', 'vasp')
-        submission_command = 'sbatch runjob'
+        elif HIPERGATOR == 2:
+            write_slurm_runjob('{}_hsebands'.format(
+                os.getcwd().split('/')[-2]), 64, '1800mb', '50:00:00', 'vasp')
+            submission_command = 'sbatch runjob'
 
-    if submit:
-        os.system(submission_command)
+        if submit:
+            os.system(submission_command)
 
-    os.system('rm linemode_KPOINTS')
+        os.system('rm linemode_KPOINTS')
 
-    os.chdir('../')
+        os.chdir('../')

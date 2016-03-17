@@ -303,7 +303,7 @@ def write_pbs_runjob(name, nnodes, nprocessors, pmem, walltime, binary):
     runjob.write('#PBS -l pmem={}\n'.format(pmem))
     runjob.write('#PBS -W group_list=hennig\n\n')
     runjob.write('cd $PBS_O_WORKDIR\n\n')
-    runjob.write('mpirun ~/bin/{} > job.log\n\n'.format(binary))
+    runjob.write('mpirun {} > job.log\n\n'.format(binary))
     runjob.write('echo \'Done.\'\n')
     runjob.close()
 

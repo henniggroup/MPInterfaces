@@ -14,6 +14,9 @@ if '/ufrc/' in os.getcwd():
 elif '/scratch/' in os.getcwd():
     HIPERGATOR = 1
 
+VASP = loadfn(os.path.join(os.path.expanduser('~'),
+                           'config.yaml'))['normal_binary']
+
 
 def remove_z_kpoints(filename='KPOINTS'):
     """
@@ -64,11 +67,11 @@ def run_linemode_calculation(submit=True, force_overwrite=False):
         Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
         remove_z_kpoints()
         if HIPERGATOR == 1:
-            write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00', 'vasp')
+            write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00', VASP)
             submission_command = 'qsub runjob'
 
         elif HIPERGATOR == 2:
-            write_slurm_runjob(directory, 16, '800mb', '6:00:00', 'vasp')
+            write_slurm_runjob(directory, 16, '800mb', '6:00:00', VASP)
             submission_command = 'sbatch runjob'
 
         if submit:
@@ -146,12 +149,12 @@ def run_hse_calculation(submit=True, force_overwrite=False):
 
         if HIPERGATOR == 1:
             write_pbs_runjob('{}_hsebands'.format(
-                os.getcwd().split('/')[-2]), 2, 64, '1800mb', '50:00:00', 'vasp')
+                os.getcwd().split('/')[-2]), 2, 64, '1800mb', '50:00:00', VASP)
             submission_command = 'qsub runjob'
 
         elif HIPERGATOR == 2:
             write_slurm_runjob('{}_hsebands'.format(
-                os.getcwd().split('/')[-2]), 64, '1800mb', '50:00:00', 'vasp')
+                os.getcwd().split('/')[-2]), 64, '1800mb', '50:00:00', VASP)
             submission_command = 'sbatch runjob'
 
         if submit:

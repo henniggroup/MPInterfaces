@@ -19,6 +19,9 @@ if '/ufrc/' in os.getcwd():
 elif '/scratch/' in os.getcwd():
     HIPERGATOR = 1
 
+VASP = loadfn(os.path.join(os.path.expanduser('~'),
+                           'config.yaml'))['normal_binary']
+
 
 def run_friction_calculations(submit=True):
     """
@@ -97,11 +100,11 @@ def run_friction_calculations(submit=True):
                                  + '\n')
 
             if HIPERGATOR == 1:
-                utl.write_pbs_runjob(dir, 1, 4, '400mb', '1:00:00', 'vasp')
+                utl.write_pbs_runjob(dir, 1, 4, '400mb', '1:00:00', VASP)
                 submission_command = 'qsub runjob'
 
             elif HIPERGATOR == 2:
-                utl.write_slurm_runjob(dir, 4, '400mb', '1:00:00', 'vasp')
+                utl.write_slurm_runjob(dir, 4, '400mb', '1:00:00', VASP)
                 submission_command = 'sbatch runjob'
 
             if submit:

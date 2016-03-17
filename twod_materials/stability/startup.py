@@ -32,6 +32,10 @@ try:
     MPR = MPRester(
         loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
         )
+    VASP = loadfn(os.path.join(os.path.expanduser('~'),
+                               'config.yaml'))['normal_binary']
+    VASP_2D = loadfn(os.path.join(os.path.expanduser('~'),
+                                  'config.yaml'))['twod_binary']
 except IOError:
     try:
         MPR = MPRester(
@@ -72,12 +76,12 @@ def relax(submit=True, force_overwrite=False):
         # Submission script
         if HIPERGATOR == 1:
             utl.write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00',
-                                 'vasp_noz')
+                                 VASP_2D)
             submission_command = 'qsub runjob'
 
         elif HIPERGATOR == 2:
             utl.write_slurm_runjob(directory, 16, '800mb', '6:00:00',
-                                   'vasp_noz')
+                                   VASP_2D)
             submission_command = 'sbatch runjob'
 
         if submit:
@@ -110,12 +114,12 @@ def relax_competing_species(competing_species, submit=True,
             utl.write_potcar()
             if HIPERGATOR == 1:
                 utl.write_pbs_runjob('{}_3d'.format(specie[0]), 1, 8, '600mb',
-                                     '6:00:00', 'vasp')
+                                     '6:00:00', VASP)
                 submission_command = 'qsub runjob'
 
             elif HIPERGATOR == 2:
                 utl.write_slurm_runjob('{}_3d'.format(specie[0]), 8, '600mb',
-                                       '6:00:00', 'vasp')
+                                       '6:00:00', VASP)
                 submission_command = 'sbatch runjob'
 
             if submit:
@@ -145,12 +149,12 @@ def relax_3d(submit=True, force_overwrite=False):
         # Submission script
         if HIPERGATOR == 1:
             utl.write_pbs_runjob('{}_3d'.format(directory), 1, 8, '600mb',
-                                 '6:00:00', 'vasp')
+                                 '6:00:00', VASP)
             submission_command = 'qsub runjob'
 
         elif HIPERGATOR == 2:
             utl.write_slurm_runjob('{}_3d'.format(directory), 8, '600mb',
-                                   '6:00:00', 'vasp')
+                                   '6:00:00', VASP)
             submission_command = 'sbatch runjob'
 
         if submit:

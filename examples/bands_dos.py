@@ -14,12 +14,16 @@ import sys
 
 import numpy as np
 
-# To use matplotlib on Hipergator, uncomment the following 2 lines:
-# import matplotlib
-# matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
-from matplotlib.gridspec import GridSpec
+try:
+    # To use matplotlib on Hipergator, uncomment the following 2 lines:
+    # import matplotlib
+    # matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from matplotlib.collections import LineCollection
+    from matplotlib.gridspec import GridSpec
+except ImportError:
+    print("Install matplotlib")
+    plt = None
 
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.electronic_structure.core import Spin

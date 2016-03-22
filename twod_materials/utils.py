@@ -327,6 +327,6 @@ def write_slurm_runjob(name, ntasks, pmem, walltime, binary):
     runjob.write('module load intel/2016.0.109\n')
     runjob.write('module load openmpi/1.10.1\n')
     runjob.write('module load vasp/5.4.1\n\n')
-    runjob.write('mpirun ~/bin/{} > job.log\n\n'.format(binary))
+    runjob.write('mpirun {} > job.log\n\n'.format(binary))
     runjob.write('echo \'Done.\'\n')
     runjob.close()

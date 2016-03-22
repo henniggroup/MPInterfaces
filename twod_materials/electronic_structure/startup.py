@@ -46,8 +46,10 @@ def run_linemode_calculation(submit=True, force_overwrite=False):
     high symmetry k-paths.
     """
 
-    PBE_INCAR_DICT = {'NSW': 0, 'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
-                      'LWAVE': True, 'ICHARG': 11}
+    PBE_INCAR_DICT = {'EDIFF': 1e-6, 'IBRION': 2, 'ISIF': 3, 'ISMEAR': 1,
+                      'NSW': 0, 'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
+                      'LREAL': 'Auto', 'NPAR': 4, 'PREC': 'Accurate'
+                      'LWAVE': True, 'SIGMA': 0.1, 'ENCUT': 500, 'ICHARG': 11}
 
     directory = os.getcwd().split('/')[-1]
 
@@ -58,10 +60,7 @@ def run_linemode_calculation(submit=True, force_overwrite=False):
         os.system('cp ../CONTCAR ./POSCAR')
         os.system('cp ../POTCAR ./')
         os.system('cp ../CHGCAR ./')
-        os.system('cp ../vdw_kernel.bindat ./')
-        incar_dict = Incar.from_file('../INCAR').as_dict()
-        incar_dict.update(PBE_INCAR_DICT)
-        Incar.from_dict(incar_dict).write_file('INCAR')
+        Incar.from_dict(PBE_INCAR_DICT).write_file('INCAR')
         structure = Structure.from_file('POSCAR')
         kpath = HighSymmKpath(structure)
         Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
@@ -83,15 +82,17 @@ def run_linemode_calculation(submit=True, force_overwrite=False):
 def run_hse_calculation(submit=True, force_overwrite=False):
     """
     Setup/submit an HSE06 calculation to get an accurate band structure.
-    Requires a previous WAVECAR and IBZKPT from a PBE run. See
+    Requires a previous WAVECAR and IBZKPT from a standard DFT run. See
     http://cms.mpi.univie.ac.at/wiki/index.php/Si_bandstructure for more
     details.
     """
 
     HSE_INCAR_DICT = {'LHFCALC': True, 'HFSCREEN': 0.2, 'AEXX': 0.25,
-                      'ALGO': 'D', 'TIME': 0.4, 'LDIAG': True, 'NSW': 0,
+                      'ALGO': 'D', 'TIME': 0.4, 'NSW': 0,
                       'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
-                      'LWAVE': True, 'NPAR': 8}
+                      'LWAVE': True, 'NPAR': 8, 'PREC': 'Accurate',
+                      'EDIFF': 1e-6, 'ENCUT': 500, 'ISMEAR': 1, 'SIGMA': 0.1,
+                      'IBRION': 2, 'ISIF': 3}
 
     if not os.path.isdir('hse_bands'):
         os.mkdir('hse_bands')
@@ -99,15 +100,11 @@ def run_hse_calculation(submit=True, force_overwrite=False):
         os.chdir('hse_bands')
         os.system('cp ../CONTCAR ./POSCAR')
         os.system('cp ../POTCAR ./POTCAR')
-        os.system('cp ../vdw_kernel.bindat ./')
-        os.system('cp ../INCAR ./')
         os.system('cp ../WAVECAR ./')
-        incar_dict = Incar.from_file('INCAR').as_dict()
-        incar_dict.update(HSE_INCAR_DICT)
-        Incar.from_dict(incar_dict).write_file('INCAR')
+        Incar.from_dict(HSE_INCAR_DICT).write_file('INCAR')
 
         # Re-use the irreducible brillouin zone KPOINTS from a
-        # previous GGA run.
+        # previous standard DFT run.
         ibz_lines = open('../IBZKPT').readlines()
         n_ibz_kpts = int(ibz_lines[1].split()[0])
         kpath = HighSymmKpath(Structure.from_file('POSCAR'))

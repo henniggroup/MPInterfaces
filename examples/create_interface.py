@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 This script demonstrates the usage of the module interface.py
@@ -14,8 +15,6 @@ Note: Before using the script, make sure that you do have a valid
 api key obtained  from the materialsproject website. 
 Use that to set the MAPI_KEY variable below
 """
-
-import sys
 
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.vasp.inputs import Poscar

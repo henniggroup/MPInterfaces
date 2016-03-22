@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 reads in KPOINTS(with labels for high symmetry kpoints) and 
@@ -15,7 +16,7 @@ symmetry kpoints
 # matplotlib.use('Agg')
 
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.electronic_structure.plotter import BSPlotterProjected, BSPlotter
+from pymatgen.electronic_structure.plotter import BSPlotter
 
 if __name__ == "__main__":
     # readin bandstructure from vasprun.xml and labeled KPOINTS

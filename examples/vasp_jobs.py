@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 This script demonstrates the usage of the module
@@ -10,17 +11,15 @@ mpinterfaces/calibrate.py to setup and run vasp jobs
 """
 
 import os
-import sys
 from math import sqrt
 from collections import OrderedDict
-import numpy as np
 
 from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from mpinterfaces import get_struct_from_mp, Interface
-from mpinterfaces.calibrate import Calibrate, CalibrateSlab
+from mpinterfaces.calibrate import CalibrateSlab
 from mpinterfaces.utils import get_run_cmmnd
 
 MAPI_KEY = os.environ.get("MAPI_KEY", "")

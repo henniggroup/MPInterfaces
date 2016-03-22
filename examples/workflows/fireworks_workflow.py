@@ -2,14 +2,15 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 A simple Fireworks based workflow with just one firework 
 consisting of one firetask.
 """
 
-import sys
+from six.moves import range
 
 import numpy as np
 
@@ -19,8 +20,6 @@ from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 
 from fireworks.fw_config import LAUNCHPAD_LOC
 from fireworks import Firework, Workflow, LaunchPad
-from fireworks.core.rocket_launcher import launch_rocket
-from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from mpinterfaces.calibrate import Calibrate
 from mpinterfaces.firetasks import MPINTCalibrateTask
@@ -44,7 +43,7 @@ potcar = Potcar(symbols=poscar.site_symbols,
                 functional='PBE',
                 sym_potcar_map=None)
 kpoints = Kpoints(kpts=((8, 8, 8),))
-turn_knobs = {'ENCUT': range(400, 500, 100),
+turn_knobs = {'ENCUT': list(range(400, 500, 100)),
               'KPOINTS': [k for k in range(20, 30, 10)]
               }
 job_dir = 'calBulk'

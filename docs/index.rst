@@ -2,23 +2,23 @@ Introduction
 =============
 
 .. toctree::
-   :maxdepth: 2
+:maxdepth: 2
 
-   readme
+       readme
 
-   
+
 .. toctree::
-   :maxdepth: 4
+:maxdepth: 4
 
-   mpinterfaces
+       mpinterfaces
 
 Usage
 ======
 
 .. toctree::
-   :maxdepth: 2
+:maxdepth: 2
 
-   usage
+       usage
 
 Examples
 =========

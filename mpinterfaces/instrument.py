@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 The instrument module:
@@ -88,7 +89,8 @@ class MPINTVaspInputSet(DictVaspInputSet):
         self.incar.write_file(os.path.join(d, 'INCAR'))
         self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
-        self.poscar.write_file(os.path.join(d, 'POSCAR'), significant_figures=10)
+        self.poscar.write_file(os.path.join(d, 'POSCAR'),
+                               significant_figures=10)
         if self.qadapter is not None:
             with open(os.path.join(d, self.script_name), 'w') as f:
                 queue_script = self.qadapter.get_script_str(job_dir)
@@ -181,7 +183,9 @@ class MPINTJob(Job):
         p = None
         # if launching jobs via batch system
         if self.vis.qadapter is not None:
-            submit_cmd = self.vis.qadapter.q_commands[self.vis.qadapter.q_type]["submit_cmd"]
+            submit_cmd = \
+                self.vis.qadapter.q_commands[self.vis.qadapter.q_type][
+                    "submit_cmd"]
             cmd = [submit_cmd, self.vis.script_name]
             with open(self.output_file, 'w') as f:
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
@@ -268,15 +272,19 @@ class MPINTVaspJob(MPINTJob):
             vasprun = MPINTVasprun(vasprun_file_path,
                                    parse_potcar_file=False)
             if vasprun.converged:
-                self.logger.info("job {0} in {1} converged".format(self.job_id, self.job_dir))
+                self.logger.info("job {0} in {1} converged".format(self.job_id,
+                                                                   self.job_dir))
                 return vasprun.final_energy
             else:
-                self.logger.info("job {0} in {1} NOT converged".format(self.job_id, self.job_dir))
+                self.logger.info(
+                    "job {0} in {1} NOT converged".format(self.job_id,
+                                                          self.job_dir))
                 return None
         except Exception as ex:
             self.logger.info(
-                    "error reading vasprun.xml, probably the job {0} in {1} is not done yet.".format(self.job_id,
-                                                                                                     self.job_dir))
+                "error reading vasprun.xml, probably the job {0} in {1} is not done yet.".format(
+                    self.job_id,
+                    self.job_dir))
             return None
 
 

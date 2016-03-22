@@ -4,7 +4,8 @@
 
 from __future__ import division, unicode_literals, print_function
 
-__author__ = ", ".join(["Kiran Mathew", "Joshua Gabriel", "Arunima Singh", "Richard G. Hennig"])
+__author__ = ", ".join(
+    ["Kiran Mathew", "Joshua Gabriel", "Arunima Singh", "Richard G. Hennig"])
 __date__ = "Aug 10 2015"
 __version__ = "1.1.2"
 
@@ -30,14 +31,18 @@ def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
         MAPI_KEY = os.environ.get("MAPI_KEY", "")
         if not MAPI_KEY:
             print('API key not provided')
-            print('get API KEY from materialsproject and set it to the MAPI_KEY environment variable. aborting ... ')
+            print(
+                'get API KEY from materialsproject and set it to the MAPI_KEY environment variable. aborting ... ')
             sys.exit()
     with MPRester(MAPI_KEY) as m:
         data = m.get_data(formula)
         structures = []
         x = {}
-        print("\nnumber of structures matching the chemical formula {0} = {1}".format(formula, len(data)))
-        print("The one with the the lowest energy above the hull is returned, unless all_structs is set to True")
+        print(
+            "\nnumber of structures matching the chemical formula {0} = {1}".format(
+                formula, len(data)))
+        print(
+            "The one with the the lowest energy above the hull is returned, unless all_structs is set to True")
         for d in data:
             mpid = str(d['material_id'])
             x[mpid] = d['e_above_hull']
@@ -48,7 +53,9 @@ def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
             return structures
         else:
             mineah_key = sorted(x.items(), key=operator.itemgetter(1))[0][0]
-            print("The id of the material corresponding to the lowest energy above the hull = {0}".format(mineah_key))
+            print(
+                "The id of the material corresponding to the lowest energy above the hull = {0}".format(
+                    mineah_key))
             if mineah_key:
                 return m.get_structure_by_material_id(mineah_key)
             else:

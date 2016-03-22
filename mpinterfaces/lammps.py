@@ -2,11 +2,15 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Calibrate LAMMPS jobs
 """
+
+from six.moves import map
+from six.moves import zip
 
 import os
 import sys
@@ -144,7 +148,8 @@ class MPINTLammps(LAMMPS, MSONable):
                          'side in units box\n') % (xhi, yhi, zhi))
             symbols = self.atoms.get_chemical_symbols()
             if self.specorder is None:
-                species = [tos.symbol for tos in self.structure.types_of_specie]
+                species = [tos.symbol for tos in
+                           self.structure.types_of_specie]
             else:
                 species = self.specorder
             n_atom_types = len(species)
@@ -199,7 +204,8 @@ class MPINTLammps(LAMMPS, MSONable):
         if 'dump' in parameters:
             f.write('dump %s\n' % parameters['dump'])
         else:
-            f.write('dump dump_all all custom 1 %s id type x y z vx vy vz fx fy fz\n' % lammps_trj)
+            f.write(
+                'dump dump_all all custom 1 %s id type x y z vx vy vz fx fy fz\n' % lammps_trj)
         f.write('print __end_of_ase_invoked_calculation__\n')
         f.write('log /dev/stdout\n')
         f.close()
@@ -282,9 +288,9 @@ class MPINTLammpsInput(MSONable):
         if d["qadapter"] is not None:
             qadapter = CommonAdapter.from_dict(d["qadapter"])
         return MPINTLammpsInput(
-                MPINTLammps.from_dict(d["mplmp"]),
-                qadapter,
-                vis_logger=logging.getLogger(d["logger"]))
+            MPINTLammps.from_dict(d["mplmp"]),
+            qadapter,
+            vis_logger=logging.getLogger(d["logger"]))
 
 
 class MPINTLammpsJob(MPINTJob):
@@ -348,7 +354,7 @@ class MPINTLammpsJob(MPINTJob):
                               settings_override=d["settings_override"],
                               wait=d["wait"],
                               vjob_logger=logging.getLogger(
-                                      d["logger"]))
+                                  d["logger"]))
 
 
 class CalibrateLammps(Calibrate):
@@ -423,7 +429,7 @@ class CalibrateLammps(Calibrate):
 
     def set_paircoeff(self, structure, pcoeff):
         types_of_species = ' '.join(
-                [tos.symbol for tos in structure.types_of_specie])
+            [tos.symbol for tos in structure.types_of_specie])
         atomic_mass = [
             str(i + 1) + ' ' + tos.atomic_mass.__repr__()
             for i, tos in enumerate(structure.types_of_specie)]
@@ -460,7 +466,7 @@ class CalibrateLammps(Calibrate):
             for k, v in turn_knobs.items():
                 if k == 'STRUCTURES' and v:
                     self.setup_structure_jobs(
-                            v, self.turn_knobs['PAIR_COEFF'][0])
+                        v, self.turn_knobs['PAIR_COEFF'][0])
                 elif k == 'PAIR_COEFF' and v:
                     self.setup_paircoeff_jobs(v)
                 elif k == 'PARAMS' and v:
@@ -479,12 +485,12 @@ class CalibrateLammps(Calibrate):
         if self.system is not None:
             system = self.system
         d = dict(
-                parent_job_dir=self.parent_job_dir,
-                job_dir=self.job_dir,
-                qadapter=qadapter, job_cmd=self.job_cmd,
-                wait=self.wait,
-                turn_knobs=self.turn_knobs,
-                job_ids=self.job_ids)
+            parent_job_dir=self.parent_job_dir,
+            job_dir=self.job_dir,
+            qadapter=qadapter, job_cmd=self.job_cmd,
+            wait=self.wait,
+            turn_knobs=self.turn_knobs,
+            job_ids=self.job_ids)
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d

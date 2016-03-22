@@ -2,21 +2,18 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Workflow to study the convergence of VASP parameters: ENCUT and KPOINTS
 for a range of systems.
 """
 
-import os
-import sys
-import time
-from collections import OrderedDict
+from six.moves import range
 
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Incar, Poscar
-from pymatgen.io.vasp.inputs import Potcar, Kpoints
+from pymatgen.io.vasp.inputs import Incar
+from pymatgen.io.vasp.inputs import Kpoints
 
 from mpinterfaces import get_struct_from_mp
 from mpinterfaces.calibrate import Calibrate
@@ -63,9 +60,11 @@ def get_structures():
 def convergence(**kwargs):
     """
     Set up and run all required jobs for the convergence study.
-    Recursive(is_matrix=True) ENCUT and KPOINTS jobs for the given list of POSCARS.
-    Note: Since this is a convergence study ENCUT jobs and KPOINTS jobs are independently 
-    i.e recursion is used for the list of POSCARS+ENCUT and POSCARS+KPOINTS separately
+    Recursive(is_matrix=True) ENCUT and KPOINTS jobs for the given list of
+    POSCARS.
+    Note: Since this is a convergence study ENCUT jobs and KPOINTS jobs are
+    independently i.e recursion is used for the list of POSCARS+ENCUT and
+    POSCARS+KPOINTS separately
     """
     job_dir = "convergence"
     kpoints_list = [[x, x, x] for x in range(8, 15)]

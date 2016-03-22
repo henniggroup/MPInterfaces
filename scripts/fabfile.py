@@ -1,4 +1,5 @@
-from __future__ import with_statement
+from __future__ import with_statement, division, unicode_literals, \
+    print_function, absolute_import
 
 """
 remote job launch using the fabric package.
@@ -22,11 +23,12 @@ Note:
 
 from fabric.api import settings, run
 
+
 def launch(fw_id, machine='hipergator'):
-    cmd = "rlaunch singleshot -f "+str(fw_id)    
+    cmd = "rlaunch singleshot -f " + str(fw_id)
     if machine == 'hipergator':
         with settings(host_string='username@hipergator.rc.ufl.edu'):
-            run("ssh dev1 "+cmd)
+            run("ssh dev1 " + cmd)
     elif machine == 'hydrogen':
         with settings(host_string='hydrogen'):
             run(cmd)
@@ -34,7 +36,8 @@ def launch(fw_id, machine='hipergator'):
         pass
     else:
         with settings(host_string='hydrogen'):
-            run("ssh "+machine+" "+cmd)
-            
+            run("ssh " + machine + " " + cmd)
+
+
 if __name__ == '__main__':
     launch()

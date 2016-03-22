@@ -143,7 +143,7 @@ http://pymatgen.org/contributing.html#coding-guidelines
 
 Authors
 =========
-   
+
 Kiran Mathew
 	
 Joshua Gabriel

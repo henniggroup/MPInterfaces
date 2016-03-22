@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 reads in KPOINTS(with labels) and vasprun.xml files and
@@ -10,7 +11,8 @@ plots band diagram and density of states
 from http://gvallver.perso.univ-pau.fr/?p=587
 """
 
-import sys
+from six.moves import range
+from six.moves import zip
 
 import numpy as np
 
@@ -41,7 +43,7 @@ def rgbline(ax, k, e, red, green, blue, alpha=1.):
     g = [0.5 * (green[i] + green[i + 1]) for i in range(nseg)]
     b = [0.5 * (blue[i] + blue[i + 1]) for i in range(nseg)]
     a = np.ones(nseg, np.float) * alpha
-    lc = LineCollection(seg, colors=zip(r, g, b, a), linewidth=2)
+    lc = LineCollection(seg, colors=list(zip(r, g, b, a)), linewidth=2)
     ax.add_collection(lc)
 
 
@@ -51,7 +53,8 @@ if __name__ == "__main__":
     # --------------------------------------------------------------      
     # readin bandstructure and density of states from vasprun.xml file
     run = Vasprun("vasprun.xml", parse_projected_eigen=True)
-    bands = run.get_band_structure("KPOINTS", line_mode=True, efermi=run.efermi)
+    bands = run.get_band_structure("KPOINTS", line_mode=True,
+                                   efermi=run.efermi)
     complete_dos = run.complete_dos
     print('cbm and vbm ', complete_dos.get_cbm_vbm())
     print('gap = ', complete_dos.get_gap())
@@ -66,7 +69,8 @@ if __name__ == "__main__":
     # to have projections on. It is given as: {Element:[orbitals]},
     # e.g., {'Cu':['d','s']}
     # --------------------------------------------------------------          
-    pbands = bands.get_projections_on_elts_and_orbitals({"Fe": ["s", "p", "d"]})
+    pbands = bands.get_projections_on_elts_and_orbitals(
+        {"Fe": ["s", "p", "d"]})
     contrib = np.zeros((bands.nb_bands, len(bands.kpoints), 3))
     # loop over the energies and kpoints
     for b in range(bands.nb_bands):
@@ -119,12 +123,13 @@ if __name__ == "__main__":
     # --------------------------------------------------------------
     # plot bands using rgb mapping
     for b in range(bands.nb_bands):
-        rgbline(ax1, range(len(bands.kpoints)),
+        rgbline(ax1, list(range(len(bands.kpoints))),
                 [e - bands.efermi for e in bands.bands[Spin.up][b]],
                 contrib[b, :, 0], contrib[b, :, 1], contrib[b, :, 2])
-        rgbline(ax1, range(len(bands.kpoints)),
+        rgbline(ax1, list(range(len(bands.kpoints))),
                 [e - bands.efermi for e in bands.bands[Spin.down][b]],
-                contrib[b, :, 0], contrib[b, :, 1], contrib[b, :, 2], alpha=0.2)
+                contrib[b, :, 0], contrib[b, :, 1], contrib[b, :, 2],
+                alpha=0.2)
 
     # ax1.set_title("Band diagram")       
     ax1.set_xlim(0, len(bands.kpoints))

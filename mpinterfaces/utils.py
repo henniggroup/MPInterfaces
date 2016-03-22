@@ -2,11 +2,16 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Utility functions
 """
+
+from six.moves import range
+from six.moves import zip
+from functools import reduce
 
 import sys
 import os
@@ -218,7 +223,7 @@ def get_job_state(job):
         except:
             logger.info('Job {} not in the que.'.format(job.job_id))
             logger.info(
-                    'This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
+                'This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
             state = "00"
         ofname = "vasp_job-" + str(job.job_id) + ".out"
     # no batch system
@@ -259,10 +264,12 @@ def update_checkpoint(job_ids=None, jfile=None, **kwargs):
         job.job_id = j['job_id']
         all_jobs.append(job)
         if job_ids and (j['job_id'] in job_ids or job.job_dir in job_ids):
-            logger.info('setting job {0} in {1} to rerun'.format(j['job_id'], job.job_dir))
+            logger.info('setting job {0} in {1} to rerun'.format(j['job_id'],
+                                                                 job.job_dir))
             contcar_file = job.job_dir + os.sep + 'CONTCAR'
             poscar_file = job.job_dir + os.sep + 'POSCAR'
-            if os.path.isfile(contcar_file) and len(open(contcar_file).readlines()) != 0:
+            if os.path.isfile(contcar_file) and len(
+                    open(contcar_file).readlines()) != 0:
                 logger.info('setting poscar file from {}'
                             .format(contcar_file))
                 job.vis.poscar = Poscar.from_file(contcar_file)
@@ -343,8 +350,9 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                         logger.info('job {} running'.format(j.job_id))
                         done = done + [False]
                     elif state in ['C', 'CF', 'F', '00']:
-                        logger.error('Job {0} in {1} cancelled or failed. State = {2}'. \
-                                     format(j.job_id, j.job_dir, state))
+                        logger.error(
+                            'Job {0} in {1} cancelled or failed. State = {2}'. \
+                                format(j.job_id, j.job_dir, state))
                         done = done + [False]
                         if handlers:
                             logger.info('Investigating ... ')
@@ -354,24 +362,33 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                                     for h in handlers:
                                         h.output_filename = ofname
                                         if h.check():
-                                            logger.error('Detected vasp errors {}'.format(h.errors))
+                                            logger.error(
+                                                'Detected vasp errors {}'.format(
+                                                    h.errors))
                                             # TODO: correct the error and mark the job for rerun
                                             # all error handling must done using proper errorhandlers
                                             # h.correct()
                                             # reruns.append(j.job_id)
                                 else:
                                     logger.error(
-                                            'stdout redirect file not generated, job {} will be rerun'.format(j.job_id))
+                                        'stdout redirect file not generated, job {} will be rerun'.format(
+                                            j.job_id))
                                     reruns.append(j.job_id)
                             os.chdir(j.parent_job_dir)
                     else:
-                        logger.info('Job {0} pending. State = {1}'.format(j.job_id, state))
+                        logger.info(
+                            'Job {0} pending. State = {1}'.format(j.job_id,
+                                                                  state))
                         done = done + [False]
             if all(done):
-                logger.info('all jobs in {} done. Proceeding to the next one'.format(step.func_name))
+                logger.info(
+                    'all jobs in {} done. Proceeding to the next one'.format(
+                        step.__name__))
                 time.sleep(5)
                 break
-            logger.info('all jobs in {0} NOT done. Next update in {1} seconds'.format(step.func_name, interval))
+            logger.info(
+                'all jobs in {0} NOT done. Next update in {1} seconds'.format(
+                    step.__name__, interval))
             time.sleep(interval)
 
 
@@ -401,9 +418,11 @@ def get_convergence_data(jfile, params=['ENCUT', 'KPOINTS']):
                                              j.final_energy / len(struct_m)])
                 elif p == 'KPOINTS':
                     data[species]['KPOINTS'].append([j.vis.kpoints.kpts,
-                                                     j.final_energy / len(struct_m)])
+                                                     j.final_energy / len(
+                                                         struct_m)])
                 else:
-                    logger.warn('dont know how to parse the parameter {}'.format(p))
+                    logger.warn(
+                        'dont know how to parse the parameter {}'.format(p))
         else:
             data[species] = {}
             for p in params:
@@ -419,7 +438,8 @@ def get_opt_params(data, species, param='ENCUT', ev_per_atom=0.001):
     """
     sorted_list = sorted(data[species][param], key=lambda x: x[1])
     sorted_array = np.array(sorted_list)
-    consecutive_diff = np.abs(sorted_array[:-1, 1] - sorted_array[1:, 1] - ev_per_atom)
+    consecutive_diff = np.abs(
+        sorted_array[:-1, 1] - sorted_array[1:, 1] - ev_per_atom)
     min_index = np.argmin(consecutive_diff)
     return sorted_list[min_index][0]
 
@@ -449,18 +469,23 @@ def get_convergence_data_custom(jfile, params=['ENCUT', 'KPOINTS']):
         struct_m = Structure.from_file(poscar_file)
 
         species = ''.join([tos.symbol for tos in struct_m.types_of_specie])
-        tag = '_'.join([species, Poscar.from_file(poscar_file).comment, j.vis.potcar.functional])
+        tag = '_'.join([species, Poscar.from_file(poscar_file).comment,
+                        j.vis.potcar.functional])
         if data.get(tag):
             for p in params:
                 if j.vis.incar.get(p):
                     data[tag][p].append([j.vis.incar[p],
-                                         j.final_energy / len(struct_m), j.vis.potcar, j.vis.poscar])
+                                         j.final_energy / len(struct_m),
+                                         j.vis.potcar, j.vis.poscar])
                     #                print(j.vis.potcar.functional,j.vis.poscar)
                 elif p == 'KPOINTS':
                     data[tag]['KPOINTS'].append([j.vis.kpoints.kpts,
-                                                 j.final_energy / len(struct_m), j.vis.potcar, j.vis.poscar])
+                                                 j.final_energy / len(
+                                                     struct_m), j.vis.potcar,
+                                                 j.vis.poscar])
                 else:
-                    logger.warn('dont know how to parse the parameter {}'.format(p))
+                    logger.warn(
+                        'dont know how to parse the parameter {}'.format(p))
         else:
             data[tag] = {}
             for p in params:
@@ -488,11 +513,13 @@ def get_opt_params_custom(data, tag, param='ENCUT', ev_per_atom=1.0):
     # sorted array data
     t = np.array(sorted_list)[:, 1]
     # print(sorted_array[:-1,1], sorted_array[1:,1], ev_per_atom)
-    consecutive_diff = [float(j) - float(i) - ev_per_atom for i, j in zip(t[:-1], t[1:])]
+    consecutive_diff = [float(j) - float(i) - ev_per_atom for i, j in
+                        zip(t[:-1], t[1:])]
     # print("Consecutive_diff",consecutive_diff)
     min_index = np.argmin(consecutive_diff)
     # return the tag,potcar object, poscar object, incar setting and convergence data for plotting that is optimum
-    return [tag, data[tag][param][min_index][2], data[tag][param][min_index][3], sorted_list[min_index][0], t]
+    return [tag, data[tag][param][min_index][2],
+            data[tag][param][min_index][3], sorted_list[min_index][0], t]
 
 
 def partition_jobs(turn_knobs, max_jobs):
@@ -505,10 +532,12 @@ def partition_jobs(turn_knobs, max_jobs):
     partition_size = int(n_total_jobs / max_jobs)
     max_index = np.argmax(params_len)
     max_len = max(params_len)
-    max_key = turn_knobs.items()[max_index][0]
+    max_key = list(turn_knobs.items())[max_index][0]
     partition = range(0, max_len, max(1, int(max_len / partition_size)))
     partition_1 = partition[1:] + [max_len]
-    logger.info('{0} list of length {1} will be partitioned into {2} chunks'.format(max_key, max_len, len(partition)))
+    logger.info(
+        '{0} list of length {1} will be partitioned into {2} chunks'.format(
+            max_key, max_len, len(partition)))
     turn_knobs_list = []
     name_list = []
     for i, j in zip(partition, partition_1):
@@ -541,7 +570,7 @@ def get_logger(log_file_name):
     return loggr
 
 
-def set_sd_flags(poscar_input=None, n_layers=2, top=True, bottom=True, 
+def set_sd_flags(poscar_input=None, n_layers=2, top=True, bottom=True,
                  poscar_output='POSCAR2'):
     """
     set the relaxation flags for top and bottom layers of interface.        

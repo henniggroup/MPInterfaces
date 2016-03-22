@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Defines various firetasks
@@ -87,13 +88,15 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         and run
         """
         cal_objs = []
-        logger.info('The measurement task will be constructed from {} calibration objects'
-                    .format(len(fw_spec['cal_objs'])))
+        logger.info(
+            'The measurement task will be constructed from {} calibration objects'
+                .format(len(fw_spec['cal_objs'])))
         for calparams in fw_spec['cal_objs']:
             calparams.update({'que_params': self.get('que_params')})
             cal = get_cal_obj(calparams)
             cal_objs.append(cal)
-        done = load_class("mpinterfaces.calibrate", "Calibrate").check_calcs(cal_objs)
+        done = load_class("mpinterfaces.calibrate", "Calibrate").check_calcs(
+            cal_objs)
         if not done:
             logger.info('Calibration not done yet. Try again later')
             logger.info('All subsequent fireworks will be defused')
@@ -116,7 +119,8 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             # return FWAction(detours=new_fw)
         else:
             measure = load_class("mpinterfaces.measurement",
-                                 self['measurement'])(cal_objs, **self.get("other_params", {}))
+                                 self['measurement'])(cal_objs, **self.get(
+                "other_params", {}))
             job_cmd = None
             if self.get("job_cmd", None) is not None:
                 job_cmd = self.get("job_cmd")

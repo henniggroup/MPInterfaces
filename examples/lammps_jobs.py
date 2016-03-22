@@ -2,10 +2,10 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 import os
-import sys
 from collections import OrderedDict
 
 from mpinterfaces import get_struct_from_mp

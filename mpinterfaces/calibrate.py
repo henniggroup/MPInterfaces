@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Calibration module:  
@@ -22,6 +23,8 @@ The attribute turn_knobs controls the parameters to be calibrated
 for a given structure 
 
 """
+
+from six.moves import range
 
 import sys
 import os
@@ -201,8 +204,8 @@ class Calibrate(MSONable):
         """
         orig_job_dir = self.job_dir
         job_dir = self.job_dir
-        n_items = len(self.turn_knobs.items())
-        keys = self.turn_knobs.keys()
+        n_items = len(list(self.turn_knobs.items()))
+        keys = list(self.turn_knobs.keys())
         self._setup(turn_knobs=dict([(keys[0],
                                       self.turn_knobs[keys[0]])]))
         self.recursive_jobs(n_items, keys, 0)
@@ -223,13 +226,15 @@ class Calibrate(MSONable):
         if i == n - 1 and i != 0:
             for val in self.turn_knobs[keys[i]]:
                 self.job_dir = job_dir + os.sep + self.val_to_name(val)
-                self.logger.info('setting jobs in the directory: ' + self.job_dir)
+                self.logger.info(
+                    'setting jobs in the directory: ' + self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))
                 self.add_job(name=job_dir, job_dir=self.job_dir)
         else:
             for val in self.turn_knobs[keys[i]]:
                 self.job_dir = job_dir + os.sep + self.val_to_name(val)
-                self.logger.info('setting jobs in the directory: ' + self.job_dir)
+                self.logger.info(
+                    'setting jobs in the directory: ' + self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))
                 self.recursive_jobs(n, keys, i + 1)
 
@@ -361,7 +366,7 @@ class Calibrate(MSONable):
                 mapped_symbols.append(mapping[sym])
         elif self.mappings_override:
             for sym in symbols:
-                if sym in self.mappings_override.keys():
+                if sym in list(self.mappings_override.keys()):
                     mapped_symbols.append(self.mappings_override[sym])
                 else:
                     mapped_symbols.append(sym)
@@ -386,10 +391,12 @@ class Calibrate(MSONable):
             self.kpoints = Kpoints.gamma_automatic(kpts=kpoint)
         elif self.Grid_type == '3DD':
             self.kpoints = Kpoints.automatic_density_by_vol(structure= \
-                                                                self.poscar.structure, kppvol=kpoint)
+                                                                self.poscar.structure,
+                                                            kppvol=kpoint)
         elif self.Grid_type == 'band':
             self.kpoints = Kpoints.automatic_linemode(divisions=kpoint, \
-                                                      ibz=HighSymmKpath(self.poscar.structure))
+                                                      ibz=HighSymmKpath(
+                                                          self.poscar.structure))
 
     def setup_incar_jobs(self, param, val_list):
         """
@@ -420,8 +427,10 @@ class Calibrate(MSONable):
             for kpoint in kpoints_list:
                 self.set_kpoints(kpoint)
                 if not self.is_matrix:
-                    job_dir = self.job_dir + os.sep + self.key_to_name('KPOINTS') \
-                              + os.sep + self.kpoint_to_name(kpoint, self.Grid_type)
+                    job_dir = self.job_dir + os.sep + self.key_to_name(
+                        'KPOINTS') \
+                              + os.sep + self.kpoint_to_name(kpoint,
+                                                             self.Grid_type)
                     self.add_job(name=job_dir, job_dir=job_dir)
         else:
             self.logger.warn('kpoints_list empty')
@@ -837,7 +846,7 @@ if __name__ == '__main__':
         ('POTCAR', [{'Pt': 'Pt'}, {'Pt': 'Pt_pv'}, {'Pt': 'Pt_GW'}]),
         ('IBRION', [1, 2, 3]),
         ('KPOINTS', [k for k in range(20, 40, 10)]),
-        ('ENCUT', range(400, 700, 100)),
+        ('ENCUT', list(range(400, 700, 100))),
         ('VACUUM', [10, 12, 15]),
         ('THICKNESS', [11])
     ])

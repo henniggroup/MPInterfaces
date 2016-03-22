@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Compute the reduced matching lattice vectors for heterostructure
@@ -10,7 +11,7 @@ interfaces as described in the paper by Zur and McGill:
 Journal of Applied Physics 55, 378 (1984); doi: 10.1063/1.333084
 """
 
-__author__ = "Kiran Mathew, Arunima Singh"
+from six.moves import range
 
 import sys
 from math import sqrt
@@ -20,6 +21,8 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+__author__ = "Kiran Mathew, Arunima Singh"
 
 
 def get_trans_matrices(n):
@@ -132,7 +135,8 @@ def get_angle(a, b):
     """
     a = np.array(a)
     b = np.array(b)
-    return np.arccos(np.dot(a, b) / np.linalg.norm(a) / np.linalg.norm(b)) * 180 / np.pi
+    return np.arccos(
+        np.dot(a, b) / np.linalg.norm(a) / np.linalg.norm(b)) * 180 / np.pi
 
 
 def get_area(uv):
@@ -179,7 +183,8 @@ def get_matching_lattices(iface1, iface2, max_area=100,
     print('initial values:\nuv1:\n{0}\nuv2:\n{1}\n '.format(ab1, ab2))
     r_list = get_r_list(area1, area2, max_area, tol=r1r2_tol)
     if not r_list:
-        print('r_list is empty. Try increasing the max surface area or/and the other tolerance paramaters')
+        print(
+            'r_list is empty. Try increasing the max surface area or/and the other tolerance paramaters')
         sys.exit()
     found = []
     print('searching ...')
@@ -197,29 +202,38 @@ def get_matching_lattices(iface1, iface2, max_area=100,
                 angle_mismatch = abs(angle1 - angle2)
                 area1 = get_area(uv1)
                 area2 = get_area(uv2)
-                if abs(u_mismatch) < max_mismatch and abs(v_mismatch) < max_mismatch:
+                if abs(u_mismatch) < max_mismatch and abs(
+                        v_mismatch) < max_mismatch:
                     max_angle = max(angle1, angle2)
                     min_angle = min(angle1, angle2)
                     mod_angle = max_angle % min_angle
                     is_angle_factor = False
-                    if abs(mod_angle) < 0.001 or abs(mod_angle - min_angle) < 0.001:
+                    if abs(mod_angle) < 0.001 or abs(
+                                    mod_angle - min_angle) < 0.001:
                         is_angle_factor = True
                     if angle_mismatch < max_angle_diff or is_angle_factor:
                         if angle_mismatch > max_angle_diff:
                             if angle1 > angle2:
                                 uv1[1] = uv1[0] + uv1[1]
-                                tm1_list[i][1] = tm1_list[i][0] + tm1_list[i][1]
+                                tm1_list[i][1] = tm1_list[i][0] + tm1_list[i][
+                                    1]
                             else:
                                 uv2[1] = uv2[0] + uv2[1]
-                                tm2_list[j][1] = tm2_list[j][0] + tm2_list[j][1]
-                        found.append((uv1, uv2, min(area1, area2), u_mismatch, v_mismatch, angle_mismatch, tm1_list[i],
+                                tm2_list[j][1] = tm2_list[j][0] + tm2_list[j][
+                                    1]
+                        found.append((uv1, uv2, min(area1, area2), u_mismatch,
+                                      v_mismatch, angle_mismatch, tm1_list[i],
                                       tm2_list[j]))
     if found:
         print('\nMATCH FOUND\n')
         uv_opt = sorted(found, key=lambda x: x[2])[0]
-        print('optimum values:\nuv1:\n{0}\nuv2:\n{1}\narea:\n{2}\n'.format(uv_opt[0], uv_opt[1], uv_opt[2]))
-        print('optimum transition matrices:\ntm1:\n{0}\ntm2:\n{1}\n'.format(uv_opt[6], uv_opt[7]))
-        print('u,v & angle mismatches:\n{0}, {1}, {2}\n'.format(uv_opt[3], uv_opt[4], uv_opt[5]))
+        print('optimum values:\nuv1:\n{0}\nuv2:\n{1}\narea:\n{2}\n'.format(
+            uv_opt[0], uv_opt[1], uv_opt[2]))
+        print('optimum transition matrices:\ntm1:\n{0}\ntm2:\n{1}\n'.format(
+            uv_opt[6], uv_opt[7]))
+        print('u,v & angle mismatches:\n{0}, {1}, {2}\n'.format(uv_opt[3],
+                                                                uv_opt[4],
+                                                                uv_opt[5]))
         return uv_opt[0], uv_opt[1]
     else:
         print('\n NO MATCH FOUND')
@@ -348,25 +362,26 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area=200,
     mat2d = Structure.from_sites(slab_2d)
     # map the intial slabs to the newly found matching lattices
     substrate_latt = Lattice(np.array(
-            [
-                uv_substrate[0][:],
-                uv_substrate[1][:],
-                substrate.lattice.matrix[2, :]
-            ]))
+        [
+            uv_substrate[0][:],
+            uv_substrate[1][:],
+            substrate.lattice.matrix[2, :]
+        ]))
     # to avoid numerical issues with find_mapping
-    mat2d_fake_c = mat2d.lattice.matrix[2, :] / np.linalg.norm(mat2d.lattice.matrix[2, :]) * 5.0
+    mat2d_fake_c = mat2d.lattice.matrix[2, :] / np.linalg.norm(
+        mat2d.lattice.matrix[2, :]) * 5.0
     mat2d_latt = Lattice(np.array(
-            [
-                uv_mat2d[0][:],
-                uv_mat2d[1][:],
-                mat2d_fake_c
-            ]))
+        [
+            uv_mat2d[0][:],
+            uv_mat2d[1][:],
+            mat2d_fake_c
+        ]))
     mat2d_latt_fake = Lattice(np.array(
-            [
-                mat2d.lattice.matrix[0, :],
-                mat2d.lattice.matrix[1, :],
-                mat2d_fake_c
-            ]))
+        [
+            mat2d.lattice.matrix[0, :],
+            mat2d.lattice.matrix[1, :],
+            mat2d_fake_c
+        ]))
     _, __, scell = substrate.lattice.find_mapping(substrate_latt,
                                                   ltol=0.05,
                                                   atol=1)
@@ -380,10 +395,10 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area=200,
     # modify the substrate lattice so that the 2d material can be
     # grafted on top of it
     lmap = Lattice(np.array(
-            [
-                substrate.lattice.matrix[0, :],
-                substrate.lattice.matrix[1, :],
-                mat2d.lattice.matrix[2, :]
-            ]))
+        [
+            substrate.lattice.matrix[0, :],
+            substrate.lattice.matrix[1, :],
+            mat2d.lattice.matrix[2, :]
+        ]))
     mat2d.modify_lattice(lmap)
     return substrate, mat2d

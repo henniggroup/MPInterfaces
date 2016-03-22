@@ -2,11 +2,14 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Put data into mongo database
 """
+
+from six.moves import range
 
 import sys
 import os
@@ -91,7 +94,8 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
                           "potcar_spec": d1["input"].get("potcar_spec"),
                           "xc_override": xc}
             vals = sorted(d2["reduced_cell_formula"].values())
-            d["anonymous_formula"] = {string.ascii_uppercase[i]: float(vals[i]) for i in range(len(vals))}
+            d["anonymous_formula"] = {string.ascii_uppercase[i]: float(vals[i])
+                                      for i in range(len(vals))}
             d["output"] = {
                 "crystal": d2["output"]["crystal"],
                 "final_energy": d2["output"]["final_energy"],
@@ -103,13 +107,15 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
             d["pseudo_potential"] = {"functional": functional.lower(),
                                      "pot_type": pot_type.lower(),
                                      "labels": d2["input"]["potcar"]}
-            if len(d["calculations"]) == len(self.runs) or list(vasprun_files.keys())[0] != "relax1":
+            if len(d["calculations"]) == len(self.runs) or \
+                            list(vasprun_files.keys())[0] != "relax1":
                 d["state"] = "successful" if d2["has_vasp_completed"] \
                     else "unsuccessful"
             else:
                 d["state"] = "stopped"
             d["analysis"] = analysis_and_error_checks(d)
-            sg = SpacegroupAnalyzer(Structure.from_dict(d["output"]["crystal"]), 0.1)
+            sg = SpacegroupAnalyzer(
+                Structure.from_dict(d["output"]["crystal"]), 0.1)
             d["spacegroup"] = {"symbol": sg.get_spacegroup_symbol(),
                                "number": sg.get_spacegroup_number(),
                                "point_group": sg.get_point_group(),
@@ -213,7 +219,8 @@ def analysis_and_error_checks(d, max_force_threshold=0.5,
 
     max_force = None
     if d["state"] == "successful" and \
-                    d["calculations"][0]["input"]["parameters"].get("NSW", 0) > 0:
+                    d["calculations"][0]["input"]["parameters"].get("NSW",
+                                                                    0) > 0:
         # handle the max force and max force error
         max_force = max([np.linalg.norm(a)
                          for a in d["calculations"][-1]["output"]

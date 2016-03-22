@@ -2,11 +2,14 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Defines measurement jobs
 """
+
+from six.moves import zip
 
 import sys
 import shutil
@@ -173,18 +176,21 @@ class MeasurementSolvation(Measurement):
             prod_list = [self.sol_params.get(k) for k in keys]
             for params in itertools.product(*tuple(prod_list)):
                 job_dir = self.job_dir + os.sep \
-                          + cal.old_job_dir_list[0].replace(os.sep, '_').replace('.', '_') \
+                          + cal.old_job_dir_list[0].replace(os.sep,
+                                                            '_').replace('.',
+                                                                         '_') \
                           + os.sep + 'SOL'
                 for i, k in enumerate(keys):
                     if k == 'NELECT':
                         cal.incar[k] = params[i] + nelectrons
                     else:
                         cal.incar[k] = params[i]
-                    job_dir = job_dir + os.sep + k + os.sep + str(cal.incar[k]).replace('.', '_')
+                    job_dir = job_dir + os.sep + k + os.sep + str(
+                        cal.incar[k]).replace('.', '_')
                 if not os.path.exists(job_dir):
                     os.makedirs(job_dir)
                 with open(job_dir + os.sep + 'system.json', 'w') as f:
-                    json.dump(dict(zip(keys, params)), f)
+                    json.dump(dict(list(zip(keys, params))), f)
                 wavecar_file = cal.old_job_dir_list[0] + os.sep + 'WAVECAR'
                 if os.path.isfile(wavecar_file):
                     shutil.copy(wavecar_file, job_dir + os.sep + 'WAVECAR')
@@ -296,7 +302,8 @@ class MeasurementInterface(Measurement):
             E_interfaces[key] = self.get_energy(cal)
             E_binding[key] = E_interfaces[key] \
                              - E_slabs[key_slab] \
-                             - cal.system['num_ligands'] * E_ligands[key_ligand]
+                             - cal.system['num_ligands'] * E_ligands[
+                key_ligand]
         logger.info('Binding energy = {}'.format(E_binding))
 
 

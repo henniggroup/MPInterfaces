@@ -2,17 +2,15 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Sample LAMMPS workflow that runs MD calculations for a bunch of structures and 
 subsequently generate their phasediagram.
 """
 
-import os
-import sys
 from math import ceil
-from collections import OrderedDict
 
 import matplotlib
 

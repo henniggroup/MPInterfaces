@@ -2,10 +2,12 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
+
+from pymatgen.apps.borg.queen import BorgQueen
 
 from mpinterfaces.database import MPINTVaspToDbTaskDrone
-from pymatgen.apps.borg.queen import BorgQueen
 
 # import multiprocessing
 

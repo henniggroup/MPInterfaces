@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 process vasprun.xml file by walking through the enitre directory tree
@@ -18,7 +19,8 @@ import logging
 from monty.json import MontyDecoder
 
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.hive import _get_transformation_history
 

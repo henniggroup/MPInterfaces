@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Fit energy and volume to an equation of state to get the minimum
@@ -11,7 +12,6 @@ volume and the bulk modulus
 uses the ase package to do the fitting
 """
 
-import numpy as np
 import matplotlib.pyplot as plot
 
 from ase.utils.eos import EquationOfState

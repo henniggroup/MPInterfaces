@@ -2,7 +2,8 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Compute the reduced matching lattice vectors for heterostructure
@@ -12,12 +13,7 @@ Journal of Applied Physics 55, 378 (1984); doi: 10.1063/1.333084
 
 __author__ = "Kiran Mathew, Arunima Singh"
 
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.io.vasp.inputs import Poscar
-
 from mpinterfaces.calibrate import CalibrateSlab
-from mpinterfaces import get_struct_from_mp
 from mpinterfaces.interface import Interface
 from mpinterfaces.transformations import *
 from mpinterfaces.utils import *

@@ -23,7 +23,7 @@ Capabilities
 ============
 
 MPInterfaces extends object oriented definitions of materialsproject pymatgen to 
-interfaces and features:  
+interfaces and features:
 
 Interface Creation 
 ------------------
@@ -108,7 +108,7 @@ the override_input.yaml file:
 
    ```
    mpint -i override_input.yaml update all_poscars/POS/CBr2_294_C1Br2 all_poscars/POS/CoBr2_294_Co1Br2
-   ```       
+   ```
 
 High throughput VASP workflows with FireWorks  
 ---------------------------------------------
@@ -119,7 +119,7 @@ We have defined FireTasks customized to Interface studies as follows:
 
 Calibrate, Measurement and DatabaseSubmit. 
     -  Calibrate Task: 
-       Defines all tasks that involve the calibration of  
+       Defines all tasks that involve the calibration of
        VASP input parameters. For example, energy cutoff convergence, 
        kpoints convergence,vacuum convergence, thickness convergence in case of slabs 
        Calibrate module defined in calibrate.py provides customized 
@@ -148,7 +148,7 @@ FireWorks documentation, create your own my_launchpad.yaml using
 lpad init
 
 Set the path to this file to LAUNCHPAD_LOC in 
-the fw_config.py found in your installation directory.  
+the fw_config.py found in your installation directory.
 
 TIP: create the my_launchpad.yaml in the directory
      ~/.fireworks

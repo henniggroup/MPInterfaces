@@ -2,14 +2,15 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 This script demonstrates the creation of ligand interfaces and 
 preoptimization screening of possible interfaces.
 """
 
-import sys
+from six.moves import range
 
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.vasp.inputs import Poscar
@@ -51,11 +52,14 @@ def coloumb_configured_interface(iface, random=True,
             y = np.random.normal()  # shift along y direction
             z = np.random.normal()  # shift aling z direction
             a = SymmOp.from_axis_angle_and_translation(axis=[1, 0, 0], \
-                                                       angle=np.random.normal(0, 180))
+                                                       angle=np.random.normal(
+                                                           0, 180))
             b = SymmOp.from_axis_angle_and_translation(axis=[0, 1, 0], \
-                                                       angle=np.random.normal(0, 180))
+                                                       angle=np.random.normal(
+                                                           0, 180))
             c = SymmOp.from_axis_angle_and_translation(axis=[0, 0, 1], \
-                                                       angle=np.random.normal(0, 180))
+                                                       angle=np.random.normal(
+                                                           0, 180))
             ligand = iface.ligand
             ligand.apply_operation(a)
             ligand.apply_operation(b)
@@ -173,5 +177,7 @@ if __name__ == '__main__':
             # slab poscars without selective dynamics flag
             iface_slab.to('poscar', 'POSCAR_slab' + str(iface[0]) + '.vasp')
             # poscars with selective dynamics flag
-            interface_poscar.write_file("POSCAR_interface_with_sd" + str(iface[0]) + '.vasp')
-            slab_poscar.write_file("POSCAR_slab_with_sd" + str(iface[0]) + '.vasp')
+            interface_poscar.write_file(
+                "POSCAR_interface_with_sd" + str(iface[0]) + '.vasp')
+            slab_poscar.write_file(
+                "POSCAR_slab_with_sd" + str(iface[0]) + '.vasp')

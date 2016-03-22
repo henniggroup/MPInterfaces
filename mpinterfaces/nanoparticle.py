@@ -2,11 +2,14 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Wulff construction to create the nanoparticle
 """
+
+from six.moves import range
 
 import sys
 import itertools
@@ -35,19 +38,22 @@ class Nanoparticle(Molecule):
     Construct nanoparticle using wulff construction
     """
 
-    def __init__(self, structure, rmax=15, 
+    def __init__(self, structure, rmax=15,
                  hkl_family=[(1, 0, 0), (1, 1, 1)],
-                 surface_energies=[28, 25] ):
+                 surface_energies=[28, 25]):
         self.structure = structure
         self.rmax = rmax
         self.hkl_family = hkl_family
         self.surface_energies = surface_energies
-        spherical_neighbors = self.structure.get_sites_in_sphere([0.0,0.0,0.0], self.rmax)
+        spherical_neighbors = self.structure.get_sites_in_sphere(
+            [0.0, 0.0, 0.0], self.rmax)
         recp_lattice = self.structure.lattice.reciprocal_lattice_crystallographic
         self.recp_lattice = recp_lattice.scale(1)
         self.set_miller_family()
-        Molecule.__init__(self, [sn[0].species_and_occu for sn in spherical_neighbors],
-                          [sn[0].coords for sn in spherical_neighbors], charge=0)
+        Molecule.__init__(self, [sn[0].species_and_occu for sn in
+                                 spherical_neighbors],
+                          [sn[0].coords for sn in spherical_neighbors],
+                          charge=0)
 
     def set_miller_family(self):
         """
@@ -73,7 +79,8 @@ class Nanoparticle(Molecule):
                     for i, u_miller in enumerate(self.hkl_family):
                         if in_coord_list(u_miller, op.operate(miller_index)):
                             self.all_equiv_millers.append(miller_index)
-                            self.all_surface_energies.append(self.surface_energies[i])
+                            self.all_surface_energies.append(
+                                self.surface_energies[i])
 
     def get_normals(self):
         """
@@ -104,14 +111,16 @@ class Nanoparticle(Molecule):
         """
         mol = self.get_centered_molecule()
         normalized_surface_energies = \
-            np.array(self.all_surface_energies) / float(max(self.all_surface_energies))
+            np.array(self.all_surface_energies) / float(
+                max(self.all_surface_energies))
         surface_normals = self.get_normals()
         remove_sites = []
         for i, site in enumerate(mol):
             for j, normal in enumerate(surface_normals):
                 n = np.array(normal)
                 n = n / np.linalg.norm(n)
-                if np.dot(site.coords, n) + self.rmax * normalized_surface_energies[j] <= 0:
+                if np.dot(site.coords, n) + self.rmax * \
+                        normalized_surface_energies[j] <= 0:
                     remove_sites.append(i)
                     break
         self.remove_sites(remove_sites)

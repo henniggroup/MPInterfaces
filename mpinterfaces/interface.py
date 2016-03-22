@@ -2,12 +2,15 @@
 # Copyright (c) Henniggroup.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals, \
+    absolute_import
 
 """
 Defines the Interface(extends class Slab) and
 Ligand(extends class Molecule) classes
 """
+
+from six.moves import range
 
 import sys
 import math
@@ -156,10 +159,12 @@ class Interface(Slab):
         self.top_atoms = []
         self.bottom_atoms = []
         for i in range(n_atoms):
-            if np.abs(self.frac_coords[i][2] - max(self.frac_coords[:, 2])) < 1e-6:
+            if np.abs(self.frac_coords[i][2] - max(
+                    self.frac_coords[:, 2])) < 1e-6:
                 if self[i].species_string == self.adsorb_on_species:
                     self.top_atoms.append(i)
-            elif np.abs(self.frac_coords[i][2] - min(self.frac_coords[:, 2])) < 1e-6:
+            elif np.abs(self.frac_coords[i][2] - min(
+                    self.frac_coords[:, 2])) < 1e-6:
                 self.bottom_atoms.append(i)
 
     def enforce_coverage(self):
@@ -180,20 +185,26 @@ class Interface(Slab):
         max_coverage = n_top_atoms / self.surface_area
         m = self.lattice.matrix
         surface_area_orig = np.linalg.norm(np.cross(m[0], m[1]))
-        logger.info('requested surface coverage = {}'.format(self.surface_coverage))
+        logger.info(
+            'requested surface coverage = {}'.format(self.surface_coverage))
         logger.info('maximum possible coverage = {}'.format(max_coverage))
         if self.surface_coverage > max_coverage:
-            logger.warn('requested surface coverage exceeds the max possible coverage. exiting.')
+            logger.warn(
+                'requested surface coverage exceeds the max possible coverage. exiting.')
             sys.exit()
         else:
             for scell in range(1, self.scell_nmax):
                 for nlig in range(1, scell * n_top_atoms + 1):
                     surface_area = scell * surface_area_orig
                     surface_coverage = nlig / surface_area
-                    diff_coverage = np.abs(surface_coverage - self.surface_coverage)
+                    diff_coverage = np.abs(
+                        surface_coverage - self.surface_coverage)
                     if diff_coverage <= self.surface_coverage * self.coverage_tol:
-                        logger.info('tolerance limit = {}'.format(self.coverage_tol))
-                        logger.info('possible coverage within the tolerance limit = {}'.format(nlig / surface_area))
+                        logger.info(
+                            'tolerance limit = {}'.format(self.coverage_tol))
+                        logger.info(
+                            'possible coverage within the tolerance limit = {}'.format(
+                                nlig / surface_area))
                         logger.info('supercell size = {}'.format(scell))
                         logger.info('number of ligands = {}'.format(nlig))
                         return scell, nlig
@@ -218,7 +229,7 @@ class Interface(Slab):
             return nlig, uv_list[np.argmin(norm_list)]
         else:
             logger.warn(
-                    "couldn't find supercell and number of ligands that satisfy the required surface coverage. exiting.")
+                "couldn't find supercell and number of ligands that satisfy the required surface coverage. exiting.")
             sys.exit()
 
     def cover_surface(self, site_indices):
@@ -255,7 +266,8 @@ class Interface(Slab):
             # it will be adsorbed
             origin = self.cart_coords[sindex]
             self.ligand.translate_sites(list(range(num_atoms)),
-                                        origin - self.ligand[adatom_index].coords)
+                                        origin - self.ligand[
+                                            adatom_index].coords)
             # displace the ligand by the given amount in the direction
             # normal to surface
             self.ligand.translate_sites(list(range(num_atoms)), mov_vec)
@@ -281,7 +293,8 @@ class Interface(Slab):
                 # Simply do an inversion about the origin
                 for i in range(len(self.ligand)):
                     self.ligand[i] = (self.ligand[i].species_and_occu,
-                                      origin - (self.ligand[i].coords - origin))
+                                      origin - (
+                                          self.ligand[i].coords - origin))
             # x - y - shifts
             x = self.x_shift
             y = self.y_shift
@@ -294,17 +307,17 @@ class Interface(Slab):
                                             np.array([0, y, 0]))
             if rot:
                 self.ligand.apply_operation(
-                        SymmOp.from_axis_angle_and_translation(
-                                (1, 0, 0), rot[0], angle_in_radians=False,
-                                translation_vec=(0, 0, 0)))
+                    SymmOp.from_axis_angle_and_translation(
+                        (1, 0, 0), rot[0], angle_in_radians=False,
+                        translation_vec=(0, 0, 0)))
                 self.ligand.apply_operation(
-                        SymmOp.from_axis_angle_and_translation(
-                                (0, 1, 0), rot[1], angle_in_radians=False,
-                                translation_vec=(0, 0, 0)))
+                    SymmOp.from_axis_angle_and_translation(
+                        (0, 1, 0), rot[1], angle_in_radians=False,
+                        translation_vec=(0, 0, 0)))
                 self.ligand.apply_operation(
-                        SymmOp.from_axis_angle_and_translation(
-                                (0, 0, 1), rot[2], angle_in_radians=False,
-                                translation_vec=(0, 0, 0)))
+                    SymmOp.from_axis_angle_and_translation(
+                        (0, 0, 1), rot[2], angle_in_radians=False,
+                        translation_vec=(0, 0, 0)))
             # 3d numpy array
             adsorbed_ligands_coords.append(self.ligand.cart_coords)
             # extend the slab structure with the adsorbant atoms
@@ -334,8 +347,8 @@ class Interface(Slab):
             nlig, uv = self.get_reduced_scell()
             self.n_ligands = nlig
             logger.info(
-                    'using {0} ligands on a supercell with in-plane lattice vectors\n{1}'
-                        .format(self.n_ligands, uv))
+                'using {0} ligands on a supercell with in-plane lattice vectors\n{1}'
+                    .format(self.n_ligands, uv))
             new_latt_matrix = [uv[0][:],
                                uv[1][:],
                                self.lattice.matrix[2, :]]
@@ -347,7 +360,9 @@ class Interface(Slab):
             self.set_top_atoms()
             self.adsorb_sites = [self.top_atoms[i]
                                  for i in range(self.n_ligands)]
-            logger.info('ligands will be adsorbed on these sites on the slab {}'.format(self.adsorb_sites))
+            logger.info(
+                'ligands will be adsorbed on these sites on the slab {}'.format(
+                    self.adsorb_sites))
             self.cover_surface(self.adsorb_sites)
         else:
             logger.info('no ligands. just the bare slab')
@@ -386,8 +401,8 @@ class Interface(Slab):
             for j, sitej in enumerate(self):
                 if i != j:
                     dij = self.get_distance(i, j)
-                    Zi = sitei.species_and_occu.items()[0][0].Z
-                    Zj = sitej.species_and_occu.items()[0][0].Z
+                    Zi = list(sitei.species_and_occu.items())[0][0].Z
+                    Zj = list(sitej.species_and_occu.items())[0][0].Z
                     energy += 0.5 * Zi * Zj / dij
         return energy
 
@@ -475,14 +490,14 @@ class Ligand(Molecule):
             mov_vec = mov_vec / np.linalg.norm(mov_vec)
             new_coords = self.mols[i + 1].cart_coords + new_cm
             self.mols[i + 1] = Molecule(
-                    self.mols[i + 1].species_and_occu,
-                    new_coords,
-                    charge=self.mols[i + 1]._charge,
-                    spin_multiplicity=self.mols[i + 1]._spin_multiplicity,
-                    site_properties=self.mols[i + 1].site_properties)
+                self.mols[i + 1].species_and_occu,
+                new_coords,
+                charge=self.mols[i + 1]._charge,
+                spin_multiplicity=self.mols[i + 1]._spin_multiplicity,
+                site_properties=self.mols[i + 1].site_properties)
             new_mol = Molecule.from_sites(
-                    self.mols[i].sites + self.mols[i + 1].sites,
-                    validate_proximity=True)
+                self.mols[i].sites + self.mols[i + 1].sites,
+                validate_proximity=True)
 
     def rotate_mols(self):
         """
@@ -499,13 +514,14 @@ class Ligand(Molecule):
                     # then perp_vec = (-y, x, 0)
                     if np.abs(np.dot(self.mol_vecs[int(ind_key)],
                                      self.mol_vecs[mol]) - \
-                                              np.linalg.norm(self.mol_vecs[mol]) ** 2) < 1e-6:
+                                              np.linalg.norm(self.mol_vecs[
+                                                                 mol]) ** 2) < 1e-6:
                         perp_vec = np.array([-self.mol_vecs[mol][1],
                                              self.mol_vecs[mol][0], 0])
                         org_pt = self.vec_indices[mol][0]
                         op = SymmOp.from_origin_axis_angle(
-                                self.mols[mol].cart_coords[org_pt],
-                                axis=perp_vec, angle=rot)
+                            self.mols[mol].cart_coords[org_pt],
+                            axis=perp_vec, angle=rot)
                         self.mols[mol].apply_operation(op)
 
     def link_mols(self):
@@ -526,7 +542,8 @@ class Ligand(Molecule):
                     for ind_key, conn in self.link[str(mol)].items():
                         ind = int(ind_key)
                         logger.info(
-                                'connection list for atom of index {0} of molecule {1} : {2}'.format(ind, mol, conn))
+                            'connection list for atom of index {0} of molecule {1} : {2}'.format(
+                                ind, mol, conn))
                         coord = np.array([0, 0, 0])
                         # if connecting the molecule mol to only one atom of
                         # just one another molecule
@@ -537,7 +554,8 @@ class Ligand(Molecule):
                             for j, k in enumerate(conn):
                                 coord = self.mols[j].cart_coords[non_neg[0]] + \
                                         np.random.rand(1, 3) + 1.0
-                            displacement = coord - self.mols[mol].cart_coords[ind]
+                            displacement = coord - self.mols[mol].cart_coords[
+                                ind]
                         else:
                             for j, k in enumerate(conn):
                                 if k >= 0:
@@ -548,11 +566,11 @@ class Ligand(Molecule):
                         new_coords[ind, 2] = coord[2]
                     new_coords = new_coords + displacement
                     self.mols[mol] = Molecule(
-                            self.mols[mol].species_and_occu,
-                            new_coords,
-                            charge=self.mols[mol]._charge,
-                            spin_multiplicity=self.mols[mol]._spin_multiplicity,
-                            site_properties=self.mols[mol].site_properties)
+                        self.mols[mol].species_and_occu,
+                        new_coords,
+                        charge=self.mols[mol]._charge,
+                        spin_multiplicity=self.mols[mol]._spin_multiplicity,
+                        site_properties=self.mols[mol].site_properties)
 
     def create_ligand(self):
         """
@@ -586,8 +604,7 @@ class Ligand(Molecule):
 # test
 if __name__ == '__main__':
     # the following example require:
-    # acetic_acid.xyz and POSCAR.mp-21276_PbS 
-    from pymatgen.io.vasp.inputs import Poscar
+    # acetic_acid.xyz and POSCAR.mp-21276_PbS
 
     # create lead acetate ligand
     # from 3 molecules: 2 acetic acid + 1 Pb

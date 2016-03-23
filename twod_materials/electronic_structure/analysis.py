@@ -178,9 +178,15 @@ def plot_normal_band_structure():
     """
     Plot a PDF standard band structure with no projections.
     """
+
     vasprun = BSVasprun('vasprun.xml')
+
+    if 'pbe_bands' in os.getcwd():
+        efermi = BSVasprun('../vasprun.xml').efermi
+    else:
+        efermi = vasprun.efermi
     bsp = BSPlotter(vasprun.get_band_structure('KPOINTS', line_mode=True,
-                                               efermi=vasprun.efermi))
+                                               efermi=efermi))
     bsp.save_plot('band_structure.pdf', ylim=(-5, 5))
 
 

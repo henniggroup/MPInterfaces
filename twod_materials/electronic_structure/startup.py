@@ -8,6 +8,8 @@ from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.core.structure import Structure
 
+from monty.serialization import loadfn
+
 
 if '/ufrc/' in os.getcwd():
     HIPERGATOR = 2
@@ -48,7 +50,7 @@ def run_linemode_calculation(submit=True, force_overwrite=False):
 
     PBE_INCAR_DICT = {'EDIFF': 1e-6, 'IBRION': 2, 'ISIF': 3, 'ISMEAR': 1,
                       'NSW': 0, 'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
-                      'LREAL': 'Auto', 'NPAR': 4, 'PREC': 'Accurate'
+                      'LREAL': 'Auto', 'NPAR': 4, 'PREC': 'Accurate',
                       'LWAVE': True, 'SIGMA': 0.1, 'ENCUT': 500, 'ICHARG': 11}
 
     directory = os.getcwd().split('/')[-1]

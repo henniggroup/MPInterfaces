@@ -27,6 +27,7 @@ setup(
         os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
     classifiers=[
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",

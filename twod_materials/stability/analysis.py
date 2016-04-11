@@ -126,7 +126,7 @@ def get_hull_distances(directories):
     return hull_distances
 
 
-def plot_hull_distances(hull_distances):
+def plot_hull_distances(hull_distances, fmt='pdf'):
     """
     Create a bar graph of the formation energies of the 2D materials.
     """
@@ -174,7 +174,7 @@ def plot_hull_distances(hull_distances):
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
     ax.set_ylabel(r'$\mathrm{E_F\/(meV/atom)}$', size=40)
 
-    plt.savefig('stability_plot.pdf', transparent=True)
+    plt.savefig('stability_plot.{}'.format(fmt), transparent=True)
 
 
 def all_converged(two_d, three_d):

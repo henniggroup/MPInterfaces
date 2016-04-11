@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from twod_materials.utils import is_converged
 
 
-def plot_band_alignments(directories, run_type='PBE'):
+def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
     """
     Plot CBM's and VBM's of all compounds together, relative to the band
     edges of H2O.
@@ -171,12 +171,12 @@ def plot_band_alignments(directories, run_type='PBE'):
 
     ax.set_ylabel('eV', family='serif', size=24)
 
-    plt.savefig('band_alignments.pdf', transparent=True)
+    plt.savefig('band_alignments.{}'.format(fmt), transparent=True)
 
 
-def plot_normal_band_structure():
+def plot_band_structure(fmt='pdf'):
     """
-    Plot a PDF standard band structure with no projections.
+    Plot a standard band structure with no projections.
     """
 
     vasprun = BSVasprun('vasprun.xml')
@@ -187,10 +187,10 @@ def plot_normal_band_structure():
         efermi = vasprun.efermi
     bsp = BSPlotter(vasprun.get_band_structure('KPOINTS', line_mode=True,
                                                efermi=efermi))
-    bsp.save_plot('band_structure.pdf', ylim=(-5, 5))
+    bsp.save_plot('band_structure.{}'.format(fmt), ylim=(-5, 5))
 
 
-def plot_color_projected_bands():
+def plot_color_projected_bands(fmt='pdf'):
     """
     Plot a single band structure where the color of the band indicates
     the elemental character of the eigenvalue.
@@ -198,10 +198,11 @@ def plot_color_projected_bands():
     vasprun = BSVasprun('vasprun.xml', parse_projected_eigen=True)
     bs = vasprun.get_band_structure('KPOINTS', line_mode=True)
     bspp = BSPlotterProjected(bs)
-    bspp.get_elt_projected_plots_color().savefig('color_projected_bands.pdf')
+    bspp.get_elt_projected_plots_color().savefig(
+        'color_projected_bands.{}'.format(fmt))
 
 
-def plot_elt_projected_bands():
+def plot_elt_projected_bands(fmt='pdf'):
     """
     Plot separate band structures for each element where the size of the
     markers indicates the elemental character of the eigenvalue.
@@ -209,10 +210,10 @@ def plot_elt_projected_bands():
     vasprun = BSVasprun('vasprun.xml', parse_projected_eigen=True)
     bs = vasprun.get_band_structure('KPOINTS', line_mode=True)
     bspp = BSPlotterProjected(bs)
-    bspp.get_elt_projected_plots().savefig('elt_projected_bands.pdf')
+    bspp.get_elt_projected_plots().savefig('elt_projected_bands.{}'.format(fmt))
 
 
-def plot_orb_projected_bands(orbitals):
+def plot_orb_projected_bands(orbitals, fmt='pdf'):
     """
     Plot a separate band structure for each orbital of each element in
     orbitals.
@@ -223,7 +224,8 @@ def plot_orb_projected_bands(orbitals):
     vasprun = BSVasprun('vasprun.xml', parse_projected_eigen=True)
     bs = vasprun.get_band_structure('KPOINTS', line_mode=True)
     bspp = BSPlotterProjected(bs)
-    bspp.get_projected_plots_dots(orbitals).savefig('orb_projected_bands.pdf')
+    bspp.get_projected_plots_dots(orbitals).savefig(
+        'orb_projected_bands.{}'.format(fmt))
 
 
 def get_effective_mass():

@@ -14,7 +14,7 @@ from pymatgen.core.structure import Structure
 import warnings
 
 
-def plot_gamma_surface():
+def plot_gamma_surface(fmt='pdf'):
     """
     Collect the energies along a 10x10 grid of static energy
     calculations to plot the Gamma surface between two layers of the 2D
@@ -126,5 +126,5 @@ def plot_gamma_surface():
     ax.axes.get_yaxis().set_ticks([])
     ax.axes.get_xaxis().set_ticks([])
 
-    plt.savefig('gamma_surface.pdf', transparent=True)
+    plt.savefig('gamma_surface.{}'.format(fmt), transparent=True)
     os.chdir('../')

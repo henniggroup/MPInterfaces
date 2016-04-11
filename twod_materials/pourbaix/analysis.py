@@ -47,7 +47,7 @@ def contains_entry(entry_list, entry):
             return True
 
 
-def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6):
+def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6, fmt='pdf'):
     """
     args:
 
@@ -163,11 +163,12 @@ def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6):
         plot.suptitle('Metastable Tolerance ='
                       ' {} meV/atom'.format(metastability),
                       fontsize=20)
-        plot.savefig('{}_{}meV.pdf'.format(
-            composition.reduced_formula, metastability),
+        plot.savefig('{}_{}.{}'.format(
+            composition.reduced_formula, ion_concentration, fmt),
             transparent=True)
     else:
-        plot.savefig('{}.pdf'.format(composition.reduced_formula),
+        plot.savefig('{}_{}.{}'.format(composition.reduced_formula,
+                                        ion_concentration, fmt),
                      transparent=True)
 
     plot.close()

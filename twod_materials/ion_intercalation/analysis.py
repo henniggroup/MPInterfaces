@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import operator
 
 
-def plot_ion_hull_and_voltages(ion='Li'):
+def plot_ion_hull_and_voltages(ion='Li', fmt='pdf'):
     """
     Plots the phase diagram between the pure material and pure ion,
     Connecting the points on the convex hull of the phase diagram.
@@ -130,4 +130,4 @@ def plot_ion_hull_and_voltages(ion='Li'):
     elif ion == 'Al':
         ax2.set_ylabel(r'$\mathrm{Potential\/vs.\/Al/Al^{3+}\/(V)}$', size=28)
 
-    plt.savefig('{}_hull.pdf'.format(ion), transparent=True)
+    plt.savefig('{}_hull.{}'.format(ion, fmt), transparent=True)

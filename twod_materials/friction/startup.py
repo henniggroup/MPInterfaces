@@ -4,6 +4,8 @@ import math
 
 import numpy as np
 
+from monty.serialization import loadfn
+
 import twod_materials.utils as utl
 
 from pymatgen.core.structure import Structure

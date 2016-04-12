@@ -139,8 +139,12 @@ def plot_de_dx(fmt='pdf'):
     """
 
     os.chdir('friction/normal')
-    for spacing in os.listdir(os.getcwd()):
-        os.chdir(spacing)
+
+    f, (ax1, ax2) = plt.subplots(2, figsize=(16, 16))
+
+    for spacing in [float(spc) for spc in os.listdir(os.getcwd()) if
+            os.path.isdir(spc)]:
+        os.chdir(str(spacing))
         subdirectories = os.listdir(os.getcwd())
 
         amplitude = abs(
@@ -180,33 +184,34 @@ def plot_de_dx(fmt='pdf'):
         os.chdir('../')
 
     plt.savefig('de_dx.{}'.format(fmt))
+    os.chdir('../../')
 
 
-def plot_de_dz(fmt='pdf'):
+def plot_de_dz(basin_dir, fmt='pdf'):
     """
     Plot the LJ-like curve of the energy at the basin point
     as a function of normal spacing dz.
     """
 
     os.chdir('friction/normal')
-    spacings = os.listdir(os.getcwd()):
+    spacings = [float(dir) for dir in os.listdir(os.getcwd()) if
+                os.path.isdir(dir)]
+    spacings.sort()
 
     fig = plt.figure(figsize=(16, 10))
     ax = fig.gca()
     ax2 = ax.twinx()
 
     abs_E = [
-        Vasprun('{}/7x5/vasprun.xml'.format(spacing)).final_energy
+        Vasprun('{}/{}/vasprun.xml'.format(spacing, basin_dir)).final_energy
         for spacing in spacings
         ]
     E = [energy - abs_E[-1] for energy in abs_E]
 
-    spline = interpolate.splrep(z, E, s=0)
+    spline = interpolate.splrep(spacings, E, s=0)
     xnew = np.arange(1.5, 4, 0.001)
     ynew = interpolate.splev(xnew, spline, der=0)
-    ynew_slope = interpolate.splev(z, spline, der=1)
-
-    print ynew_slope
+    ynew_slope = interpolate.splev(spacings, spline, der=1)
 
     ax.set_xlim(spacings[0], spacings[-1])
 
@@ -214,7 +219,7 @@ def plot_de_dz(fmt='pdf'):
     ax2.plot([spacings[0], spacings[-1]], [0, 0], '--', color=plt.cm.jet(0.9))
     E_z = ax.plot(xnew, ynew, color=plt.cm.jet(0),
                   linewidth=4, label=r'$\mathrm{E(z)}$')
-    f_N = ax2.plot(z, [-y for y in ynew_slope], color=plt.cm.jet(0.9),
+    f_N = ax2.plot(spacings, [-y for y in ynew_slope], color=plt.cm.jet(0.9),
                    linewidth=4, label=r'$\mathrm{f_N}$')
 
     ax.set_ylim(ax.get_ylim())

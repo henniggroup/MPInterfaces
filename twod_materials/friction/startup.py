@@ -2,6 +2,8 @@ import os
 
 import math
 
+import numpy as np
+
 import twod_materials.utils as utl
 
 from pymatgen.core.structure import Structure
@@ -23,11 +25,10 @@ VASP = loadfn(os.path.join(os.path.expanduser('~'),
                            'config.yaml'))['normal_binary']
 
 
-def run_friction_calculations(submit=True):
+def run_gamma_calculations(submit=True):
     """
-    Setup a 3D grid of static energy calculations to plot the Gamma
-    surface between two layers of the 2D material, and obtain values of
-    f_N for deriving friction coefficients.
+    Setup a 2D grid of static energy calculations to plot the Gamma
+    surface between two layers of the 2D material.
     """
 
     # Pad the bottom layer with 20 Angstroms of vacuum.
@@ -42,7 +43,11 @@ def run_friction_calculations(submit=True):
         os.mkdir('friction')
     os.chdir('friction')
 
-    os.system('cp ../CONTCAR POSCAR')
+    if not os.path.isdir('lateral'):
+        os.mkdir('lateral')
+    os.chdir('lateral')
+
+    os.system('cp ../../CONTCAR POSCAR')
     utl.add_vacuum(20 - utl.get_spacing(), 0.8)
     structure = Structure.from_file('POSCAR')
     n_sites_per_layer = structure.num_sites
@@ -75,7 +80,7 @@ def run_friction_calculations(submit=True):
             os.chdir(dir)
             os.system('cp ../../INCAR .')
             os.system('cp ../../KPOINTS .')
-            os.system('cp ../POSCAR .')
+            os.system('cp ../../POSCAR .')
             os.system('cp {} .'.format(KERNEL_PATH))
 
             utl.write_potcar()
@@ -112,4 +117,68 @@ def run_friction_calculations(submit=True):
 
             os.chdir('../')
 
-    os.chdir('../')
+    os.chdir('../../')
+
+
+def run_normal_force_calculations(basin_dir, saddle_dir, submit=True):
+    """
+    Set up and run static calculations of the basin directory
+    (basin_dir) and saddle directory (saddle_dir) at z-spacings
+    between 1.5 and 4 Angstroms to get f_N and f_F.
+    """
+
+    spacings = [str(spc) for spc in np.arange(1.5, 4.25, 0.25)]
+
+    os.chdir('friction')
+    if not os.path.isdir('normal'):
+        os.mkdir('normal')
+    os.chdir('normal')
+
+    for spacing in spacings:
+        if not os.path.isdir(spacing):
+            os.mkdir(spacing)
+
+        for subdirectory in [basin_dir, saddle_dir]:
+
+            os.system('cp -r ../lateral/{} {}/'.format(subdirectory, spacing))
+
+            os.chdir('{}/{}'.format(spacing, subdirectory))
+            structure = Structure.from_file('POSCAR')
+            n_sites = len(structure.sites)
+            top_layer = structure.sites[n_sites / 2:]
+            bottom_of_top_layer = min(
+                [z_coord for z_coord in [site.coords[2] for site in top_layer]])
+
+            remove_indices = range(n_sites / 2, n_sites)
+
+            structure.remove_sites(remove_indices)
+            max_height = max([site.coords[2] for site in structure.sites])
+
+            for site in top_layer:
+                structure.append(
+                    site.specie,
+                    [site.coords[0],
+                     site.coords[1],
+                     site.coords[2] - bottom_of_top_layer
+                     + max_height + float(spacing)],
+                     coords_are_cartesian=True
+                    )
+
+            structure.to('POSCAR', 'POSCAR')
+
+            if HIPERGATOR == 1:
+                utl.write_pbs_runjob('{}_{}'.format(subdirectory, spacing), 1,
+                    4, '400mb', '1:00:00', VASP)
+                submission_command = 'qsub runjob'
+
+            elif HIPERGATOR == 2:
+                utl.write_slurm_runjob('{}_{}'.format(subdirectory, spacing), 4,
+                    '400mb', '1:00:00', VASP)
+                submission_command = 'sbatch runjob'
+
+            if submit:
+                os.system(submission_command)
+
+            os.chdir('../../')
+
+    os.chdir('../../')

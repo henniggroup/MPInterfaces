@@ -2,6 +2,8 @@ import os
 
 import numpy as np
 
+from scipy import interpolate
+
 import math
 
 import matplotlib as mpl
@@ -37,7 +39,7 @@ def plot_gamma_surface(fmt='pdf'):
     X_VALUES = range(n_divs_x)
     Y_VALUES = range(n_divs_y)
 
-    os.chdir('friction')
+    os.chdir('friction/lateral')
 
     not_converged = []
     for x in X_VALUES:
@@ -127,4 +129,112 @@ def plot_gamma_surface(fmt='pdf'):
     ax.axes.get_xaxis().set_ticks([])
 
     plt.savefig('gamma_surface.{}'.format(fmt), transparent=True)
-    os.chdir('../')
+    os.chdir('../../')
+
+
+def plot_de_dx(fmt='pdf'):
+    """
+    Plot the sinusoidal curve of delta E between basin and saddle
+    points for each normal spacing dz.
+    """
+
+    os.chdir('friction/normal')
+    for spacing in os.listdir(os.getcwd()):
+        os.chdir(spacing)
+        subdirectories = os.listdir(os.getcwd())
+
+        amplitude = abs(
+            Vasprun('{}/vasprun.xml'.format(subdirectories[0])).final_energy
+            - Vasprun('{}/vasprun.xml'.format(subdirectories[1])).final_energy
+            ) / 2
+
+        start_coords = Structure.from_file(
+            '{}/POSCAR'.format(subdirectories[0])
+            ).sites[-1].coords
+        end_coords = Structure.from_file(
+            '{}/POSCAR'.format(subdirectories[1])
+            ).sites[-1].coords
+        dist = np.sqrt(
+            (start_coords[0] - end_coords[0])**2
+            + (start_coords[1] - end_coords[1])**2)
+
+        b = (2 * np.pi) / (dist * 2)
+
+        x = np.arange(0, 4, 0.01)
+        sinx = [amplitude * np.sin(b * val) + amplitude for val in x]
+        cosx = [b * amplitude * np.cos(b * val)
+                if np.cos(b * val) > 0 else 0 for val in x]
+
+        ax1.plot(x, sinx, linewidth=8, color=plt.cm.jet(-(spacing - 4) / 2.51))
+        ax1.set_xticklabels(ax1.get_xticks(), family='serif', fontsize=18)
+        ax1.set_yticklabels(ax1.get_yticks(), family='serif', fontsize=18)
+        ax1.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif',
+            fontsize=24)
+        ax1.set_ylabel(r'$\mathrm{E(z)\/(eV)}$', family='serif', fontsize=24)
+        ax2.plot(x, cosx, linewidth=8, color=plt.cm.jet(-(spacing - 4) / 2.51))
+        ax2.set_xticklabels(ax2.get_xticks(), family='serif', fontsize=18)
+        ax2.set_yticklabels(ax2.get_yticks(), family='serif', fontsize=18)
+        ax2.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif',
+            fontsize=24)
+        ax2.set_ylabel(r'$\mathrm{f_x\/(eV/\AA)}$', family='serif', fontsize=24)
+        os.chdir('../')
+
+    plt.savefig('de_dx.{}'.format(fmt))
+
+
+def plot_de_dz(fmt='pdf'):
+    """
+    Plot the LJ-like curve of the energy at the basin point
+    as a function of normal spacing dz.
+    """
+
+    os.chdir('friction/normal')
+    spacings = os.listdir(os.getcwd()):
+
+    fig = plt.figure(figsize=(16, 10))
+    ax = fig.gca()
+    ax2 = ax.twinx()
+
+    abs_E = [
+        Vasprun('{}/7x5/vasprun.xml'.format(spacing)).final_energy
+        for spacing in spacings
+        ]
+    E = [energy - abs_E[-1] for energy in abs_E]
+
+    spline = interpolate.splrep(z, E, s=0)
+    xnew = np.arange(1.5, 4, 0.001)
+    ynew = interpolate.splev(xnew, spline, der=0)
+    ynew_slope = interpolate.splev(z, spline, der=1)
+
+    print ynew_slope
+
+    ax.set_xlim(spacings[0], spacings[-1])
+
+    ax.plot([spacings[0], spacings[-1]], [0, 0], '--', color=plt.cm.jet(0))
+    ax2.plot([spacings[0], spacings[-1]], [0, 0], '--', color=plt.cm.jet(0.9))
+    E_z = ax.plot(xnew, ynew, color=plt.cm.jet(0),
+                  linewidth=4, label=r'$\mathrm{E(z)}$')
+    f_N = ax2.plot(z, [-y for y in ynew_slope], color=plt.cm.jet(0.9),
+                   linewidth=4, label=r'$\mathrm{f_N}$')
+
+    ax.set_ylim(ax.get_ylim())
+
+    ax.set_xticklabels(ax.get_xticks(), family='serif', fontsize=18)
+    ax.set_yticklabels(ax.get_yticks(), family='serif', fontsize=18)
+    ax2.set_yticklabels(ax2.get_yticks(), family='serif', fontsize=18)
+
+    ax.set_xlabel(r'$\mathrm{z\/(\AA)}$', fontsize=24)
+    ax.set_ylabel(r'$\mathrm{E(z)\/(eV)}$', fontsize=24)
+    ax2.set_ylabel(r'$\mathrm{f_N\/(eV/\AA)}$', fontsize=24)
+
+    data = E_z + f_N
+    labs = [l.get_label() for l in data]
+
+    ax.legend(data, labs, loc='best', fontsize=24)
+
+    ax.plot(spacings, E, linewidth=0, marker='o', color=plt.cm.jet(0),
+            markersize=10, markeredgecolor='none')
+
+    plt.savefig('de_dz.pdf')
+
+    os.chdir('../../')

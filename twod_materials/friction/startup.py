@@ -33,14 +33,6 @@ def run_gamma_calculations(submit=True):
     surface between two layers of the 2D material.
     """
 
-    # Pad the bottom layer with 20 Angstroms of vacuum.
-    utl.add_vacuum(20 - utl.get_spacing(), 0.8)
-    structure = Structure.from_file('POSCAR')
-    n_sites_per_layer = structure.num_sites
-
-    n_divs_x = int(math.ceil(structure.lattice.a * 2.5))
-    n_divs_y = int(math.ceil(structure.lattice.b * 2.5))
-
     if not os.path.isdir('friction'):
         os.mkdir('friction')
     os.chdir('friction')
@@ -50,9 +42,14 @@ def run_gamma_calculations(submit=True):
     os.chdir('lateral')
 
     os.system('cp ../../CONTCAR POSCAR')
+
+    # Pad the bottom layer with 20 Angstroms of vacuum.
     utl.add_vacuum(20 - utl.get_spacing(), 0.8)
     structure = Structure.from_file('POSCAR')
     n_sites_per_layer = structure.num_sites
+
+    n_divs_x = int(math.ceil(structure.lattice.a * 2.5))
+    n_divs_y = int(math.ceil(structure.lattice.b * 2.5))
 
     # Get the thickness of the material.
     max_height = max([site.coords[2] for site in structure.sites])
@@ -82,7 +79,7 @@ def run_gamma_calculations(submit=True):
             os.chdir(dir)
             os.system('cp ../../../INCAR .')
             os.system('cp ../../../KPOINTS .')
-            os.system('cp ../../../POSCAR .')
+            os.system('cp ../POSCAR .')
             os.system('cp {} .'.format(KERNEL_PATH))
 
             utl.write_potcar()

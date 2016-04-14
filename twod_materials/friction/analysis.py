@@ -86,50 +86,54 @@ def plot_gamma_surface(fmt='pdf'):
                     scaled_energy / (abs_maximum - abs_minimum)
                     )
 
-            # Label the energy if it's a saddle point or local maximum.
-            try:
-                if (
-                    (ENERGY_ARRAY[x-1][y] > ENERGY_ARRAY[x][y] <
-                     ENERGY_ARRAY[x+1][y] and ENERGY_ARRAY[x][y-1] <
-                     ENERGY_ARRAY[x][y] > ENERGY_ARRAY[x][y+1])
-                    or
-                    (ENERGY_ARRAY[x-1][y] < ENERGY_ARRAY[x][y] >
-                     ENERGY_ARRAY[x+1][y] and ENERGY_ARRAY[x][y-1] >
-                     ENERGY_ARRAY[x][y] < ENERGY_ARRAY[x][y+1])
-                    or
-                    (ENERGY_ARRAY[x-1][y-1] > ENERGY_ARRAY[x][y] <
-                     ENERGY_ARRAY[x+1][y+1] and ENERGY_ARRAY[x+1][y-1] <
-                     ENERGY_ARRAY[x][y] > ENERGY_ARRAY[x-1][y+1])
-                    or
-                    (ENERGY_ARRAY[x-1][y] < ENERGY_ARRAY[x][y] >
-                     ENERGY_ARRAY[x+1][y] and ENERGY_ARRAY[x][y-1] >
-                     ENERGY_ARRAY[x][y] < ENERGY_ARRAY[x][y+1])
-                    or
-                    (ENERGY_ARRAY[x][y] > max([ENERGY_ARRAY[x-1][y-1],
-                                               ENERGY_ARRAY[x+1][y+1],
-                                               ENERGY_ARRAY[x-1][y+1],
-                                               ENERGY_ARRAY[x+1][y-1],
-                                               ENERGY_ARRAY[x-1][y],
-                                               ENERGY_ARRAY[x+1][y],
-                                               ENERGY_ARRAY[x][y-1],
-                                               ENERGY_ARRAY[x][y+1]]))
-                        ):
-                    ax.text(x+0.45, y+0.45, round(scaled_energy*1000, 2),
-                            family='serif', size=20,
-                            horizontalalignment='center',
-                            verticalalignment='center')
-            except IndexError:
-                pass
-
             ax.add_patch(plt.Rectangle((x, y), width=1, height=1,
                                        facecolor=color_code,
                                        linewidth=0))
+
     # Get rid of annoying ticks.
     ax.axes.get_yaxis().set_ticks([])
     ax.axes.get_xaxis().set_ticks([])
 
     plt.savefig('gamma_surface.{}'.format(fmt), transparent=True)
     os.chdir('../../')
+
+
+def get_basin_and_peak_locations():
+    """
+    Find which directories inside `friction/lateral` represent
+    the minimum (basin) and maximum (peak) energy stacking
+    configurations. Returns a tuple of the form (basin, peak).
+    """
+
+    lattice = Structure.from_file('CONTCAR').lattice
+
+    n_divs_x = int(math.ceil(lattice.a * 2.5))
+    n_divs_y = int(math.ceil(lattice.b * 2.5))
+
+    X_VALUES = range(n_divs_x)
+    Y_VALUES = range(n_divs_y)
+
+    os.chdir('friction/lateral')
+
+    not_converged = []
+    abs_maximum = -10000
+    abs_minimum = 0
+    for x in X_VALUES:
+        for y in Y_VALUES:
+            dir = '{}x{}'.format(x, y)
+            os.chdir(dir)
+            try:
+                energy = Vasprun('vasprun.xml').final_energy / area
+                if energy < abs_minimum:
+                    basin = dir
+                if energy > abs_maximum:
+                    peak = dir
+            except:
+                pass
+            os.chdir('../')
+    os.chdir('../../')
+
+    return(basin, peak)
 
 
 def plot_de_dx(fmt='pdf'):
@@ -185,8 +189,8 @@ def plot_de_dx(fmt='pdf'):
         ax2.set_ylabel(r'$\mathrm{f_x\/(eV/\AA)}$', family='serif', fontsize=24)
         os.chdir('../')
 
-    ax1.legend()
-    ax2.legend()
+    ax1.legend(loc='upper right')
+    ax2.legend(loc='upper right')
     plt.savefig('de_dx.{}'.format(fmt))
     os.chdir('../../')
 
@@ -239,7 +243,7 @@ def plot_de_dz(basin_dir, fmt='pdf'):
     data = E_z + f_N
     labs = [l.get_label() for l in data]
 
-    ax.legend(data, labs, loc='best', fontsize=24)
+    ax.legend(data, labs, loc='upper right', fontsize=24)
 
     ax.plot(spacings, E, linewidth=0, marker='o', color=plt.cm.jet(0),
             markersize=10, markeredgecolor='none')

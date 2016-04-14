@@ -80,9 +80,9 @@ def run_gamma_calculations(submit=True):
 
             # Copy input files
             os.chdir(dir)
-            os.system('cp ../../INCAR .')
-            os.system('cp ../../KPOINTS .')
-            os.system('cp ../../POSCAR .')
+            os.system('cp ../../../INCAR .')
+            os.system('cp ../../../KPOINTS .')
+            os.system('cp ../../../POSCAR .')
             os.system('cp {} .'.format(KERNEL_PATH))
 
             utl.write_potcar()

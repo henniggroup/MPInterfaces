@@ -142,8 +142,8 @@ def plot_de_dx(fmt='pdf'):
 
     f, (ax1, ax2) = plt.subplots(2, figsize=(16, 16))
 
-    for spacing in [float(spc) for spc in os.listdir(os.getcwd()) if
-            os.path.isdir(spc)]:
+    for spacing in sorted([float(spc) for spc in os.listdir(os.getcwd()) if
+            os.path.isdir(spc)]):
         os.chdir(str(spacing))
         subdirectories = os.listdir(os.getcwd())
 
@@ -169,13 +169,15 @@ def plot_de_dx(fmt='pdf'):
         cosx = [b * amplitude * np.cos(b * val)
                 if np.cos(b * val) > 0 else 0 for val in x]
 
-        ax1.plot(x, sinx, linewidth=8, color=plt.cm.jet(-(spacing - 4) / 2.51))
+        ax1.plot(x, sinx, linewidth=8, color=plt.cm.jet(-(spacing - 4) / 2.51),
+                 label=spacing)
         ax1.set_xticklabels(ax1.get_xticks(), family='serif', fontsize=18)
         ax1.set_yticklabels(ax1.get_yticks(), family='serif', fontsize=18)
         ax1.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif',
             fontsize=24)
         ax1.set_ylabel(r'$\mathrm{E(z)\/(eV)}$', family='serif', fontsize=24)
-        ax2.plot(x, cosx, linewidth=8, color=plt.cm.jet(-(spacing - 4) / 2.51))
+        ax2.plot(x, cosx, linewidth=8, color=plt.cm.jet(-(spacing - 4) / 2.51),
+                 label=spacing)
         ax2.set_xticklabels(ax2.get_xticks(), family='serif', fontsize=18)
         ax2.set_yticklabels(ax2.get_yticks(), family='serif', fontsize=18)
         ax2.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif',
@@ -183,6 +185,8 @@ def plot_de_dx(fmt='pdf'):
         ax2.set_ylabel(r'$\mathrm{f_x\/(eV/\AA)}$', family='serif', fontsize=24)
         os.chdir('../')
 
+    ax1.legend()
+    ax2.legend()
     plt.savefig('de_dx.{}'.format(fmt))
     os.chdir('../../')
 

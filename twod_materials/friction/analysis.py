@@ -115,7 +115,6 @@ def get_basin_and_peak_locations():
 
     os.chdir('friction/lateral')
 
-    not_converged = []
     abs_maximum = -10000
     abs_minimum = 0
     for x in X_VALUES:
@@ -123,11 +122,13 @@ def get_basin_and_peak_locations():
             dir = '{}x{}'.format(x, y)
             os.chdir(dir)
             try:
-                energy = Vasprun('vasprun.xml').final_energy / area
+                energy = Vasprun('vasprun.xml').final_energy
                 if energy < abs_minimum:
                     basin = dir
+                    abs_minimum = energy
                 if energy > abs_maximum:
                     peak = dir
+                    abs_minimum = energy
             except:
                 pass
             os.chdir('../')

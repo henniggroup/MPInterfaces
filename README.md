@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ashtonmv/twod_materials.svg?branch=master)](https://travis-ci.org/ashtonmv/twod_materials)
+
 # twod_materials
 Python modules for high-throughput 2D Materials Characterization
 
@@ -33,9 +35,12 @@ In almost all cases, before doing anything else, the user should use the
 relax() function to optimize the structures of the 2D materials using
 the framework of input parameters included here.
 
-Please ensure that a compiled version of vasp exists in your ~/bin, and
-that a specially compiled vasp with no relaxation in the z-direction also
-exists in your ~/bin. They should be called `vasp` and `vasp_noz`,
-respectively.
+Certain modules in the `analysis.py` files have been designed to be 
+sensitive to the directory structure, and will only really work if you've
+used the corresponding modules in the `startup.py` files to run the
+calculations. `get_hull_distance` is an example, since `twod_materials`
+needs to know where to look for competing bulk species (they should be in 
+`all_competitors/`, which should be at the same level as your 2D 
+material's directory)
 
-See the examples folder for some sample workflows.
+See the examples folder for some sample usage and workflows.

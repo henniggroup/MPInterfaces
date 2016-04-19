@@ -141,7 +141,7 @@ def run_normal_force_calculations(basin_and_saddle_dirs, submit=True):
         if not os.path.isdir(spacing):
             os.mkdir(spacing)
 
-        for subdirectory in [basin_dir, saddle_dir]:
+        for subdirectory in basin_and_saddle_dirs:
 
             os.system('cp -r ../lateral/{} {}/'.format(subdirectory, spacing))
 

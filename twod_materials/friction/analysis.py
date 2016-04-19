@@ -26,10 +26,10 @@ def plot_gamma_surface(fmt='pdf'):
     lattice = Structure.from_file('CONTCAR').lattice
     area = np.cross(lattice._matrix[0], lattice._matrix[1])[2]
 
-    ax = plt.figure(figsize=(10, 10)).gca()
-
     n_divs_x = int(math.ceil(lattice.a * 2.5))
     n_divs_y = int(math.ceil(lattice.b * 2.5))
+
+    ax = plt.figure(figsize=(n_divs_x * 1.2, n_divs_y * 1.2)).gca()
 
     ax.set_xlim(0, n_divs_x + 1)
     ax.set_ylim(0, n_divs_y + 1)

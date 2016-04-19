@@ -119,11 +119,15 @@ def run_gamma_calculations(submit=True):
     os.chdir('../../')
 
 
-def run_normal_force_calculations(basin_dir, saddle_dir, submit=True):
+def run_normal_force_calculations(basin_and_saddle_dirs, submit=True):
     """
     Set up and run static calculations of the basin directory
-    (basin_dir) and saddle directory (saddle_dir) at z-spacings
+    and saddle directory (specified as a tuple) at z-spacings
     between 1.5 and 4 Angstroms to get f_N and f_F.
+    ex.
+        run_normal_force_calculations(('0x0', '3x6'))
+    or
+        run_normal_force_calculations(get_basin_and_peak_locations())
     """
 
     spacings = [str(spc) for spc in np.arange(1.5, 4.25, 0.25)]

@@ -128,7 +128,7 @@ def get_basin_and_peak_locations():
                     abs_minimum = energy
                 if energy > abs_maximum:
                     peak = dir
-                    abs_minimum = energy
+                    abs_maximum = energy
             except:
                 pass
             os.chdir('../')
@@ -137,7 +137,7 @@ def get_basin_and_peak_locations():
     return(basin, peak)
 
 
-def plot_de_dx(fmt='pdf'):
+def plot_friction_force(fmt='pdf'):
     """
     Plot the sinusoidal curve of delta E between basin and saddle
     points for each normal spacing dz.
@@ -187,16 +187,16 @@ def plot_de_dx(fmt='pdf'):
         ax2.set_yticklabels(ax2.get_yticks(), family='serif', fontsize=18)
         ax2.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif',
             fontsize=24)
-        ax2.set_ylabel(r'$\mathrm{f_x\/(eV/\AA)}$', family='serif', fontsize=24)
+        ax2.set_ylabel(r'$\mathrm{F_f\/(eV/\AA)}$', family='serif', fontsize=24)
         os.chdir('../')
 
     ax1.legend(loc='upper right')
     ax2.legend(loc='upper right')
-    plt.savefig('de_dx.{}'.format(fmt))
+    plt.savefig('F_f.{}'.format(fmt))
     os.chdir('../../')
 
 
-def plot_de_dz(basin_dir, fmt='pdf'):
+def plot_normal_force(basin_dir, fmt='pdf'):
     """
     Plot the LJ-like curve of the energy at the basin point
     as a function of normal spacing dz.
@@ -228,8 +228,8 @@ def plot_de_dz(basin_dir, fmt='pdf'):
     ax2.plot([spacings[0], spacings[-1]], [0, 0], '--', color=plt.cm.jet(0.9))
     E_z = ax.plot(xnew, ynew, color=plt.cm.jet(0),
                   linewidth=4, label=r'$\mathrm{E(z)}$')
-    f_N = ax2.plot(spacings, [-y for y in ynew_slope], color=plt.cm.jet(0.9),
-                   linewidth=4, label=r'$\mathrm{f_N}$')
+    F_N = ax2.plot(spacings, [-y for y in ynew_slope], color=plt.cm.jet(0.9),
+                   linewidth=4, label=r'$\mathrm{F_N}$')
 
     ax.set_ylim(ax.get_ylim())
 
@@ -239,9 +239,9 @@ def plot_de_dz(basin_dir, fmt='pdf'):
 
     ax.set_xlabel(r'$\mathrm{z\/(\AA)}$', fontsize=24)
     ax.set_ylabel(r'$\mathrm{E(z)\/(eV)}$', fontsize=24)
-    ax2.set_ylabel(r'$\mathrm{f_N\/(eV/\AA)}$', fontsize=24)
+    ax2.set_ylabel(r'$\mathrm{F_N\/(eV/\AA)}$', fontsize=24)
 
-    data = E_z + f_N
+    data = E_z + F_N
     labs = [l.get_label() for l in data]
 
     ax.legend(data, labs, loc='upper right', fontsize=24)
@@ -249,6 +249,153 @@ def plot_de_dz(basin_dir, fmt='pdf'):
     ax.plot(spacings, E, linewidth=0, marker='o', color=plt.cm.jet(0),
             markersize=10, markeredgecolor='none')
 
-    plt.savefig('de_dz.pdf')
+    plt.savefig('F_N.{}'.format(fmt))
 
     os.chdir('../../')
+
+
+def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
+    """
+    Plot friction coefficient 'mu' vs. F_Normal.
+    mu = F_friction / F_Normal
+    """
+
+    fig = plt.figure(figsize=(16, 10))
+    ax = fig.gca()
+    ax2 = ax.twinx()
+
+    os.chdir('friction/normal')
+    spacings = [float(dir) for dir in os.listdir(os.getcwd()) if
+                os.path.isdir(dir)]
+    spacings.sort()
+
+    abs_E = [
+        Vasprun('{}/{}/vasprun.xml'.format(spacing, basin_dir)).final_energy
+        for spacing in spacings
+        ]
+    E = [energy - abs_E[-1] for energy in abs_E]
+
+    spline = interpolate.splrep(spacings, E, s=0)
+    xnew = np.arange(1.5, 4, 0.001)
+    ynew = interpolate.splev(xnew, spline, der=0)
+    ynew_slope = interpolate.splev(spacings, spline, der=1)
+    F_N = [-y for y in ynew_slope]
+
+    os.chdir('../../friction/normal')
+
+    F_f = []
+
+    for spacing in sorted([float(spc) for spc in os.listdir(os.getcwd()) if
+            os.path.isdir(spc)]):
+        os.chdir(str(spacing))
+        subdirectories = os.listdir(os.getcwd())
+
+        amplitude = abs(
+            Vasprun('{}/vasprun.xml'.format(subdirectories[0])).final_energy
+            - Vasprun('{}/vasprun.xml'.format(subdirectories[1])).final_energy
+            ) / 2
+
+        start_coords = Structure.from_file(
+            '{}/POSCAR'.format(subdirectories[0])
+            ).sites[-1].coords
+        end_coords = Structure.from_file(
+            '{}/POSCAR'.format(subdirectories[1])
+            ).sites[-1].coords
+        dist = np.sqrt(
+            (start_coords[0] - end_coords[0])**2
+            + (start_coords[1] - end_coords[1])**2)
+
+        b = (2 * np.pi) / (dist * 2)
+
+        x = np.arange(0, 4, 0.01)
+        sinx = [amplitude * np.sin(b * val) + amplitude for val in x]
+        cosx = [b * amplitude * np.cos(b * val)
+                if np.cos(b * val) > 0 else 0 for val in x]
+        F_f.append(max(cosx))
+        os.chdir('../')
+
+    os.chdir('../../')
+
+    mu = [f / N for f, N in zip(F_f, F_N)]
+
+    remove_indices = []
+    for i in range(len(mu)):
+        if mu[i] > 1 or mu[i] < 0:
+            remove_indices.append(i)
+    trimmed_mu = [mu[i] for i in range(len(mu)) if i not in remove_indices]
+    trimmed_F_N = [F_N[i] for i in range(len(F_N)) if i not in remove_indices]
+
+    ax = plt.figure().gca()
+    ax.plot(F_N, mu, linewidth=2, marker='o', markeredgecolor='none',
+            markersize=3, color=plt.cm.jet(0))
+    plt.savefig('mu_vs_F_N.{}'.format(fmt))
+
+
+def get_mu_vs_F_N(basin_dir):
+    """
+    Essentially the same function as plotting, but without the plot.
+    Returns {'F_N': F_N, 'mu': mu}
+    """
+
+    os.chdir('friction/normal')
+    spacings = [float(dir) for dir in os.listdir(os.getcwd()) if
+                os.path.isdir(dir)]
+    spacings.sort()
+
+    abs_E = [
+        Vasprun('{}/{}/vasprun.xml'.format(spacing, basin_dir)).final_energy
+        for spacing in spacings
+        ]
+    E = [energy - abs_E[-1] for energy in abs_E]
+
+    spline = interpolate.splrep(spacings, E, s=0)
+    xnew = np.arange(1.5, 4, 0.001)
+    ynew = interpolate.splev(xnew, spline, der=0)
+    ynew_slope = interpolate.splev(spacings, spline, der=1)
+    F_N = [-y for y in ynew_slope]
+
+    os.chdir('../../friction/normal')
+
+    F_f = []
+
+    for spacing in sorted([float(spc) for spc in os.listdir(os.getcwd()) if
+            os.path.isdir(spc)]):
+        os.chdir(str(spacing))
+        subdirectories = os.listdir(os.getcwd())
+
+        amplitude = abs(
+            Vasprun('{}/vasprun.xml'.format(subdirectories[0])).final_energy
+            - Vasprun('{}/vasprun.xml'.format(subdirectories[1])).final_energy
+            ) / 2
+
+        start_coords = Structure.from_file(
+            '{}/POSCAR'.format(subdirectories[0])
+            ).sites[-1].coords
+        end_coords = Structure.from_file(
+            '{}/POSCAR'.format(subdirectories[1])
+            ).sites[-1].coords
+        dist = np.sqrt(
+            (start_coords[0] - end_coords[0])**2
+            + (start_coords[1] - end_coords[1])**2)
+
+        b = (2 * np.pi) / (dist * 2)
+
+        x = np.arange(0, 4, 0.01)
+        sinx = [amplitude * np.sin(b * val) + amplitude for val in x]
+        cosx = [b * amplitude * np.cos(b * val)
+                if np.cos(b * val) > 0 else 0 for val in x]
+        F_f.append(max(cosx))
+        os.chdir('../')
+
+    os.chdir('../../')
+
+    mu = [f / N for f, N in zip(F_f, F_N)]
+
+    remove_indices = []
+    for i in range(len(mu)):
+        if mu[i] > 1 or mu[i] < 0:
+            remove_indices.append(i)
+    trimmed_mu = [mu[i] for i in range(len(mu)) if i not in remove_indices]
+    trimmed_F_N = [F_N[i] for i in range(len(F_N)) if i not in remove_indices]
+
+    return({'F_N': F_N, 'mu': mu})

@@ -119,18 +119,21 @@ def run_gamma_calculations(submit=True):
     os.chdir('../../')
 
 
-def run_normal_force_calculations(basin_and_saddle_dirs, submit=True):
+def run_normal_force_calculations(basin_and_saddle_dirs,
+                                  spacings=np.arange(1.5, 4.25, 0.25),
+                                  submit=True):
     """
     Set up and run static calculations of the basin directory
-    and saddle directory (specified as a tuple) at z-spacings
-    between 1.5 and 4 Angstroms to get f_N and f_F.
+    and saddle directory (specified as a tuple) at specified
+    interlayer spacings (by default, between 1.5 and 4 Angstroms)
+    to get f_N and f_F.
     ex.
         run_normal_force_calculations(('0x0', '3x6'))
     or
         run_normal_force_calculations(get_basin_and_peak_locations())
     """
 
-    spacings = [str(spc) for spc in np.arange(1.5, 4.25, 0.25)]
+    spacings = [str(spc) for spc in spacings]
 
     os.chdir('friction')
     if not os.path.isdir('normal'):

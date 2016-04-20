@@ -147,8 +147,12 @@ def plot_friction_force(fmt='pdf'):
 
     f, (ax1, ax2) = plt.subplots(2, figsize=(16, 16))
 
-    for spacing in sorted([float(spc) for spc in os.listdir(os.getcwd()) if
-            os.path.isdir(spc)]):
+    spacings = sorted([float(spc) for spc in os.listdir(os.getcwd()) if
+                       os.path.isdir(spc)])
+
+    spc_range = spacings[-1] - spacings[0] + 0.1
+
+    for spacing in spacings:
         os.chdir(str(spacing))
         subdirectories = os.listdir(os.getcwd())
 
@@ -174,15 +178,15 @@ def plot_friction_force(fmt='pdf'):
         cosx = [b * amplitude * np.cos(b * val)
                 if np.cos(b * val) > 0 else 0 for val in x]
 
-        ax1.plot(x, sinx, linewidth=8, color=plt.cm.jet(-(spacing - 4) / 2.51),
-                 label=spacing)
+        ax1.plot(x, sinx, linewidth=8,
+                 color=plt.cm.jet(-(spacing - 4) / spc_range), label=spacing)
         ax1.set_xticklabels(ax1.get_xticks(), family='serif', fontsize=18)
         ax1.set_yticklabels(ax1.get_yticks(), family='serif', fontsize=18)
         ax1.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif',
             fontsize=24)
         ax1.set_ylabel(r'$\mathrm{E(z)\/(eV)}$', family='serif', fontsize=24)
-        ax2.plot(x, cosx, linewidth=8, color=plt.cm.jet(-(spacing - 4) / 2.51),
-                 label=spacing)
+        ax2.plot(x, cosx, linewidth=8,
+                 color=plt.cm.jet(-(spacing - 4) / spc_range), label=spacing)
         ax2.set_xticklabels(ax2.get_xticks(), family='serif', fontsize=18)
         ax2.set_yticklabels(ax2.get_yticks(), family='serif', fontsize=18)
         ax2.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif',
@@ -218,7 +222,7 @@ def plot_normal_force(basin_dir, fmt='pdf'):
     E = [energy - abs_E[-1] for energy in abs_E]
 
     spline = interpolate.splrep(spacings, E, s=0)
-    xnew = np.arange(1.5, 4, 0.001)
+    xnew = np.arange(spacings[0], spacings[-1], 0.001)
     ynew = interpolate.splev(xnew, spline, der=0)
     ynew_slope = interpolate.splev(spacings, spline, der=1)
 

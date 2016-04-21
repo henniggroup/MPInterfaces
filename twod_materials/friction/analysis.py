@@ -280,10 +280,10 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
     E = [energy - abs_E[-1] for energy in abs_E]
 
     spline = interpolate.splrep(spacings, E, s=0)
-    xnew = np.arange(1.5, 4, 0.001)
+    xnew = np.arange(spacings[0], spacings[-1], 0.001)
     ynew = interpolate.splev(xnew, spline, der=0)
     ynew_slope = interpolate.splev(spacings, spline, der=1)
-    F_N = [-y for y in ynew_slope]
+    F_N = [-y * 1.602 for y in ynew_slope]
 
     os.chdir('../../friction/normal')
 
@@ -315,19 +315,12 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
         sinx = [amplitude * np.sin(b * val) + amplitude for val in x]
         cosx = [b * amplitude * np.cos(b * val)
                 if np.cos(b * val) > 0 else 0 for val in x]
-        F_f.append(max(cosx))
+        F_f.append(max(cosx) * 1.602)
         os.chdir('../')
 
     os.chdir('../../')
 
     mu = [f / N for f, N in zip(F_f, F_N)]
-
-    remove_indices = []
-    for i in range(len(mu)):
-        if mu[i] > 1 or mu[i] < 0:
-            remove_indices.append(i)
-    trimmed_mu = [mu[i] for i in range(len(mu)) if i not in remove_indices]
-    trimmed_F_N = [F_N[i] for i in range(len(F_N)) if i not in remove_indices]
 
     ax = plt.figure().gca()
     ax.plot(F_N, mu, linewidth=2, marker='o', markeredgecolor='none',
@@ -338,7 +331,7 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
 def get_mu_vs_F_N(basin_dir):
     """
     Essentially the same function as plotting, but without the plot.
-    Returns {'F_N': F_N, 'mu': mu}
+    Returns {'F_N': F_N, 'mu': mu}. F_N is in units of nN.
     """
 
     os.chdir('friction/normal')
@@ -353,10 +346,10 @@ def get_mu_vs_F_N(basin_dir):
     E = [energy - abs_E[-1] for energy in abs_E]
 
     spline = interpolate.splrep(spacings, E, s=0)
-    xnew = np.arange(1.5, 4, 0.001)
+    xnew = np.arange(spacings[0], spacings[-1], 0.001)
     ynew = interpolate.splev(xnew, spline, der=0)
     ynew_slope = interpolate.splev(spacings, spline, der=1)
-    F_N = [-y for y in ynew_slope]
+    F_N = [-y * 1.602 for y in ynew_slope]
 
     os.chdir('../../friction/normal')
 
@@ -388,18 +381,11 @@ def get_mu_vs_F_N(basin_dir):
         sinx = [amplitude * np.sin(b * val) + amplitude for val in x]
         cosx = [b * amplitude * np.cos(b * val)
                 if np.cos(b * val) > 0 else 0 for val in x]
-        F_f.append(max(cosx))
+        F_f.append(max(cosx) * 1.602)
         os.chdir('../')
 
     os.chdir('../../')
 
     mu = [f / N for f, N in zip(F_f, F_N)]
-
-    remove_indices = []
-    for i in range(len(mu)):
-        if mu[i] > 1 or mu[i] < 0:
-            remove_indices.append(i)
-    trimmed_mu = [mu[i] for i in range(len(mu)) if i not in remove_indices]
-    trimmed_F_N = [F_N[i] for i in range(len(F_N)) if i not in remove_indices]
 
     return({'F_N': F_N, 'mu': mu})

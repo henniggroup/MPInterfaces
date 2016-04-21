@@ -1,5 +1,8 @@
 import os
 
+import numpy as np
+from scipy.spatial import ConvexHull
+
 from twod_materials.utils import is_converged
 
 from pymatgen.core.structure import Structure
@@ -19,13 +22,24 @@ def plot_ion_hull_and_voltages(ion='Li', fmt='pdf'):
     Connecting the points on the convex hull of the phase diagram.
     """
 
-    # Calculated with the relax_3d() function
-    # in twod_materials.stability.startup
+    # Calculated with the relax_3d() function in
+    # twod_materials.stability.startup. If you are using other input
+    # parameters, you need to recalculate these values!
     ion_ev_fu = {'Li': -1.7540797, 'Mg': -1.31976062, 'Al': -3.19134607}
 
     energy = Vasprun('vasprun.xml').final_energy
     composition = Structure.from_file('POSCAR').composition
-    twod_material = composition.reduced_formula
+
+    # Get the formula (with single-digit integers preceded by a '_').
+    twod_material = list(composition.reduced_formula)
+    twod_formula = str()
+    for i in range(len(twod_material)):
+        try:
+            int(twod_material[i])
+            twod_formula += '_{}'.format(twod_material[i])
+        except:
+            twod_formula += twod_material[i]
+
     twod_ev_fu = energy / composition.get_reduced_composition_and_factor()[1]
 
     data = [(0, 0, 0, twod_ev_fu)]  # (at% ion, n_ions, E_F, abs_energy)
@@ -58,24 +72,27 @@ def plot_ion_hull_and_voltages(ion='Li', fmt='pdf'):
     sorted_data = sorted(data, key=operator.itemgetter(0))
 
     # Determine which compositions are on the convex hull.
-    convex_points = [(0, 0, 0, twod_ev_fu)]
-    concave_points = []
+    energy_profile = np.array([[item[0], item[2]]
+                                for item in sorted_data if item[2] <= 0])
+    hull = ConvexHull(energy_profile)
+    convex_ion_fractions = [
+        energy_profile[vertex, 0] for vertex in hull.vertices]
+    convex_formation_energies = [
+        energy_profile[vertex, 1] for vertex in hull.vertices]
+
+    convex_ion_fractions.append(convex_ion_fractions.pop(0))
+    convex_formation_energies.append(convex_formation_energies.pop(0))
+
+    concave_ion_fractions = [
+        pt[0] for pt in sorted_data if pt[0] not in convex_ion_fractions]
+    concave_formation_energies = [
+        pt[2] for pt in sorted_data if pt[0] not in convex_ion_fractions]
+
     voltage_profile = []
     j = 0
     k = 0
     for i in range(1, len(sorted_data) - 1):
-        in_slope = (
-            (sorted_data[i][2] - convex_points[j][2])
-            / (sorted_data[i][0] - convex_points[j][0])
-        )
-
-        out_slope = (
-            (sorted_data[i][2] - sorted_data[i + 1][2])
-            / (sorted_data[i][0] - sorted_data[i + 1][0])
-        )
-
-        if out_slope >= in_slope and sorted_data[i][2] < 0:
-            convex_points.append(sorted_data[i])
+        if sorted_data[i][0] in convex_ion_fractions:
             voltage = -(
                 ((sorted_data[i][3] - sorted_data[k][3])
                  - (sorted_data[i][1] - sorted_data[k][1]) * ion_ev_fu[ion])
@@ -85,17 +102,9 @@ def plot_ion_hull_and_voltages(ion='Li', fmt='pdf'):
             voltage_profile.append((sorted_data[i][0], voltage))
             j += 1
             k = i
-        else:
-            concave_points.append(sorted_data[i])
 
-    convex_points.append((1, 1, 0, ion_ev_fu[ion]))
     voltage_profile.append((voltage_profile[-1][0], 0))
     voltage_profile.append((1, 0))
-
-    convex_ion_fractions = [tup[0] for tup in convex_points]
-    convex_formation_energies = [tup[2] for tup in convex_points]
-    concave_ion_fractions = [tup[0] for tup in concave_points]
-    concave_formation_energies = [tup[2] for tup in concave_points]
 
     voltage_profile_x = [tup[0] for tup in voltage_profile]
     voltage_profile_y = [tup[1] for tup in voltage_profile]
@@ -111,8 +120,8 @@ def plot_ion_hull_and_voltages(ion='Li', fmt='pdf'):
     ax2 = ax.twinx()
     ax2.plot(voltage_profile_x, voltage_profile_y, 'k-', marker='o')
 
-    ax.text(0, 0.002, twod_material, family='serif', size=20)
-    ax.text(0.99, 0.002, ion, family='serif', size=20,
+    ax.text(0, 0.002, r'$\mathrm{%s}$' % twod_formula, family='serif', size=24)
+    ax.text(0.99, 0.002, r'$\mathrm{%s}$' % ion, family='serif', size=24,
             horizontalalignment='right')
 
     ax.set_xticklabels(ax.get_xticks(), family='serif', size=20)

@@ -2,7 +2,8 @@ import os
 
 import numpy as np
 
-from pymatgen.io.vasp.outputs import BSVasprun, Locpot
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.outputs import BSVasprun, Locpot, VolumetricData
 from pymatgen.electronic_structure.plotter import BSPlotter, BSPlotterProjected
 from pymatgen.electronic_structure.core import Spin
 
@@ -172,6 +173,49 @@ def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
     ax.set_ylabel('eV', family='serif', size=24)
 
     plt.savefig('band_alignments.{}'.format(fmt), transparent=True)
+
+
+def plot_local_potential(axis=2, fmt='pdf'):
+    """
+    Plot data from the LOCPOT file along any of the 3 primary axes.
+    Useful for determining surface dipole moments and electric
+    potentials on the interior of the material.
+    """
+
+    ax = plt.figure(figsize=(16, 10)).gca()
+
+    locpot = Locpot.from_file('LOCPOT')
+    structure = Structure.from_file('CONTCAR')
+    vd = VolumetricData(structure, locpot.data)
+    abs_potentials = vd.get_average_along_axis(axis)
+    vacuum_level = max(abs_potentials)
+
+    vasprun = BSVasprun('vasprun.xml')
+    cbm = vasprun.get_band_structure().get_cbm()['energy'] - vacuum_level
+    vbm = vasprun.get_band_structure().get_vbm()['energy'] - vacuum_level
+
+    potentials = [potential - vacuum_level for potential in abs_potentials]
+    axis_length = structure.lattice._lengths[axis]
+    positions = np.arange(0, axis_length, axis_length / len(potentials))
+
+    ax.plot(positions, potentials, linewidth=2, color='k')
+
+    ax.set_xlim(0, axis_length)
+    ax.set_ylim(-20, 0)
+
+    ax.set_xticklabels([r'$\mathrm{%s}$' % tick for tick in ax.get_xticks()],
+                       size=20)
+    ax.set_yticklabels([r'$\mathrm{%s}$' % tick for tick in ax.get_yticks()],
+                       size=20)
+    ax.set_xlabel(r'$\mathrm{\AA}$', size=24)
+    ax.set_ylabel(r'$\mathrm{V\/(eV)}$', size=24)
+
+    ax.fill_between(ax.get_xlim(), cbm, 0, facecolor=plt.cm.jet(0.3),
+                    zorder=0, linewidth=0)
+    ax.fill_between(ax.get_xlim(), -20, vbm, facecolor=plt.cm.jet(0.7),
+                    zorder=0, linewidth=0)
+
+    plt.savefig('locpot.{}'.format(fmt))
 
 
 def plot_band_structure(fmt='pdf'):

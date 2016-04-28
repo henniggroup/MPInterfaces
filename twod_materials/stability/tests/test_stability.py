@@ -2,7 +2,7 @@ import unittest
 
 import os
 
-from twod_materials.stability.analysis import (get_competing_species,
+from twod_materials.stability.analysis import (get_competing_phases,
                                                get_hull_distances)
 
 
@@ -17,9 +17,9 @@ class AnalysisTest(unittest.TestCase):
         self.assertEqual(get_hull_distances(['BiTeCl']),
                          {u'BiTeCl': 0.10335952666666692})
 
-    def test_get_competing_species_for_SiP(self):
-        competing_species = get_competing_species(['BiTeCl'])
-        self.assertEqual(competing_species, [(u'BiTeCl', u'mp-28944')])
+    def test_get_competing_phases_for_SiP(self):
+        competing_phases = get_competing_phases(['BiTeCl'])
+        self.assertEqual(competing_phases, [(u'BiTeCl', u'mp-28944')])
 
 if __name__ == '__main__':
     unittest.main()

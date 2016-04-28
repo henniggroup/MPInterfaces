@@ -103,6 +103,7 @@ def run_hse_calculation(submit=True, force_overwrite=False):
         os.system('cp ../CONTCAR ./POSCAR')
         os.system('cp ../POTCAR ./POTCAR')
         os.system('cp ../WAVECAR ./')
+        os.system('cp ../CHGCAR ./')
         Incar.from_dict(HSE_INCAR_DICT).write_file('INCAR')
 
         # Re-use the irreducible brillouin zone KPOINTS from a

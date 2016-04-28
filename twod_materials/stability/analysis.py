@@ -33,14 +33,14 @@ except IOError:
                          ' mp_api: your_api_key')
 
 
-def get_competing_species(directories):
+def get_competing_phases(directories):
     """
     Collect the species to which the 2D materials might decompose to.
     Since a lot of 2D materials with similar compositions will have the
-    same competing species, duplicates aren't counted.
+    same competing phases, duplicates aren't counted.
     """
 
-    total_competing_species = []
+    total_competing_phases = []
 
     for directory in directories:
         os.chdir(directory)
@@ -58,20 +58,20 @@ def get_competing_species(directories):
 
         pda = PDAnalyzer(PhaseDiagram(entries))
         decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
-        competing_species = [
+        competing_phases = [
             (entry.composition.reduced_formula,
              entry.entry_id) for entry in decomp[0]
             ]
 
-        # Keep a running list of all unique competing species, since in
+        # Keep a running list of all unique competing phases, since in
         # high throughput 2D searches there is usually some overlap in
-        # competing species for different materials.
-        for specie in competing_species:
-            if specie not in total_competing_species:
-                total_competing_species.append(specie)
+        # competing phases for different materials.
+        for specie in competing_phases:
+            if specie not in total_competing_phases:
+                total_competing_phases.append(specie)
         os.chdir('../')
 
-    return total_competing_species
+    return total_competing_phases
 
 
 def get_hull_distances(directories):
@@ -79,7 +79,7 @@ def get_hull_distances(directories):
     hull_distances = {}
     finished_competitors = {}
 
-    # Determine which competing species have been relaxed in the current
+    # Determine which competing phases have been relaxed in the current
     # framework and store them in a dictionary ({formula: entry}).
     if os.path.isdir('all_competitors'):
         os.chdir('all_competitors')
@@ -105,7 +105,7 @@ def get_hull_distances(directories):
             [elt.symbol for elt in composition]
             )
 
-        # If the energies of competing species have been calculated in
+        # If the energies of competing phases have been calculated in
         # the current framework, put them in the phase diagram instead
         # of the MP energies.
         for i in range(len(entries)):
@@ -179,7 +179,7 @@ def plot_hull_distances(hull_distances, fmt='pdf'):
 
 def all_converged(two_d, three_d):
     """
-    True if all two_d directories and three_d competing_species have
+    True if all two_d directories and three_d competing_phases have
     converged, otherwise false.
     """
 

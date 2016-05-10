@@ -223,8 +223,8 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
 
     types = list of same length as number of elements containing specifications
     for the kind of potential desired for each element. If no special potential
-    is desired, just enter 'regular', or leave types = 'None'.
-    (['pv', 'regular', '3'])
+    is desired, just enter '', or leave types = 'None'.
+    (['pv', '', '3'])
     '''
     poscar = open('POSCAR', 'r')
     lines = poscar.readlines()
@@ -239,7 +239,7 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
 
     potentials = []
     for i in range(len(elements)):
-        if types[i] == 'regular':
+        if types[i] == '':
             pass
         else:
             elements[i] += '_{}'.format(types[i])

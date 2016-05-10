@@ -5,6 +5,11 @@ from pymatgen.io.vasp.outputs import Vasprun
 
 from monty.serialization import loadfn
 
+import twod_materials
+
+
+PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
+PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
 
 try:
     POTENTIAL_PATH = loadfn(
@@ -226,10 +231,12 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
     elements = lines[5].split()
     poscar.close()
 
+    potcar_symbols = loadfn(os.path.join(PACKAGE_PATH, 'potcar_symbols.yaml'))
+
     if types == 'None':
-        types = []
-        for i in range(len(elements)):
-            types.append('regular')
+        types = [potcar_symbols[elt].replace(elt, '').replace('_', '')
+                 for elt in elements]
+
     potentials = []
     for i in range(len(elements)):
         if types[i] == 'regular':

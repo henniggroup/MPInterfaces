@@ -2,6 +2,7 @@ import os
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.vasp.outputs import Vasprun
 

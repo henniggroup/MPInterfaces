@@ -7,7 +7,7 @@ from __future__ import division, unicode_literals, print_function
 __author__ = ", ".join(
     ["Kiran Mathew", "Joshua Gabriel", "Arunima Singh", "Richard G. Hennig"])
 __date__ = "Aug 10 2015"
-__version__ = "1.1.2"
+__version__ = "1.2.0"
 
 import os
 import sys

@@ -212,7 +212,8 @@ def get_structure_type(structure, write_poscar_from_cluster=False):
                     type = 'layered'
 
     if write_poscar_from_cluster:
-        Structure.from_sites(original_cluster).to('POSCAR', 'POSCAR')
+        Structure.from_sites(
+            original_cluster).get_primitive_structure().to('POSCAR', 'POSCAR')
 
     return type
 

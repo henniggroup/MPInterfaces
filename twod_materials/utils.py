@@ -97,6 +97,114 @@ def get_spacing(filename='POSCAR', cutoff=0.95):
     return spacing
 
 
+def get_structure_type(structure):
+    """
+    Returns 'molecular', 'chain', 'layered', 'heterogeneous', or
+    'conventional' to describe the periodicity of bonded clusters
+    in a bulk structure.
+    """
+
+    # The conventional standard structure is much easier to work
+    # with.
+    structure = SpacegroupAnalyzer(
+        MPR.get_structure_by_material_id(mpid)
+        ).get_conventional_standard_structure()
+
+    # Noble gases don't have well-defined bonding radii.
+    if not len([e for e in structure.composition
+            if e.symbol in ['He', 'Ne', 'Ar', 'Kr', 'Xe']]) == 0:
+        type = 'Noble gases'
+    else:
+        if len(structure.sites) < 25:
+            structure.make_supercell(2)
+
+        # Create a dict of sites as keys and lists of their
+        # bonded neighbors as values.
+        sites = structure.sites
+        bonds = {}
+        for site in sites:
+            bonds[site] = []
+
+        for i in range(len(sites)):
+            site_1 = sites[i]
+            for site_2 in sites[i+1:]:
+                if (site_1.distance(site_2) <
+                        float(Element(site_1.specie).atomic_radius
+                        + Element(site_2.specie).atomic_radius) * 1.1):
+                    bonds[site_1].append(site_2)
+                    bonds[site_2].append(site_1)
+
+        # Assimilate all bonded atoms in a cluster; terminate
+        # when it stops growing.
+        cluster_terminated = False
+        while not cluster_terminated:
+            original_cluster_size = len(bonds[sites[0]])
+            for site in bonds[sites[0]]:
+                bonds[sites[0]] += [
+                    s for s in bonds[site] if s not in bonds[sites[0]]]
+            if len(bonds[sites[0]]) == original_cluster_size:
+                cluster_terminated = True
+
+        if len(bonds[sites[0]]) == 0:  # i.e. the cluster is a single atom.
+            type = 'molecular'
+        elif len(bonds[sites[0]]) == len(sites): # i.e. all atoms are bonded.
+            type = 'conventional'
+        else:
+            # If the cluster's composition is not equal to the
+            # structure's overall composition, it is a heterogeneous
+            # compound.
+            cluster_composition_dict = {}
+            for site in bonds[sites[0]]:
+                if Element(site.specie) in cluster_composition_dict:
+                    cluster_composition_dict[Element(site.specie)] += 1
+                else:
+                    cluster_composition_dict[Element(site.specie)] = 1
+            uniform = True
+            if len(cluster_composition_dict):
+                cmp = Composition.from_dict(cluster_composition_dict)
+                if cmp.reduced_formula != structure.composition.reduced_formula:
+                    uniform = False
+            if not uniform:
+                type = 'heterogeneous'
+            else:
+                # Make a 2x2x2 supercell and recalculate the
+                # cluster's new size. If the new cluster size is
+                # the same as the old size, it is a non-periodic
+                # molecule. If it is 2x as big, it's a 1D chain.
+                # If it's 4x as big, it is a layered material.
+                old_cluster_size = len(bonds[sites[0]])
+                structure.make_supercell(2)
+                sites = structure.sites
+                bonds = {}
+                for site in sites:
+                    bonds[site] = []
+
+                for i in range(len(sites)):
+                    site_1 = sites[i]
+                    for site_2 in sites[i+1:]:
+                        if (site_1.distance(site_2) <
+                                float(Element(site_1.specie).atomic_radius
+                                + Element(site_2.specie).atomic_radius) * 1.1):
+                            bonds[site_1].append(site_2)
+                            bonds[site_2].append(site_1)
+
+                cluster_terminated = False
+                while not cluster_terminated:
+                    original_cluster_size = len(bonds[sites[0]])
+                    for site in bonds[sites[0]]:
+                        bonds[sites[0]] += [
+                            s for s in bonds[site] if s not in bonds[sites[0]]]
+                    if len(bonds[sites[0]]) == original_cluster_size:
+                        cluster_terminated = True
+
+                if len(bonds[sites[0]]) != 4 * old_cluster_size:
+                    type = 'molecular'
+                else:
+                    type = 'layered'
+
+    return type
+
+
 def add_vacuum(delta, cut=0.9):
     '''
     Adds vacuum to a POSCAR.

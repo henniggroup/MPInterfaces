@@ -1,6 +1,8 @@
 import os
 
 from pymatgen.core.structure import Structure
+from pymatgen.core.composition import Composition
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.vasp.outputs import Vasprun
 
 from monty.serialization import loadfn

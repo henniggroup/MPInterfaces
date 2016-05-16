@@ -27,8 +27,6 @@ Prepping
 
 1. Make sure that you are using python>=2.7 (do a "python --version").
 
-   Note: ASE does not work with python3
-
 2. it is highly recommended that you use gcc compiler. So type::
 
    export CC=gcc

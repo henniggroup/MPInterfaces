@@ -112,9 +112,9 @@ def get_structure_type(structure, write_poscar_from_cluster=False):
 
     # The conventional standard structure is much easier to work
     # with.
+
     structure = SpacegroupAnalyzer(
-        MPR.get_structure_by_material_id(mpid)
-        ).get_conventional_standard_structure()
+        structure).get_conventional_standard_structure()
 
     # Noble gases don't have well-defined bonding radii.
     if not len([e for e in structure.composition

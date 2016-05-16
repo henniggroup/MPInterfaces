@@ -97,11 +97,15 @@ def get_spacing(filename='POSCAR', cutoff=0.95):
     return spacing
 
 
-def get_structure_type(structure):
+def get_structure_type(structure, write_poscar_from_cluster=False):
     """
     Returns 'molecular', 'chain', 'layered', 'heterogeneous', or
     'conventional' to describe the periodicity of bonded clusters
     in a bulk structure.
+
+    Args:
+        write_poscar_from_cluster (bool): Set to True to write a
+            POSCAR from the sites in the cluster.
     """
 
     # The conventional standard structure is much easier to work
@@ -113,7 +117,7 @@ def get_structure_type(structure):
     # Noble gases don't have well-defined bonding radii.
     if not len([e for e in structure.composition
             if e.symbol in ['He', 'Ne', 'Ar', 'Kr', 'Xe']]) == 0:
-        type = 'Noble gases'
+        type = 'noble gas'
     else:
         if len(structure.sites) < 25:
             structure.make_supercell(2)
@@ -144,6 +148,8 @@ def get_structure_type(structure):
                     s for s in bonds[site] if s not in bonds[sites[0]]]
             if len(bonds[sites[0]]) == original_cluster_size:
                 cluster_terminated = True
+
+        original_cluster = bonds[sites[0]]
 
         if len(bonds[sites[0]]) == 0:  # i.e. the cluster is a single atom.
             type = 'molecular'
@@ -202,17 +208,20 @@ def get_structure_type(structure):
                 else:
                     type = 'layered'
 
+    if write_poscar_from_cluster:
+        Structure.from_sites(original_cluster).to('POSCAR', 'POSCAR')
+
     return type
 
 
 def add_vacuum(delta, cut=0.9):
-    '''
+    """
     Adds vacuum to a POSCAR.
 
     delta = vacuum thickness in Angstroms
     cut = height above which atoms will need to be fixed. Defaults to
     0.9.
-    '''
+    """
 
     # Fix the POSCAR to put bottom atoms (if they are accidentally above
     # tolerance) at 0.0.
@@ -326,14 +335,14 @@ def add_vacuum(delta, cut=0.9):
 
 
 def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
-    '''
+    """
     Writes a POTCAR file based on a list of types.
 
     types = list of same length as number of elements containing specifications
     for the kind of potential desired for each element. If no special potential
     is desired, just enter '', or leave types = 'None'.
     (['pv', '', '3'])
-    '''
+    """
     poscar = open('POSCAR', 'r')
     lines = poscar.readlines()
     elements = lines[5].split()
@@ -402,11 +411,11 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
 
 
 def write_pbs_runjob(name, nnodes, nprocessors, pmem, walltime, binary):
-    '''
+    """
     writes a runjob based on a name, nnodes, nprocessors, walltime, and
     binary. Designed for runjobs on the Hennig group_list on HiperGator
     1 (PBS).
-    '''
+    """
     runjob = open('runjob', 'w')
     runjob.write('#!/bin/sh\n')
     runjob.write('#PBS -N {}\n'.format(name))
@@ -424,11 +433,11 @@ def write_pbs_runjob(name, nnodes, nprocessors, pmem, walltime, binary):
 
 
 def write_slurm_runjob(name, ntasks, pmem, walltime, binary):
-    '''
+    """
     writes a runjob based on a name, nnodes, nprocessors, walltime, and
     binary. Designed for runjobs on the Hennig group_list on HiperGator
     1 (PBS).
-    '''
+    """
     runjob = open('runjob', 'w')
     runjob.write('#!/bin/bash\n')
     runjob.write('#SBATCH --job-name={}\n'.format(name))

@@ -3,6 +3,7 @@ import os
 from twod_materials.utils import (
     is_converged, write_pbs_runjob,
     write_slurm_runjob)
+from twod_materials.stability.startup import get_magmom_string
 
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -51,7 +52,7 @@ def run_linemode_calculation(submit=True, force_overwrite=False):
     PBE_INCAR_DICT = {'EDIFF': 1e-6, 'IBRION': 2, 'ISIF': 3, 'ISMEAR': 1,
                       'NSW': 0, 'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
                       'LREAL': 'Auto', 'NPAR': 4, 'PREC': 'Accurate',
-                      'LWAVE': True, 'SIGMA': 0.1, 'ENCUT': 500}
+                      'LWAVE': True, 'SIGMA': 0.1, 'ENCUT': 500, 'ISPIN': 2}
 
     directory = os.getcwd().split('/')[-1]
 
@@ -61,6 +62,7 @@ def run_linemode_calculation(submit=True, force_overwrite=False):
         os.chdir('pbe_bands')
         os.system('cp ../CONTCAR ./POSCAR')
         os.system('cp ../POTCAR ./')
+        PBE_INCAR_DICT.update({'MAGMOM': get_magmom_string()})
         Incar.from_dict(PBE_INCAR_DICT).write_file('INCAR')
         structure = Structure.from_file('POSCAR')
         kpath = HighSymmKpath(structure)
@@ -93,7 +95,7 @@ def run_hse_calculation(submit=True, force_overwrite=False):
                       'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
                       'LWAVE': True, 'NPAR': 8, 'PREC': 'Accurate',
                       'EDIFF': 1e-6, 'ENCUT': 500, 'ISMEAR': 1, 'SIGMA': 0.1,
-                      'IBRION': 2, 'ISIF': 3}
+                      'IBRION': 2, 'ISIF': 3, 'ISPIN': 2}
 
     if not os.path.isdir('hse_bands'):
         os.mkdir('hse_bands')
@@ -102,7 +104,7 @@ def run_hse_calculation(submit=True, force_overwrite=False):
         os.system('cp ../CONTCAR ./POSCAR')
         os.system('cp ../POTCAR ./POTCAR')
         os.system('cp ../WAVECAR ./')
-        os.system('cp ../CHGCAR ./')
+        HSE_INCAR_DICT.update({'MAGMOM': get_magmom_string()})
         Incar.from_dict(HSE_INCAR_DICT).write_file('INCAR')
 
         # Re-use the irreducible brillouin zone KPOINTS from a

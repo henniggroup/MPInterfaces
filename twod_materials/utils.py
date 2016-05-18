@@ -212,8 +212,7 @@ def get_structure_type(structure, write_poscar_from_cluster=False):
                     type = 'layered'
 
     if write_poscar_from_cluster:
-        analyzer = SpacegroupAnalyzer(Structure.from_sites(original_cluster))
-        analyzer.get_conventional_standard_structure().to('POSCAR', 'POSCAR')
+        Structure.from_sites(original_cluster).to('POSCAR', 'POSCAR')
 
     return type
 

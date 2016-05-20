@@ -1,6 +1,7 @@
 import os
 
 from pymatgen.core.structure import Structure
+from pymatgen.core.operations import SymmOp
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -226,11 +227,26 @@ def add_vacuum(delta, cut=0.9):
     0.9.
     """
 
-    # Fix the POSCAR to put bottom atoms (if they are accidentally above
-    # tolerance) at 0.0.
+    # Fix the POSCAR to put bottom atoms (even if they are above the
+    # current vacuum layer) at 0.0.
+
     structure = Structure.from_file('POSCAR')
-    with open('POSCAR', 'r') as readcar:
-        poscar_lines = readcar.readlines()
+
+    min_z = 1
+    for site in structure.sites:
+        if site._fcoords[2] > cut:
+            height = site._fcoords[2] - 1
+        else:
+            height = site._fcoords[2]
+        if height < min_z:
+            min_z = height
+
+    translation = SymmOp.from_rotation_and_translation(
+        translation_vec=(0, 0, -min_z))
+    structure.apply_operation(translation, fractional=True)
+    structure.to('POSCAR', 'POSCAR')
+    with open('POSCAR', 'r') as poscar:
+        poscar_lines = poscar.readlines()
     n_atoms = structure.num_sites
     atom_lines = []
     for i in range(8, 8+n_atoms):
@@ -247,10 +263,10 @@ def add_vacuum(delta, cut=0.9):
                 atom_line_2 = float(atom_line_2) + 1.0
             addables.append(atom_line_2)
             fixable = True
-    if fixable:
-        add_factor = 1.0 - min(addables)
-    else:
-        add_factor = 0.0
+#    if fixable:
+#        add_factor = 1.0 - min(addables)
+#    else:
+    add_factor = 0.0
     new_atom_lines = []
     for atom_line in atom_lines:
         new_atom_line_2 = str(float(atom_line[2]) + add_factor)
@@ -258,11 +274,11 @@ def add_vacuum(delta, cut=0.9):
             new_atom_line_2 = str(float(new_atom_line_2) - 1.0)
         new_atom_lines.append('{} {} {}'.format(atom_line[0], atom_line[1],
                                                 new_atom_line_2))
-    with open('POSCAR', 'w') as writecar:
+    with open('POSCAR', 'w') as poscar:
         for line in poscar_lines[0:8]:
-            writecar.write(line)
+            poscar.write(line)
         for new_atom_line in new_atom_lines:
-            writecar.write('{}\n'.format(new_atom_line))
+            poscar.write('{}\n'.format(new_atom_line))
 
     # Open files and read in values from POSCAR
     old_poscar = open('POSCAR', 'r')
@@ -270,9 +286,9 @@ def add_vacuum(delta, cut=0.9):
     oldlines = old_poscar.readlines()
     name = oldlines[0].split()[0]
     lattice_constant = oldlines[1].strip()
-    a_lat_par = oldlines[2].split()
-    b_lat_par = oldlines[3].split()
-    c_lat_par = oldlines[4].split()
+    a_lat_par = [abs(float(x)) for x in oldlines[2].split()]
+    b_lat_par = [abs(float(y)) for y in oldlines[3].split()]
+    c_lat_par = [abs(float(z)) for z in oldlines[4].split()]
     elements = oldlines[5].split()
     stoichiometry = oldlines[6].split()
     coordinate_type = oldlines[7].strip()
@@ -323,17 +339,13 @@ def add_vacuum(delta, cut=0.9):
         new_poscar.write('{} {} {}\n'.format(item[0], item[1], item[2]))
 
     new_poscar.close()
-    old_poscar.close()
     os.remove('POSCAR')
 
-    new_poscar = open('new_POSCAR', 'r')
-    new_lines = new_poscar.readlines()
-    poscar = open('POSCAR', 'w')
-    for line in new_lines:
-        poscar.write(line)
+    new_lines = open('new_POSCAR').readlines()
+    with open('POSCAR', 'w') as poscar:
+        for line in new_lines:
+            poscar.write(line)
     old_poscar.close()
-    poscar.close()
-    new_poscar.close()
     os.remove('new_POSCAR')
 
 

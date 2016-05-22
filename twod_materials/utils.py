@@ -76,7 +76,7 @@ def get_status(directory):
     return job_state
 
 
-def get_spacing(filename='POSCAR', cutoff=0.95):
+def get_spacing(filename='POSCAR', cut=0.9):
     """
     Returns the interlayer spacing for a 2D material.
     """
@@ -90,12 +90,12 @@ def get_spacing(filename='POSCAR', cutoff=0.95):
     z_coords = list()
     for coord in split_coords:
         z_coord = float(coord[2])
-        if z_coord > cutoff:
+        if z_coord > cut:
             z_coord -= 1
         z_coords.append(z_coord)
     max_height = max([z_height for z_height in z_coords])
     min_height = min([z_height for z_height in z_coords])
-    spacing = ((1.0 + min_height) - max_height) * float(c_axis[2])\
+    spacing = ((1.0 + min_height) - max_height) * abs(float(c_axis[2]))\
         * float(lattice_parameter[0])
 
     return spacing

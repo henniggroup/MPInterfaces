@@ -232,6 +232,19 @@ def add_vacuum(delta, cut=0.9):
 
     structure = Structure.from_file('POSCAR')
 
+    poscar_lines = open('POSCAR').readlines()
+    with open('POSCAR', 'w') as poscar:
+        for line in poscar_lines[:8]:
+            poscar.write(line)
+        for line in poscar_lines[8:]:
+            split_line = line.split()
+            if float(split_line[2]) > cut:
+                new_line = ' '.join([split_line[0], split_line[1],
+                            str(float(split_line[2]) - 1.0)])
+            else:
+                new_line = ' '.join(split_line)
+            poscar.write(new_line + '\n')
+
     min_z = 1
     for site in structure.sites:
         if site._fcoords[2] > cut:

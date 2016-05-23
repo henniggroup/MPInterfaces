@@ -9,6 +9,10 @@ from pymatgen.io.vasp.outputs import Vasprun
 
 from monty.serialization import loadfn
 
+import numpy as np
+
+import math
+
 import twod_materials
 
 
@@ -99,6 +103,43 @@ def get_spacing(filename='POSCAR', cut=0.9):
         * float(lattice_parameter[0])
 
     return spacing
+
+
+def get_rotation_matrix(axis, theta):
+    """
+    Return the rotation matrix associated with counterclockwise rotation
+    about the given axis by theta radians.
+    Credit: http://stackoverflow.com/users/190597/unutbu
+    """
+
+    axis = np.asarray(axis)
+    theta = np.asarray(theta)
+    axis = axis/math.sqrt(np.dot(axis, axis))
+    a = math.cos(theta/2.0)
+    b, c, d = -axis*math.sin(theta/2.0)
+    aa, bb, cc, dd = a*a, b*b, c*c, d*d
+    bc, ad, ac, ab, bd, cd = b*c, a*d, a*c, a*b, b*d, c*d
+    return np.array([[aa+bb-cc-dd, 2*(bc+ad), 2*(bd-ac)],
+                     [2*(bc-ad), aa+cc-bb-dd, 2*(cd+ab)],
+                     [2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc]])
+
+
+def align_c_axis_along_001(structure):
+    """
+    Given a structure with a c-axis not along [001],
+    returns the same structure rotated so that the c-axis is along
+    the [001] direction. This is useful for vasp compiled with no
+    z-axis relaxation.
+    """
+
+    c = structure.lattice._matrix[2]
+    z = [0, 0, 1]
+    axis = np.cross(c, z)
+    theta = np.arccos(np.dot(c, z) / (np.linalg.norm(c) * np.linalg.norm(z)))
+    R = get_rotation_matrix(axis, theta)
+    rotation = SymmOp.from_rotation_and_translation(rotation_matrix=R)
+    structure.apply_operation(rotation)
+    return structure
 
 
 def get_structure_type(structure, write_poscar_from_cluster=False):

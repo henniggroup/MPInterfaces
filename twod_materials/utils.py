@@ -135,10 +135,12 @@ def align_c_axis_along_001(structure):
     c = structure.lattice._matrix[2]
     z = [0, 0, 1]
     axis = np.cross(c, z)
-    theta = np.arccos(np.dot(c, z) / (np.linalg.norm(c) * np.linalg.norm(z)))
-    R = get_rotation_matrix(axis, theta)
-    rotation = SymmOp.from_rotation_and_translation(rotation_matrix=R)
-    structure.apply_operation(rotation)
+    if not(axis[0] == 0 and axis[1] == 0):
+        theta = (np.arccos(np.dot(c, z) /
+                 (np.linalg.norm(c) * np.linalg.norm(z))))
+        R = get_rotation_matrix(axis, theta)
+        rotation = SymmOp.from_rotation_and_translation(rotation_matrix=R)
+        structure.apply_operation(rotation)
     return structure
 
 

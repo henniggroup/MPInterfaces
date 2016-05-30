@@ -66,7 +66,7 @@ def run_gamma_calculations(submit=True):
     for site in new_sites:
         structure.append(site[0], site[1], coords_are_cartesian=True)
 
-    structure.to('POSCAR', 'POSCAR')
+    structure.get_sorted_structure().to('POSCAR', 'POSCAR')
 
     for x in range(n_divs_x):
         for y in range(n_divs_y):

@@ -12,6 +12,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
 
 import twod_materials
+from twod_materials.stability.startup import get_magmom_string
 
 
 PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
@@ -85,7 +86,7 @@ def run_gamma_calculations(submit=True):
             utl.write_potcar()
             incar_dict = Incar.from_file('INCAR').as_dict()
             incar_dict.update({'NSW': 0, 'LAECHG': False, 'LCHARG': False,
-                               'LWAVE': False})
+                               'LWAVE': False, 'MAGMOM': get_magmom_string()})
             incar_dict.pop('NPAR', None)
             Incar.from_dict(incar_dict).write_file('INCAR')
 

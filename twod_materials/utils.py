@@ -274,12 +274,12 @@ def add_vacuum(delta, cut=0.9):
     # current vacuum layer) at 0.0.
 
     structure = Structure.from_file('POSCAR')
-
+    n_sites = structure.num_sites
     poscar_lines = open('POSCAR').readlines()
     with open('POSCAR', 'w') as poscar:
         for line in poscar_lines[:8]:
             poscar.write(line)
-        for line in poscar_lines[8:]:
+        for line in poscar_lines[8:8+n_sites]:
             split_line = line.split()
             if float(split_line[2]) > cut:
                 new_line = ' '.join([split_line[0], split_line[1],
@@ -303,9 +303,8 @@ def add_vacuum(delta, cut=0.9):
     structure.to('POSCAR', 'POSCAR')
     with open('POSCAR', 'r') as poscar:
         poscar_lines = poscar.readlines()
-    n_atoms = structure.num_sites
     atom_lines = []
-    for i in range(8, 8+n_atoms):
+    for i in range(8, 8+n_sites):
         atom_lines.append(poscar_lines[i].split())
     atom_line_2s = []
     for atom_line in atom_lines:
@@ -348,10 +347,6 @@ def add_vacuum(delta, cut=0.9):
     elements = oldlines[5].split()
     stoichiometry = oldlines[6].split()
     coordinate_type = oldlines[7].strip()
-    n_atoms = 0
-    for item in stoichiometry:
-        n_atoms += int(item)
-    final_atom_line = n_atoms + 8
 
     # Elongate c-vector by delta
 
@@ -365,7 +360,7 @@ def add_vacuum(delta, cut=0.9):
     # the fly
 
     atoms = []
-    for i in range(8, final_atom_line):
+    for i in range(8, 8+n_sites):
         atom = oldlines[i].split()
         atom[2] = float(atom[2]) / scalar
         atoms.append(atom)

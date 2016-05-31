@@ -106,6 +106,15 @@ The examples folder contain some sample scripts that demonstrate the
 usage of mpinterfaces as well as materialsproject packages. For basic
 usage please see **docs/usage.rst**.
 
+
+Cite
+======
+
+If you use MPInterfaces for your work, please cite the paper: mpinterfaces-paper_
+
+.. _mpinterfaces-paper: http://www.sciencedirect.com/science/article/pii/S0927025616302440
+
+
 License
 =======
 

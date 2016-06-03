@@ -3,6 +3,7 @@ import os
 import yaml
 
 from pymatgen.io.vasp.inputs import Kpoints, Incar
+from pymatgen.io.vasp.outputs import Vasprun
 import twod_materials.utils as utl
 from pymatgen.matproj.rest import MPRester
 

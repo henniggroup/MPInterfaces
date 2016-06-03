@@ -49,10 +49,11 @@ def run_linemode_calculation(submit=True, force_overwrite=False):
     high symmetry k-paths.
     """
 
-    PBE_INCAR_DICT = {'EDIFF': 1e-6, 'IBRION': 2, 'ISIF': 3, 'ISMEAR': 1,
-                      'NSW': 0, 'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
-                      'LREAL': 'Auto', 'NPAR': 4, 'PREC': 'Accurate',
-                      'LWAVE': True, 'SIGMA': 0.1, 'ENCUT': 500, 'ISPIN': 2}
+    PBE_INCAR_DICT = {'EDIFF': 1e-6, 'IBRION': 2, 'ICHARG': 11, 'ISIF': 3,
+                      'ISMEAR': 1, 'NSW': 0, 'LVTOT': True, 'LVHAR': True,
+                      'LORBIT': 1, 'LREAL': 'Auto', 'NPAR': 4,
+                      'PREC': 'Accurate', 'LWAVE': True, 'SIGMA': 0.1,
+                      'ENCUT': 500, 'ISPIN': 2}
 
     directory = os.getcwd().split('/')[-1]
 
@@ -94,8 +95,8 @@ def run_hse_calculation(submit=True, force_overwrite=False):
                       'ALGO': 'D', 'TIME': 0.4, 'NSW': 0,
                       'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
                       'LWAVE': True, 'NPAR': 8, 'PREC': 'Accurate',
-                      'EDIFF': 1e-6, 'ENCUT': 500, 'ISMEAR': 1, 'SIGMA': 0.1,
-                      'IBRION': 2, 'ISIF': 3, 'ISPIN': 2}
+                      'EDIFF': 1e-6, 'ENCUT': 500, 'ICHARG': 11, 'ISMEAR': 1,
+                      'SIGMA': 0.1, 'IBRION': 2, 'ISIF': 3, 'ISPIN': 2}
 
     if not os.path.isdir('hse_bands'):
         os.mkdir('hse_bands')

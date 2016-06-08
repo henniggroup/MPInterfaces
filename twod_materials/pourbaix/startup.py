@@ -98,7 +98,7 @@ class Calibrator():
             incar.write_file('INCAR')
 
             # Potcar
-            utl.write_potcar([self._potcar_dict[el] for el in elements])
+            utl.write_potcar(types=[self._potcar_dict[el] for el in elements])
 
             # Runjob
 

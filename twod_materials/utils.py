@@ -409,6 +409,7 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
     is desired, just enter '', or leave types = 'None'.
     (['pv', '', '3'])
     """
+
     poscar = open('POSCAR', 'r')
     lines = poscar.readlines()
     elements = lines[5].split()

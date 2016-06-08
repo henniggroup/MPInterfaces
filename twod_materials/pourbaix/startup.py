@@ -189,9 +189,12 @@ class Calibrator():
         specials = [elt for elt in self._potcar_dict if elt in special_cases]
         for elt in specials:
             os.chdir(elt)
+            vasprun = Vasprun('vasprun.xml')
+            composition = vasprun.final_structure.composition
+            n_formula_units = composition.get_integer_formula_and_factor()[1]
             print elt
             mu0[elt] = (
-                round(utl.get_toten() / utl.get_n_formula_units()
+                round(vasprun.final_energy / n_formula_units
                       + self._config['OtherCorrections'][elt], 3)
                 )
             os.chdir(parent_dir)
@@ -201,8 +204,11 @@ class Calibrator():
 
         for elt in elts:
             os.chdir(elt)
+            vasprun = Vasprun('vasprun.xml')
+            composition = vasprun.final_structure.composition
+            n_formula_units = composition.get_integer_formula_and_factor()[1]
 
-            mu0[elt] = round(utl.get_toten() / utl.get_n_formula_units(), 3)
+            mu0[elt] = round(vasprun.final_energy / n_formula_units, 3)
 
             # Nitrogen needs both kinds of corrections
             if elt == 'N':

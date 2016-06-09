@@ -219,10 +219,13 @@ class Calibrator():
         for elt in elts:
             print elt
             os.chdir('{}/ref'.format(elt))
+            vasprun = Vasprun('vasprun.xml')
+            composition = vasprun.final_structure.composition
+            n_formula_units = composition.get_integer_formula_and_factor()[1]
 
             fH_exp = self._config['Experimental_fH'][elt]
             try:
-                fH_dft = utl.get_toten() / utl.get_n_formula_units()
+                fH_dft = vasprun.final_energy / n_formula_units
 
                 plines = open('POSCAR').readlines()
                 elements = plines[5].split()
@@ -234,18 +237,18 @@ class Calibrator():
                     comp_as_dict[element] += int(stoichiometries[i])
 
                 n_elt_per_fu = (
-                    int(comp_as_dict[elt]) / utl.get_n_formula_units()
+                    int(comp_as_dict[elt]) / n_formula_units
                     )
                 for el in comp_as_dict:
                     fH_dft -= (
                         mu0[el] * int(comp_as_dict[el])
-                        / utl.get_n_formula_units()
+                        / n_formula_units
                         )
 
                 corrections[elt] = round((fH_dft - fH_exp) / n_elt_per_fu, 3)
 
             except UnboundLocalError:
-                corrections[elt] = '0 # Not finished"'
+                corrections[elt] = 'Not finished'
 
             os.chdir(parent_dir)
 

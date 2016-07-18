@@ -4,6 +4,7 @@ import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import BSVasprun, Locpot, VolumetricData
+from pymatgen.io.vasp.inputs import Incar
 from pymatgen.electronic_structure.plotter import BSPlotter, BSPlotterProjected
 from pymatgen.electronic_structure.core import Spin
 
@@ -390,3 +391,38 @@ def get_effective_mass():
 
     return {'electron': {'left': e_m_eff_l, 'right': e_m_eff_r},
             'hole': {'left': h_m_eff_l, 'right': h_m_eff_r}}
+
+
+def plot_density_of_states(fmt='pdf'):
+    """
+    Plots the density of states from the DOSCAR in the cwd. Plots
+    spin up in red, down in green, and the sum in black. Efermi = 0.
+    Written by Cheitanya Kolluru.
+    """
+
+    efermi = BSVasprun('vasprun.xml').efermi
+    ticks = [-10, -5, -3, -2, -1, 0, 1, 2, 3, 5]
+
+    dos_lines = open ('DOSCAR').readlines()
+    x,up,down = np.array(), np.array(), np.array()
+    nedos = Incar.from_file('INCAR').as_dict()['NEDOS']
+
+    for line in dos_lines[6:6+nedos]:
+            split_line = line.split()
+            x.append(float(split_line[0]) - efermi)
+            up.append(float(split_line[1]))
+            down.append(-float(split_line[2]))
+
+    sum = up + down
+
+    ax = plt.figure().gca()
+
+    ax.set_xlim(-10, 5)
+    ax.set_ylim(-1.5, 1.5)
+    ax.set_xlabel('E (eV)')
+    ax.set_ylabel('Density of States')
+    ax.set_xticks(ticks)
+    ax.plot(x, up, color='red' )
+    ax.plot(x, down, color='green')
+    ax.plot(x, sum, color='black' )
+    plt.savefig('density_of_states.{}'.format(fmt))

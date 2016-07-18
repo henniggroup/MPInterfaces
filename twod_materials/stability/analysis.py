@@ -2,8 +2,8 @@ import os
 
 import operator
 
-from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
-from pymatgen.phasediagram.pdmaker import PhaseDiagram
+from pymatgen.phasediagram.analyzer import PDAnalyzer
+from pymatgen.phasediagram.maker import PhaseDiagram
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry

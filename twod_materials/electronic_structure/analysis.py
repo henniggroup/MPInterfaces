@@ -405,7 +405,7 @@ def plot_density_of_states(fmt='pdf'):
 
     dos_lines = open ('DOSCAR').readlines()
     x,up,down = np.array(), np.array(), np.array()
-    nedos = Incar.from_file('INCAR').as_dict()['NEDOS']
+    nedos = Incar.from_file('INCAR').as_dict()['NEDOS'] - 1
 
     for line in dos_lines[6:6+nedos]:
             split_line = line.split()

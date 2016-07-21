@@ -110,10 +110,10 @@ def relax(submit=True, force_overwrite=False):
             os.system(submission_command)
 
 
-def relax_competing_species(competing_species, submit=True,
+def relax_competing_phases(competing_phases, submit=True,
                             force_overwrite=False):
     """
-    After obtaining the competing species, relax them with the same
+    After obtaining the competing phases, relax them with the same
     input parameters as the 2D materials in order to ensure
     compatibility.
     """
@@ -122,26 +122,26 @@ def relax_competing_species(competing_species, submit=True,
         os.mkdir('all_competitors')
     os.chdir('all_competitors')
 
-    for specie in competing_species:
-        if not os.path.isdir(specie[0]):
-            os.mkdir(specie[0])
-        directory = os.path.join(os.getcwd(), specie[0])
+    for phase in competing_phases:
+        if not os.path.isdir(phase[0]):
+            os.mkdir(phase[0])
+        directory = os.path.join(os.getcwd(), phase[0])
         if force_overwrite or not utl.is_converged(directory):
-            os.chdir(specie[0])
+            os.chdir(phase[0])
             os.system('cp {} .'.format(KERNEL_PATH))
-            structure = MPR.get_structure_by_material_id(specie[1])
+            structure = MPR.get_structure_by_material_id(phase[1])
             structure.to('POSCAR', 'POSCAR')
             Kpoints.automatic_density(structure, 1000).write_file('KPOINTS')
             INCAR_DICT.update({'MAGMOM': get_magmom_string()})
             Incar.from_dict(INCAR_DICT).write_file('INCAR')
             utl.write_potcar()
             if HIPERGATOR == 1:
-                utl.write_pbs_runjob('{}_3d'.format(specie[0]), 1, 8, '600mb',
+                utl.write_pbs_runjob('{}_3d'.format(phase[0]), 1, 8, '600mb',
                                      '6:00:00', VASP)
                 submission_command = 'qsub runjob'
 
             elif HIPERGATOR == 2:
-                utl.write_slurm_runjob('{}_3d'.format(specie[0]), 8, '600mb',
+                utl.write_slurm_runjob('{}_3d'.format(phase[0]), 8, '600mb',
                                        '6:00:00', VASP)
                 submission_command = 'sbatch runjob'
 

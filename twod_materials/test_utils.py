@@ -6,10 +6,10 @@ from monty.serialization import loadfn
 
 from pymatgen.matproj.rest import MPRester
 
-from twod_materials.utils import is_converged, add_vacuum, get_spacing
+import twod_materials
+from twod_materials.utils import is_converged, add_vacuum, get_spacing, TWOD_DIR
 
 
-PACKAGE_PATH = os.path.join(os.getcwd(), 'twod_materials')
 INCAR_DICT = {
     '@class': 'Incar', '@module': 'pymatgen.io.vasp.inputs', 'AGGAC': 0.0,
     'EDIFF': 1e-06, 'GGA': 'Bo', 'IBRION': 2, 'ISIF': 3, 'ISMEAR': 1,
@@ -17,19 +17,15 @@ INCAR_DICT = {
     'NPAR': 4, 'NSW': 50, 'PARAM1': 0.1833333333, 'PARAM2': 0.22,
     'PREC': 'High', 'SIGMA': 0.1
     }
-KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
-ION_DATA = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/ions.yaml'))
-END_MEMBERS = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/end_members.yaml'))
-ION_COLORS = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/ion_colors.yaml'))
+KERNEL_PATH = os.path.join(TWOD_DIR, 'vdw_kernel.bindat')
+ION_DATA = loadfn(os.path.join(TWOD_DIR), 'pourbaix/ions.yaml'))
+END_MEMBERS = loadfn(os.path.join(TWOD_DIR, 'pourbaix/end_members.yaml'))
+ION_COLORS = loadfn(os.path.join(TWOD_DIR, 'pourbaix/ion_colors.yaml'))
 try:
-    MPR = MPRester(
-        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
-        )
+    MPR = MPRester(loadfn(os.path.join(TWOD_DIR, 'config.yaml'))['mp_api'])
 except IOError:
     try:
-        MPR = MPRester(
-            os.environ['MP_API']
-            )
+        MPR = MPRester(os.environ['MP_API'])
     except KeyError:
         raise ValueError('No Materials Project API key found. Please check'
                          ' that your ~/config.yaml contains the field'
@@ -41,7 +37,7 @@ class UtilsTest(unittest.TestCase):
     def test_is_converged_with_controls(self):
         print os.getcwd()
         false_control = is_converged('./')
-        true_control = is_converged(os.path.join(PACKAGE_PATH,
+        true_control = is_converged(os.path.join(TWOD_DIR,
                                                  'stability/tests/BiTeCl'))
         self.assertTrue(true_control)
         self.assertFalse(false_control)

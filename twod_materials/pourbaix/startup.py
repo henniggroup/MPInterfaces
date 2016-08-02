@@ -9,16 +9,16 @@ from pymatgen.matproj.rest import MPRester
 
 from monty.serialization import loadfn
 
+from twod_materials.utils import TWOD_DIR
+
 
 try:
     MPR = MPRester(
-        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
+        loadfn(os.path.join(TWOD_DIR, 'config.yaml'))['mp_api']
         )
 except IOError:
     try:
-        MPR = MPRester(
-            os.environ['MP_API']
-            )
+        MPR = MPRester(os.environ['MP_API'])
     except KeyError:
         raise ValueError('No Materials Project API key found. Please check'
                          ' that your ~/config.yaml contains the field'

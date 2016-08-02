@@ -22,16 +22,12 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 
-import twod_materials
+from twod_materials.utils import TWOD_DIR
 
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-PACKAGE_PATH = os.path.join(PACKAGE_PATH, 'pourbaix')
-
-ION_DATA = loadfn(os.path.join(PACKAGE_PATH, 'ions.yaml'))
-END_MEMBERS = loadfn(os.path.join(PACKAGE_PATH, 'end_members.yaml'))
-ION_COLORS = loadfn(os.path.join(PACKAGE_PATH, 'ion_colors.yaml'))
+ION_DATA = loadfn(os.path.join(TWOD_DIR, 'pourbaix/ions.yaml'))
+END_MEMBERS = loadfn(os.path.join(TWOD_DIR, 'pourbaix/end_members.yaml'))
+ION_COLORS = loadfn(os.path.join(TWOD_DIR, 'pourbaix/ion_colors.yaml'))
 
 
 def contains_entry(entry_list, entry):

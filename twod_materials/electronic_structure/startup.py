@@ -1,8 +1,9 @@
 import os
 
+import twod_materials
 from twod_materials.utils import (
     is_converged, write_pbs_runjob,
-    write_slurm_runjob)
+    write_slurm_runjob, TWOD_DIR)
 from twod_materials.stability.startup import get_magmom_string
 
 from pymatgen.io.vasp.inputs import Kpoints, Incar
@@ -17,8 +18,7 @@ if '/ufrc/' in os.getcwd():
 elif '/scratch/' in os.getcwd():
     HIPERGATOR = 1
 
-VASP = loadfn(os.path.join(os.path.expanduser('~'),
-                           'config.yaml'))['normal_binary']
+VASP = loadfn(os.path.join(TWOD_DIR, 'config.yaml'))['normal_binary']
 
 
 def remove_z_kpoints(filename='KPOINTS'):

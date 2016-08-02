@@ -16,14 +16,12 @@ import math
 import twod_materials
 
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
+TWOD_DIR = os.path.dirname(os.path.abspath(twod_materials.__file__))
 
 try:
     POTENTIAL_PATH = loadfn(
-        os.path.join(os.path.expanduser('~'), 'config.yaml'))['potentials']
-    USR = loadfn(os.path.join(os.path.expanduser('~'),
-                 'config.yaml'))['username']
+        os.path.join(TWOD_DIR, 'config.yaml'))['potentials']
+    USR = loadfn(os.path.join(TWOD_DIR, 'config.yaml'))['username']
 
 except IOError:
     try:
@@ -31,9 +29,9 @@ except IOError:
         USR = os.environ['USERNAME']
     except KeyError:
         raise ValueError('No config.yaml file found. Please check'
-                         ' that your config.yaml is located in ~/ and'
-                         ' contains the field'
-                         ' potentials: /path/to/your/POTCAR/files/')
+                         ' that your config.yaml is located in twod_materials/'
+                         ' and contains the field'
+                         ' potentials: abs/path/to/your/POTCAR/files/')
 
 
 def is_converged(directory):
@@ -415,7 +413,7 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
     elements = lines[5].split()
     poscar.close()
 
-    potcar_symbols = loadfn(os.path.join(PACKAGE_PATH, 'potcar_symbols.yaml'))
+    potcar_symbols = loadfn(os.path.join(TWOD_DIR, 'potcar_symbols.yaml'))
 
     if types == 'None':
         types = [potcar_symbols[elt].replace(elt, '').replace('_', '')

@@ -1,0 +1,135 @@
+FORMULA: NaF
+
+#------------------------------------------------
+# general settings
+# these are overriden for each type of calculations
+# below
+# if no poscar file is provided, structure will be 
+# downloaded from the materialsproject database
+# note: must set MAPI_KEY evironment variable to
+# your key for obtaining data from materialproject
+# export MAPI_KEY="key_value"
+#------------------------------------------------
+INCAR: 
+ NSW: 0
+ IBRION: 2
+ ISIF: 3 
+ ENCUT: 600
+
+KPOINTS: [8, 8, 8]
+
+# time in hours
+QUE: 
+ NPROCS: 32
+ NNODES: 1 
+ TIME: 4
+ BIN: /home/km468/Software/VASP/vasp.5.4.1/bin/vasp_std
+
+
+#------------------------------------------------
+# setting overriden for bulk system calibration
+# encut varies from 400 to 500 with an increment of 100
+# kpoints vary from 8x8x8 to 11x11x11 with an increment of 1
+#------------------------------------------------
+bulk_calibrate:
+ KNOBS:
+  ENCUT: [400, 600, 100]
+  KPOINTS: [8, 12, 1]
+
+
+#------------------------------------------------
+# bulk relaxation
+# set the encut and kpoint obtained from the bulk
+# calibration. pass the 'energies ' argument to 
+# mpint to get the optimum parameter values
+#------------------------------------------------
+bulk_relax:
+ INCAR:
+  ENCUT: 600 
+  NSW: 1000
+  IBRION: 2
+  ISIF: 3 
+ KPOINTS: [8, 8, 8]
+
+
+#------------------------------------------------
+# bulk static
+# poscar set from the contcar in the relaxation folder
+#------------------------------------------------
+bulk_static:
+ POSCAR: NaF_bulk_relax/CONTCAR
+ INCAR: 
+  ENCUT: 600 
+  NSW: 0
+ KPOINTS: [8, 8, 8]
+
+
+#------------------------------------------------
+# calibrate slab thickness and vacuum
+# hkl = 100
+# slab constructed from the provided 
+# poscar file(the path to it)
+# vacuum values ranging from 10 to 21 with an 
+# increment of 2 and similarly for the thickness 
+#------------------------------------------------
+slab_calibrate: 
+ INCAR:
+  ENCUT: 600 
+  NSW: 0
+  LREAL: Auto
+ # this is just to avoid dowloading structure
+ # overridden below
+ POSCAR: NaF_bulk_static/POSCAR
+ KPOINTS: [8, 8, 1]
+ SLAB:
+  - NaF_bulk_static/POSCAR
+  - [1,0,0]
+ KNOBS:
+  VACUUM: [10, 22, 2]
+  THICKNESS: [8, 22, 2]
+
+
+#------------------------------------------------
+# relax slab structure
+# slab created from static bulk calculation POSCAR
+# hkl = 1000, thickness = 10 A, vacuum =  15 A
+#------------------------------------------------
+slab_relax: 
+ INCAR:
+  ENCUT: 600 
+  NSW: 1000
+  IBRION: 2
+  ISIF: 2
+ KPOINTS: [8, 8, 1]
+ SLAB:
+ - NaF_bulk_static/POSCAR
+ - [1,0,0]
+ - 10
+ - 15
+
+
+#------------------------------------------------
+# static slab calculation
+# uses rlaxed slab structure from slab relaxation
+#------------------------------------------------
+slab_static:
+ POSCAR: NaF_slab_relax/CONTCAR
+ INCAR:
+  ENCUT: 600 
+  NSW: 0
+ KPOINTS: [8, 8, 1]
+
+
+#------------------------------------------------
+# solvation calculation
+# uses poscar from vacuum calculation
+# and sets parameters in the incar file
+#------------------------------------------------
+slab_static_sol:
+ POSCAR: NaF_slab_static/POSCAR
+ INCAR: 
+  ENCUT: 800
+  NSW: 0
+  LSOL: TRUE
+  EB_K: 64.0
+ KPOINTS: [8, 8, 1]

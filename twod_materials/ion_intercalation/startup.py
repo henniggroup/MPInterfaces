@@ -4,6 +4,8 @@ from pymatgen.analysis.defects.point_defects import (
     Interstitial, ValenceIonicRadiusEvaluator
     )
 
+import os
+
 import operator
 
 from monty.dev import requires

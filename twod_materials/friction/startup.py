@@ -15,17 +15,14 @@ import twod_materials
 from twod_materials.stability.startup import get_magmom_string
 
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
+KERNEL_PATH = os.path.join(utl.TWOD_DIR, 'vdw_kernel.bindat')
 
 if '/ufrc/' in os.getcwd():
     HIPERGATOR = 2
 elif '/scratch/' in os.getcwd():
     HIPERGATOR = 1
 
-VASP = loadfn(os.path.join(os.path.expanduser('~'),
-                           'config.yaml'))['normal_binary']
+VASP = loadfn(os.path.join(utl.TWOD_DIR, 'config.yaml'))['normal_binary']
 
 
 def run_gamma_calculations(submit=True):

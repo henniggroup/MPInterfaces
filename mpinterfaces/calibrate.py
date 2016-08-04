@@ -331,12 +331,12 @@ class Calibrate(MSONable):
         else:
             return '_'.join(self.functional)
 
-    def set_incar(self, param, val):
+    def set_incar(self, param, val, poscar=None):
         """
         set the incar paramter, param = val
         """
         if param == 'MAGMOM':
-            self.incar[param] = get_magmom_string(self.poscar, val)
+            self.incar[param] = get_magmom_string(poscar, val)
         else:
             self.incar[param] = val
 
@@ -412,12 +412,7 @@ class Calibrate(MSONable):
             val_list: List of values to vary for the param
         """
 
-        if val_list == '2D_default':
-            if param == 'MAGMOM':
-                self.logger.info('setting INCAR MAGMOM for collinear run with default twod_materials'
-                        'parameter')
-                self.set_incar(param, val=False)
-        if val_list != '2D_default':
+        if val_list != ['2D_default']:
             for val in val_list:
                 self.logger.info('setting INCAR parameter ' + param + ' = ' \
                                  + str(val))
@@ -461,6 +456,9 @@ class Calibrate(MSONable):
                     self.add_job(name=job_dir, job_dir=job_dir)
         elif poscar_list:
             for poscar in poscar_list:
+                if self.turn_knobs['MAGMOM']==['2D_default']:
+                    self.set_incar(param="MAGMOM", val=False, \
+                                   poscar=poscar)
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:

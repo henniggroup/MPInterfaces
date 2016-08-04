@@ -384,7 +384,7 @@ class Calibrate(MSONable):
         self.potcar = Potcar(symbols=mapped_symbols,
                              functional=func)
 
-    def set_kpoints(self, kpoint):
+    def set_kpoints(self, kpoint, poscar=None):
         """
         set the kpoint
         """
@@ -402,7 +402,13 @@ class Calibrate(MSONable):
             self.kpoints = Kpoints.automatic_linemode(divisions=kpoint, \
                                                       ibz=HighSymmKpath(
                                                           self.poscar.structure))
-
+        if poscar:
+            if self.Grid_type == "2D_default":
+                kpoint_dict = Kpoints.gamma_automatic(poscar.structure, 1000).as_dict()
+            else:
+                kpoint_dict = Kpoints.gamma_automatic(poscar.structure, kpoint)
+            kpoint_dict['kpoints'][0][2] = 1
+            self.kpoints = Kpoints.from_dict(kpoint_dict)
     def setup_incar_jobs(self, param, val_list):
         """
         set up incar jobs,, calls set_incar to set the value to param
@@ -459,6 +465,11 @@ class Calibrate(MSONable):
                 if self.turn_knobs['MAGMOM']==['2D_default']:
                     self.set_incar(param="MAGMOM", val=False, \
                                    poscar=poscar)
+                if self.Grid_type == '2D_default':
+                    # TO DO: fix for non 2D default, kpoints = 0 passed
+                    # just to pass the function call and bypass straight
+                    # to 2D_default
+                    self.set_kpoints(kpoint = 0, poscar=poscar)
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:

@@ -404,11 +404,12 @@ class Calibrate(MSONable):
                                                           self.poscar.structure))
         if poscar:
             if self.Grid_type == "2D_default":
-                kpoint_dict = Kpoints.gamma_automatic(poscar.structure, 1000).as_dict()
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, 1000).as_dict()
             else:
-                kpoint_dict = Kpoints.gamma_automatic(poscar.structure, kpoint)
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, kpoint)
             kpoint_dict['kpoints'][0][2] = 1
             self.kpoints = Kpoints.from_dict(kpoint_dict)
+
     def setup_incar_jobs(self, param, val_list):
         """
         set up incar jobs,, calls set_incar to set the value to param

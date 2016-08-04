@@ -47,23 +47,45 @@ except IOError:
                          ' mp_api: your_api_key')
 
 
-def get_magmom_string():
+def get_magmom_string(poscar, ncl):
     """
+    TEST: integration of twod_materials function with mpinterfaces
+    calibrate.py
+
+    Args:
+        poscar: Poscar object
+        ncl: whether non-collinear run, defaults False, activated
+             if a value supplied
+    Returns:
+        string with INCAR setting for MAGMOM according to twod_materials
+        database calculations
+
     Based on a POSCAR, returns the string required for the MAGMOM
     setting in the INCAR. Initializes transition metals with 6.0
     bohr magneton and all others with 0.5.
     """
 
     magmoms = []
-    poscar_lines = open('POSCAR').readlines()
-    elements = poscar_lines[5].split()
-    amounts = poscar_lines[6].split()
-    for i in range(len(elements)):
-        if Element(elements[i]).is_transition_metal:
-            magmoms.append('{}*6.0'.format(amounts[i]))
+    sites_dict = poscar.as_dict()['structure']['sites']
+    for s in sites_dict:
+        if Element(s['label']).is_transition_metal:
+            if type(ncl) == float:
+            #to test further
+                magmoms.append([ncl,0.0,0.0])
+            else:
+                magmoms.append(6.0)
         else:
-            magmoms.append('{}*0.5'.format(amounts[i]))
-    return ' '.join(magmoms)
+            magmoms.append(0.5)
+    return magmoms
+    #poscar_lines = open('POSCAR').readlines()
+    #elements = poscar_lines[5].split()
+    #amounts = poscar_lines[6].split()
+    #for i in range(len(elements)):
+    #    if Element(elements[i]).is_transition_metal:
+    #        magmoms.append('{}*6.0'.format(amounts[i]))
+    #    else:
+    #        magmoms.append('{}*0.5'.format(amounts[i]))
+    #return ' '.join(magmoms)
 
 
 def relax(submit=True, force_overwrite=False):

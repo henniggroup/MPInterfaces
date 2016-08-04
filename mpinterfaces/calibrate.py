@@ -414,9 +414,9 @@ class Calibrate(MSONable):
 
         if val_list == '2D_default':
             if param == 'MAGMOM':
-                self.logger('setting INCAR MAGMOM for collinear run with default twod_materials'
+                self.logger.info('setting INCAR MAGMOM for collinear run with default twod_materials'
                         'parameter')
-                self.set_incar(param)
+                self.set_incar(param, val=False)
         if val_list != '2D_default':
             for val in val_list:
                 self.logger.info('setting INCAR parameter ' + param + ' = ' \

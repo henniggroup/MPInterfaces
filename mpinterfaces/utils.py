@@ -137,7 +137,7 @@ def add_vacuum_padding(slab, vacuum, hkl=[0, 0, 1]):
                 site_properties=new_struct.site_properties)
 
 
-def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
+def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
                   job_bin=None, mem='1000', job_name=None):
     """
     depends on the supercomputing faciltiy being used.
@@ -162,7 +162,7 @@ def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
              'params':
                  {
                      'nodes': str(nnodes),
-                     'ntasks': str(int(nprocs / nnodes)),
+                     'ntasks': str(int(ntasks)),
                      'walltime': walltime,
                      'job_name': job_name,
                      'email': 'mpinterfaces@gmail.com',

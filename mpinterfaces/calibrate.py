@@ -467,8 +467,7 @@ class Calibrate(MSONable):
                                    poscar=poscar)
                 if self.Grid_type == '2D_default':
                     # TO DO: fix for non 2D default, kpoints = 0 passed
-                    # just to pass the function call and bypass straight
-                    # to 2D_default
+                    # just to pass the function call
                     self.set_kpoints(kpoint = 0, poscar=poscar)
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()

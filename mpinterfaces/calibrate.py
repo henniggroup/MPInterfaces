@@ -52,6 +52,8 @@ from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.interface import Interface, Ligand
 from mpinterfaces.utils import get_ase_slab
 
+from twod_materials.stability.startup import get_magmom_string
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
@@ -333,7 +335,10 @@ class Calibrate(MSONable):
         """
         set the incar paramter, param = val
         """
-        self.incar[param] = val
+        if param == 'MAGMOM':
+            self.incar[param] = get_magmom_string(self.poscar, val)
+        else:
+            self.incar[param] = val
 
     def set_poscar(self, scale=None, poscar=None):
         """
@@ -406,7 +411,13 @@ class Calibrate(MSONable):
             param: Name of INCAR parameter
             val_list: List of values to vary for the param
         """
-        if val_list:
+
+        if val_list == '2D_default':
+            if param == 'MAGMOM':
+                self.logger('setting INCAR MAGMOM for collinear run with default twod_materials'
+                        'parameter')
+                self.set_incar(param)
+        if val_list != '2D_default':
             for val in val_list:
                 self.logger.info('setting INCAR parameter ' + param + ' = ' \
                                  + str(val))

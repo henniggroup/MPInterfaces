@@ -12,7 +12,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
 
 import twod_materials
-from twod_materials.stability.startup import get_magmom_string
+from twod_materials.utils import get_magmom_string
 
 
 KERNEL_PATH = os.path.join(utl.TWOD_DIR, 'vdw_kernel.bindat')

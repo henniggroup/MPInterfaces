@@ -3,8 +3,7 @@ import os
 import twod_materials
 from twod_materials.utils import (
     is_converged, write_pbs_runjob,
-    write_slurm_runjob, TWOD_DIR)
-from twod_materials.stability.startup import get_magmom_string
+    write_slurm_runjob, get_magmom_string, TWOD_DIR)
 
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath

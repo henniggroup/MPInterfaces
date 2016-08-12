@@ -52,7 +52,7 @@ from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.interface import Interface, Ligand
 from mpinterfaces.utils import get_ase_slab
 
-from twod_materials.stability.startup import get_magmom_string
+from twod_materials.utils import get_magmom_string
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

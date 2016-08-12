@@ -1,3 +1,5 @@
+from __future__ import print_function, division, unicode_literals
+
 import os
 
 from pymatgen.core.structure import Structure
@@ -463,8 +465,8 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
         if os.path.exists('{}/{}/POTCAR'.format(pot_path, elements[i])):
             pass
         else:
-            print 'Potential file for {} does not exist. Looking for best'\
-                  'variation... '.format(elements[i])
+            print('Potential file for {} does not exist. Looking for best'\
+                  'variation... '.format(elements[i]))
             if types[i] == 'regular':
                 length = 0
             else:
@@ -473,28 +475,28 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
             elements[i] += '_sv'
             if os.path.exists('{}/{}/POTCAR'.format(
                     pot_path, elements[i])):
-                print 'Found one! {} will work.'.format(elements[i])
+                print('Found one! {} will work.'.format(elements[i]))
             else:
                 elements[i] = elements[i][:-3]
                 elements[i] += '_pv'
                 if os.path.exists('{}/{}/POTCAR'.format(
                         pot_path, elements[i])):
-                    print 'Found one! {} will work.'.format(elements[i])
+                    print('Found one! {} will work.'.format(elements[i]))
                 else:
                     elements[i] = elements[i][:-3]
                     elements[i] += '_3'
                     if os.path.exists('{}/{}/POTCAR'.format(
                             pot_path, elements[i])):
-                        print 'Found one! {} will work.'.format(elements[i])
+                        print('Found one! {} will work.'.format(elements[i]))
                     else:
                         elements[i] = elements[i][:-2]
                         if os.path.exists('{}/{}/POTCAR'.format(
                                 pot_path, elements[i])):
-                            print ('Found one! {} will '
-                                   'work.'.format(elements[i]))
+                            print('Found one! {} will '
+                                  'work.'.format(elements[i]))
                         else:
-                            print ('No pseudopotential found'
-                                   ' for {}'.format(elements[i]))
+                            print('No pseudopotential found'
+                                  ' for {}'.format(elements[i]))
 
     # Create paths, open files, and write files to POTCAR for each potential.
     for element in elements:

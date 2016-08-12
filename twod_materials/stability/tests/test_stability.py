@@ -13,7 +13,6 @@ os.chdir('twod_materials/stability/tests')
 class AnalysisTest(unittest.TestCase):
 
     def test_get_hull_distances_for_BiTeCl(self):
-        print os.getcwd()
         self.assertEqual(get_hull_distances(['BiTeCl']),
                          {u'BiTeCl': 0.10335952666666692})
 

@@ -1,3 +1,5 @@
+from __future__ import print_function, division, unicode_literals
+
 import os
 
 import yaml
@@ -192,7 +194,6 @@ class Calibrator():
             vasprun = Vasprun('vasprun.xml')
             composition = vasprun.final_structure.composition
             n_formula_units = composition.get_integer_formula_and_factor()[1]
-            print elt
             mu0[elt] = (
                 round(vasprun.final_energy / n_formula_units
                       + self._config['OtherCorrections'][elt], 3)
@@ -217,7 +218,6 @@ class Calibrator():
             os.chdir(parent_dir)
 
         for elt in elts:
-            print elt
             os.chdir('{}/ref'.format(elt))
             vasprun = Vasprun('vasprun.xml')
             composition = vasprun.final_structure.composition

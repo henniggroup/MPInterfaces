@@ -286,9 +286,10 @@ class Calibrate(MSONable):
         elif type(val) == dict:
             return self.potcar_to_name(val)
         elif isinstance(val, Poscar):
-            return str(val.structure.composition.reduced_formula) \
+            name = str(val.structure.composition.reduced_formula) \
                    + '_' + str(int(val.structure.lattice.volume)) \
                    + '_' + ''.join((val.comment).split())
+            return name.replace('\\', '_').replace('(', '_').replace(')', '_')
         else:
             return str(val)
 
@@ -331,13 +332,6 @@ class Calibrate(MSONable):
         else:
             return '_'.join(self.functional)
 
-<<<<<<< HEAD
-    def set_incar(self, param, val):
-        """
-        set the incar paramter, param = val
-        """
-        self.incar[param] = val
-=======
     def set_incar(self, param, val, poscar=None):
         """
         set the incar paramter, param = val
@@ -346,7 +340,7 @@ class Calibrate(MSONable):
             self.incar[param] = get_magmom_string(poscar, val)
         else:
             self.incar[param] = val
->>>>>>> bb_real/master
+
 
     def set_poscar(self, scale=None, poscar=None):
         """
@@ -392,11 +386,7 @@ class Calibrate(MSONable):
         self.potcar = Potcar(symbols=mapped_symbols,
                              functional=func)
 
-<<<<<<< HEAD
-    def set_kpoints(self, kpoint):
-=======
     def set_kpoints(self, kpoint, poscar=None):
->>>>>>> bb_real/master
         """
         set the kpoint
         """
@@ -414,8 +404,6 @@ class Calibrate(MSONable):
             self.kpoints = Kpoints.automatic_linemode(divisions=kpoint, \
                                                       ibz=HighSymmKpath(
                                                           self.poscar.structure))
-<<<<<<< HEAD
-=======
         if poscar:
             if self.Grid_type == "2D_default":
                 kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, 1000).as_dict()
@@ -423,7 +411,6 @@ class Calibrate(MSONable):
                 kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, kpoint)
             kpoint_dict['kpoints'][0][2] = 1
             self.kpoints = Kpoints.from_dict(kpoint_dict)
->>>>>>> bb_real/master
 
     def setup_incar_jobs(self, param, val_list):
         """
@@ -433,12 +420,8 @@ class Calibrate(MSONable):
             param: Name of INCAR parameter
             val_list: List of values to vary for the param
         """
-<<<<<<< HEAD
-        if val_list:
-=======
 
         if val_list != ['2D_default']:
->>>>>>> bb_real/master
             for val in val_list:
                 self.logger.info('setting INCAR parameter ' + param + ' = ' \
                                  + str(val))
@@ -447,6 +430,8 @@ class Calibrate(MSONable):
                     job_dir = self.job_dir + os.sep + \
                               param + os.sep + self.val_to_name(val)
                     self.add_job(name=job_dir, job_dir=job_dir)
+        elif val_list == ['2D_default']:
+            self.logger.info('setting 2D defaults')
         else:
             self.logger.warn('incar list empty')
 

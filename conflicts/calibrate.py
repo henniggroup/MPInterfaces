@@ -189,7 +189,9 @@ class Calibrate(MSONable):
                 elif k == 'VOLUME' and v:
                     self.setup_poscar_jobs(scale_list=v)
                 elif k == 'POTCAR' and v:
-                    self.setup_potcar_jobs(mappings=v)
+                    self.setup_potcar_jobs(mappings=v, functional_list=None)
+                elif k == 'POTCAR_functional' and v:
+                    self.setup_potcar_jobs(mappings=None, functional_list=v)
                 elif k == 'POSCAR' and v:
                     self.setup_poscar_jobs(poscar_list=v)
                 else:
@@ -795,7 +797,7 @@ class CalibrateInterface(CalibrateSlab):
                  is_matrix=False, Grid_type='A',
                  parent_job_dir='.', job_dir='./Interface',
                  qadapter=None, job_cmd='qsub', wait=True,
-                 mappings_override=None, functional="PBE",
+https://bitbucket.org/ashtonmv/mpinterfaces_with_twod_materials                 mappings_override=None, functional="PBE",
                  turn_knobs={'VACUUM': [], 'THICKNESS': []},
                  from_ase=False, checkpoint_file=None,
                  cal_logger=None):

@@ -341,7 +341,6 @@ class Calibrate(MSONable):
         else:
             self.incar[param] = val
 
-
     def set_poscar(self, scale=None, poscar=None):
         """
         perturbs given structure by volume scaling factor
@@ -481,7 +480,6 @@ class Calibrate(MSONable):
                     job_dir = self.job_dir + os.sep + 'POS' + \
                               os.sep + self.val_to_name(poscar)
                     self.add_job(name=job_dir, job_dir=job_dir)
-
 
     def setup_potcar_jobs(self, mappings, functional_list):
         """
@@ -766,14 +764,15 @@ class CalibrateSlab(Calibrate):
             slab = interface.slab
         else:
             slab = interface
-        z_coords = slab.frac_coords[:, 2]
+        z_coords = interface.frac_coords[:, 2]
+        z_coords_slab = slab.frac_coords[:, 2]
         z_lower_bound = None
         z_upper_bound = None
         if bottom:
-            z_lower_bound = np.unique(z_coords)[n_layers - 1]
+            z_lower_bound = np.unique(z_coords_slab)[n_layers - 1]
             sd_flags[np.where(z_coords <= z_lower_bound)] = np.ones((1, 3))
         if top:
-            z_upper_bound = np.unique(z_coords)[-n_layers]
+            z_upper_bound = np.unique(z_coords_slab)[-n_layers]
             sd_flags[np.where(z_coords >= z_upper_bound)] = np.ones((1, 3))
         return sd_flags.tolist()
 

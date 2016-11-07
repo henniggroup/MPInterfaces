@@ -52,6 +52,11 @@ from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.interface import Interface, Ligand
 from mpinterfaces.utils import get_ase_slab
 
+
+
+from twod_materials.utils import get_magmom_string
+
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
@@ -329,11 +334,22 @@ class Calibrate(MSONable):
         else:
             return '_'.join(self.functional)
 
+<<<<<<< HEAD
     def set_incar(self, param, val):
         """
         set the incar paramter, param = val
         """
         self.incar[param] = val
+=======
+    def set_incar(self, param, val, poscar=None):
+        """
+        set the incar paramter, param = val
+        """
+        if param == 'MAGMOM':
+            self.incar[param] = get_magmom_string(poscar, val)
+        else:
+            self.incar[param] = val
+>>>>>>> bb_real/master
 
     def set_poscar(self, scale=None, poscar=None):
         """
@@ -379,7 +395,11 @@ class Calibrate(MSONable):
         self.potcar = Potcar(symbols=mapped_symbols,
                              functional=func)
 
+<<<<<<< HEAD
     def set_kpoints(self, kpoint):
+=======
+    def set_kpoints(self, kpoint, poscar=None):
+>>>>>>> bb_real/master
         """
         set the kpoint
         """
@@ -397,6 +417,16 @@ class Calibrate(MSONable):
             self.kpoints = Kpoints.automatic_linemode(divisions=kpoint, \
                                                       ibz=HighSymmKpath(
                                                           self.poscar.structure))
+<<<<<<< HEAD
+=======
+        if poscar:
+            if self.Grid_type == "2D_default":
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, 1000).as_dict()
+            else:
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, kpoint)
+            kpoint_dict['kpoints'][0][2] = 1
+            self.kpoints = Kpoints.from_dict(kpoint_dict)
+>>>>>>> bb_real/master
 
     def setup_incar_jobs(self, param, val_list):
         """
@@ -406,7 +436,12 @@ class Calibrate(MSONable):
             param: Name of INCAR parameter
             val_list: List of values to vary for the param
         """
+<<<<<<< HEAD
         if val_list:
+=======
+
+        if val_list != ['2D_default']:
+>>>>>>> bb_real/master
             for val in val_list:
                 self.logger.info('setting INCAR parameter ' + param + ' = ' \
                                  + str(val))
@@ -450,6 +485,16 @@ class Calibrate(MSONable):
                     self.add_job(name=job_dir, job_dir=job_dir)
         elif poscar_list:
             for poscar in poscar_list:
+<<<<<<< HEAD
+=======
+                if self.turn_knobs['MAGMOM']==['2D_default']:
+                    self.set_incar(param="MAGMOM", val=False, \
+                                   poscar=poscar)
+                if self.Grid_type == '2D_default':
+                    # TO DO: fix for non 2D default, kpoints = 0 passed
+                    # just to pass the function call
+                    self.set_kpoints(kpoint = 0, poscar=poscar)
+>>>>>>> bb_real/master
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:

@@ -137,6 +137,7 @@ def add_vacuum_padding(slab, vacuum, hkl=[0, 0, 1]):
                 site_properties=new_struct.site_properties)
 
 
+<<<<<<< HEAD
 def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
                   job_bin=None, mem='1000'):
     d = {}
@@ -159,6 +160,40 @@ def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
                      'notification_options': 'ae',
                      'pre_rocket': '#PBS -l pmem=' + str(mem) + 'mb',
                      'rocket_launch': 'mpirun ' + job_bin
+=======
+def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
+                  job_bin=None, mem='1000', job_name=None):
+    """
+    depends on the supercomputing faciltiy being used.
+    set a sample submit script in the fireworks directory which is
+    installed in your virtual environment as for example:
+    /my_venv/lib/python2.7/site-packages/FireWorks-1.2.5-py2.7.egg/
+    fireworks/user_objects/queue_adapters/
+    the keys to the dictionary d are the defaults on ufhpc's
+    hipergator2 supercomputing facility
+
+    """
+    d = {}
+    job_cmd = None
+    hostname = socket.gethostname()
+    # hipergator: currently hipergator2
+    if 'ufhpc' in hostname:
+        if job_bin is None:
+            job_bin = '/home/mashton/vasp.5.4.1/bin/vasp'
+        else:
+            job_bin = job_bin
+        d = {'type': 'SLURM',
+             'params':
+                 {
+                     'nodes': str(nnodes),
+                     'ntasks': str(int(ntasks)),
+                     'walltime': walltime,
+                     'job_name': job_name,
+                     'email': 'mpinterfaces@gmail.com',
+                     'notification_options': 'ae',
+                     'pre_rocket': 'module load intel/2016.0.109 openmpi',
+                     'rocket_launch': 'mpiexec ' + job_bin
+>>>>>>> bb_real/master
                  }
              }
     # stampede

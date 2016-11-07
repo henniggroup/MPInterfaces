@@ -6,21 +6,21 @@ from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
 """
-Calibration module:  
+Calibration module:
 
-This module contains the classes for 
-1. Calibrate: Base class for specifying the parameters for 
-calibration and setting up the VASP jobs in directory 
-structure according to 
+This module contains the classes for
+1. Calibrate: Base class for specifying the parameters for
+calibration and setting up the VASP jobs in directory
+structure according to
 2. CalibrateBulk: calibrating a periodic bulk structure,
-3. CalibrateSlab: creates a slab of given crystallographic facet, 
-thickness and vacuum spacing, 
-3. CalibrateMolecule: creates a molecule in a box 
-4. CalibrateInterface: calibrates an interface composed of slab plus 
+3. CalibrateSlab: creates a slab of given crystallographic facet,
+thickness and vacuum spacing,
+3. CalibrateMolecule: creates a molecule in a box
+4. CalibrateInterface: calibrates an interface composed of slab plus
 molecule
 
 The attribute turn_knobs controls the parameters to be calibrated
-for a given structure 
+for a given structure
 
 """
 
@@ -51,6 +51,8 @@ from monty.serialization import dumpfn
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.interface import Interface, Ligand
 from mpinterfaces.utils import get_ase_slab
+
+from twod_materials.utils import get_magmom_string
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -87,7 +89,7 @@ class Calibrate(MSONable):
             kpoints: input KPOINTS
             system: system info as a dictionary,
                 slab or interface example:
-                system={'hkl':[1,1,1], 'ligand':None}, 
+                system={'hkl':[1,1,1], 'ligand':None},
             is_matrix (bool): whether the jobs are dependent on each
                 other
             Grid_type: kpoints grid_type
@@ -95,12 +97,12 @@ class Calibrate(MSONable):
                 launched
             job_dir: job directory
             qadapter: adapter for the batch system
-            job_cmd: command to be used for submitting the job. If 
+            job_cmd: command to be used for submitting the job. If
                 qadapter is specified then job_cmd is ignored
             wait: whther to wait for the job to finish. If the job is
                 being submitted to the queue then there is no need for
                 waiting
-            turn_knobs: an ordered dictionary of parmaters and the 
+            turn_knobs: an ordered dictionary of parmaters and the
                 corresponding values
             mappings_override: override symbol mapping in potcar
                                eg:- {'S':'S_sv'}
@@ -156,7 +158,7 @@ class Calibrate(MSONable):
     def setup(self):
         """
         set up the jobs for the given turn_knobs dict
-        is_matrix = True implies that the params in the dict are 
+        is_matrix = True implies that the params in the dict are
         interrelated. Otherwise calcs corresponding to each dict key
         is independent
         """
@@ -170,7 +172,7 @@ class Calibrate(MSONable):
         invoke the set up methods corresponding to the dict keys
         any key other than KPOINTS, VOLUME and POTCAR are treated
         as INCAR parameters
-        
+
         Args:
             turn_knobs: knobs aka paramters to be tuned
 
@@ -215,12 +217,12 @@ class Calibrate(MSONable):
     def recursive_jobs(self, n, keys, i):
         """
         recursively setup the jobs: used by setup_matrix_job
-        
+
         Args:
             n: total number of knobs aka parameters to be tuned
             keys: list of knobs i.e parameter names
             i: ith knob
-            
+
         """
         job_dir = self.job_dir + os.sep + self.key_to_name(keys[i])
         if i == n - 1 and i != 0:
@@ -241,10 +243,10 @@ class Calibrate(MSONable):
     def key_to_name(self, key):
         """
         convenient string mapping for the keys in the turn_knobs dict
-        
+
         Args:
             key: key to the knob dict
-            
+
         Returns:
             an appropriate string representation of the key so that
             the name doesnt clash with the filenames
@@ -262,20 +264,20 @@ class Calibrate(MSONable):
         """
         convert a value to a string so that it can be used for naming
         the job directory
-        the decimal points in floats are replaced with underscore 
+        the decimal points in floats are replaced with underscore
         character
-        if the value is of type list, kpoint_to_name method is used 
+        if the value is of type list, kpoint_to_name method is used
         since
         only kpoint values are expected to be of type list
-        if the values is of type dict then potcar_to_name method is 
+        if the values is of type dict then potcar_to_name method is
         invoked
-        
+
         Args:
             val: knob value to be converted into an appropriate string
                 representation
-            
+
         Returns:
-            a string filename for the value 
+            a string filename for the value
         """
         if type(val) == float:
             return re.sub('\.', '_', str(val))
@@ -293,12 +295,12 @@ class Calibrate(MSONable):
     def kpoint_to_name(self, kpoint, grid_type):
         """
         get a string representation for the given kpoint
-        
+
         Args:
             kpoint: an iterable
             grid_type: grid_type used for the KPOINTS
-        
-        Returns:    
+
+        Returns:
             string representation for kpoint eg: Monkhorst Pack
             2 2 2 will be named 2x2x2
         """
@@ -310,16 +312,16 @@ class Calibrate(MSONable):
 
     def potcar_to_name(self, mapping, functional):
         """
-        convert a symbol mapping and functional to a name that 
+        convert a symbol mapping and functional to a name that
         can be used for setting up the potcar jobs
-         
+
          Args:
-             mapping: example:- if mapping = {'Pt':'Pt_pv', 
+             mapping: example:- if mapping = {'Pt':'Pt_pv',
                  'Si':'Si_GW'} then the name will be PBE_Pt_pv_Si_GW
                   with self.functional="PBE"
-                 
+
         Returns:
-            string 
+            string
         """
         if mapping:
             l = [v for k, v in mapping.items()]
@@ -329,17 +331,28 @@ class Calibrate(MSONable):
         else:
             return '_'.join(self.functional)
 
+<<<<<<< HEAD
     def set_incar(self, param, val):
         """
         set the incar paramter, param = val
         """
         self.incar[param] = val
+=======
+    def set_incar(self, param, val, poscar=None):
+        """
+        set the incar paramter, param = val
+        """
+        if param == 'MAGMOM':
+            self.incar[param] = get_magmom_string(poscar, val)
+        else:
+            self.incar[param] = val
+>>>>>>> bb_real/master
 
     def set_poscar(self, scale=None, poscar=None):
         """
-        perturbs given structure by volume scaling factor 
-        or takes user defined variants of Poscar 
-        
+        perturbs given structure by volume scaling factor
+        or takes user defined variants of Poscar
+
         Args:
            scale : Volume Scaling parameter
 
@@ -379,7 +392,11 @@ class Calibrate(MSONable):
         self.potcar = Potcar(symbols=mapped_symbols,
                              functional=func)
 
+<<<<<<< HEAD
     def set_kpoints(self, kpoint):
+=======
+    def set_kpoints(self, kpoint, poscar=None):
+>>>>>>> bb_real/master
         """
         set the kpoint
         """
@@ -397,6 +414,16 @@ class Calibrate(MSONable):
             self.kpoints = Kpoints.automatic_linemode(divisions=kpoint, \
                                                       ibz=HighSymmKpath(
                                                           self.poscar.structure))
+<<<<<<< HEAD
+=======
+        if poscar:
+            if self.Grid_type == "2D_default":
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, 1000).as_dict()
+            else:
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, kpoint)
+            kpoint_dict['kpoints'][0][2] = 1
+            self.kpoints = Kpoints.from_dict(kpoint_dict)
+>>>>>>> bb_real/master
 
     def setup_incar_jobs(self, param, val_list):
         """
@@ -406,7 +433,12 @@ class Calibrate(MSONable):
             param: Name of INCAR parameter
             val_list: List of values to vary for the param
         """
+<<<<<<< HEAD
         if val_list:
+=======
+
+        if val_list != ['2D_default']:
+>>>>>>> bb_real/master
             for val in val_list:
                 self.logger.info('setting INCAR parameter ' + param + ' = ' \
                                  + str(val))
@@ -421,7 +453,7 @@ class Calibrate(MSONable):
     def setup_kpoints_jobs(self, kpoints_list=None):
         """
         setup the kpoint jobs
-        
+
         """
         if kpoints_list:
             for kpoint in kpoints_list:
@@ -450,6 +482,16 @@ class Calibrate(MSONable):
                     self.add_job(name=job_dir, job_dir=job_dir)
         elif poscar_list:
             for poscar in poscar_list:
+<<<<<<< HEAD
+=======
+                if self.turn_knobs['MAGMOM']==['2D_default']:
+                    self.set_incar(param="MAGMOM", val=False, \
+                                   poscar=poscar)
+                if self.Grid_type == '2D_default':
+                    # TO DO: fix for non 2D default, kpoints = 0 passed
+                    # just to pass the function call
+                    self.set_kpoints(kpoint = 0, poscar=poscar)
+>>>>>>> bb_real/master
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:
@@ -481,7 +523,7 @@ class Calibrate(MSONable):
 
     def add_job(self, name='noname', job_dir='.'):
         """
-        add a single job using the current incar, poscar, potcar and 
+        add a single job using the current incar, poscar, potcar and
         kpoints
         """
         vis = MPINTVaspInputSet(name, self.incar, self.poscar,
@@ -569,9 +611,9 @@ class Calibrate(MSONable):
 
 class CalibrateMolecule(Calibrate):
     """
-    
+
     Calibrate paramters for Molecule calculations
-    
+
     """
 
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
@@ -603,9 +645,9 @@ class CalibrateMolecule(Calibrate):
 
 class CalibrateBulk(Calibrate):
     """
-    
+
     Calibrate parameters for Bulk calculations
-    
+
     """
 
     def __init__(self, incar, poscar, potcar, kpoints, system=None,
@@ -663,7 +705,7 @@ class CalibrateSlab(Calibrate):
         """
         invoke the set up methods corresponding to the dict keys:
         VACUUM and THICKNESS
-        sets the POSCAR key in the turn_knobs 
+        sets the POSCAR key in the turn_knobs
         """
         if turn_knobs is None:
             turn_knobs = self.turn_knobs
@@ -689,7 +731,7 @@ class CalibrateSlab(Calibrate):
         """
         create slabs with the provided vacuum settings
 
-        returns list of poscars        
+        returns list of poscars
         """
         return [self.create_slab(vacuum=val) for val in vacuum_list]
 
@@ -729,7 +771,7 @@ class CalibrateSlab(Calibrate):
     def set_sd_flags(interface=None, n_layers=2, top=True, bottom=True):
         """
         set the relaxation flags for top and bottom layers of interface.
-        
+
         The upper and lower bounds of the z coordinate are determined
         based on the slab. All layers above and below the bounds will
         be relaxed. This means if there is a ligand on top of the slab,
@@ -761,9 +803,9 @@ class CalibrateSlab(Calibrate):
 
 class CalibrateInterface(CalibrateSlab):
     """
-    
+
     Calibrate paramters for interface calculations
-    
+
     """
 
     def __init__(self, incar, poscar, potcar, kpoints, system=None,

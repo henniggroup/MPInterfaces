@@ -482,22 +482,21 @@ class Calibrate(MSONable):
                     self.add_job(name=job_dir, job_dir=job_dir)
         elif poscar_list:
             for poscar in poscar_list:
-<<<<<<< HEAD
-=======
-                if self.turn_knobs['MAGMOM']==['2D_default']:
-                    self.set_incar(param="MAGMOM", val=False, \
-                                   poscar=poscar)
-                if self.Grid_type == '2D_default':
+#                if any(self.turn_knobs.keys()=='MAGMOM'):
+#                    if self.turn_knobs['MAGMOM']==['2D_default']:
+#                       self.set_incar(param="MAGMOM", val=False, \
+#                                   poscar=poscar)
+#                if self.Grid_type == '2D_default':
                     # TO DO: fix for non 2D default, kpoints = 0 passed
                     # just to pass the function call
-                    self.set_kpoints(kpoint = 0, poscar=poscar)
->>>>>>> bb_real/master
+#                    self.set_kpoints(kpoint = 0, poscar=poscar)
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:
                     job_dir = self.job_dir + os.sep + 'POS' + \
                               os.sep + self.val_to_name(poscar)
                     self.add_job(name=job_dir, job_dir=job_dir)
+
 
     def setup_potcar_jobs(self, mappings, functional_list):
         """

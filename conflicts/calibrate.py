@@ -797,7 +797,7 @@ class CalibrateInterface(CalibrateSlab):
                  is_matrix=False, Grid_type='A',
                  parent_job_dir='.', job_dir='./Interface',
                  qadapter=None, job_cmd='qsub', wait=True,
-https://bitbucket.org/ashtonmv/mpinterfaces_with_twod_materials                 mappings_override=None, functional="PBE",
+                 mappings_override=None, functional="PBE",
                  turn_knobs={'VACUUM': [], 'THICKNESS': []},
                  from_ase=False, checkpoint_file=None,
                  cal_logger=None):

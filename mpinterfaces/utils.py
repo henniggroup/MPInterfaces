@@ -189,7 +189,7 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
                      'notification_options': 'ae',
                      'pre_rocket': 'module load intel/2016.0.109 openmpi',
                      'rocket_launch': 'mpiexec ' + job_bin
->>>>>>> bb_real/master
+
                  }
              }
     # stampede

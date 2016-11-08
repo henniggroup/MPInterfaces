@@ -11,9 +11,9 @@ setup(
 
 #    install_requires=["pymatgen>=3.6.0", "FireWorks>=1.3.0",
 #                      "custodian>=1.0.0", "pymatgen-db>=0.5.1",
-#                      "ase>=3.11.0", "six", "matplotlib>=1.5.1"],
+#                      "ase>=3.11.0", "six", "matplotlib==1.5.1"],
 #=======
-    install_requires=["pymatgen>=3.3.5", "FireWorks>=1.3.0",
+    install_requires=["pymatgen==4.4.1", "FireWorks==1.3.0",
                       "custodian>=1.0.0", "pymatgen-db>=0.5.1",
                       "ase>=3.11.0", "six", "matplotlib==1.4.2"],
 #>>>>>>> bb_real/master

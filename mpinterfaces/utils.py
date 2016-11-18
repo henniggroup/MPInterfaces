@@ -137,30 +137,6 @@ def add_vacuum_padding(slab, vacuum, hkl=[0, 0, 1]):
                 site_properties=new_struct.site_properties)
 
 
-<<<<<<< HEAD
-def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
-                  job_bin=None, mem='1000'):
-    d = {}
-    job_cmd = None
-    hostname = socket.gethostname()
-    # hipergator
-    if 'ufhpc' in hostname:
-        if job_bin is None:
-            job_bin = '/home/km468/Software/VASP/vasp.5.3.5/vasp'
-        else:
-            job_bin = job_bin
-        d = {'type': 'PBS',
-             'params':
-                 {
-                     'nnodes': str(nnodes),
-                     'ppnode': str(int(nprocs / nnodes)),
-                     'walltime': walltime,
-                     'job_name': 'vasp_job',
-                     'email': 'mpinterfaces@gmail.com',
-                     'notification_options': 'ae',
-                     'pre_rocket': '#PBS -l pmem=' + str(mem) + 'mb',
-                     'rocket_launch': 'mpirun ' + job_bin
-=======
 def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
                   job_bin=None, mem='1000', job_name=None):
     """
@@ -173,9 +149,29 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
     hipergator2 supercomputing facility
 
     """
-    d = {}
+    d = {} 
     job_cmd = None
     hostname = socket.gethostname()
+    
+    ## old hipergator which can be generalized into a pbs qdapter for fireworks
+
+#    if 'ufhpc_pbs' in hostname:
+#        if job_bin is None:
+#            job_bin = '/home/km468/Software/VASP/vasp.5.3.5/vasp'
+#        else:
+#            job_bin = job_bin
+#        d = {'type': 'PBS',
+#             'params':
+#                 {
+#                     'nnodes': str(nnodes),
+#                     'ppnode': str(int(nprocs / nnodes)),
+#                     'walltime': walltime,
+#                     'job_name': 'vasp_job',
+#                     'email': 'mpinterfaces@gmail.com',
+#                     'notification_options': 'ae',
+#                     'pre_rocket': '#PBS -l pmem=' + str(mem) + 'mb',
+#                     'rocket_launch': 'mpirun ' + job_bin
+
     # hipergator: currently hipergator2
     if 'ufhpc' in hostname:
         if job_bin is None:
@@ -193,7 +189,7 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
                      'notification_options': 'ae',
                      'pre_rocket': 'module load intel/2016.0.109 openmpi',
                      'rocket_launch': 'mpiexec ' + job_bin
->>>>>>> bb_real/master
+
                  }
              }
     # stampede

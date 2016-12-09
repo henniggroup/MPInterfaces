@@ -17,7 +17,10 @@ import subprocess
 import logging
 
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
-from pymatgen.io.vasp.sets import DictVaspInputSet
+try:
+    from pymatgen.io.vasp.sets import DictVaspInputSet
+except ImportError:
+    from pymatgen.io.vasp.sets import DictSet as DictVaspInputSet
 
 from custodian.custodian import Job, ErrorHandler
 

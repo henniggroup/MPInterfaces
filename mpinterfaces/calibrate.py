@@ -41,6 +41,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
+from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 from custodian.custodian import Custodian
@@ -63,7 +64,7 @@ logger.addHandler(sh)
 
 ## Error exception catching function for debugging
 ## can be a very useful tool for a developer
-## move to utils and activate when debug mode is on 
+## move to utils and activate when debug mode is on
 import linecache
 
 def PrintException():

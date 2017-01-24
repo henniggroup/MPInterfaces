@@ -532,8 +532,6 @@ class Calibrate(MSONable):
                 kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, 1000)
                 self.kpoints = Kpoints.from_dict(kpoint_dict)
 
-
-
     def setup_incar_jobs(self, param, val_list):
         """
         set up incar jobs,, calls set_incar to set the value to param
@@ -552,8 +550,6 @@ class Calibrate(MSONable):
                     job_dir = self.job_dir + os.sep + \
                               param + os.sep + self.val_to_name(val)
                     self.add_job(name=job_dir, job_dir=job_dir)
-        elif val_list == ['2D_default']:
-            self.logger.info('setting 2D defaults')
         else:
             self.logger.warn('incar list empty')
 

@@ -54,6 +54,9 @@ from mpinterfaces.interface import Interface, Ligand
 from mpinterfaces.utils import get_ase_slab
 
 from twod_materials.utils import get_magmom_string
+from twod_materials.electronic_structure.startup import get_2D_hse_kpoints,\
+                               get_2D_incar_hse_prep, get_2D_incar_hse
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

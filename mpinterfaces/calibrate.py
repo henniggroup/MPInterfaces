@@ -712,7 +712,17 @@ class Calibrate(MSONable):
                           self.logger.info('updating INCAR and POSCAR for AFM calculation')
                           afm, poscar  = get_magmom_afm(poscar, self.database)
                           incar_dict.update({'MAGMOM':afm})
-
+                    except:
+                       # check what to do if the previous calculation being reused is not
+                       # actuall done .. system exit or adopt a user override with POSCAR
+                       print (PrintException())
+                       self.logger.warn('Empty relaxed CONTCAR file .. Probably job not done')
+                       if not self.reuse_override:
+                          self.logger.warn('You can set reuse_override to continue with POSCAR file, exiting now ..')
+                          sys.exit(0)
+                       else:
+                          self.logger.info('Using old Poscar for rerun')
+                          poscar = Poscar.from_file(pos+os.sep+'POSCAR')
 
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()

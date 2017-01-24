@@ -671,6 +671,44 @@ class Calibrate(MSONable):
                        if type(self.reuse) == list:
                            reuse_paths = [pos+os.sep+r for r in self.reuse]
                            self.reuse_paths = reuse_paths
+                       # Magnetism use cases, updates to be made to the INCAR (MAE)
+                       # and poscar (AFM)
+                       # MAE and AFM
+
+                       if self.magnetism == 'MAE':
+
+                          # remove vdW tags for MAE calculations
+                          vdW_tags = ('GGA', 'AGGAC', 'LUSE_VDW', 'PARAM1', 'PARAM2')
+                          for key in vdW_tags:
+                             if key in incar_dict:
+                                del incar_dict[key]
+
+                          self.logger.info('updating input set for MAE calculation')
+                          self.mag_init = Outcar(pos+os.sep+'OUTCAR').total_mag
+                          nbands = 2*Vasprun(pos+os.sep+'vasprun.xml').parameters['NBANDS']
+                          # u_value = Vasprun(pos+os.sep+'vasprun.xml').incar['LDAUU']
+                          # u_value = 4.0
+                          self.logger.info("updating mag mom with value {0}".format(self.mag_init))
+                          self.logger.info("updating NBANDS with {0}".format(nbands))
+                          incar_dict.update({'NBANDS': nbands,
+                                             'LSORBIT':True,
+                                             'EDIFF': 1e-08,
+                                             'ICHARG': 11,
+                                             'LMAXMIX':4,
+                                             'LCHARG': False,
+                                             'ISYM':0,
+                                             'NSW': 0,
+                                             'ISPIN':2,
+                                             'IBRION':-1,
+                                             'LORBIT':11,
+                                             'MAGMOM':get_magmom_mae(poscar, self.mag_init)
+                                             })
+                          # incar_dict.update({'LDAUU': u_value})
+
+                       elif self.magnetism == 'AFM':
+                          self.logger.info('updating INCAR and POSCAR for AFM calculation')
+                          afm, poscar  = get_magmom_afm(poscar, self.database)
+                          incar_dict.update({'MAGMOM':afm})
 
 
                 self.set_poscar(poscar=poscar)

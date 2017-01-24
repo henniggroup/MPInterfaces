@@ -304,3 +304,70 @@ def run_hse_calculation(submit=True, force_overwrite=False,
             os.system(submission_command)
 
         os.chdir('../')
+
+def get_2D_hse_kpoints(struct_for_path, ibzkpth):
+    """
+    Args: Structure from which linemode k-points will be generated
+
+    Returns: the Kpoints file object in the form of a string
+             ready for execution by MPInterfaces
+             calibrate objects
+    """
+    # Read IBZKPT from prep step
+    ibz_lines = open(ibzkpth).readlines()
+    n_ibz_kpts = int(ibz_lines[1].split()[0])
+
+    # Read linemode KPOINTs from the dict (makes sure it is Kpoints
+    # file with only 20 per atom for the optimized settings
+    # Kpoints.from_dict(kpoint_dict).write_file('linemode_KPOINTS')
+    kpath = HighSymmKpath(struct_for_path)
+    Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS_linemode')
+    remove_z_kpoints_linemode()
+    linemode_lines = open('KPOINTS_linemode').readlines()
+
+    # put them together
+    abs_path = []
+    i = 4
+    while i < len(linemode_lines):
+            start_kpt = linemode_lines[i].split()
+            end_kpt = linemode_lines[i+1].split()
+            increments = [
+                (float(end_kpt[0]) - float(start_kpt[0])) / 20,
+                (float(end_kpt[1]) - float(start_kpt[1])) / 20,
+                (float(end_kpt[2]) - float(start_kpt[2])) / 20
+            ]
+
+            abs_path.append(start_kpt[:3] + ['0', start_kpt[4]])
+            for n in range(1, 20):
+                abs_path.append(
+                    [str(float(start_kpt[0]) + increments[0] * n),
+                     str(float(start_kpt[1]) + increments[1] * n),
+                     str(float(start_kpt[2]) + increments[2] * n), '0']
+                    )
+            abs_path.append(end_kpt[:3] + ['0', end_kpt[4]])
+            i += 3
+
+    n_linemode_kpts = len(abs_path)
+
+    # write out the kpoints file and return the object
+
+    Kpoints_hse_file = '\n'.join(['Automatically generated mesh',\
+                                      '{}'.format(n_ibz_kpts + n_linemode_kpts),\
+                                      'Reciprocal Lattice',\
+                                      '{}'.format( str( ''.join([line for line \
+                                                   in ibz_lines[3:]]) ) ),\
+                                     ]) + \
+                                      '{}'.format( str( '\n'.join([ ' '.join(point)  \
+                                                   for point in abs_path  ])  ) )
+
+    ## can be used for test print out
+    # with open('KPOINTS_HSE', 'w') as kpts:
+    #        kpts.write('Automatically generated mesh\n')
+    #        kpts.write('{}\n'.format(n_ibz_kpts + n_linemode_kpts))
+    #        kpts.write('Reciprocal Lattice\n')
+    #        for line in ibz_lines[3:]:
+    #            kpts.write(line)
+    #        for point in abs_path:
+    #            kpts.write('{}\n'.format(' '.join(point)))
+
+    return Kpoints_hse_file

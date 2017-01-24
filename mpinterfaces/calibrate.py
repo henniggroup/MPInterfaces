@@ -104,7 +104,7 @@ class Calibrate(MSONable):
             incar (Incar object): input INCAR
             poscar (Poscar object): input POSCAR
             potcar (Potcar object): input POTCAR
-            kpoints: input KPOINTS
+            kpoints (Kpoints object): input KPOINTS
             system: system info as a dictionary,
                 slab or interface example:
                 system={'hkl':[1,1,1], 'ligand':None},

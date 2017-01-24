@@ -585,14 +585,18 @@ class Calibrate(MSONable):
                     self.add_job(name=job_dir, job_dir=job_dir)
         elif poscar_list:
             for poscar in poscar_list:
-#                if any(self.turn_knobs.keys()=='MAGMOM'):
-#                    if self.turn_knobs['MAGMOM']==['2D_default']:
-#                       self.set_incar(param="MAGMOM", val=False, \
-#                                   poscar=poscar)
-#                if self.Grid_type == '2D_default':
-                    # TO DO: fix for non 2D default, kpoints = 0 passed
-                    # just to pass the function call
-#                    self.set_kpoints(kpoint = 0, poscar=poscar)
+                # if it is a twod_database run or any general standard database run,
+                # the incar, kpoints and potcar follow a standard input set
+                # which will be activated by the twod_database tag set to true
+                # NOTE: this implementation means that the first turn_knobs tag
+                # needs to be the poscar objects list
+                # the database tag will be set to the name of the yaml file with the
+                # standard input deck definition for that database
+                # this incar dict provided as the init can be general format
+                # based on the chosen functional, cutoff
+                # so self.incar is a vdW incar for re-relaxation in vdW, gga for every
+                # other calculation or LDA+U for LSDA+U calculations
+
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:

@@ -377,8 +377,8 @@ class Calibrate(MSONable):
             2 2 2 will be named 2x2x2
         """
         if grid_type == 'M' or grid_type == 'G':
-            return str(kpoint[0]) + 'x' + str(kpoint[1]) + 'x' \
-                   + str(kpoint[2])
+            kpoint = [str(k).replace('.','_') for k in kpoint]
+            return 'x'.join(kpoint)
         else:
             return str(kpoint)
 

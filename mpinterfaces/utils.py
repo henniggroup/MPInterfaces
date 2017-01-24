@@ -52,12 +52,12 @@ def get_ase_slab(pmg_struct, hkl=(1, 1, 1), min_thick=10, min_vac=10):
     takes in the intial structure as pymatgen Structure object
     uses ase to generate the slab
     returns pymatgen Slab object
-    
+
     Args:
         pmg_struct: pymatgen structure object
         hkl: hkl index of surface of slab to be created
         min_thick: minimum thickness of slab in Angstroms
-        min_vac: minimum vacuum spacing 
+        min_vac: minimum vacuum spacing
     """
     ase_atoms = AseAtomsAdaptor().get_atoms(pmg_struct)
     pmg_slab_gen = SlabGenerator(pmg_struct, hkl, min_thick, min_vac)
@@ -80,7 +80,7 @@ def slab_from_file(hkl, filename):
     useful for reading in 2d/substrate structures from file.
     Args:
          hkl: miller index of the slab in the input file.
-         filename: structure file in any format 
+         filename: structure file in any format
                    supported by pymatgen
     Returns:
          Slab object
@@ -100,7 +100,7 @@ def add_vacuum_padding(slab, vacuum, hkl=[0, 0, 1]):
     """
     add vacuum spacing to the given structure
     Args:
-        slab: sructure/slab object to be padded 
+        slab: sructure/slab object to be padded
         vacuum: in angstroms
         hkl: miller index
     Returns:
@@ -137,6 +137,64 @@ def add_vacuum_padding(slab, vacuum, hkl=[0, 0, 1]):
                 site_properties=new_struct.site_properties)
 
 
+def get_magmom_mae(poscar, mag_init):
+    """
+    mae
+    """
+
+    mae_magmom = []
+
+    sites_dict = poscar.as_dict()['structure']['sites']
+
+    # initialize a magnetic moment on the transition metal
+    # in vector form on the x-direction
+    for n,s in enumerate(sites_dict):
+
+        if Element(s['label']).is_transition_metal:
+             mae_magmom.append([0.0, 0.0, mag_init])
+        else:
+             mae_magmom.append([0.0, 0.0, 0.0])
+
+    return sum(mae_magmom, [])
+
+def get_magmom_afm(poscar, database=None, mag_init=None):
+    """
+    returns the magmom string which is an N length list
+    """
+
+    afm_magmom = []
+    orig_structure_name = poscar.comment
+
+    if len(poscar.structure)%2 != 0:
+
+        if database=='twod':
+             ## no need for more vacuum spacing
+             poscar.structure.make_supercell([2,2,1])
+        else:
+             ## for bulk structure
+             poscar.structure.make_supercell([2,2,2])
+
+    sites_dict = poscar.as_dict()['structure']['sites']
+
+    for n,s in enumerate(sites_dict):
+
+        if Element(s['label']).is_transition_metal:
+             if n%2 == 0:
+                 afm_magmom.append(6.0)
+             else:
+                 afm_magmom.append(-6.0)
+
+        else:
+             if n%2 == 0:
+                 afm_magmom.append(0.5)
+             else:
+                 afm_magmom.append(-0.5)
+
+
+    return afm_magmom, Poscar(structure = poscar.structure,\
+                              comment = orig_structure_name )
+
+
 def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
                   job_bin=None, mem='1000', job_name=None):
     """
@@ -149,10 +207,10 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
     hipergator2 supercomputing facility
 
     """
-    d = {} 
+    d = {}
     job_cmd = None
     hostname = socket.gethostname()
-    
+
     ## old hipergator which can be generalized into a pbs qdapter for fireworks
 
 #    if 'ufhpc_pbs' in hostname:
@@ -266,8 +324,8 @@ def get_job_state(job):
 def update_checkpoint(job_ids=None, jfile=None, **kwargs):
     """
     rerun the jobs with job ids in the job_ids list. The jobs are
-    read from the json checkpoint file, jfile. 
-    If no job_ids are given then the checkpoint file will 
+    read from the json checkpoint file, jfile.
+    If no job_ids are given then the checkpoint file will
     be updated with corresponding final energy
     Args:
         job_ids: list of job ids to update or q resolve
@@ -427,7 +485,7 @@ def get_convergence_data(jfile, params=['ENCUT', 'KPOINTS']):
     """
     returns data dict in the following format
     {'Al':
-          {'ENCUT': [ [500,1.232], [600,0.8798] ], 
+          {'ENCUT': [ [500,1.232], [600,0.8798] ],
             'KPOINTS':[ [], [] ]
           },
      'W': ...
@@ -482,7 +540,7 @@ def get_convergence_data_custom(jfile, params=['ENCUT', 'KPOINTS']):
     """
     returns data dict in the following format
     {'Al':
-          {'ENCUT': [ [500,1.232], [600,0.8798] ], 
+          {'ENCUT': [ [500,1.232], [600,0.8798] ],
             'KPOINTS':[ [], [] ]
           },
      'W': ...
@@ -531,13 +589,13 @@ def get_opt_params_custom(data, tag, param='ENCUT', ev_per_atom=1.0):
         data:  dictionary of convergence data
         tag:   key to dictionary of convergence dara
         param: parameter to be optimized
-        ev_per_atom: minimizing criterion in eV per unit 
-    
+        ev_per_atom: minimizing criterion in eV per unit
+
     Returns
         [list] optimum parameter set consisting of tag, potcar object,
-        poscar object, list of convergence data energies sorted according to 
+        poscar object, list of convergence data energies sorted according to
         param
-    
+
     default criterion: 1 meV/atom
     """
     sorted_list = sorted(data[tag][param], key=lambda x: x[0])
@@ -586,8 +644,8 @@ def partition_jobs(turn_knobs, max_jobs):
 
 def get_logger(log_file_name):
     """
-    writes out logging file. 
-    Very useful project logging, recommended for use 
+    writes out logging file.
+    Very useful project logging, recommended for use
     to monitor the start and completion of steps in the workflow
     Arg:
         log_file_name: name of the log file, log_file_name.log
@@ -604,9 +662,9 @@ def get_logger(log_file_name):
 def set_sd_flags(poscar_input=None, n_layers=2, top=True, bottom=True,
                  poscar_output='POSCAR2'):
     """
-    set the relaxation flags for top and bottom layers of interface.        
+    set the relaxation flags for top and bottom layers of interface.
     The upper and lower bounds of the z coordinate are determined
-    based on the slab. 
+    based on the slab.
     Args:
          poscar_input: input poscar file name
          n_layers: number of layers to be relaxed

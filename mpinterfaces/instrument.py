@@ -73,7 +73,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         if not type(kpoints) == str:
             config_dict['KPOINTS'] = self.kpoints.as_dict()
         else:
-            config_dict['KPOINTS'] = self.kpoints        
+            config_dict['KPOINTS'] = self.kpoints
         # self.user_incar_settings = self.incar.as_dict()
         DictVaspInputSet.__init__(self, name, config_dict,
                                   ediff_per_atom=False, **kwargs)
@@ -94,7 +94,17 @@ class MPINTVaspInputSet(DictVaspInputSet):
             os.makedirs(d)
         self.logger.info('writing inputset to : ' + d)
         self.incar.write_file(os.path.join(d, 'INCAR'))
-        self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
+
+        if not type(self.kpoints) == str:
+            ## maybe temporary fix, pymatgen does not seem
+            ## to have a versatile kpoints object for writing a
+            ## HSE Kpoints file
+            self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
+        else:
+            with open(os.path.join(d, 'KPOINTS'), 'w') as kpts:
+                for line in self.kpoints:
+                   kpts.write(line)
+
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
         self.poscar.write_file(os.path.join(d, 'POSCAR'),
                                significant_figures=10)

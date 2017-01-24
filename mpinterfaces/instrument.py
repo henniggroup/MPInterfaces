@@ -117,10 +117,16 @@ class MPINTVaspInputSet(DictVaspInputSet):
         qadapter = None
         if self.qadapter:
             qadapter = self.qadapter.to_dict()
+
+        if not type(self.kpoints) == str:
+           kpoints = self.kpoints.as_dict()
+        else:
+           kpoints = self.kpoints
+
         d = dict(name=self.name, incar=self.incar.as_dict(),
                  poscar=self.poscar.as_dict(),
                  potcar=self.potcar.as_dict(),
-                 kpoints=self.kpoints.as_dict(),
+                 kpoints=kpoints,
                  qadapter=qadapter, script_name=self.script_name,
                  kwargs=self.extra)
         d["@module"] = self.__class__.__module__

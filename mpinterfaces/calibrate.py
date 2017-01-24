@@ -613,7 +613,61 @@ class Calibrate(MSONable):
                        poscar = Poscar.from_file(pos+os.sep+'CONTCAR')
                        self.logger.info('Read previous relaxed CONTCAR file from {}'.\
                                         format(pos))
-                
+                       # check if it is KPOINTS altering job like HSE
+                       if self.Grid_type == 'hse_bands_2D_prep':
+                            print ('passed grid type if')
+                            # HSE prep calcualtions
+                            # reset the INCAR file with a magmom only if exists
+                            try:
+                                incar_dict = {'MAGMOM':get_magmom_string(poscar) }
+                            except:
+                                incar_dict = {}
+                            incar_dict = get_2D_incar_hse_prep(incar_dict)
+                            print ('passed incar_dict update')
+                            self.set_kpoints(poscar=poscar)
+                            self.logger.info('updated input set for HSE 2D prep calcaultion')
+
+                       elif self.Grid_type == 'hse_bands_2D':
+                            # HSE calculation
+                            # reset the incar and kpoints file builds
+                            # on the preceding calculations (prep calculation)
+                            # IBZKPT
+                            try:
+                                 incar_dict = {'MAGMOM':get_magmom_string(poscar) }
+                            except:
+                                 incar_dict = {}
+                            incar_dict = get_2D_incar_hse(incar_dict)
+                            self.set_kpoints(poscar=poscar, \
+                                           ibzkpth = pos+os.sep+'IBZKPT')
+                            self.logger.info('updated input set for HSE calcaultion\
+                                             using IBZKPT from {0}'.format(pos+os.sep+'IBZKPT'))
+
+                       elif self.Grid_type == 'hse_bands':
+                            ## general HSE bands
+                            pass
+
+                       else:
+                            # use the same kpoints file and build from the old incar
+                            self.kpoints = Kpoints.from_file(pos+os.sep+'KPOINTS')
+                            # decide on how to use incar, use same one or update or afresh
+                            if self.reuse_incar == 'old':
+                               incar_dict = Incar.from_file(pos+os.sep+'INCAR').as_dict()
+                            elif self.reuse_incar == 'update':
+                               # way to go for cutoff updates, convergence, etc.
+                               # but retain the old functional
+                               incar_dict.update( Incar.from_file(pos+os.sep+'INCAR').\
+                                                   as_dict() )
+                            else:
+                               # use a fresh incar as specified by the init
+                               # way to go for example for LDAU or other
+                               # major removals done to INCAR
+                               # but always retain the MAGMOM if present
+                               old_incar_dict = Incar.from_file(pos+os.sep+'INCAR').as_dict()
+                               if 'MAGMOM' in old_incar_dict.keys():
+                                   incar_dict['MAGMOM'] = old_incar_dict['MAGMOM']
+                               else:
+                                   incar_dict = incar_dict
+
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:

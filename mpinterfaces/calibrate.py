@@ -597,6 +597,17 @@ class Calibrate(MSONable):
                 # so self.incar is a vdW incar for re-relaxation in vdW, gga for every
                 # other calculation or LDA+U for LSDA+U calculations
                 incar_dict = self.incar.as_dict()
+                if self.reuse:
+                    # if this is a true list minimally, ['CONTCAR']
+                    # it is to be ensured that the poscar list is a
+                    # list of paths as opposed to list of poscar objects by the turn knobs
+                    # values
+                    # Here pos is the path and r in each self.reuse is the name of the file(s)
+                    # to be reused
+                    # in a reuse calculation the following are possible:
+                    # update incar (Solvation calculations) or reset incar (HSE calculations)
+                    # reset kpoints file with IBZKPT
+                    # copy a CHGCAR or WAVECAR or both perhaps
                 
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()

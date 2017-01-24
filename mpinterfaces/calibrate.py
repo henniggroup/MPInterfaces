@@ -298,17 +298,25 @@ class Calibrate(MSONable):
             i: ith knob
 
         """
-        job_dir = self.job_dir + os.sep + self.key_to_name(keys[i])
+        #### Testing ####
+        ## Orig
+        # job_dir = self.job_dir + os.sep + self.key_to_name(keys[i])
+        job_dir = '__'.join([self.job_dir.split('/')[-1], self.key_to_name(keys[i])])
+        #### Testing ####
         if i == n - 1 and i != 0:
             for val in self.turn_knobs[keys[i]]:
-                self.job_dir = job_dir + os.sep + self.val_to_name(val)
+                ##
+                ## self.job_dir = job_dir + os.sep + self.val_to_name(val)
+                self.job_dir = '__'.join([job_dir, self.val_to_name(val)])
                 self.logger.info(
                     'setting jobs in the directory: ' + self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))
                 self.add_job(name=job_dir, job_dir=self.job_dir)
         else:
             for val in self.turn_knobs[keys[i]]:
-                self.job_dir = job_dir + os.sep + self.val_to_name(val)
+                ##
+                ## self.job_dir = job_dir + os.sep + self.val_to_name(val)
+                self.job_dir = '__'.join([job_dir, self.val_to_name(val)])
                 self.logger.info(
                     'setting jobs in the directory: ' + self.job_dir)
                 self._setup(turn_knobs=dict([(keys[i], [val])]))
@@ -724,7 +732,7 @@ class Calibrate(MSONable):
                           self.logger.info('Using old Poscar for rerun')
                           poscar = Poscar.from_file(pos+os.sep+'POSCAR')
 
-                # case for non - reuse 
+                # case for non - reuse
                 else:
                     poscar = pos
                     # temporary: magnetism only set if twod flag is activated
@@ -732,7 +740,6 @@ class Calibrate(MSONable):
                        incar_dict.update({'MAGMOM':get_magmom_string(poscar)})
                        self.set_kpoints(poscar=poscar)
                     self.incar= Incar.from_dict(incar_dict)
-
 
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()

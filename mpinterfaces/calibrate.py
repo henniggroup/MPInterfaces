@@ -724,6 +724,16 @@ class Calibrate(MSONable):
                           self.logger.info('Using old Poscar for rerun')
                           poscar = Poscar.from_file(pos+os.sep+'POSCAR')
 
+                # case for non - reuse 
+                else:
+                    poscar = pos
+                    # temporary: magnetism only set if twod flag is activated
+                    if self.database == 'twod':
+                       incar_dict.update({'MAGMOM':get_magmom_string(poscar)})
+                       self.set_kpoints(poscar=poscar)
+                    self.incar= Incar.from_dict(incar_dict)
+
+
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:

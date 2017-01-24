@@ -474,27 +474,65 @@ class Calibrate(MSONable):
         ## use this part only if this is a non-database run for example
         ## for k-points calibration
 
-        if self.Grid_type == 'M':
-            self.kpoints = Kpoints.monkhorst_automatic(kpts=kpoint)
-        elif self.Grid_type == 'A':
-            self.kpoints = Kpoints.automatic(subdivisions=kpoint)
-        elif self.Grid_type == 'G':
-            self.kpoints = Kpoints.gamma_automatic(kpts=kpoint)
-        elif self.Grid_type == '3DD':
-            self.kpoints = Kpoints.automatic_density_by_vol(structure= \
-                                                                self.poscar.structure,
-                                                            kppvol=kpoint)
-        elif self.Grid_type == 'band':
-            self.kpoints = Kpoints.automatic_linemode(divisions=kpoint, \
-                                                      ibz=HighSymmKpath(
-                                                          self.poscar.structure))
-        if poscar:
-            if self.Grid_type == "2D_default":
-                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, 1000).as_dict()
-            else:
-                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, kpoint)
-            kpoint_dict['kpoints'][0][2] = 1
-            self.kpoints = Kpoints.from_dict(kpoint_dict)
+        if not self.database:
+
+            if self.Grid_type == 'M':
+                self.kpoints = Kpoints.monkhorst_automatic(kpts=kpoint)
+            elif self.Grid_type == 'A':
+                self.kpoints = Kpoints.automatic(subdivisions=kpoint)
+            elif self.Grid_type == 'G':
+                self.kpoints = Kpoints.gamma_automatic(kpts=kpoint)
+            elif self.Grid_type == '3D_vol':
+                self.kpoints = Kpoints.automatic_density_by_vol(structure= \
+                                                                poscar.structure,
+                                                                kppvol=kpoint)
+            elif self.Grid_type == 'bulk_bands_pbe':
+                self.kpoints = Kpoints.automatic_linemode(divisions=kpoint, \
+                                                          ibz=HighSymmKpath(
+                                                          poscar.structure))
+
+        ## applicable for database runs
+        ## future constructs or settinsg can be activated via a yaml file
+        ## database yaml file or better still the input deck from its speification
+        ## decides what combination of input calibrate constructor settings to use
+        ## one of them being the grid_type tag
+
+        elif self.database=='twod':
+
+            # set of kpoints settings according to the 2D database profile
+            # the actual settings of k-points density
+            # will in future come from any database input file set
+
+            if self.Grid_type == 'hse_bands_2D_prep':
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure,\
+                                                                   200).as_dict()
+                kpoint_dict['kpoints'][0][2] = 1 # remove z kpoints
+                self.kpoints = Kpoints.from_dict(kpoint_dict)
+
+            elif self.Grid_type == 'hse_bands_2D':
+                # can at most return the path to the correct kpoints file
+                # needs kpoints to be written out in instrument in a different way
+                # not using the Kpoints object
+                self.kpoints = get_2D_hse_kpoints(poscar.structure, ibzkpth)
+
+            elif self.Grid_type == 'bands_2D':
+                kpoint_dict = Kpoints.automatic_linemode(divisions=20,\
+                                           ibz=HighSymmKpath(poscar.structure)).as_dict()
+                self.kpoints = Kpoints.from_dict(kpoint_dict)
+
+            elif self.Grid_type == 'relax_2D':
+                ## general relaxation settings for 2D
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure,\
+                                                                  1000).as_dict()
+                kpoint_dict['kpoints'][0][2] = 1
+                self.kpoints = Kpoints.from_dict(kpoint_dict)
+
+            elif self.Grid_type == 'relax_3D':
+                ## general relaxation settings for 3D
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, 1000)
+                self.kpoints = Kpoints.from_dict(kpoint_dict)
+
+
 
     def setup_incar_jobs(self, param, val_list):
         """

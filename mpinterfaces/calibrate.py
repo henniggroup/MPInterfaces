@@ -668,6 +668,11 @@ class Calibrate(MSONable):
                                else:
                                    incar_dict = incar_dict
 
+                       if type(self.reuse) == list:
+                           reuse_paths = [pos+os.sep+r for r in self.reuse]
+                           self.reuse_paths = reuse_paths
+
+
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:

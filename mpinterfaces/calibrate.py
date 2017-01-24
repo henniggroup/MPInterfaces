@@ -596,7 +596,8 @@ class Calibrate(MSONable):
                 # based on the chosen functional, cutoff
                 # so self.incar is a vdW incar for re-relaxation in vdW, gga for every
                 # other calculation or LDA+U for LSDA+U calculations
-
+                incar_dict = self.incar.as_dict()
+                
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:

@@ -121,7 +121,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         if not type(self.kpoints) == str:
            kpoints = self.kpoints.as_dict()
         else:
-           kpoints = self.kpoints
+           kpoints = [self.kpoints]
 
         d = dict(name=self.name, incar=self.incar.as_dict(),
                  poscar=self.poscar.as_dict(),

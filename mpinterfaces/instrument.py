@@ -43,16 +43,20 @@ class MPINTVaspInputSet(DictVaspInputSet):
 
     def __init__(self, name, incar, poscar, potcar, kpoints,
                  qadapter=None, script_name='submit_script',
-                 vis_logger=None, **kwargs):
+                 vis_logger=None, reuse_path=None, **kwargs):
         """
         default INCAR from config_dict
-        
+
         """
         self.name = name
         self.incar = Incar.from_dict(incar.as_dict())
         self.poscar = Poscar.from_dict(poscar.as_dict())
         self.potcar = Potcar.from_dict(potcar.as_dict())
-        self.kpoints = Kpoints.from_dict(kpoints.as_dict())
+        if not type(kpoints) == str:
+           self.kpoints = Kpoints.from_dict(kpoints.as_dict())
+        else:
+           self.kpoints = kpoints
+        self.reuse_path = reuse_path # complete reuse paths
         self.extra = kwargs
         if qadapter is not None:
             self.qadapter = qadapter.from_dict(qadapter.to_dict())
@@ -130,9 +134,9 @@ class MPINTVaspInputSet(DictVaspInputSet):
 
 class MPINTJob(Job):
     """
-    defines a job i.e setup the required input files and 
+    defines a job i.e setup the required input files and
     launch the job
-    
+
     Args:
        job_cmd: a list, the command to be issued in each job_dir
                  eg: ['qsub', 'submit_job']
@@ -243,9 +247,9 @@ class MPINTJob(Job):
 
 class MPINTVaspJob(MPINTJob):
     """
-    defines a vasp job i.e setup the required input files and 
+    defines a vasp job i.e setup the required input files and
     launch the job
-    
+
     Args:
        job_cmd: a list, the command to be issued in each job_dir
                  eg: ['qsub', 'submit_job']

@@ -777,7 +777,8 @@ class Calibrate(MSONable):
         """
         vis = MPINTVaspInputSet(name, self.incar, self.poscar,
                                 self.potcar, self.kpoints,
-                                self.qadapter, vis_logger=self.logger)
+                                self.qadapter, vis_logger=self.logger,
+                                reuse_path = self.reuse_paths)                                )
         # the job command can be overrridden in the run method
         job = MPINTVaspJob(self.job_cmd, name=name, final=True,
                            parent_job_dir=self.parent_job_dir,

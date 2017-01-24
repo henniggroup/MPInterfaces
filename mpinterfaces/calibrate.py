@@ -403,14 +403,11 @@ class Calibrate(MSONable):
         else:
             return '_'.join(self.functional)
 
-    def set_incar(self, param, val, poscar=None):
+    def set_incar(self, param, val):
         """
         set the incar paramter, param = val
         """
-        if param == 'MAGMOM':
-            self.incar[param] = get_magmom_string(poscar, val)
-        else:
-            self.incar[param] = val
+        self.incar[param] = val
 
     def set_poscar(self, scale=None, poscar=None):
         """

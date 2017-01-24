@@ -453,10 +453,15 @@ class Calibrate(MSONable):
         self.potcar = Potcar(symbols=mapped_symbols,
                              functional=func)
 
-    def set_kpoints(self, kpoint, poscar=None):
+    def set_kpoints(self, kpoint=None, poscar=None, ibzkpth=None):
         """
         set the kpoint
         """
+        # useful to check if a poscar is supplied from setup_poscar_jobs (most often the case)
+        # or this is a single poscar use case
+        if not poscar:
+           poscar = self.poscar
+
         # splitting into two if elif branches means fewer if statements to check on
         # a run
 

@@ -70,7 +70,10 @@ class MPINTVaspInputSet(DictVaspInputSet):
         config_dict['POTCAR'] = self.potcar.as_dict()
         # dict(zip(self.potcar.as_dict()['symbols'],
         # self.potcar.as_dict()['symbols']))
-        config_dict['KPOINTS'] = self.kpoints.as_dict()
+        if not type(kpoints) == str:
+            config_dict['KPOINTS'] = self.kpoints.as_dict()
+        else:
+            config_dict['KPOINTS'] = self.kpoints        
         # self.user_incar_settings = self.incar.as_dict()
         DictVaspInputSet.__init__(self, name, config_dict,
                                   ediff_per_atom=False, **kwargs)

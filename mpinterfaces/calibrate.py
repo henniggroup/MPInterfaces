@@ -608,6 +608,11 @@ class Calibrate(MSONable):
                     # update incar (Solvation calculations) or reset incar (HSE calculations)
                     # reset kpoints file with IBZKPT
                     # copy a CHGCAR or WAVECAR or both perhaps
+                    try:
+                       # first setup of POSCAR initial, INCAR, KPOINTS
+                       poscar = Poscar.from_file(pos+os.sep+'CONTCAR')
+                       self.logger.info('Read previous relaxed CONTCAR file from {}'.\
+                                        format(pos))
                 
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()

@@ -92,6 +92,8 @@ class Calibrate(MSONable):
                  parent_job_dir='.', job_dir='Job',
                  qadapter=None, job_cmd='qsub', wait=True,
                  mappings_override=None, functional="PBE",
+                 database=None, magnetism=None, mag_init=None,reuse=None,
+                 reuse_override = None, reuse_incar = None, solvation=None,
                  turn_knobs=OrderedDict([('ENCUT', []),
                                          ('KPOINTS', [])]),
                  checkpoint_file=None, cal_logger=None):
@@ -108,21 +110,63 @@ class Calibrate(MSONable):
                 system={'hkl':[1,1,1], 'ligand':None},
             is_matrix (bool): whether the jobs are dependent on each
                 other
-            Grid_type: kpoints grid_type
-            parent_job_dir: the directory from which all the jobs are
-                launched
-            job_dir: job directory
-            qadapter: adapter for the batch system
-            job_cmd: command to be used for submitting the job. If
+            Grid_type (str): kpoints grid_type
+            parent_job_dir (str): the directory from which all the
+                jobs are launched
+            job_dir (str): job directory created for each job in the
+                parent_job_dir
+            qadapter (?): adapter for the batch system
+            job_cmd (str): command to be used for submitting the job. If
                 qadapter is specified then job_cmd is ignored
-            wait: whther to wait for the job to finish. If the job is
+            wait (bool): whther to wait for the job to finish. If the job is
                 being submitted to the queue then there is no need for
                 waiting
-            turn_knobs: an ordered dictionary of parmaters and the
+            turn_knobs (dict): an ordered dictionary of parmaters and the
                 corresponding values
-            mappings_override: override symbol mapping in potcar
+            mappings_override (dict): override symbol mapping in potcar
                                eg:- {'S':'S_sv'}
-            functional: exchange-correlation functional
+            functional (str): exchange-correlation functional
+            database (str): A work in progress, will be a database_name.yaml
+                            file for defaults specific to a database workflow
+                            that will have defaults for
+                            INCAR: cutoff, convergence for relaxation and
+                                   continuation jobs
+                            KPOINTS: for relaxation, band structure jobs
+                            POTCAR: database specific
+                            For now defaults to None, if set to 'twod'
+                            activates twod set of directives
+            reuse (list or bool): list of filenames for reuse
+                          Eg: ['CHGCAR', 'WAVECAR']
+                          'CONTCAR' is copied by default and if found empty
+                          warning is issued. Use the following flag for override
+                          only if you know what you are doing
+                          'True' for just copying the CONTCAR file
+            reuse_override (bool): whether to override the missing CONTCAR for a
+                          reuse calc
+            magnetism (str): specifies magnetism calculation to be used
+                           implemented are 'AntiFerroMagnetism' and
+                           'Magntic Anisotropy Energy'
+            solvation (bool): whether to activate a solvation job, sets LSOL=True
+                           for now
+
+        Calibrate jobs represent the engine configuration of mpinterfaces,
+        where the fuel (input file sources) and driving method (kind of calculation)
+        are decided . The Engine itself is instrument.py which creates the input set
+        configured in Calibrate.
+
+        Current fueling methods:
+          1. simplest test case involving a single job:
+               - specify the incar, kpoints, poscar, potcar (aka the VASP 4)
+                 explicitly as pymatgen objects
+               - turn_knobs = {} , is_matrix = False
+          2. test case for calibration of parameters:
+               - specify an initial configuration for the VASP 4
+               - specify parameters to calibrate via turn_knobs,
+                 set is_matrix = True only if number of parameters > 1
+          3. Database production case: (possibly most used)
+               - specify initial configuration for the VASP 4 based on
+                 a database.yaml
+               - specify an input.yaml that details the workflow
 
         Note: input structure if needed will be obtained from the
             provided poscar object
@@ -164,6 +208,15 @@ class Calibrate(MSONable):
         self.wait = wait
         self.cal_log = []
         self.mappings_override = mappings_override
+        self.database = database
+        self.magnetism = magnetism
+        self.mag_init = mag_init
+        self.solvation = solvation
+        self.parent_chkpt = parent_chkpt
+        self.reuse = reuse
+        self.reuse_incar = reuse_incar
+        self.reuse_override = reuse_override
+        self.reuse_paths = None # list object communicated to instrument
         self.functional = functional
         self.checkpoint_file = checkpoint_file
         if cal_logger:

@@ -457,6 +457,18 @@ class Calibrate(MSONable):
         """
         set the kpoint
         """
+        # splitting into two if elif branches means fewer if statements to check on
+        # a run
+
+        ## Most general method of setting the k-points for
+        ## different grid types
+        ## NOTE: requires that at least one k-points value be passed
+        ## as a turn - knobs list value
+        ## this is not true for values that may be caculated out of
+        ## a database
+        ## use this part only if this is a non-database run for example
+        ## for k-points calibration
+
         if self.Grid_type == 'M':
             self.kpoints = Kpoints.monkhorst_automatic(kpts=kpoint)
         elif self.Grid_type == 'A':

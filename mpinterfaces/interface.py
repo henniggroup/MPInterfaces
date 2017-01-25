@@ -614,8 +614,8 @@ if __name__ == '__main__':
     PACKAGE_PATH = mpinterfaces.__file__.replace('__init__.pyc', '')
     PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
 
-    mol0 = Molecule.from_file(PACKAGE_PATH+os.sep+"acetic_acid.xyz")
-    mol1 = Molecule.from_file(PACKAGE_PATH+os.sep+"acetic_acid.xyz")
+    mol0 = Molecule.from_file(PACKAGE_PATH+"test_files/acetic_acid.xyz")
+    mol1 = Molecule.from_file(PACKAGE_PATH+"test_files/acetic_acid.xyz")
     mol2 = Molecule(["Pb"], [[0, 0, 0]])
     mols = [mol0, mol1, mol2]
     # center of mass distances in angstrom
@@ -666,7 +666,7 @@ if __name__ == '__main__':
     boxed_lead_acetate.to(fmt="poscar",
                           filename="POSCAR_diacetate_boxed.vasp")
     # bulk PbS
-    strt_pbs = Structure.from_file(PACKAGE_PATH+os.sep+'POSCAR.mp-21276_PbS')
+    strt_pbs = Structure.from_file(PACKAGE_PATH+"test_files/POSCAR_PbS")
 
     # intital supercell, this wont be the final supercell if surface
     # coverage is specified

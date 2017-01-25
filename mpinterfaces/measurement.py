@@ -36,17 +36,17 @@ logger.addHandler(sh)
 
 class Measurement(object):
     """
-    Takes in calibrate objects and use that to perform various 
-    measurement calculations such as solvation, ligand binding energy 
-    etc. The default behaviour is to setup and run static calculations 
+    Takes in calibrate objects and use that to perform various
+    measurement calculations such as solvation, ligand binding energy
+    etc. The default behaviour is to setup and run static calculations
     for all the given calibrate jobs.
 
     Serves as Base Class. Override this class for custom measurements.
-    
+
     Args:
         cal_objs: List of Calibration Object Names
-        parent_job_dir: Directory in which measuremnt is setup 
-        job_dir: Path name to directory for running the Measurement 
+        parent_job_dir: Directory in which measuremnt is setup
+        job_dir: Path name to directory for running the Measurement
                  modules
     """
 
@@ -137,7 +137,7 @@ class Measurement(object):
 class MeasurementSolvation(Measurement):
     """
     Solvation with poisson-boltzmann(test verison)
-        
+
     """
 
     def __init__(self, cal_obj, parent_job_dir='.',
@@ -157,7 +157,7 @@ class MeasurementSolvation(Measurement):
         copies WAVECAR and sets the solvation params in the incar file
         also dumps system.json file in each directory for the database
         crawler
-        mind: works only for cal objects that does only single 
+        mind: works only for cal objects that does only single
         calculations
         """
         for cal in self.cal_objs:
@@ -209,13 +209,13 @@ class MeasurementSolvation(Measurement):
 class MeasurementInterface(Measurement):
     """
     Interface
-    
-    Takes list of Calibration Objects of Interface, Slab and 
-    Ligand and separates them 
+
+    Takes list of Calibration Objects of Interface, Slab and
+    Ligand and separates them
 
     Args:
         cal_objs: List of Calibration Objects
-        
+
     """
 
     def __init__(self, cal_objs, parent_job_dir='.',
@@ -310,7 +310,7 @@ class MeasurementInterface(Measurement):
 # test
 if __name__ == '__main__':
     from pymatgen.core.structure import Structure, Molecule
-    from mpinterfaces import Ligand
+    from mpinterfaces.interface import Ligand
 
     # PbS 100 surface with single hydrazine as ligand
     strt = Structure.from_file("POSCAR.mp-21276_PbS")

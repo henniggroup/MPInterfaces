@@ -39,44 +39,44 @@ logger.addHandler(sh)
 class Interface(Slab):
     """
     Interface = slab + ligand + environment(solvent)
-    Creates a Slab - Ligand Interface of given coverage and given 
+    Creates a Slab - Ligand Interface of given coverage and given
     slab-ligand displacement
-       
+
     Args:
-        strt: Starting Structure Object for Slab of the Interface 
-        hkl: Miller Index of Slab 
-        min_thick: Minimum Slab Thickness in Angstroms desired 
-        min_vac: Minimum Vacuum Spacing (Padding top and bottom, each) 
+        strt: Starting Structure Object for Slab of the Interface
+        hkl: Miller Index of Slab
+        min_thick: Minimum Slab Thickness in Angstroms desired
+        min_vac: Minimum Vacuum Spacing (Padding top and bottom, each)
                  in Angstroms
-        supercell: Trial supercell to start with to enforce coverage, 
+        supercell: Trial supercell to start with to enforce coverage,
                    default 1x1x1
         name: System name to specify database entry
-              (can be a combination of miller indices of slab and 
-              ligand and solvent) 
+              (can be a combination of miller indices of slab and
+              ligand and solvent)
               eg: "PbS [1,1,1] + Hydrazine in DMF (epsilon = 37.5)"
-        adsorb_on_species: Reference atom on slab to adsorb on 
-        adatom_on_lig: bonding atom on ligand 
-        ligand: structure object for ligand 
-        displacement: initial adsorption distance desired above the 
-                      adsorb_on_species 
-        surface_coverage: Number of ligands desired per surface area 
+        adsorb_on_species: Reference atom on slab to adsorb on
+        adatom_on_lig: bonding atom on ligand
+        ligand: structure object for ligand
+        displacement: initial adsorption distance desired above the
+                      adsorb_on_species
+        surface_coverage: Number of ligands desired per surface area
                           of slab, in ligands per square angstroms
-        scell_max: Maximum number of supercells to create (used for 
+        scell_max: Maximum number of supercells to create (used for
                    finding supercell for the given coverage requirement
-        coverage_tol: Tolerance for coverage calculation in Ligands 
+        coverage_tol: Tolerance for coverage calculation in Ligands
                       per square Angstroms
-        solvent: Name of solvent to be added for the run 
-        start_from_slab: Whether slab is given as input. Useful when 
-                         custom reconstructed slabs are to be used 
-        validate_proximity: Check whether any atoms are too close 
+        solvent: Name of solvent to be added for the run
+        start_from_slab: Whether slab is given as input. Useful when
+                         custom reconstructed slabs are to be used
+        validate_proximity: Check whether any atoms are too close
                             (using pymatgen default of 0.01 Angstroms)
         to_unit_cell: Pymatgen Slab routine to find unit cell
-        coords_are_cartesian: Whether the input coordinates are in 
+        coords_are_cartesian: Whether the input coordinates are in
                               cartesian
-        from_ase: Whether to create Slab using python-ase for producing 
+        from_ase: Whether to create Slab using python-ase for producing
                   slabs that have orthogonal lattice vectors
 
-        NOTE:   
+        NOTE:
         if starting from the bulk structure, create slab
         note: if the starting structure is a slab, the vaccum extension
         is not possible
@@ -173,7 +173,7 @@ class Interface(Slab):
         so as to meet the surface coverage criterion within the given
         tolerance limit(specified as fraction of the required
         surface coverage)
-        
+
         returns the number of ligands  and the supercell size  that
         satisfies the criterion
         """
@@ -434,7 +434,7 @@ class Ligand(Molecule):
     def get_perp_vec(self, vec1, vec2):
         """
         returns the vector that is perpendicular to the vec1 and vec2
-        if the vectors are parllel, then perp_vec = (0, -z, y)        
+        if the vectors are parllel, then perp_vec = (0, -z, y)
         """
         if np.abs(np.dot(vec1, vec2) - np.linalg.norm(vec1) ** 2) < 1e-6:
             perp_vec = np.array([0, -vec1[2], vec1[1]])
@@ -477,7 +477,7 @@ class Ligand(Molecule):
     def position_mols(self):
         """
         position the center of masses of the molecules wrt each other
-        first movement is in the x direction        
+        first movement is in the x direction
         """
         new_mol = self.mols[0]
         mov_vec = np.array([1, 0, 0])
@@ -574,7 +574,7 @@ class Ligand(Molecule):
 
     def create_ligand(self):
         """
-        create the ligand by assembling the provided individual 
+        create the ligand by assembling the provided individual
         molecules and removeing the specified atoms from the molecules
         """
         self.set_mol_vecs()
@@ -608,8 +608,13 @@ if __name__ == '__main__':
 
     # create lead acetate ligand
     # from 3 molecules: 2 acetic acid + 1 Pb
-    mol0 = Molecule.from_file("acetic_acid.xyz")
-    mol1 = Molecule.from_file("acetic_acid.xyz")
+    import mpinterfaces
+
+    PACKAGE_PATH = mpinterfaces.__file__.replace('__init__.pyc', '')
+    PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
+
+    mol0 = Molecule.from_file(PACKAGE_PATH+os.sep+"acetic_acid.xyz")
+    mol1 = Molecule.from_file(PACKAGE_PATH+os.sep+"acetic_acid.xyz")
     mol2 = Molecule(["Pb"], [[0, 0, 0]])
     mols = [mol0, mol1, mol2]
     # center of mass distances in angstrom
@@ -660,7 +665,7 @@ if __name__ == '__main__':
     boxed_lead_acetate.to(fmt="poscar",
                           filename="POSCAR_diacetate_boxed.vasp")
     # bulk PbS
-    strt_pbs = Structure.from_file('POSCAR.mp-21276_PbS')
+    strt_pbs = Structure.from_file(PACKAGE_PATH+os.sep+'POSCAR.mp-21276_PbS')
 
     # intital supercell, this wont be the final supercell if surface
     # coverage is specified

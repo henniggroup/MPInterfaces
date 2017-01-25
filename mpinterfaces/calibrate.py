@@ -51,9 +51,8 @@ from monty.serialization import dumpfn
 
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.interface import Interface, Ligand
-from mpinterfaces.utils import get_ase_slab, get_magmom_afm, get_magmom_mae
+from mpinterfaces.utils import get_ase_slab, get_magmom_string, et_magmom_afm, get_magmom_mae
 
-from twod_materials.utils import get_magmom_string
 from twod_materials.electronic_structure.startup import get_2D_hse_kpoints,\
                                get_2D_incar_hse_prep, get_2D_incar_hse
 

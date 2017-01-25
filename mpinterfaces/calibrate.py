@@ -593,7 +593,7 @@ class Calibrate(MSONable):
                               os.sep + 'VOLUME_' + str(scale)
                     self.add_job(name=job_dir, job_dir=job_dir)
         elif poscar_list:
-            for poscar in poscar_list:
+            for pos in poscar_list:
                 # if it is a twod_database run or any general standard database run,
                 # the incar, kpoints and potcar follow a standard input set
                 # which will be activated by the twod_database tag set to true

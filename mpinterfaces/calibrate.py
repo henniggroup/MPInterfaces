@@ -214,7 +214,6 @@ class Calibrate(MSONable):
         self.magnetism = magnetism
         self.mag_init = mag_init
         self.solvation = solvation
-        self.parent_chkpt = parent_chkpt
         self.reuse = reuse
         self.reuse_incar = reuse_incar
         self.reuse_override = reuse_override
@@ -365,7 +364,7 @@ class Calibrate(MSONable):
         elif type(val) == list:
             return self.kpoint_to_name(val, 'M')
         elif type(val) == dict:
-            return self.potcar_to_name(val)
+            return self.potcar_to_name(mapping=val)
         elif isinstance(val, Poscar):
             name = str(val.structure.composition.reduced_formula) \
                    + '_' + str(int(val.structure.lattice.volume)) \
@@ -392,7 +391,7 @@ class Calibrate(MSONable):
         else:
             return str(kpoint)
 
-    def potcar_to_name(self, mapping, functional):
+    def potcar_to_name(self, mapping=None, functional=None):
         """
         convert a symbol mapping and functional to a name that
         can be used for setting up the potcar jobs
@@ -407,7 +406,7 @@ class Calibrate(MSONable):
         """
         if mapping:
             l = [v for k, v in mapping.items()]
-            return '_'.join(self.functional, l)
+            return '_'.join(l)
         elif functional:
             return '_'.join(functional)
         else:

@@ -27,8 +27,8 @@ elif '/scratch/' in os.getcwd():
 else:
     HIPERGATOR = None
 
-VASP = loadfn(os.path.join(os.path.expanduser('~'),
-                           'config.yaml'))['normal_binary']
+#VASP = loadfn(os.path.join(os.path.expanduser('~'),
+#                           'config.yaml'))['normal_binary']
 
 
 def write_circle_mesh_kpoints(center=(0, 0, 0), dimension=0.1,

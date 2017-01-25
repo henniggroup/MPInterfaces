@@ -32,24 +32,24 @@ if '/ufrc/' in os.getcwd():
 elif '/scratch/' in os.getcwd():
     HIPERGATOR = 1
 
-try:
-    MPR = MPRester(
-        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
-        )
-    VASP = loadfn(os.path.join(os.path.expanduser('~'),
-                               'config.yaml'))['normal_binary']
-    VASP_2D = loadfn(os.path.join(os.path.expanduser('~'),
-                                  'config.yaml'))['twod_binary']
-except IOError:
-    try:
-        MPR = MPRester(
-            os.environ['MP_API']
-            )
-    except KeyError:
-        raise ValueError('No config.yaml file found. Please check'
-                         ' that your config.yaml is in your home directory'
-                         ' and contains the field'
-                         ' mp_api: your_api_key')
+#try:
+#    MPR = MPRester(
+#        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
+#        )
+#    VASP = loadfn(os.path.join(os.path.expanduser('~'),
+#                               'config.yaml'))['normal_binary']
+#    VASP_2D = loadfn(os.path.join(os.path.expanduser('~'),
+#                                  'config.yaml'))['twod_binary']
+#except IOError:
+#    try:
+#        MPR = MPRester(
+#            os.environ['MP_API']
+#            )
+#    except KeyError:
+#        raise ValueError('No config.yaml file found. Please check'
+#                         ' that your config.yaml is in your home directory'
+#                         ' and contains the field'
+#                         ' mp_api: your_api_key')
 
 
 def get_magmom_string():

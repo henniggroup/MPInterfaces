@@ -609,6 +609,7 @@ if __name__ == '__main__':
     # create lead acetate ligand
     # from 3 molecules: 2 acetic acid + 1 Pb
     import mpinterfaces
+    import os
 
     PACKAGE_PATH = mpinterfaces.__file__.replace('__init__.pyc', '')
     PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')

@@ -27,7 +27,7 @@ except IOError:
         POTENTIAL_PATH = os.environ['VASP_PSP_DIR']
         USR = os.environ['USERNAME']
     except KeyError:
-        raise ValueError('Check configuration settings .. ')'
+        raise ValueError('Check configuration settings .. ')
 
 def is_converged(directory):
     """

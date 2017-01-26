@@ -12,7 +12,9 @@ addons:
     - python-pip
 install:
    - pip install numpy
+   - pip install codecov
    - python setup.py develop
+   - cp config.yaml mpinterfaces/config_mine.yaml
 script: 
    - nosetests mpinterfaces --with-coverage
    - codecov

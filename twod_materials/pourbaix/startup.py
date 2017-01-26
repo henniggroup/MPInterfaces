@@ -12,19 +12,19 @@ from pymatgen.matproj.rest import MPRester
 from monty.serialization import loadfn
 
 
-try:
-    MPR = MPRester(
-        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
-        )
-except IOError:
-    try:
-        MPR = MPRester(
-            os.environ['MP_API']
-            )
-    except KeyError:
-        raise ValueError('No Materials Project API key found. Please check'
-                         ' that your ~/config.yaml contains the field'
-                         ' mp_api: your_api_key')
+#try:
+#    MPR = MPRester(
+#        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
+#        )
+#except IOError:
+#    try:
+#        MPR = MPRester(
+#            os.environ['MP_API']
+#            )
+#    except KeyError:
+#        raise ValueError('No Materials Project API key found. Please check'
+#                         ' that your ~/config.yaml contains the field'
+#                         ' mp_api: your_api_key')
 
 if '/ufrc/' in os.getcwd():
     HIPERGATOR = 2

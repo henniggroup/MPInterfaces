@@ -26,8 +26,8 @@ if '/ufrc/' in os.getcwd():
 elif '/scratch/' in os.getcwd():
     HIPERGATOR = 1
 
-VASP = loadfn(os.path.join(os.path.expanduser('~'),
-                           'config.yaml'))['normal_binary']
+#VASP = loadfn(os.path.join(os.path.expanduser('~'),
+#                           'config.yaml'))['normal_binary']
 
 
 def run_gamma_calculations(submit=True, step_size=0.5):

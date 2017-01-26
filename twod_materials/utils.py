@@ -21,21 +21,21 @@ import twod_materials
 PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
 PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
 
-try:
-    POTENTIAL_PATH = loadfn(
-        os.path.join(os.path.expanduser('~'), 'config.yaml'))['potentials']
-    USR = loadfn(os.path.join(os.path.expanduser('~'),
-                 'config.yaml'))['username']
+#try:
+#    POTENTIAL_PATH = loadfn(
+#        os.path.join(os.path.expanduser('~'), 'config.yaml'))['potentials']
+#    USR = loadfn(os.path.join(os.path.expanduser('~'),
+#                 'config.yaml'))['username']
 
-except IOError:
-    try:
-        POTENTIAL_PATH = os.environ['VASP_PSP_DIR']
-        USR = os.environ['USERNAME']
-    except KeyError:
-        raise ValueError('No config.yaml file found. Please check'
-                         ' that your config.yaml is located in ~/ and'
-                         ' contains the field'
-                         ' potentials: /path/to/your/POTCAR/files/')
+#except IOError:
+#    try:
+#        POTENTIAL_PATH = os.environ['VASP_PSP_DIR']
+#        USR = os.environ['USERNAME']
+#    except KeyError:
+#        raise ValueError('No config.yaml file found. Please check'
+#                         ' that your config.yaml is located in ~/ and'
+#                         ' contains the field'
+#                         ' potentials: /path/to/your/POTCAR/files/')
 
 
 def is_converged(directory):

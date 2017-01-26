@@ -27,6 +27,8 @@ Prepping
 
 1. Make sure that you are using python>=2.7 (do a "python --version").
 
+NOTE: for hpg2 users refer to ufhpc_readme.md in the docs and follow it for installation 
+
 2. it is highly recommended that you use gcc compiler. So type::
 
    export CC=gcc
@@ -76,7 +78,9 @@ step 3(if the local copy was installed in the develop mode this step can be skip
 	
 3. python setup.py install(or develop)
 
-4. set the evironment variables:
+4. Copy the config.yaml file to mpinterfaces/config_mine.yaml
+   and update the file so that you have the following 
+   environment variables :
    
    - MAPI_KEY=the_key_obtained_from_materialsproject
      

@@ -9,8 +9,8 @@ from pymatgen.io.vasp.outputs import Vasprun
 import twod_materials.utils as utl
 from pymatgen.matproj.rest import MPRester
 
-from monty.serialization import loadfn
-
+#from monty.serialization import loadfn
+from mpinterfaces import MY_CONFIG
 
 #try:
 #    MPR = MPRester(

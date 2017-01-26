@@ -11,7 +11,7 @@ from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.core.structure import Structure
 
-from monty.serialization import loadfn
+#from monty.serialization import loadfn
 
 import numpy as np
 
@@ -19,6 +19,7 @@ import itertools as it
 
 import math
 
+from mpinterfaces import MY_CONFIG
 
 if '/ufrc/' in os.getcwd():
     HIPERGATOR = 2
@@ -27,8 +28,7 @@ elif '/scratch/' in os.getcwd():
 else:
     HIPERGATOR = None
 
-#VASP = loadfn(os.path.join(os.path.expanduser('~'),
-#                           'config.yaml'))['normal_binary']
+VASP = MY_CONFIG['normal_binary']
 
 
 def write_circle_mesh_kpoints(center=(0, 0, 0), dimension=0.1,

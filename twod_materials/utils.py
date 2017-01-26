@@ -9,34 +9,25 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.vasp.outputs import Vasprun
 
-from monty.serialization import loadfn
+#from monty.serialization import loadfn
 
 import numpy as np
 
 import math
 
-import twod_materials
+from mpinterfaces import MY_CONFIG
 
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
+try:
+    POTENTIAL_PATH = MY_CONFIG['potentials']
+    USR = MY_CONFIG['username']
 
-#try:
-#    POTENTIAL_PATH = loadfn(
-#        os.path.join(os.path.expanduser('~'), 'config.yaml'))['potentials']
-#    USR = loadfn(os.path.join(os.path.expanduser('~'),
-#                 'config.yaml'))['username']
-
-#except IOError:
-#    try:
-#        POTENTIAL_PATH = os.environ['VASP_PSP_DIR']
-#        USR = os.environ['USERNAME']
-#    except KeyError:
-#        raise ValueError('No config.yaml file found. Please check'
-#                         ' that your config.yaml is located in ~/ and'
-#                         ' contains the field'
-#                         ' potentials: /path/to/your/POTCAR/files/')
-
+except IOError:
+    try:
+        POTENTIAL_PATH = os.environ['VASP_PSP_DIR']
+        USR = os.environ['USERNAME']
+    except KeyError:
+        raise ValueError('Check configuration settings .. ')'
 
 def is_converged(directory):
     """
@@ -402,81 +393,81 @@ def add_vacuum(delta, cut=0.9):
     os.remove('new_POSCAR')
 
 
-#def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
-#    """
-#    Writes a POTCAR file based on a list of types.
+def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
+    """
+    Writes a POTCAR file based on a list of types.
 
-#    types = list of same length as number of elements containing specifications
-#    for the kind of potential desired for each element. If no special potential
-#    is desired, just enter '', or leave types = 'None'.
-#    (['pv', '', '3'])
-#    """
+    types = list of same length as number of elements containing specifications
+    for the kind of potential desired for each element. If no special potential
+    is desired, just enter '', or leave types = 'None'.
+    (['pv', '', '3'])
+    """
 
-#    poscar = open('POSCAR', 'r')
-#    lines = poscar.readlines()
-#    elements = lines[5].split()
-#    poscar.close()
+    poscar = open('POSCAR', 'r')
+    lines = poscar.readlines()
+    elements = lines[5].split()
+    poscar.close()
 
-#    potcar_symbols = loadfn(os.path.join(PACKAGE_PATH, 'potcar_symbols.yaml'))
+    potcar_symbols = loadfn(os.path.join(PACKAGE_PATH, 'potcar_symbols.yaml'))
 
-#    if types == 'None':
-#        types = [potcar_symbols[elt].replace(elt, '').replace('_', '')
- #                for elt in elements]
+    if types == 'None':
+        types = [potcar_symbols[elt].replace(elt, '').replace('_', '')
+                        for elt in elements]
 
-#    potentials = []
-#    for i in range(len(elements)):
-#        if types[i] == '':
-#            pass
-#        else:
-#            elements[i] += '_{}'.format(types[i])
+    potentials = []
+    for i in range(len(elements)):
+        if types[i] == '':
+            pass
+        else:
+            elements[i] += '_{}'.format(types[i])
 
         # If specified pseudopotential doesn't exist, try other variations.
-#        if os.path.exists('{}/{}/POTCAR'.format(pot_path, elements[i])):
-#            pass
-#        else:
-#            print('Potential file for {} does not exist. Looking for best'\
-#                  'variation... '.format(elements[i]))
-#            if types[i] == 'regular':
-#                length = 0
-#            else:
-#                length = len(types[i]) + 1
-#                elements[i] = elements[i][:-length]
-#            elements[i] += '_sv'
-#            if os.path.exists('{}/{}/POTCAR'.format(
-#                    pot_path, elements[i])):
-#                print('Found one! {} will work.'.format(elements[i]))
-#            else:
-#                elements[i] = elements[i][:-3]
-#                elements[i] += '_pv'
-#                if os.path.exists('{}/{}/POTCAR'.format(
-#                        pot_path, elements[i])):
-#                    print('Found one! {} will work.'.format(elements[i]))
-#                else:
-#                    elements[i] = elements[i][:-3]
-#                    elements[i] += '_3'
-#                    if os.path.exists('{}/{}/POTCAR'.format(
-#                            pot_path, elements[i])):
-#                        print('Found one! {} will work.'.format(elements[i]))
-#                    else:
-#                        elements[i] = elements[i][:-2]
-#                        if os.path.exists('{}/{}/POTCAR'.format(
-#                                pot_path, elements[i])):
-#                            print(('Found one! {} will '
-#                                   'work.'.format(elements[i])))
-#                        else:
-#                            print('No pseudopotential found'
-#                                   ' for {}'.format(elements[i]))
+        if os.path.exists('{}/{}/POTCAR'.format(pot_path, elements[i])):
+            pass
+        else:
+            print('Potential file for {} does not exist. Looking for best'\
+                  'variation... '.format(elements[i]))
+            if types[i] == 'regular':
+                length = 0
+            else:
+                length = len(types[i]) + 1
+                elements[i] = elements[i][:-length]
+            elements[i] += '_sv'
+            if os.path.exists('{}/{}/POTCAR'.format(
+                    pot_path, elements[i])):
+                print('Found one! {} will work.'.format(elements[i]))
+            else:
+                elements[i] = elements[i][:-3]
+                elements[i] += '_pv'
+                if os.path.exists('{}/{}/POTCAR'.format(
+                        pot_path, elements[i])):
+                    print('Found one! {} will work.'.format(elements[i]))
+                else:
+                    elements[i] = elements[i][:-3]
+                    elements[i] += '_3'
+                    if os.path.exists('{}/{}/POTCAR'.format(
+                            pot_path, elements[i])):
+                        print('Found one! {} will work.'.format(elements[i]))
+                    else:
+                        elements[i] = elements[i][:-2]
+                        if os.path.exists('{}/{}/POTCAR'.format(
+                                pot_path, elements[i])):
+                            print(('Found one! {} will '
+                                   'work.'.format(elements[i])))
+                        else:
+                            print('No pseudopotential found'
+                                   ' for {}'.format(elements[i]))
 
     # Create paths, open files, and write files to POTCAR for each potential.
-#    for element in elements:
-#        potentials.append('{}/{}/POTCAR'.format(pot_path, element))
-#    outfile = open('POTCAR', 'w')
-#    for potential in potentials:
-#        infile = open(potential)
-#        for line in infile:
-#            outfile.write(line)
-#        infile.close()
-#    outfile.close()
+    for element in elements:
+        potentials.append('{}/{}/POTCAR'.format(pot_path, element))
+    outfile = open('POTCAR', 'w')
+    for potential in potentials:
+        infile = open(potential)
+        for line in infile:
+            outfile.write(line)
+        infile.close()
+    outfile.close()
 
 
 def write_pbs_runjob(name, nnodes, nprocessors, pmem, walltime, binary):

@@ -6,24 +6,42 @@ from __future__ import division, unicode_literals, print_function
 
 __author__ = ", ".join(
     ["Kiran Mathew", "Joshua Gabriel", "Arunima Singh", "Richard G. Hennig"])
-__date__ = "Aug 10 2015"
+__date__ = "Jan 26 2016"
 __version__ = "1.2.0"
 
 import os
 import sys
 import operator
 from pymatgen.matproj.rest import MPRester
+import mpinterfaces
+from monty.serialization import loadfn
 
+PACKAGE_PATH = mpinterfaces.__file__.replace('__init__.pyc', '')
+PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
+
+#set environ variables for MAPI_KEY and VASP_PSP_DIR
+
+try:
+    MY_CONFIG = loadfn(PACKAGE_PATH+'config_mine.yaml')
+    try:
+       os.environ['VASP_PSP_DIR'] = MY_CONFIG['potentials']
+       os.environ['MAPI_KEY'] = MY_CONFIG['mp_api']
+    except:
+        raise ValueError('config_mine.yaml file not configured .. please'
+                         ' set variables potentials and mp_api and retry')
+
+except IOError:
+        raise ValueError('No config_mine.yaml file found. Please check')
 
 def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
     """
     fetches the structure corresponding to the given formula
     from the materialsproject database.
-    
+
     Note: Get the api key from materialsproject website. The one used
     here is nolonger valid.
-    
-    Note: for the given formula there are many structures available, 
+
+    Note: for the given formula there are many structures available,
     this function returns the one with the lowest energy above the hull
     unless all_structs is set to True
     """

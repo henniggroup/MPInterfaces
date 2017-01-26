@@ -2,11 +2,20 @@ language: python
 python:
   - "2.7"
   - "3.5"
+addons:
+  apt:
+    packages:
+    - gfortran
+    - libblas-dev
+    - liblapack-dev
+    - python-scipy
+    - python-pip
 install:
    - pip install numpy
    - python setup.py develop
 script: 
-   - nose2 
+   - nosetests mpinterfaces --with-coverage
+   - codecov
 branches:
   only:
     - master

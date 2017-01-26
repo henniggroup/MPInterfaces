@@ -9,9 +9,9 @@ setup(
     name="mpinterfaces",
     version="1.2.0",
 
-    install_requires=["pymatgen==3.4.0", "FireWorks==1.3.3",
+    install_requires=["pymatgen==4.4.2", "FireWorks==1.3.3",
                       "custodian==1.0.1", "pymatgen-db==0.5.1",
-                      "ase==3.11.0", "six"],
+                      "ase==3.11.0", "six", "matplotlib==1.5.0"],
     extras_require={"babel": ["openbabel", "pybel"],
                     "remote": ["fabric"],
                     "doc": ["sphinx>=1.3.1", "sphinx-rtd-theme>=0.1.8"]

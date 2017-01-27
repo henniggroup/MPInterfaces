@@ -17,7 +17,13 @@
 
 Finally,
 
+* cd MPInterfaces
+
 * python hpg2_setup.py develop
+
+* cp config.yaml mpinterfaces/config_mine.yaml
+
+* update the config_mine.yaml 
 
 
 If this does not work please contact me at joshgabriel92@gmail.com

@@ -18,13 +18,18 @@ import matplotlib.pyplot as plt
 import operator
 
 
-def plot_ion_hull_and_voltages(ion='Li', fmt='pdf'):
+def plot_ion_hull_and_voltages(ion, fmt='pdf'):
     """
     Plots the phase diagram between the pure material and pure ion,
     Connecting the points on the convex hull of the phase diagram.
+
+    Args:
+        ion (str): name of atom that was intercalated, e.g. 'Li'.
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
-    # Calculated with the relax_3d() function in
+    # Calculated with the relax() function in
     # twod_materials.stability.startup. If you are using other input
     # parameters, you need to recalculate these values!
     ion_ev_fu = {'Li': -1.7540797, 'Mg': -1.31976062, 'Al': -3.19134607}

@@ -1,5 +1,7 @@
 from __future__ import print_function, division, unicode_literals
 
+import os
+
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.defects.point_defects import (
@@ -10,34 +12,58 @@ import operator
 
 from monty.dev import requires
 
+import twod_materials
+
+from monty.serialization import loadfn
+
+
+PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
+PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
+PACKAGE_PATH = '/'.join(PACKAGE_PATH.split('/')[:-2])
+
+
 try:
     import zeo
     zeo_found = True
 except ImportError:
     zeo_found = False
 
-if '/ufrc/' in os.getcwd():
-    HIPERGATOR = 2
+try:
+    config_vars = loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))
+except:
+    print('WARNING: No config.yaml file was found. please configure the '\
+    'config.yaml and put it in your home directory.')
+    # Still set them for testing purposes.
+    config_vars = loadfn(os.path.join(PACKAGE_PATH, 'config.yaml'))
+if 'queue_system' in config_vars:
+    QUEUE = config_vars['queue_system'].lower()
+elif '/ufrc/' in os.getcwd():
+    QUEUE = 'slurm'
 elif '/scratch/' in os.getcwd():
-    HIPERGATOR = 1
+    QUEUE = 'pbs'
 
 
 @requires(zeo_found, 'get_voronoi_nodes requires Zeo++ cython extension to be '
           'installed. Please contact developers of Zeo++ to obtain it.')
-def inject_ions(ion, atomic_fraction):
+def inject_ions(structure, ion, atomic_fraction):
     """
-    Adds ions to a percentage of interstitial sites into the POSCAR
+    Adds ions to a percentage of interstitial sites into a structure
     that results in an at% less than or equal to the specified
     atomic_fraction. Starts by filling interstitial sites with the
     largest voronoi radius, and then works downward.
 
-    args:
-          specie (str): name of ion to intercalate
-          atomic_fraction (int): < 1.0
+    Args:
+        structure (Structure): Pymatgen Structure object to
+            intercalate into.
+        ion (str): name of atom to intercalate, e.g. 'Li', or 'Mg'.
+        atomic_fraction (int): This fraction of the final intercalated
+            structure will be intercalated atoms. Must be < 1.0.
+
+    Returns:
+        structure. Includes intercalated atoms.
     """
 
     specie = Element(ion)
-    structure = Structure.from_file('POSCAR')
 
     # If the structure isn't big enough to accomodate such a small
     # atomic fraction, multiply it in the x direction.

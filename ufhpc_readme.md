@@ -13,6 +13,8 @@
 
 * pip install --ignore pymatgen==3.7.1
 
+* git clone https://github.com/joshgabriel/MPInterfaces.git
+
 Finally,
 
 * python hpg2_setup.py develop

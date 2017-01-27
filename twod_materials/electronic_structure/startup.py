@@ -125,7 +125,7 @@ def remove_z_kpoints(output='KPOINTS'):
             kpts.write('\n\n')
 
 
-def run_linemode_calculation(submit=True, force_overwrite=False, dim='2D'):
+def run_pbe_calculation(submit=True, force_overwrite=False, dim='2D'):
     """
     Setup and submit a normal PBE calculation for band structure along
     high symmetry k-paths.

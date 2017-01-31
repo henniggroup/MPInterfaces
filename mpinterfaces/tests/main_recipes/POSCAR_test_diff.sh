@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python ../../interface.py
+python ../../interface.py > Interface_py_output.txt
 
 # Need to make this exit with an error of the files don't exist
 File_differs_from_test(){
@@ -12,8 +12,10 @@ File_differs_from_test(){
         exit 1
     fi
         echo "Files match: success"
+    rm $1
 }
 
+File_differs_from_test "Interface_py_output.txt"
 File_differs_from_test "POSCAR_diacetate_boxed.vasp"
 File_differs_from_test "POSCAR_interface.vasp"
 File_differs_from_test "POSCAR_slab.vasp"

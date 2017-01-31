@@ -19,8 +19,9 @@ script:
    - nosetests mpinterfaces --with-coverage
    - codecov
 branches:
-  only:
-    - master
+  except:
+    - gh-pages
+    - development
 notifications:
   email:
     recipients:

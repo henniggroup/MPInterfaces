@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# If there exists a configuration file already, store it.
+cp ../../config_mine.yaml config_mine_saved.yaml
+
+cp ../../../config.yaml ../../config_mine.yaml
+
 python ../../interface.py > Interface_py_output.txt
 
 # Need to make this exit with an error of the files don't exist
@@ -20,3 +25,5 @@ File_differs_from_test "POSCAR_diacetate_boxed.vasp"
 File_differs_from_test "POSCAR_interface.vasp"
 File_differs_from_test "POSCAR_slab.vasp"
 File_differs_from_test "lead_acetate.xyz"
+
+mv config_mine_saved.yaml  ../../config_mine.yaml

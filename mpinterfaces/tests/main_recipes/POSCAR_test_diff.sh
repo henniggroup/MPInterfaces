@@ -1,8 +1,11 @@
 #!/bin/bash
 
+python ../../interface.py
+
+# Need to make this exit with an error of the files don't exist
 File_differs_from_test(){
     echo "Testing $1"
-    if [[ $(diff ../../$1 \
+    if [[ $(diff $1 \
           ../../test_files/$1 |\
            tr -d ' \n\r\t ' | wc -c) -ne 0 ]]; then
         echo "Error: $1 does not match test file"
@@ -14,3 +17,4 @@ File_differs_from_test(){
 File_differs_from_test "POSCAR_diacetate_boxed.vasp"
 File_differs_from_test "POSCAR_interface.vasp"
 File_differs_from_test "POSCAR_slab.vasp"
+File_differs_from_test "lead_acetate.xyz"

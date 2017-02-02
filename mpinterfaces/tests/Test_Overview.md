@@ -11,6 +11,10 @@ or API improvements
   together and is a more rigorous pass than individual functions passing
   the test
 
+  Running this test requires having access to copyrighted POTCAR files and
+  using your config_mine.yaml to state where they are. Therefore, this test is
+  skipped on all automated testing.
+
 * __interface.py__ writes out poscar files specified in the test_files
   directory. There should be a complete match of the files.
 

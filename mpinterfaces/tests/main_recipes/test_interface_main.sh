@@ -7,12 +7,11 @@ cp ../../../config.yaml ../../config_mine.yaml
 
 python ../../interface.py > Interface_py_output.txt
 
-# Need to make this exit with an error of the files don't exist
 File_differs_from_test(){
     if [[ $(diff $1 \
-          ../../test_files/$1 |\
+          ../../test_files/$1 2>&1|\
            tr -d ' \n\r\t ' | wc -c) -ne 0 ]]; then
-        echo "Error: $1 does not match test file"
+        echo "Error: $1 does not match test file or test file does not exist."
         exit 1
     fi
     rm $1

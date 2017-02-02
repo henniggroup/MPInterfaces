@@ -17,7 +17,7 @@ import subprocess
 import logging
 
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
-from pymatgen.io.vasp.sets import DictVaspInputSet
+from pymatgen.io.vasp.sets import DictSet
 
 from custodian.custodian import Job, ErrorHandler
 
@@ -35,7 +35,7 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 
 
-class MPINTVaspInputSet(DictVaspInputSet):
+class MPINTVaspInputSet(DictSet):
     """
     defines the set of input required for a vasp job i.e
     create INCAR, POSCAR, POTCAR & KPOINTS files
@@ -75,7 +75,7 @@ class MPINTVaspInputSet(DictVaspInputSet):
         else:
             config_dict['KPOINTS'] = self.kpoints
         # self.user_incar_settings = self.incar.as_dict()
-        DictVaspInputSet.__init__(self, name, config_dict,
+        DictSet.__init__(self, name, config_dict,
                                   ediff_per_atom=False, **kwargs)
         if vis_logger:
             self.logger = vis_logger

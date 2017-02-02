@@ -15,6 +15,8 @@ install:
    - pip install codecov
    - python setup.py develop
    - cp config.yaml mpinterfaces/config_mine.yaml
+cache:
+   - pip
 script: 
    - nosetests mpinterfaces --with-coverage
    - codecov

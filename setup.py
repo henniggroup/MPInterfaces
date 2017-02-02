@@ -9,7 +9,7 @@ setup(
     name="mpinterfaces",
     version="1.2.0",
 
-    install_requires=["pymatgen==3.7.1", "FireWorks==1.3.3",
+    install_requires=["pymatgen==4.6.0", "FireWorks==1.3.3",
                       "custodian==1.0.1", "pymatgen-db==0.5.1",
                       "ase==3.11.0", "six", "matplotlib==1.5.0"],
     extras_require={"babel": ["openbabel", "pybel"],

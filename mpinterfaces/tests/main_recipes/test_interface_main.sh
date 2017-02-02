@@ -9,14 +9,12 @@ python ../../interface.py > Interface_py_output.txt
 
 # Need to make this exit with an error of the files don't exist
 File_differs_from_test(){
-    echo "Testing $1"
     if [[ $(diff $1 \
           ../../test_files/$1 |\
            tr -d ' \n\r\t ' | wc -c) -ne 0 ]]; then
         echo "Error: $1 does not match test file"
         exit 1
     fi
-        echo "Files match: success"
     rm $1
 }
 

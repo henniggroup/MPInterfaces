@@ -149,7 +149,7 @@ def makeFiles(M_elements, X_elements, ratio, api_key, mag=False, pathToPOTCARS=h
 if __name__=='__main__':
     Ms = ['Ir']
     Xs = ['I','Cl']
-    api_key = 'aAT26B7mEC8xJphs'
+    api_key = 'provide_api_key'
     ratio = [1,2]
     makeFiles(Ms, Xs, ratio, api_key)
 

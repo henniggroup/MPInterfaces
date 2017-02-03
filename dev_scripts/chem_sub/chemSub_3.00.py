@@ -24,6 +24,7 @@ import collections
 import shutil
 from pymatgen.io.vasp.iputs import Poscar
 from pymatgen.core.structure import Structure
+from pymatgen.core.periodic_table import Element
 from mpinterfaces import get_struct_from_mp
 from mpinterfaces.utils import add_vacuum_padding
 from twod_materials.utils import write_potcar # test of this is redundant or there is an extra feature 
@@ -52,12 +53,16 @@ def makePoscars(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_p
     """
     # checing the existence of the monolayer
     # and bulk directories 
+    # these direcotries can simply contain the motifs at 
+    # the top most level 
     monosDir = os.listdir(monolayer_path)
-
-    if bulks in os.listdir('inputs'):
-        bulksDir = os.listdir('inputs/bulks')
-    else:
-        bulks = []
+    bulksDir = os.listdir(bulk_path)
+    # if bulks in os.listdir('inputs'):
+    #    bulksDir = os.listdir('inputs/bulks')
+    # else:
+    #    bulks = []
+    twod = [] 
+    competitors = [] 
     monos = {}
     bulks = {}
     # making direcotries of types of chem sub directories 
@@ -65,45 +70,35 @@ def makePoscars(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_p
     os.mkdir('onRatio')
     # read in monolayer and bulk motifs
     for mon in monosDir:
-        monos[mon] = Structure.from_file('inputs/monolayers/'+mon)
+        monos[mon] = Structure.from_file(mon)
     for bulk in bulksDir:
-        bulks[bulk] = Structure.from_file('inputs/bulks/'+mon)
+        bulks[bulk] = Structure.from_file(mon)
     # perform the chem sub based on the input X and M lists 
-    for monolayer in monosDir:
-        os.mkdir(monolayer)
-        os.chdir(monolayer)
+    for base_name, mono in monos.items():
+        # os.mkdir(monolayer)
+        # os.chdir(monolayer)
         for M in M_elements:
             for X in X_elements:
                 coreElements = [M,X]
-                if ratio[0] == 1 and ratio[1] == 1:
-                    os.mkdir(M+X)
-                    os.chdir(M+X)
-                elif ratio[0] == 1:
-                    os.mkdir(M+X+str(ratio[1]))
-                    os.chdir(M+X+str(ratio[1]))
-                elif ratio[1] === 1:
-                    os.mkdir(M+str(ratio[0])+X)
-                    os.chdir(M+str(ratio[0])+X)
-                else:
-                    os.mkdir(M+str(ratio[0])+X+str(ratio[1]))
-                    os.chdir(M+str(ratio[0])+X+str(ratio[1]))
-                struct = monos[monolayer]
-                spec = struct.species
-                unique = []
-                for specie in spec:
-                    if specie not in unique:
-                        unique.append(specie)
-                if len(unique) != len(coreElements:
-                    print monolayer+' DOES NOT HAVE '+len(coreElements)+' ELEMENTS. ENDING LOOP'
+                # naming the files .. can be set as poscar.comment
+                sub_spec = np.unique(struct.species)
+
+                if len(unique_spec) != len(coreElements):
+                    print (base_name+' DOES NOT HAVE '+len(coreElements)+' ELEMENTS. ENDING LOOP')
                     break
-                for element in unique:
-                    struct.replace({element:coreElements[unique.index(element)]})
-                struct.to('POSCAR','POSCAR')
-                write_potcar(pathToPOTCARS)
-                relax(submit=False)
-                competing = get_competing_phases()
-                os.chdir('../../')
-                ## test for on Ratio : if competing phases is just 1 
+
+                else:
+                    for el in sub_spec:
+                      if ratio[0] == 1 and ratio[1] == 1:
+                        twod.append(Poscar(structure= mono.replace_species(\
+                            {Element(element):\
+                            Element(coreElements[unique.index(element)])}),
+                            comment = base_name+M+str(ratio[0])+X+str(ratio[1])))
+               
+                
+                competing = get_competing_phases() # doesn't need an argument to get
+                                                   # competing phases for ? 
+
                 if len(competing) == 1:
                     os.chdir('onRatio')
                     newStruct = get_struct_from_mp(competing[0][[1]) # assume the  
@@ -112,9 +107,6 @@ def makePoscars(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_p
                     os.chdir(competing[0][0])
                     newStruct.to('POSCAR','POSCAR')  # an output on Ratio
                                                      # chem sub 
-                    # write_potcar(pathToPOTCARS) no need to run/write_potcar
-                    # relax(submit=False)
-                    os.chdir('../')
                ## how about more than 2 ? this would just be the case in ternaries, etc.
                elif len(competing) == 2:
                     os.chdir('hull')
@@ -133,6 +125,7 @@ def makePoscars(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_p
                     # relax(submit=False)
                     os.chdir('../')
                 os.chdir('../')
+    # same for bulks 
     for bulk in bulksDir:
         os.mkdir(bulk+'_bulk')
         os.chdir(bulk)
@@ -157,7 +150,7 @@ def makePoscars(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_p
                 for specie in spec:
                     if specie not in unique:
                         unique.append(specie)
-                if len(unique) != len(coreElements:
+                if len(unique) != len(coreElements):
                     print monolayer+'_bulk DOES NOT HAVE '+len(coreElements)+' ELEMENTS. ENDING LOOP'
                     break
                 for element in unique:

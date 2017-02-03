@@ -25,7 +25,7 @@ import shutil
 from pymatgen.io.vasp.iputs import Poscar
 from pymatgen.core.structure import Structure
 from pymatgen.matproj.rest import MPRester as mpr
-from mpinterfaces.__init__ import get_struct_from_mp
+from mpinterfaces import get_struct_from_mp
 from mpinterfaces.utils import add_vacuum_padding
 from twod_materials.utils import write_potcar
 from twod_materials.stability.startup import relax
@@ -35,9 +35,24 @@ import numpy
 
 home = os.path.expanduser('~')
 
-def makeFiles(M_elements, X_elements, ratio, api_key, mag=False, pathToPOTCARS=home+'/POTCAR/POT_GGA_PAW_PBE/'):
+def makeFiles(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_path):
     nameOfErrorFile = 'errors_bulk')
-    monosDir = os.listdir('inputs/monolayers')
+    """
+    function that writes out poscars of 
+    chem-substituted M-X monolayers
+
+    Args:
+       M_elements : (list) M
+       X_elements : (list) X
+       ratio      : (float?)  
+       monolayers : (str) path to poscar files of monolayers
+       bulks      : (str) path to poscar files of bulk 
+
+    Returns:
+       List of Poscar file objects 
+    """
+    monosDir = os.listdir(monolayer_path)
+
     if bulks in os.listdir('inputs'):
         bulksDir = os.listdir('inputs/bulks')
     else:

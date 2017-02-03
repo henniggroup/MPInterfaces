@@ -24,18 +24,17 @@ import collections
 import shutil
 from pymatgen.io.vasp.iputs import Poscar
 from pymatgen.core.structure import Structure
-from pymatgen.matproj.rest import MPRester as mpr
 from mpinterfaces import get_struct_from_mp
 from mpinterfaces.utils import add_vacuum_padding
-from twod_materials.utils import write_potcar
-from twod_materials.stability.startup import relax
+from twod_materials.utils import write_potcar # test of this is redundant or there is an extra feature 
+# from twod_materials.stability.startup import relax
 from twod_materials.stability.analysis import get_competing_phases
 
 import numpy
 
-home = os.path.expanduser('~')
+#home = os.path.expanduser('~')
 
-def makeFiles(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_path):
+def makePoscars(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_path):
     nameOfErrorFile = 'errors_bulk')
     """
     function that writes out poscars of 
@@ -49,8 +48,10 @@ def makeFiles(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_pat
        bulks      : (str) path to poscar files of bulk 
 
     Returns:
-       List of Poscar file objects 
+       List of Poscar file objects for twod monolayers and their competitors 
     """
+    # checing the existence of the monolayer
+    # and bulk directories 
     monosDir = os.listdir(monolayer_path)
 
     if bulks in os.listdir('inputs'):
@@ -59,13 +60,15 @@ def makeFiles(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_pat
         bulks = []
     monos = {}
     bulks = {}
+    # making direcotries of types of chem sub directories 
     os.mkdir('hull')
     os.mkdir('onRatio')
+    # read in monolayer and bulk motifs
     for mon in monosDir:
         monos[mon] = Structure.from_file('inputs/monolayers/'+mon)
     for bulk in bulksDir:
         bulks[bulk] = Structure.from_file('inputs/bulks/'+mon)
-    
+    # perform the chem sub based on the input X and M lists 
     for monolayer in monosDir:
         os.mkdir(monolayer)
         os.chdir(monolayer)
@@ -100,30 +103,34 @@ def makeFiles(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_pat
                 relax(submit=False)
                 competing = get_competing_phases()
                 os.chdir('../../')
+                ## test for on Ratio : if competing phases is just 1 
                 if len(competing) == 1:
                     os.chdir('onRatio')
-                    newStruct = mpr(api_key).get_structures(competing[0][[1])
+                    newStruct = get_struct_from_mp(competing[0][[1]) # assume the  
+                                                                     # lowest hull distance 
                     os.mkdir(competing[0][0])    
                     os.chdir(competing[0][0])
-                    newStruct.to('POSCAR','POSCAR')
-                    write_potcar(pathToPOTCARS)
-                    relax(submit=False)
+                    newStruct.to('POSCAR','POSCAR')  # an output on Ratio
+                                                     # chem sub 
+                    # write_potcar(pathToPOTCARS) no need to run/write_potcar
+                    # relax(submit=False)
                     os.chdir('../')
+               ## how about more than 2 ? this would just be the case in ternaries, etc.
                elif len(competing) == 2:
                     os.chdir('hull')
-                    newStruct1 = mpr(api_key).get_structures(competing[0][[1])
+                    newStruct1 = get_struct_from_mp(competing[0][[1])
                     os.mkdir(competing[0][0])
                     os.chdir(competing[0][0])
                     newStruct1.to('POSCAR','POSCAR')
                     write_potcar(pathToPOTCARS)
                     relax(submit=False)
                     os.chdir('../')
-                    newStruct2 = mpr(api_key).get_structures(competing[1][[1])
+                    newStruct2 = get_struct_from_mp(competing[1][[1])
                     os.mkdir(competing[1][0])
                     os.chdir(competing[1][0])
                     newStruct2.to('POSCAR','POSCAR')
-                    write_potcar(pathToPOTCAR)
-                    relax(submit=False)
+                    # write_potcar(pathToPOTCAR)
+                    # relax(submit=False)
                     os.chdir('../')
                 os.chdir('../')
     for bulk in bulksDir:
@@ -156,17 +163,16 @@ def makeFiles(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_pat
                 for element in unique:
                     struct.replace({element:coreElements[unique.index(element)]})
                 struct.to('POSCAR','POSCAR')
-                write_potcar(pathToPOTCARS)
-                relax(submit=False)
+                # write_potcar(pathToPOTCARS)
+                # relax(submit=False)
                 os.chdir('../../')
 
 
 if __name__=='__main__':
     Ms = ['Ir']
     Xs = ['I','Cl']
-    api_key = 'provide_api_key'
     ratio = [1,2]
-    makeFiles(Ms, Xs, ratio, api_key)
+    makePoscars(Ms, Xs, ratio, api_key)
 
 
 

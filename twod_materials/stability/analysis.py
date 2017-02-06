@@ -19,24 +19,13 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-import twod_materials
+from mpinterfaces import PACKAGE_PATH, MY_CONFIG
 
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-PACKAGE_PATH = '/'.join(PACKAGE_PATH.split('/')[:-2])
-
-try:
-    config_vars = loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))
-except:
-    print('WARNING: No config.yaml file was found. please configure the '\
-    'config.yaml and put it in your home directory.')
-    # Still set them for testing purposes.
-    config_vars = loadfn(os.path.join(PACKAGE_PATH, 'config.yaml'))
 if 'MP_API' in os.environ:
     MPR = MPRester(os.environ['MP_API'])
 else:
-    MPR = MPRester(config_vars['mp_api'])
+    MPR = MPRester(MY_CONFIG['mp_api'])
 
 
 def get_competing_phases():

@@ -15,27 +15,28 @@ import numpy as np
 
 import math
 
-import twod_materials
+from mpinterfaces import PACKAGE_PATH, MY_CONFIG
 
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-PACKAGE_PATH = '/'.join(PACKAGE_PATH.split('/')[:-2])
+if 'MP_API' in os.environ:
+    MPR = MPRester(os.environ['MP_API'])
+else:
+    MPR = MPRester(MY_CONFIG['mp_api'])
 
-try:
-    config_vars = loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))
-except:
-    print('WARNING: No config.yaml file was found. please configure the '\
-    'config.yaml and put it in your home directory.')
-    # Still set them for testing purposes.
-    config_vars = loadfn(os.path.join(PACKAGE_PATH, 'config.yaml'))
-    VASP = config_vars['normal_binary']
-if 'queue_system' in config_vars:
-    QUEUE = config_vars['queue_system'].lower()
+VASP = MY_CONFIG['normal_binary']
+VASP_2D = MY_CONFIG['twod_binary']
+POTENTIAL_PATH = MY_CONFIG['potentials']
+USR = MY_CONFIG['username']
+VDW_KERNEL = MY_CONFIG['vdw_kernel']
+
+if 'queue_system' in MY_CONFIG:
+    QUEUE = MY_CONFIG['queue_system'].lower()
 elif '/ufrc/' in os.getcwd():
     QUEUE = 'slurm'
 elif '/scratch/' in os.getcwd():
     QUEUE = 'pbs'
+else:
+    QUEUE = 'N/A'
 
 
 def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):

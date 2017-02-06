@@ -8,30 +8,47 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.matproj.rest import MPRester
 
-#from monty.serialization import loadfn
+from monty.serialization import loadfn
 
 import numpy as np
 
 import math
 
-from mpinterfaces import MY_CONFIG
+from mpinterfaces import PACKAGE_PATH, MY_CONFIG
+
+import itertools as it
 
 
-try:
-    POTENTIAL_PATH = MY_CONFIG['potentials']
-    USR = MY_CONFIG['username']
 
-except IOError:
-    try:
-        POTENTIAL_PATH = os.environ['VASP_PSP_DIR']
-        USR = os.environ['USERNAME']
-    except KeyError:
-        raise ValueError('Check configuration settings .. ')
+if 'MP_API' in os.environ:
+    MPR = MPRester(os.environ['MP_API'])
+else:
+    MPR = MPRester(MY_CONFIG['mp_api'])
+
+VASP = MY_CONFIG['normal_binary']
+VASP_2D = MY_CONFIG['twod_binary']
+POTENTIAL_PATH = MY_CONFIG['potentials']
+USR = MY_CONFIG['username']
+
+if 'queue_system' in MY_CONFIG:
+    QUEUE = MY_CONFIG['queue_system'].lower()
+elif '/ufrc/' in os.getcwd():
+    QUEUE = 'slurm'
+elif '/scratch/' in os.getcwd():
+    QUEUE = 'pbs'
+
 
 def is_converged(directory):
     """
     Check if a relaxation has converged.
+
+    Args:
+        directory (str): path to directory to check.
+
+    Returns:
+        boolean. Whether or not the job is converged.
     """
 
     try:
@@ -47,35 +64,64 @@ def is_converged(directory):
 def get_status(directory):
     """
     Return the state of job in a directory. Designed for use on
-    HiperGator.
+    Slurm systems.
 
-    'C': complete
-    'R': running
-    'Q': queued
-    'E': error
-    'H': hold
-    'None': No job in this directory
+    Args:
+        directory (str): *absolute* path to the directory to check.
+
+    Returns:
+        string version of SLURM job status.
+            'None' = No running job in this directory
     """
 
-    os.system("qstat -f| grep -A 30 '{}' >> my_jobs.txt".format(USR))
-    lines = open('my_jobs.txt').readlines()
+    os.system("squeue -o '%.18i %.9P %.16j %.8u %.8T %.10M %.9l %.6D %R %Z'"
+              ">> all_jobs.txt")
+    lines = open('all_jobs.txt').readlines()
     job_state = None
     for i in range(len(lines)):
-        if 'Output_Path' in lines[i]:
-            joined_line = ''.join([lines[i].strip(), lines[i+1].strip()])
-            if directory in joined_line:
-                for j in range(i, 0, -1):
-                    if 'job_state' in lines[j]:
-                        job_state = lines[j].split('=')[1].strip()
-                        break
-    os.system('rm my_jobs.txt')
+        if directory in lines[i]:
+            job_state = lines[i][4]
+            break
+
+    os.system('rm all_jobs.txt')
 
     return job_state
+
+
+def get_magmom_string():
+    """
+    Based on a POSCAR, returns the string required for the MAGMOM
+    setting in the INCAR. Initializes transition metals with 6.0
+    bohr magneton and all others with 0.5.
+
+    Returns:
+        string. e.g. '1*6.0 3*0.5'
+    """
+
+    magmoms = []
+    poscar_lines = open('POSCAR').readlines()
+    elements = poscar_lines[5].split()
+    amounts = poscar_lines[6].split()
+    for i in range(len(elements)):
+        if Element(elements[i]).is_transition_metal:
+            magmoms.append('{}*6.0'.format(amounts[i]))
+        else:
+            magmoms.append('{}*0.5'.format(amounts[i]))
+    return ' '.join(magmoms)
 
 
 def get_spacing(filename='POSCAR', cut=0.9):
     """
     Returns the interlayer spacing for a 2D material.
+
+    Args:
+        filename (str): 'CONTCAR' or 'POSCAR', whichever file to
+            check.
+        cut (float): a fractional z-coordinate that must be within
+            the vacuum region.
+
+    Returns:
+        float. Spacing in Angstroms.
     """
 
     structure = Structure.from_file('POSCAR')
@@ -100,9 +146,16 @@ def get_spacing(filename='POSCAR', cut=0.9):
 
 def get_rotation_matrix(axis, theta):
     """
-    Return the rotation matrix associated with counterclockwise rotation
+    Find the rotation matrix associated with counterclockwise rotation
     about the given axis by theta radians.
     Credit: http://stackoverflow.com/users/190597/unutbu
+
+    Args:
+        axis (list): rotation axis of the form [x, y, z]
+        theta (float): rotational angle in radians
+
+    Returns:
+        array. Rotation matrix.
     """
 
     axis = np.asarray(axis)
@@ -123,6 +176,12 @@ def align_c_axis_along_001(structure):
     returns the same structure rotated so that the c-axis is along
     the [001] direction. This is useful for vasp compiled with no
     z-axis relaxation.
+
+    Args:
+        structure (structure): Pymatgen Structure object to rotate.
+
+    Returns:
+        structure. Rotated to align c-axis along [001].
     """
 
     c = structure.lattice._matrix[2]
@@ -139,13 +198,17 @@ def align_c_axis_along_001(structure):
 
 def get_structure_type(structure, write_poscar_from_cluster=False):
     """
-    Returns 'molecular', 'chain', 'layered', 'heterogeneous', or
-    'conventional' to describe the periodicity of bonded clusters
-    in a bulk structure.
+    This is a topology-scaling algorithm used to describe the
+    periodicity of bonded clusters in a bulk structure.
 
     Args:
+        structure (structure): Pymatgen structure object to classify.
         write_poscar_from_cluster (bool): Set to True to write a
             POSCAR from the sites in the cluster.
+
+    Returns:
+        string. 'molecular' (0D), 'chain', 'layered', 'heterogeneous'
+            (intercalated 3D), or 'conventional' (3D)
     """
 
     # The conventional standard structure is much easier to work
@@ -258,9 +321,10 @@ def add_vacuum(delta, cut=0.9):
     """
     Adds vacuum to a POSCAR.
 
-    delta = vacuum thickness in Angstroms
-    cut = height above which atoms will need to be fixed. Defaults to
-    0.9.
+    Args:
+        delta (float): vacuum thickness in Angstroms
+        cut (delta): fractional height above which atoms will
+            need to be fixed. Defaults to 0.9.
     """
 
     # Fix the POSCAR to put bottom atoms (even if they are above the
@@ -397,84 +461,211 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
     """
     Writes a POTCAR file based on a list of types.
 
-    types = list of same length as number of elements containing specifications
-    for the kind of potential desired for each element. If no special potential
-    is desired, just enter '', or leave types = 'None'.
-    (['pv', '', '3'])
+    Args:
+        pot_path (str): can be changed to override default location
+            of POTCAR files.
+        types (list): list of same length as number of elements
+            containing specifications for the kind of potential
+            desired for each element. If left as 'None', uses the
+            defaults in the 'potcar_symbols.yaml' file in the package
+            root.
     """
 
-    poscar = open('POSCAR', 'r')
-    lines = poscar.readlines()
-    elements = lines[5].split()
-    poscar.close()
+    if pot_path == '/path/to/POTCAR/files':
+        # This means the config.yaml file has not been set up.
+        pass
+    else:
+        poscar = open('POSCAR', 'r')
+        lines = poscar.readlines()
+        elements = lines[5].split()
+        poscar.close()
 
-    potcar_symbols = loadfn(os.path.join(PACKAGE_PATH, 'potcar_symbols.yaml'))
+        potcar_symbols = loadfn(
+            os.path.join(PACKAGE_PATH, 'twod_materials/potcar_symbols.yaml')
+        )
 
-    if types == 'None':
-        types = [potcar_symbols[elt].replace(elt, '').replace('_', '')
-                        for elt in elements]
+        if types == 'None':
+            types = [potcar_symbols[elt].replace(elt, '').replace('_', '')
+                     for elt in elements]
 
-    potentials = []
-    for i in range(len(elements)):
-        if types[i] == '':
-            pass
-        else:
-            elements[i] += '_{}'.format(types[i])
-
-        # If specified pseudopotential doesn't exist, try other variations.
-        if os.path.exists('{}/{}/POTCAR'.format(pot_path, elements[i])):
-            pass
-        else:
-            print('Potential file for {} does not exist. Looking for best'\
-                  'variation... '.format(elements[i]))
-            if types[i] == 'regular':
-                length = 0
+        potentials = []
+        for i in range(len(elements)):
+            if types[i] == '':
+                pass
             else:
-                length = len(types[i]) + 1
-                elements[i] = elements[i][:-length]
-            elements[i] += '_sv'
-            if os.path.exists('{}/{}/POTCAR'.format(
-                    pot_path, elements[i])):
-                print('Found one! {} will work.'.format(elements[i]))
+                elements[i] += '_{}'.format(types[i])
+
+            # If specified pseudopotential doesn't exist, try other variations.
+            if os.path.exists('{}/{}/POTCAR'.format(pot_path, elements[i])):
+                pass
             else:
-                elements[i] = elements[i][:-3]
-                elements[i] += '_pv'
+                print('Potential file for {} does not exist. Looking for best'\
+                      'variation... '.format(elements[i]))
+                if types[i] == 'regular':
+                    length = 0
+                else:
+                    length = len(types[i]) + 1
+                    elements[i] = elements[i][:-length]
+                elements[i] += '_sv'
                 if os.path.exists('{}/{}/POTCAR'.format(
                         pot_path, elements[i])):
                     print('Found one! {} will work.'.format(elements[i]))
                 else:
                     elements[i] = elements[i][:-3]
-                    elements[i] += '_3'
+                    elements[i] += '_pv'
                     if os.path.exists('{}/{}/POTCAR'.format(
                             pot_path, elements[i])):
                         print('Found one! {} will work.'.format(elements[i]))
                     else:
-                        elements[i] = elements[i][:-2]
+                        elements[i] = elements[i][:-3]
+                        elements[i] += '_3'
                         if os.path.exists('{}/{}/POTCAR'.format(
                                 pot_path, elements[i])):
-                            print(('Found one! {} will '
-                                   'work.'.format(elements[i])))
+                            print('Found one! {} will work.'.format(elements[i]))
                         else:
-                            print('No pseudopotential found'
-                                   ' for {}'.format(elements[i]))
+                            elements[i] = elements[i][:-2]
+                            if os.path.exists('{}/{}/POTCAR'.format(
+                                    pot_path, elements[i])):
+                                print(('Found one! {} will '
+                                       'work.'.format(elements[i])))
+                            else:
+                                print('No pseudopotential found'
+                                       ' for {}'.format(elements[i]))
 
-    # Create paths, open files, and write files to POTCAR for each potential.
-    for element in elements:
-        potentials.append('{}/{}/POTCAR'.format(pot_path, element))
-    outfile = open('POTCAR', 'w')
-    for potential in potentials:
-        infile = open(potential)
-        for line in infile:
-            outfile.write(line)
-        infile.close()
-    outfile.close()
+        # Create paths, open files, and write files to POTCAR for each potential.
+        for element in elements:
+            potentials.append('{}/{}/POTCAR'.format(pot_path, element))
+        outfile = open('POTCAR', 'w')
+        for potential in potentials:
+            infile = open(potential)
+            for line in infile:
+                outfile.write(line)
+            infile.close()
+        outfile.close()
+
+
+def write_circle_mesh_kpoints(center=[0, 0, 0], radius=0.1,
+                              resolution=20):
+    """
+    Create a circular mesh of k-points centered around a specific
+    k-point and write it to the KPOINTS file. Non-circular meshes
+    are not supported, but shouldn't be too hard to code. All
+    k-point weights are 1.
+
+    Args:
+        center (list): x, y, and z coordinates of mesh center.
+            Defaults to Gamma.
+        radius (float): Size of the mesh in inverse Angstroms.
+        resolution (int): Number of mesh divisions along the
+            radius in the 3 primary directions.
+    """
+
+    kpoints = []
+    step = radius / resolution
+
+    for i in range(-resolution, resolution):
+        for j in range(-resolution, resolution):
+            if i**2 + j**2 <= resolution**2:
+                kpoints.append([str(center[0]+step*i), str(center[1]+step*j),
+                '0', '1'])
+    with open('KPOINTS', 'w') as kpts:
+        kpts.write('KPOINTS\n{}\ndirect\n'.format(len(kpoints)))
+        for kpt in kpoints:
+            kpts.write(' '.join(kpt))
+            kpts.write('\n')
+
+
+def get_markovian_path(points):
+    """
+    Calculates the shortest path connecting an array of 2D
+    points.
+
+    Args:
+        points (list): list/array of points of the format
+            [[x_1, y_1, z_1], [x_2, y_2, z_2], ...]
+
+    Returns:
+        A sorted list of the points in order on the markovian path.
+    """
+
+    def dist(x,y):
+        return math.hypot(y[0] - x[0], y[1] - x[1])
+
+    paths = [p for p in it.permutations(points)]
+    path_distances = [
+        sum(map(lambda x: dist(x[0], x[1]), zip(p[:-1], p[1:]))) for p in paths
+    ]
+    min_index = np.argmin(path_distances)
+
+    return paths[min_index]
+
+
+def remove_z_kpoints():
+    """
+    Strips all linemode k-points from the KPOINTS file that include a
+    z-component, since these are not relevant for 2D materials.
+    """
+
+    kpoint_lines = open('KPOINTS').readlines()
+
+    twod_kpoints = []
+    labels = {}
+    i = 4
+
+    while i < len(kpoint_lines):
+        kpt_1 = kpoint_lines[i].split()
+        kpt_2 = kpoint_lines[i+1].split()
+        if float(kpt_1[2]) == 0.0 and [float(kpt_1[0]),
+                                       float(kpt_1[1])] not in twod_kpoints:
+            twod_kpoints.append(
+                [float(kpt_1[0]), float(kpt_1[1])]
+            )
+            labels[kpt_1[4]] = [float(kpt_1[0]), float(kpt_1[1])]
+
+        if float(kpt_2[2]) == 0.0 and [float(kpt_2[0]),
+                                       float(kpt_2[1])] not in twod_kpoints:
+            twod_kpoints.append(
+                [float(kpt_2[0]), float(kpt_2[1])]
+            )
+            labels[kpt_2[4]] = [float(kpt_2[0]), float(kpt_2[1])]
+        i += 3
+
+    kpath = get_markovian_path(twod_kpoints)
+
+    with open('KPOINTS', 'w') as kpts:
+        for line in kpoint_lines[:4]:
+            kpts.write(line)
+
+        for i in range(len(kpath)):
+            label_1 = [l for l in labels if labels[l] == kpath[i]][0]
+            if i == len(kpath) - 1:
+                kpt_2 = kpath[0]
+                label_2 = [l for l in labels if labels[l] == kpath[0]][0]
+            else:
+                kpt_2 = kpath[i+1]
+                label_2 = [l for l in labels if labels[l] == kpath[i+1]][0]
+
+            kpts.write(' '.join([str(kpath[i][0]), str(kpath[i][1]), '0.0 !',
+                                label_1]))
+            kpts.write('\n')
+            kpts.write(' '.join([str(kpt_2[0]), str(kpt_2[1]), '0.0 !',
+                                label_2]))
+            kpts.write('\n\n')
 
 
 def write_pbs_runjob(name, nnodes, nprocessors, pmem, walltime, binary):
     """
-    writes a runjob based on a name, nnodes, nprocessors, walltime, and
-    binary. Designed for runjobs on the Hennig group_list on HiperGator
-    1 (PBS).
+    writes a runjob based on a name, nnodes, nprocessors, walltime,
+    and binary. Designed for runjobs on the Hennig group_list on
+    HiperGator 1 (PBS).
+
+    Args:
+        name (str): job name.
+        nnodes (int): number of requested nodes.
+        nprocessors (int): number of requested processors.
+        pmem (str): requested memory including units, e.g. '1600mb'.
+        walltime (str): requested wall time, hh:mm:ss e.g. '2:00:00'.
+        binary (str): absolute path to binary to run.
     """
     runjob = open('runjob', 'w')
     runjob.write('#!/bin/sh\n')
@@ -496,7 +687,14 @@ def write_slurm_runjob(name, ntasks, pmem, walltime, binary):
     """
     writes a runjob based on a name, nnodes, nprocessors, walltime, and
     binary. Designed for runjobs on the Hennig group_list on HiperGator
-    1 (PBS).
+    2 (SLURM).
+
+    Args:
+        name (str): job name.
+        ntasks (int): total number of requested processors.
+        pmem (str): requested memory including units, e.g. '1600mb'.
+        walltime (str): requested wall time, hh:mm:ss e.g. '2:00:00'.
+        binary (str): absolute path to binary to run.
     """
 
     nnodes = int(np.ceil(float(ntasks) / 32.0))

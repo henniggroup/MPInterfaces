@@ -46,8 +46,9 @@ def get_band_edges():
                  'dn_vbm': dn_vbm, 'efermi': efermi}
 
     else:
-        cbm = min([e[0] for e in eigenvals[Spin.up] if not e[1]]) - evac
-        vbm = max([e[0] for e in eigenvals[Spin.up] if e[1]]) - evac
+        bs = vasprun.get_band_structure()
+        cbm = bs.get_cbm()['energy'] - evac
+        vbm = bs.get_vbm()['energy'] - evac
         edges = {'cbm': cbm, 'vbm': vbm, 'efermi': efermi}
 
     return edges
@@ -58,9 +59,13 @@ def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
     Plot CBM's and VBM's of all compounds together, relative to the band
     edges of H2O.
 
-    args:
-        run_type: 'PBE' or 'HSE', so that the function knows which
-            subdirectory to go into.
+    Args:
+        directories (list): list of the directory paths for materials
+            to include in the plot.
+        run_type (str): 'PBE' or 'HSE', so that the function knows which
+            subdirectory to go into (pbe_bands or hse_bands).
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
     if run_type == 'HSE':
@@ -80,13 +85,12 @@ def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
             locpot = Locpot.from_file('LOCPOT')
             evac = max(locpot.get_average_along_axis(2))
 
-            try:
-                is_metal = False
+            if not band_structure.is_metal():
                 is_direct = band_gap['direct']
                 cbm = band_structure.get_cbm()
                 vbm = band_structure.get_vbm()
 
-            except AttributeError:
+            else:
                 cbm = None
                 vbm = None
                 is_metal = True
@@ -94,21 +98,22 @@ def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
 
             band_gaps[directory] = {'CBM': cbm, 'VBM': vbm,
                                     'Direct': is_direct,
-                                    'Metal': is_metal, 'E_vac': evac}
+                                    'Metal': band_structure.is_metal(),
+                                    'E_vac': evac}
 
             os.chdir('../../')
 
     ax = plt.figure(figsize=(16, 10)).gca()
 
-    x_max = len(band_gaps)*1.315
+    x_max = len(band_gaps) * 1.315
     ax.set_xlim(0, x_max)
 
     # Rectangle representing band edges of water.
     ax.add_patch(plt.Rectangle((0, -5.67), height=1.23, width=len(band_gaps),
                  facecolor='#00cc99', linewidth=0))
-    ax.text(len(band_gaps)*1.01, -4.44, r'$\mathrm{H+/H_2}$', size=20,
+    ax.text(len(band_gaps) * 1.01, -4.44, r'$\mathrm{H+/H_2}$', size=20,
             verticalalignment='center')
-    ax.text(len(band_gaps)*1.01, -5.67, r'$\mathrm{O_2/H_2O}$', size=20,
+    ax.text(len(band_gaps) * 1.01, -5.67, r'$\mathrm{O_2/H_2O}$', size=20,
             verticalalignment='center')
 
     x_ticklabels = []
@@ -160,7 +165,7 @@ def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
 
         i += 1
 
-    ax.set_ylim(y_min, -2)
+    ax.set_ylim(y_min, 0)
 
     # Set tick labels
     ax.set_xticks([n + 0.4 for n in range(i)])
@@ -214,6 +219,13 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
     Plot data from the LOCPOT file along any of the 3 primary axes.
     Useful for determining surface dipole moments and electric
     potentials on the interior of the material.
+
+    Args:
+        axis (int): 0 = x, 1 = y, 2 = z
+        ylim (tuple): minimum and maximum potentials for the plot's
+            y-axis.
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
     ax = plt.figure(figsize=(16, 10)).gca()
@@ -225,8 +237,10 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
     vacuum_level = max(abs_potentials)
 
     vasprun = Vasprun('vasprun.xml')
-    cbm = vasprun.get_band_structure().get_cbm()['energy'] - vacuum_level
-    vbm = vasprun.get_band_structure().get_vbm()['energy'] - vacuum_level
+    bs = vasprun.get_band_structure()
+    if not bs.is_metal():
+        cbm = bs.get_cbm()['energy'] - vacuum_level
+        vbm = bs.get_vbm()['energy'] - vacuum_level
 
     potentials = [potential - vacuum_level for potential in abs_potentials]
     axis_length = structure.lattice._lengths[axis]
@@ -244,23 +258,33 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
     ax.set_xlabel(r'$\mathrm{\AA}$', size=24)
     ax.set_ylabel(r'$\mathrm{V\/(eV)}$', size=24)
 
-    ax.text(ax.get_xlim()[1], cbm, r'$\mathrm{CBM}$',
-            horizontalalignment='right', verticalalignment='bottom', size=20)
-    ax.text(ax.get_xlim()[1], vbm, r'$\mathrm{VBM}$',
-            horizontalalignment='right', verticalalignment='top', size=20)
+    if not bs.ismetal():
+        ax.text(ax.get_xlim()[1], cbm, r'$\mathrm{CBM}$',
+                horizontalalignment='right', verticalalignment='bottom',
+                size=20)
+        ax.text(ax.get_xlim()[1], vbm, r'$\mathrm{VBM}$',
+                horizontalalignment='right', verticalalignment='top', size=20)
 
-    ax.fill_between(ax.get_xlim(), cbm, ax.get_ylim()[1],
-                    facecolor=plt.cm.jet(0.3), zorder=0, linewidth=0)
-    ax.fill_between(ax.get_xlim(), ax.get_ylim()[0], vbm,
-                    facecolor=plt.cm.jet(0.7), zorder=0, linewidth=0)
+        ax.fill_between(ax.get_xlim(), cbm, ax.get_ylim()[1],
+                        facecolor=plt.cm.jet(0.3), zorder=0, linewidth=0)
+        ax.fill_between(ax.get_xlim(), ax.get_ylim()[0], vbm,
+                        facecolor=plt.cm.jet(0.7), zorder=0, linewidth=0)
 
     plt.savefig('locpot.{}'.format(fmt))
     plt.close()
 
 
-def plot_band_structure(fmt='pdf', ylim=(-5, 5), draw_fermi=False):
+def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt='pdf'):
     """
     Plot a standard band structure with no projections.
+
+    Args:
+        ylim (tuple): minimum and maximum potentials for the plot's
+            y-axis.
+        draw_fermi (bool): whether or not to draw a dashed line at
+            E_F.
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
     vasprun = Vasprun('vasprun.xml')
@@ -269,17 +293,24 @@ def plot_band_structure(fmt='pdf', ylim=(-5, 5), draw_fermi=False):
                                                efermi=efermi))
     plot = bsp.get_plot(ylim=ylim)
     fig = plot.gcf()
+    ax = fig.gca()
+    ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
     if draw_fermi:
-        fig.gca().plot([fig.gca().get_xlim()[0], fig.gca().get_xlim()[1]],
-                       [0, 0], 'k--')
+        ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]], [0, 0], 'k--')
     fig.savefig('band_structure.{}'.format(fmt), transparent=True)
     plt.close()
 
 
-def plot_color_projected_bands(fmt='pdf', ylim=(-5, 5)):
+def plot_color_projected_bands(ylim=(-5, 5), fmt='pdf'):
     """
     Plot a single band structure where the color of the band indicates
     the elemental character of the eigenvalue.
+
+    Args:
+        ylim (tuple): minimum and maximum energies for the plot's
+            y-axis.
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
     vasprun = Vasprun('vasprun.xml', parse_projected_eigen=True)
@@ -288,15 +319,22 @@ def plot_color_projected_bands(fmt='pdf', ylim=(-5, 5)):
     plot = bspp.get_elt_projected_plots_color()
     fig = plot.gcf()
     ax = fig.gca()
+    ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
     ax.set_ylim(ylim)
     fig.savefig('color_projected_bands.{}'.format(fmt))
     plt.close()
 
 
-def plot_elt_projected_bands(fmt='pdf', ylim=(-5, 5)):
+def plot_elt_projected_bands(ylim=(-5, 5), fmt='pdf'):
     """
     Plot separate band structures for each element where the size of the
     markers indicates the elemental character of the eigenvalue.
+
+    Args:
+        ylim (tuple): minimum and maximum energies for the plot's
+            y-axis.
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
     vasprun = Vasprun('vasprun.xml', parse_projected_eigen=True)
@@ -312,8 +350,14 @@ def plot_orb_projected_bands(orbitals, fmt='pdf', ylim=(-5, 5)):
     Plot a separate band structure for each orbital of each element in
     orbitals.
 
-    orbitals (dict): {element: [orbitals]}
-        e.g. {'Mo': ['s', 'p', 'd'], 'S': ['p']}
+    Args:
+        orbitals (dict): dictionary of the form
+            {element: [orbitals]},
+            e.g. {'Mo': ['s', 'p', 'd'], 'S': ['p']}
+        ylim (tuple): minimum and maximum energies for the plot's
+            y-axis.
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
     vasprun = Vasprun('vasprun.xml', parse_projected_eigen=True)
@@ -326,7 +370,10 @@ def plot_orb_projected_bands(orbitals, fmt='pdf', ylim=(-5, 5)):
 
 def get_effective_mass():
     """
-    Returns effective masses from a band structure, using parabolic
+    This function is in a beta stage, and its results are not
+    guaranteed to be useful.
+
+    Finds effective masses from a band structure, using parabolic
     fitting to determine the band curvature at the CBM
     for electrons and at the VBM for holes. This curvature enters
     the equation m* = (hbar)**2 / (d^2E/dk^2).
@@ -347,6 +394,14 @@ def get_effective_mass():
           direction (either left or right) was not actually fit to.
           Until fixed, this (most likely) explains any negative masses
           returned.
+
+    Returns:
+        Dictionary of the form
+            {'electron': {'left': e_m_eff_l, 'right': e_m_eff_r},
+             'hole': {'left': h_m_eff_l, 'right': h_m_eff_r}}
+            where 'left' and 'right' indicate the reciprocal
+            directions to the left and right of the extremum in the
+            band structure.
     """
 
     H_BAR = 6.582119514e-16  # eV*s
@@ -448,7 +503,10 @@ def plot_density_of_states(fmt='pdf'):
     """
     Plots the density of states from the DOSCAR in the cwd. Plots
     spin up in red, down in green, and the sum in black. Efermi = 0.
-    Written by Cheitanya Kolluru.
+
+    Args:
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
     efermi = Vasprun('vasprun.xml').efermi
@@ -480,9 +538,53 @@ def plot_density_of_states(fmt='pdf'):
     plt.close()
 
 
+def get_fermi_velocities():
+    """
+    Calculates the fermi velocity of each band that crosses the fermi
+    level, according to v_F = dE/(h_bar*dk).
+
+    Returns:
+        fermi_velocities (list). The absolute values of the
+            adjusted slopes of each band, in Angstroms/s.
+    """
+
+    vr = Vasprun('vasprun.xml')
+    eigenvalues = vr.eigenvalues
+    bs = vr.get_band_structure()
+    bands = bs.bands
+    kpoints = bs.kpoints
+    efermi = bs.efermi
+    h_bar = 6.582e-16  # eV*s
+
+    fermi_bands = []
+    for spin in bands:
+        for i in range(len(bands[spin])):
+            if max(bands[spin][i]) > efermi > min(bands[spin][i]):
+                fermi_bands.append(bands[spin][i])
+
+
+    fermi_velocities = []
+    for band in fermi_bands:
+        for i in range(len(band)-1):
+            if (band[i] < efermi and band[i+1] > efermi) or (
+                    band[i] > efermi and band[i+1] < efermi):
+                dk = np.sqrt((kpoints[i+1].cart_coords[0]
+                              - kpoints[i].cart_coords[0])**2
+                             + (kpoints[i+1].cart_coords[1]
+                              - kpoints[i].cart_coords[1])**2)
+                v_f = abs((band[i+1] - band[i]) / (h_bar * dk))
+                fermi_velocities.append(v_f)
+
+    return fermi_velocities  # Values are in Angst./s
+
+
 def find_dirac_nodes():
     """
     Look for band crossings near (within `tol` eV) the Fermi level.
+
+    Returns:
+        boolean. Whether or not a band crossing occurs at or near
+            the fermi level.
     """
 
     vasprun = Vasprun('vasprun.xml')
@@ -515,12 +617,20 @@ def find_dirac_nodes():
 def plot_spin_texture(inner_index, outer_index, center=(0, 0), fmt='pdf'):
     """
     Create six plots- one for the spin texture in x, y, and z in
-    each of two bands: an `inner` band and an `outer` band. For
+    each of two bands: an inner band and an outer band. For
     Rashba spin-splitting, these two bands should be the two that
     have split.
+
+    Args:
+        inner_index, outer_index (int): indices of the two spin-split
+            bands.
+        center (tuple): coordinates of the center of the splitting
+            (where the bands cross). Defaults to Gamma.
+        fmt: matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
-    procar_lines = open("SrSbSe2F_PROCAR").readlines()
+    procar_lines = open("PROCAR").readlines()
 
     data = procar_lines[1].split()
     n_kpts = int(data[3])
@@ -528,7 +638,7 @@ def plot_spin_texture(inner_index, outer_index, center=(0, 0), fmt='pdf'):
     n_ions = int(data[11])
 
     # These numbers, along with almost everything else in this
-    # function, are magical; don't touch them.
+    # function, are magical. Don't touch them.
     band_step = (n_ions + 1) * 4 + 4
     k_step = n_bands * band_step + 3
 

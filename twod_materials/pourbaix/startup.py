@@ -9,27 +9,34 @@ from pymatgen.io.vasp.outputs import Vasprun
 import twod_materials.utils as utl
 from pymatgen.matproj.rest import MPRester
 
-#from monty.serialization import loadfn
-from mpinterfaces import MY_CONFIG
+from monty.serialization import loadfn
 
-#try:
-#    MPR = MPRester(
-#        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
-#        )
-#except IOError:
-#    try:
-#        MPR = MPRester(
-#            os.environ['MP_API']
-#            )
-#    except KeyError:
-#        raise ValueError('No Materials Project API key found. Please check'
-#                         ' that your ~/config.yaml contains the field'
-#                         ' mp_api: your_api_key')
+import twod_materials
 
-if '/ufrc/' in os.getcwd():
-    HIPERGATOR = 2
+
+PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
+PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
+PACKAGE_PATH = '/'.join(PACKAGE_PATH.split('/')[:-2])
+
+try:
+    config_vars = loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))
+except:
+    print('WARNING: No config.yaml file was found. please configure the '\
+    'config.yaml and put it in your home directory.')
+    # Still set them for testing purposes.
+    config_vars = loadfn(os.path.join(PACKAGE_PATH, 'config.yaml'))
+if 'MP_API' in os.environ:  # Also for testing purposes.
+    MPR = MPRester(os.environ['MP_API'])
+else:
+    MPR = MPRester(config_vars['mp_api'])
+VASP = config_vars['normal_binary']
+VASP_2D = config_vars['twod_binary']
+if 'queue_system' in config_vars:
+    QUEUE = config_vars['queue_system'].lower()
+elif '/ufrc/' in os.getcwd():
+    QUEUE = 'slurm'
 elif '/scratch/' in os.getcwd():
-    HIPERGATOR = 1
+    QUEUE = 'pbs'
 
 
 class Calibrator():
@@ -37,22 +44,19 @@ class Calibrator():
     def __init__(self, incar_dict, potcar_dict, n_kpts_per_atom=500,
                  ncores=1, nprocs=16, pmem='600mb', walltime='6:00:00',
                  binary='vasp'):
-        '''
-        args:
-            incar_dict: dictionary of all input parameters used in the
-                        given framework.
-
-            n_kpts_per_atom: Create kpoints at specified density per
-                             atom. Defaults to 500.
-
-            potcar_dict: dictionary of all species to be calibrated and
-                         the potcar hashes used in the given framework.
-
-            n_cores, n_procs, pmem, walltime, binary: runjob parameters.
-                    Defaults established for a regular sized job on
-                    hipergator.
-
-        '''
+        """
+        Args:
+            incar_dict (dict): dictionary of all input parameters
+                used in the given framework.
+            potcar_dict (dict): dictionary of all species to be
+                calibrated and the potcar hashes used in the
+                given framework, e.g. {'Mo': 'pv', 'S': ''}.
+            n_kpts_per_atom (int): Create kpoints at specified
+                density per atom. Defaults to 500.
+            n_cores, n_procs, pmem, walltime, binary: runjob
+                parameters. Defaults established for a regular
+                sized job on hipergator.
+        """
 
         self._incar_dict = incar_dict
         self._n_kpts_per_atom = n_kpts_per_atom
@@ -65,16 +69,15 @@ class Calibrator():
         self._config = loadfn('/home/mashton/cal_config.yaml')
 
     def prepare(self, submit=False):
-        '''
-        This function will set up calculation directories to calibrate
+        """
+        Set up calculation directories to calibrate
         the ion corrections to match a specified framework of INCAR
         parameters, k-points, and potcar hashes.
 
-        args:
-
-            submit (bool): whether or not to call qsub within each
-                           directory.
-        '''
+        Args:
+            submit (bool): whether or not to submit each job
+                after preparing it.
+        """
 
         for elt in self._potcar_dict:
 
@@ -104,13 +107,13 @@ class Calibrator():
 
             # Runjob
 
-            if HIPERGATOR == 1:
+            if QUEUE == 'pbs':
                 utl.write_pbs_runjob('{}_cal'.format(elt), self._ncores,
                                      self._nprocs, self._pmem, self._walltime,
                                      self._binary)
                 submission_command = 'qsub runjob'
 
-            elif HIPERGATOR == 2:
+            elif QUEUE == 'slurm':
                 utl.write_slurm_runjob('{}_cal'.format(elt), self._nprocs,
                                        self._pmem, self._walltime,
                                        self._binary)
@@ -142,16 +145,17 @@ class Calibrator():
                 incar.write_file('INCAR')
 
                 # Potcar
-                utl.write_potcar(types=[self._potcar_dict[el] for el in elements])
+                utl.write_potcar(
+                    types=[self._potcar_dict[el] for el in elements])
 
                 # Runjob
-                if HIPERGATOR == 1:
+                if QUEUE == 'slurm':
                     utl.write_pbs_runjob('{}_cal'.format(elt), self._ncores,
                                          self._nprocs, self._pmem,
                                          self._walltime, self._binary)
                     submission_command = 'qsub runjob'
 
-                elif HIPERGATOR == 2:
+                elif QUEUE == 'pbs':
                     utl.write_slurm_runjob('{}_cal'.format(elt), self._nprocs,
                                            self._pmem, self._walltime,
                                            self._binary)
@@ -165,18 +169,22 @@ class Calibrator():
 
     def get_corrections(self, parent_dir=os.getcwd(), write_yaml=False,
                         oxide_corr=0.708):
-        '''
-        This function returns a dict object, with elements as keys
-        their corrections as values, in eV per atom.
+        """
+        Pulls the corrections to be added for each element.
 
-        args:
-            parent_dir: path to parent directory containing
-                        subdirectories created by prepare().
+        Args:
+            parent_dir (str): path to parent directory containing
+                subdirectories created by prepare(). Defaults to cwd.
+            write_yaml (bool): whether or not to write the
+                corrections to ion_corrections.yaml and the mu0
+                values to end_members.yaml.
+            oxide_corr (float): additional correction added for oxygen
+                to get water's formation energy right.
 
-            write_yaml (bool): whether or not to write the corrections
-                               to ion_corrections.yaml and the mu0
-                               values to end_members.yaml.
-        '''
+        Returns:
+            dict. elements as keys and their corrections as values,
+                in eV per atom, e.g. {'Mo': 0.135, 'S': -0.664}.
+        """
 
         mu0 = dict()
         corrections = dict()

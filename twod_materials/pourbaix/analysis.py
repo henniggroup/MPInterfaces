@@ -29,7 +29,6 @@ import twod_materials
 PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
 PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
 
-
 ION_DATA = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/ions.yaml'))
 END_MEMBERS = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/end_members.yaml'))
 ION_COLORS = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/ion_colors.yaml'))
@@ -37,7 +36,12 @@ ION_COLORS = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/ion_colors.yaml'))
 
 def contains_entry(entry_list, entry):
     """
-    Function for filtering duplicate entries.
+    Function for filtering duplicate entries in a list.
+
+    Args:
+        entry_list (list): List of Pymatgen ComputedEntry objects.
+        entry (ComputedEntry): the Pymatgen ComputedEntry object of
+            interest.
     """
     for ent in entry_list:
         if (ent.entry_id == entry.entry_id
@@ -50,13 +54,15 @@ def contains_entry(entry_list, entry):
 
 def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6, fmt='pdf'):
     """
-    args:
+    Creates a Pourbaix diagram for the material in the cwd.
 
-      metastability: desired metastable tolerance energy (meV/atom).
-                     <=200 is generally a sensible range to use.
-
-      ion_concentration: in mol/kg. Sensible values are between
-                         1e-8 and 1.
+    Args:
+        metastability (float): desired metastable tolerance energy
+            (meV/atom). <~50 is generally a sensible range to use.
+        ion_concentration (float): in mol/kg. Sensible values are
+            generally between 1e-8 and 1.
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
     # Create a ComputedEntry object for the 2D material.

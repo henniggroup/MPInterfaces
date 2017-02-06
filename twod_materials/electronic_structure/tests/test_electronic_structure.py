@@ -43,7 +43,7 @@ class StartupTest(unittest.TestCase):
 
 class AnalysisTest(unittest.TestCase):
 
-    def test_get_band_edges(self):
+    def test_get_band_edges_for_MoS2(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
         test_edges = get_band_edges()
@@ -53,6 +53,23 @@ class AnalysisTest(unittest.TestCase):
                          u'up_cbm': -4.5298536713404509,
                          u'up_vbm': -6.2530536713404512}
         self.assertEqual(test_edges, control_edges)
+
+    def test_get_fermi_velocities_for_MoS2_and_FeCl2(self):
+        os.chdir(ROOT)
+        os.chdir('MoS2')
+        test_velocities = get_fermi_velocities()
+        control_velocities = []
+        self.assertEqual(test_velocities, control_velocities)
+        # Now FeCl2, which does have metallic bands.
+        os.chdir('../FeCl2')
+        test_velocities = get_fermi_velocities()
+        control_velocities = [1211920261158078.5, 1213975748043003.5,
+                              3440582787448865.5, 1525493730297101.2,
+                              2953560839174396.5, 2212830757399824.8,
+                              2855773386125549.0, 1411440366276435.5,
+                              2970869118108168.0, 2018812598303622.8]
+        for i in range(len(test_velocities)):
+            self.assertEqual(test_velocities[i], control_velocities[i])
 
     """ These tests are annoying because they require LaTeX, which
         has to be installed on Travis and takes forever.

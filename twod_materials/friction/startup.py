@@ -14,28 +14,40 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
 
 import twod_materials
-from twod_materials.stability.startup import get_magmom_string
 
 
 PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
 PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-KERNEL_PATH = os.path.join(PACKAGE_PATH, 'vdw_kernel.bindat')
+PACKAGE_PATH = '/'.join(PACKAGE_PATH.split('/')[:-2])
 
-if '/ufrc/' in os.getcwd():
-    HIPERGATOR = 2
+try:
+    config_vars = loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))
+except:
+    print('WARNING: No config.yaml file was found. please configure the '\
+    'config.yaml and put it in your home directory.')
+    # Still set them for testing purposes.
+    config_vars = loadfn(os.path.join(PACKAGE_PATH, 'config.yaml'))
+VASP = config_vars['normal_binary']
+VASP_2D = config_vars['twod_binary']
+VDW_KERNEL = config_vars['vdw_kernel']
+if 'queue_system' in config_vars:
+    QUEUE = config_vars['queue_system'].lower()
+elif '/ufrc/' in os.getcwd():
+    QUEUE = 'slurm'
 elif '/scratch/' in os.getcwd():
-    HIPERGATOR = 1
-
-#VASP = loadfn(os.path.join(os.path.expanduser('~'),
-#                           'config.yaml'))['normal_binary']
+    QUEUE = 'pbs'
 
 
 def run_gamma_calculations(submit=True, step_size=0.5):
     """
     Setup a 2D grid of static energy calculations to plot the Gamma
-    surface between two layers of the 2D material.
+    surface between two layers of the 2D material. These calculations
+    are run and stored in subdirectories under 'friction/lateral'.
 
-    Step size is the distance between grid points in Angstroms.
+    Args:
+        submit (bool): Whether or not to submit the jobs.
+        step_size (float): the distance between grid points in
+            Angstroms.
     """
 
     if not os.path.isdir('friction'):
@@ -86,12 +98,14 @@ def run_gamma_calculations(submit=True, step_size=0.5):
             os.system('cp ../../../INCAR .')
             os.system('cp ../../../KPOINTS .')
             os.system('cp ../POSCAR .')
-            os.system('cp {} .'.format(KERNEL_PATH))
+            if VDW_KERNEL != '/path/to/vdw_kernel.bindat':
+                os.system('cp {} .'.format(VDW_KERNEL))
 
             utl.write_potcar()
             incar_dict = Incar.from_file('INCAR').as_dict()
             incar_dict.update({'NSW': 0, 'LAECHG': False, 'LCHARG': False,
-                               'LWAVE': False, 'MAGMOM': get_magmom_string()})
+                               'LWAVE': False, 'LVTOT': False,
+                               'MAGMOM': utl.get_magmom_string()})
             incar_dict.pop('NPAR', None)
             Incar.from_dict(incar_dict).write_file('INCAR')
 
@@ -109,12 +123,12 @@ def run_gamma_calculations(submit=True, step_size=0.5):
                     poscar.write(' '.join([str(i) for i in new_coords])
                                  + '\n')
 
-            if HIPERGATOR == 1:
-                utl.write_pbs_runjob(dir, 1, 4, '400mb', '1:00:00', VASP)
+            if QUEUE == 'pbs':
+                utl.write_pbs_runjob(dir, 1, 8, '1000mb', '2:00:00', VASP)
                 submission_command = 'qsub runjob'
 
-            elif HIPERGATOR == 2:
-                utl.write_slurm_runjob(dir, 4, '400mb', '1:00:00', VASP)
+            elif QUEUE == 'slurm':
+                utl.write_slurm_runjob(dir, 8, '1000mb', '2:00:00', VASP)
                 submission_command = 'sbatch runjob'
 
             if submit:
@@ -129,14 +143,25 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
                                   spacings=np.arange(1.5, 4.25, 0.25),
                                   submit=True):
     """
-    Set up and run static calculations of the basin directory
-    and saddle directory (specified as a tuple) at specified
-    interlayer spacings (by default, between 1.5 and 4 Angstroms)
-    to get f_N and f_F.
-    ex.
-        run_normal_force_calculations(('0x0', '3x6'))
-    or
-        run_normal_force_calculations(get_basin_and_peak_locations())
+    Set up and run static calculations of the basin directory and
+    saddle directory at specified interlayer spacings to get f_N and
+    f_F.
+
+    Args:
+        basin_and_saddle_dirs (tuple): Can be obtained by the
+            get_basin_and_peak_locations() function under
+            friction.analysis. For example,
+
+            run_normal_force_calculations(('0x0', '3x6'))
+
+            or
+
+            run_normal_force_calculations(get_basin_and_peak_locations())
+
+            will both work.
+        spacings (list): list of interlayer spacings (in Angstroms,
+            as floats) at which to run the calculations.
+        submit (bool): Whether or not to submit the jobs.
     """
 
     spacings = [str(spc) for spc in spacings]
@@ -157,11 +182,11 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
             os.chdir('{}/{}'.format(spacing, subdirectory))
             structure = Structure.from_file('POSCAR')
             n_sites = len(structure.sites)
-            top_layer = structure.sites[n_sites / 2:]
+            top_layer = structure.sites[int(n_sites / 2):]
             bottom_of_top_layer = min(
                 [z_coord for z_coord in [site.coords[2] for site in top_layer]])
 
-            remove_indices = range(n_sites / 2, n_sites)
+            remove_indices = range(int(n_sites / 2), n_sites)
 
             structure.remove_sites(remove_indices)
             max_height = max([site.coords[2] for site in structure.sites])
@@ -178,14 +203,14 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
 
             structure.to('POSCAR', 'POSCAR')
 
-            if HIPERGATOR == 1:
+            if QUEUE == 'pbs':
                 utl.write_pbs_runjob('{}_{}'.format(subdirectory, spacing), 1,
-                    4, '400mb', '1:00:00', VASP)
+                    8, '1000mb', '2:00:00', VASP)
                 submission_command = 'qsub runjob'
 
-            elif HIPERGATOR == 2:
-                utl.write_slurm_runjob('{}_{}'.format(subdirectory, spacing), 4,
-                    '400mb', '1:00:00', VASP)
+            elif QUEUE == 'slurm':
+                utl.write_slurm_runjob('{}_{}'.format(subdirectory, spacing), 8,
+                    '1000mb', '2:00:00', VASP)
                 submission_command = 'sbatch runjob'
 
             if submit:

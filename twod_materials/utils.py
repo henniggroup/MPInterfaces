@@ -466,9 +466,9 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
             of POTCAR files.
         types (list): list of same length as number of elements
             containing specifications for the kind of potential
-            desired for each element. If left as 'None', uses the
-            defaults in the 'potcar_symbols.yaml' file in the package
-            root.
+            desired for each element, e.g. ['Na_pv', 'O_s']. If
+            left as 'None', uses the defaults in the
+            'potcar_symbols.yaml' file in the package root.
     """
 
     if pot_path == '/path/to/POTCAR/files':
@@ -480,13 +480,19 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
         elements = lines[5].split()
         poscar.close()
 
+        ROOT_PATH = '/'.join(PACKAGE_PATH.split('/')[:-2])
         potcar_symbols = loadfn(
-            os.path.join(PACKAGE_PATH, 'twod_materials/potcar_symbols.yaml')
+            os.path.join(ROOT_PATH, 'twod_materials/potcar_symbols.yaml')
         )
 
         if types == 'None':
-            types = [potcar_symbols[elt].replace(elt, '').replace('_', '')
-                     for elt in elements]
+            sorted_types = [potcar_symbols[elt] for elt in elements]
+        else:
+            sorted_types = []
+            for elt in elements:
+                for t in types:
+                    if t.split('_')[0] == elt:
+                        sorted_types.append(t)
 
         potentials = []
         for i in range(len(elements)):
@@ -495,46 +501,9 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
             else:
                 elements[i] += '_{}'.format(types[i])
 
-            # If specified pseudopotential doesn't exist, try other variations.
-            if os.path.exists('{}/{}/POTCAR'.format(pot_path, elements[i])):
-                pass
-            else:
-                print('Potential file for {} does not exist. Looking for best'\
-                      'variation... '.format(elements[i]))
-                if types[i] == 'regular':
-                    length = 0
-                else:
-                    length = len(types[i]) + 1
-                    elements[i] = elements[i][:-length]
-                elements[i] += '_sv'
-                if os.path.exists('{}/{}/POTCAR'.format(
-                        pot_path, elements[i])):
-                    print('Found one! {} will work.'.format(elements[i]))
-                else:
-                    elements[i] = elements[i][:-3]
-                    elements[i] += '_pv'
-                    if os.path.exists('{}/{}/POTCAR'.format(
-                            pot_path, elements[i])):
-                        print('Found one! {} will work.'.format(elements[i]))
-                    else:
-                        elements[i] = elements[i][:-3]
-                        elements[i] += '_3'
-                        if os.path.exists('{}/{}/POTCAR'.format(
-                                pot_path, elements[i])):
-                            print('Found one! {} will work.'.format(elements[i]))
-                        else:
-                            elements[i] = elements[i][:-2]
-                            if os.path.exists('{}/{}/POTCAR'.format(
-                                    pot_path, elements[i])):
-                                print(('Found one! {} will '
-                                       'work.'.format(elements[i])))
-                            else:
-                                print('No pseudopotential found'
-                                       ' for {}'.format(elements[i]))
-
         # Create paths, open files, and write files to POTCAR for each potential.
-        for element in elements:
-            potentials.append('{}/{}/POTCAR'.format(pot_path, element))
+        for potential in sorted_types:
+            potentials.append('{}/{}/POTCAR'.format(pot_path, potential))
         outfile = open('POTCAR', 'w')
         for potential in potentials:
             infile = open(potential)

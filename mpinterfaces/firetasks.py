@@ -144,7 +144,7 @@ class MPINTDatabaseTask(FireTaskBase, FWSerializable):
 
     def run_task(self, fw_spec):
         """
-        go through the measurement job dirs and 
+        go through the measurement job dirs and
         put the measurement jobs in the database
         """
         drone = MPINTVaspToDbTaskDrone(**self.get("dbase_params", {}))

@@ -87,7 +87,7 @@ class MPINTComputedEntry(ComputedEntry):
 
 
 class MPINTVasprun(Vasprun):
-    """        
+    """
     Extend Vasprun to use custom ComputedEntry: MPINTComputedEntry
     """
 
@@ -114,14 +114,14 @@ class MPINTVasprun(Vasprun):
                 ComputedStructureEntries to be returned instead of
                 ComputedEntries.
             inc_incar_n_kpoints (bool): along with inc_structure set
-                to True if you want MPINTComputedEntries to be 
+                to True if you want MPINTComputedEntries to be
                 returned
-            parameters (list): Input parameters to include. 
-                It has to be one of the properties supported by the 
-                Vasprun object. If parameters == None, a default set 
-                of parameters that are necessary for typical 
+            parameters (list): Input parameters to include.
+                It has to be one of the properties supported by the
+                Vasprun object. If parameters == None, a default set
+                of parameters that are necessary for typical
                 post-processing will be set.
-            data (list): Output data to include. Has to be one of the 
+            data (list): Output data to include. Has to be one of the
                 properties supported by the Vasprun object.
 
         Returns:
@@ -153,8 +153,8 @@ class MPINTVasprun(Vasprun):
 
 class MPINTVaspDrone(VaspToComputedEntryDrone):
     """
-    extend VaspToComputedEntryDrone to use the custom 
-    Vasprun: MPINTVasprun    
+    extend VaspToComputedEntryDrone to use the custom
+    Vasprun: MPINTVasprun
     """
 
     def __init__(self, inc_structure=False, inc_incar_n_kpoints=False,

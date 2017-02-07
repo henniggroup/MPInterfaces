@@ -53,7 +53,7 @@ class MPINTVaspInputSet(DictSet):
         self.incar = Incar.from_dict(incar.as_dict())
         self.poscar = Poscar.from_dict(poscar.as_dict())
         self.potcar = Potcar.from_dict(potcar.as_dict())
-        if not type(kpoints) == str:
+        if not isinstance(kpoints, str):
             self.kpoints = Kpoints.from_dict(kpoints.as_dict())
         else:
             self.kpoints = kpoints
@@ -71,7 +71,7 @@ class MPINTVaspInputSet(DictSet):
         config_dict['POTCAR'] = self.potcar.as_dict()
         # dict(zip(self.potcar.as_dict()['symbols'],
         # self.potcar.as_dict()['symbols']))
-        if not type(kpoints) == str:
+        if not isinstance(kpoints, str):
             config_dict['KPOINTS'] = self.kpoints.as_dict()
         else:
             config_dict['KPOINTS'] = self.kpoints
@@ -96,7 +96,7 @@ class MPINTVaspInputSet(DictSet):
         self.logger.info('writing inputset to : ' + d)
         self.incar.write_file(os.path.join(d, 'INCAR'))
 
-        if not type(self.kpoints) == str:
+        if not isinstance(self.kpoints, str):
             # maybe temporary fix, pymatgen does not seem
             # to have a versatile kpoints object for writing a
             # HSE Kpoints file
@@ -119,7 +119,7 @@ class MPINTVaspInputSet(DictSet):
         if self.qadapter:
             qadapter = self.qadapter.to_dict()
 
-        if not type(self.kpoints) == str:
+        if not isinstance(self.kpoints, str):
             kpoints = self.kpoints.as_dict()
         else:
             kpoints = [self.kpoints]

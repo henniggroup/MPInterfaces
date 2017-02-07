@@ -166,7 +166,7 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
 
 def get_uri(dir_name):
     """
-    Customized version of the original pymatgen-db version. 
+    Customized version of the original pymatgen-db version.
     Customization required because same job folder on hipergator
     gets different uri for different login nodes .
 

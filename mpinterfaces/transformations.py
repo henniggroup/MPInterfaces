@@ -27,7 +27,7 @@ __author__ = "Kiran Mathew, Arunima Singh"
 
 def get_trans_matrices(n):
     """
-    yields a list of 2x2 transformation matrices for the 
+    yields a list of 2x2 transformation matrices for the
     given supercell
     n: size
     """
@@ -86,8 +86,8 @@ def get_reduced_uv(uv, tm):
 
 def reduced_supercell_vectors(ab, n):
     """
-    returns all possible reduced in-plane lattice vectors and 
-    transition matrices for the given starting unit cell lattice 
+    returns all possible reduced in-plane lattice vectors and
+    transition matrices for the given starting unit cell lattice
     vectors(ab) and the supercell size n
     """
     uv_list = []
@@ -107,7 +107,7 @@ def get_r_list(area1, area2, max_area, tol=0.02):
     r1/r2 = area2/area1 with the constraints:
     r1 <= Area_max/area1 and r2 <= Area_max/area2
     r1 and r2 corresponds to the supercell sizes of the 2 interfaces
-    that align them     
+    that align them
     """
     r_list = []
     rmax1 = int(max_area / area1)
@@ -294,7 +294,7 @@ def generate_all_configs(mat2d, substrate,
         nlayers_substrate: number of substrate layers
         nlayers_2d: number of 2d material layers
         seperation: seperation between the substrate and the 2d
-                    material        
+                    material
     Returns:
         None
 

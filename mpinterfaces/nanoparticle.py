@@ -153,7 +153,7 @@ if __name__ == '__main__':
     """
     Wulff construction using the ASE package
     works only for cubic systems and doesn't support multiatom basis
-    
+
     from ase.cluster import wulff_construction
     from pymatgen.io.aseio import AseAtomsAdaptor
 
@@ -169,5 +169,5 @@ if __name__ == '__main__':
     #convert to pymatgen structure
     pgen_structure = AseAtomsAdaptor().get_structure(atoms)
     pgen_structure.to(fmt='poscar', filename='POSCAR_pt_nano.vasp')
-    
+
     """

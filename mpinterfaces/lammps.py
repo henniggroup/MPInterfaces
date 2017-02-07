@@ -454,8 +454,8 @@ class CalibrateLammps(Calibrate):
         """
         setup workflow for the given turn_knobs i.e create jobs
         for each knob settings
-        keys with special support(everything else handled by 
-        genericparam job setup): 
+        keys with special support(everything else handled by
+        genericparam job setup):
              STRUCTURES: list of pymatgen structure objects
              PARAMS: list of lammps parameter dictionaries
              PAIR_COEFF: list of pair coefficient files

@@ -361,11 +361,11 @@ class Calibrate(MSONable):
         Returns:
             a string filename for the value
         """
-        if type(val) == float:
+        if isinstance(val, float):
             return re.sub('\.', '_', str(val))
-        elif type(val) == list:
+        elif isinstance(val, list):
             return self.kpoint_to_name(val, 'M')
-        elif type(val) == dict:
+        elif isinstance(val, dict):
             return self.potcar_to_name(mapping=val)
         elif isinstance(val, Poscar):
             name = str(val.structure.composition.reduced_formula) \
@@ -688,7 +688,7 @@ class Calibrate(MSONable):
                                 else:
                                     incar_dict = incar_dict
 
-                        if type(self.reuse) == list:
+                        if isinstance(self.reuse, list):
                             reuse_paths = [
                                 pos + os.sep + r for r in self.reuse]
                             self.reuse_paths = reuse_paths
@@ -1119,11 +1119,11 @@ class CalibrateInterface(CalibrateSlab):
         add params that you want to vary
         """
         structure = self.input_structure.copy()
-        iface = Interface(structure,
-                          hkl=self.system['hkl'],
-                          ligand=Ligand.from_dict(self.system['ligand']),
-                          from_ase=self.from_ase)
-        iface.sort()
+        iface = sorted(Interface(structure,
+                                 hkl=self.system['hkl'],
+                                 ligand=Ligand.from_dict(
+                                     self.system['ligand']),
+                                 from_ase=self.from_ase))
         sd = self.set_sd_flags(iface, n_layers=2)
         # if there are other paramters that are being varied
         # change the comment accordingly

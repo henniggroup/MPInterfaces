@@ -22,7 +22,7 @@ import sys
 import time
 import collections
 import shutil
-from pymatgen.io.vasp.iputs import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from mpinterfaces import get_struct_from_mp
@@ -31,12 +31,54 @@ from twod_materials.utils import write_potcar # test of this is redundant or the
 # from twod_materials.stability.startup import relax
 from twod_materials.stability.analysis import get_competing_phases
 
-import numpy
+
+from pymatgen.phasediagram.analyzer import PDAnalyzer
+from pymatgen.phasediagram.maker import PhaseDiagram
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.matproj.rest import MPRester as MPR
+
+
+
+
+
+import numpy as np
 
 #home = os.path.expanduser('~')
+def get_competing_phases_new(structure):
+    """
+    Collect the species to which the 2D materials might decompose to.
+    Since a lot of 2D materials with similar compositions will have the
+    same competing phases, duplicates aren't counted.
+    """
 
-def makePoscars(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_path):
-    nameOfErrorFile = 'errors_bulk')
+    total_competing_phases = []
+    composition = structure.composition
+    energy = 100
+    my_entry = ComputedEntry(composition, energy)  # 2D material
+    entries = MPR('MTKLF7R4cAxDivhG').get_entries_in_chemsys([elt.symbol for elt in composition])
+
+    entries.append(my_entry)  # 2D material
+
+    pda = PDAnalyzer(PhaseDiagram(entries))
+    decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
+    competing_phases = [
+        (entry.composition.reduced_formula,
+         entry.entry_id) for entry in decomp[0]
+        ]
+
+    # Keep a running list of all unique competing phases, since in
+    # high throughput 2D searches there is usually some overlap in
+    # competing phases for different materials.
+    for specie in competing_phases:
+        if specie not in total_competing_phases:
+            total_competing_phases.append(specie)
+
+    return total_competing_phases
+
+
+def makePoscars(M_elements, X_elements, monolayer_path, bulk_path, getCompeting = True):
     """
     function that writes out poscars of 
     chem-substituted M-X monolayers
@@ -65,14 +107,19 @@ def makePoscars(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_p
     competitors = [] 
     monos = {}
     bulks = {}
+
+    results = {}
+
     # making direcotries of types of chem sub directories 
-    os.mkdir('hull')
-    os.mkdir('onRatio')
+    results['onRatio'] = []
+    results['hull'] = []
     # read in monolayer and bulk motifs
     for mon in monosDir:
-        monos[mon] = Structure.from_file(mon)
+        monos[mon] = Structure.from_file(monolayer_path+'/'+mon)
+        results[mon] = []
     for bulk in bulksDir:
-        bulks[bulk] = Structure.from_file(mon)
+        bulks[bulk] = Structure.from_file(bulk_path+'/'+mon)
+        results[bulk+'_bulk'] = []
     # perform the chem sub based on the input X and M lists 
     for base_name, mono in monos.items():
         # os.mkdir(monolayer)
@@ -81,91 +128,68 @@ def makePoscars(M_elements, X_elements, ratio, mag=False, monolayer_path, bulk_p
             for X in X_elements:
                 coreElements = [M,X]
                 # naming the files .. can be set as poscar.comment
-                sub_spec = np.unique(struct.species)
-
-                if len(unique_spec) != len(coreElements):
+                sub_spec = np.unique(mono.species)
+                if len(sub_spec) != len(coreElements):
                     print (base_name+' DOES NOT HAVE '+len(coreElements)+' ELEMENTS. ENDING LOOP')
                     break
 
                 else:
-                    for el in sub_spec:
-                      if ratio[0] == 1 and ratio[1] == 1:
-                        twod.append(Poscar(structure= mono.replace_species(\
-                            {Element(element):\
-                            Element(coreElements[unique.index(element)])}),
-                            comment = base_name+M+str(ratio[0])+X+str(ratio[1])))
+                    substitutionDict = {}
+                    counter = 0
+                    for element in sub_spec:
+                        substitutionDict[element] = coreElements[counter]
+                        counter +=1
+                    substitutedStruct = mono
+                    substitutedStruct.replace_species(substitutionDict)                    
+                    results[base_name].append(substitutedStruct)
                
                 
-                competing = get_competing_phases() # doesn't need an argument to get
-                                                   # competing phases for ? 
 
-                if len(competing) == 1:
-                    os.chdir('onRatio')
-                    newStruct = get_struct_from_mp(competing[0][[1]) # assume the  
-                                                                     # lowest hull distance 
-                    os.mkdir(competing[0][0])    
-                    os.chdir(competing[0][0])
-                    newStruct.to('POSCAR','POSCAR')  # an output on Ratio
-                                                     # chem sub 
-               ## how about more than 2 ? this would just be the case in ternaries, etc.
-               elif len(competing) == 2:
-                    os.chdir('hull')
-                    newStruct1 = get_struct_from_mp(competing[0][[1])
-                    os.mkdir(competing[0][0])
-                    os.chdir(competing[0][0])
-                    newStruct1.to('POSCAR','POSCAR')
-                    write_potcar(pathToPOTCARS)
-                    relax(submit=False)
-                    os.chdir('../')
-                    newStruct2 = get_struct_from_mp(competing[1][[1])
-                    os.mkdir(competing[1][0])
-                    os.chdir(competing[1][0])
-                    newStruct2.to('POSCAR','POSCAR')
-                    # write_potcar(pathToPOTCAR)
-                    # relax(submit=False)
-                    os.chdir('../')
-                os.chdir('../')
+                if getCompeting:
+                    competing = get_competing_phases_new(mono) # argument taken is the POSCAR in the current directory.
+                                                       # Modify get_competing_phases code to allow input structure 
+                                                       # object?
+                    if len(competing) == 1:
+                        # ONRATIO
+                        newStruct = get_struct_from_mp(competing[0][1]) # assume the  
+                                                                         # lowest hull distance 
+                        
+                        results['onRatio'].append(newStruct)
+                                                         # chem sub 
+                   ## how about more than 2 ? this would just be the case in ternaries, etc.
+                    elif len(competing) == 2:
+                        # HULL 
+                        newStruct1 = get_struct_from_mp(competing[0][1])
+                        newStruct2 = get_struct_from_mp(competing[1][1])
+                        results['hull'].append(newStruct1)
+                        results['hull'].append(newStruct2)
+                        # write_potcar(pathToPOTCAR)
+                        # relax(submit=False)
     # same for bulks 
-    for bulk in bulksDir:
-        os.mkdir(bulk+'_bulk')
-        os.chdir(bulk)
+    for base_name, bulk in bulks.items():
         for M in M_elements:
             for X in X_elements:
                 coreElements = [M,X]
-                if ratio[0] == 1 and ratio[1] == 1:
-                    os.mkdir(M+X)
-                    os.chdir(M+X)
-                elif ratio[0] == 1:
-                    os.mkdir(M+X+str(ratio[1]))
-                    os.chdir(M+X+str(ratio[1]))
-                elif ratio[1] === 1:
-                    os.mkdir(M+str(ratio[0])+X)
-                    os.chdir(M+str(ratio[0])+X)
-                else:
-                    os.mkdir(M+str(ratio[0])+X+str(ratio[1]))
-                    os.chdir(M+str(ratio[0])+X+str(ratio[1]))
-                struct = monos[monolayer]
-                spec = struct.species
-                unique = []
-                for specie in spec:
-                    if specie not in unique:
-                        unique.append(specie)
-                if len(unique) != len(coreElements):
-                    print monolayer+'_bulk DOES NOT HAVE '+len(coreElements)+' ELEMENTS. ENDING LOOP'
+                sub_spec = np.unique(bulk.species)
+                if len(sub_spec) != len(coreElements):
+                    print (base_name+' DOES NOT HAVE '+len(coreElements)+' ELEMENTS. ENDING LOOP')
                     break
-                for element in unique:
-                    struct.replace({element:coreElements[unique.index(element)]})
-                struct.to('POSCAR','POSCAR')
-                # write_potcar(pathToPOTCARS)
-                # relax(submit=False)
-                os.chdir('../../')
+                else:
+                    substitutionDict = {}
+                    counter = 0
+                    for element in sub_spec:
+                        substitutionDict[element] = coreElements[counter]
+                        counter+=1
+                    substitutedStruct = bulk
+                    substitutedStruct.replace_species(substitutionDict)
+                    results[base_name+'_bulk'].append(substitutedStruct)
 
 
+    return results
 if __name__=='__main__':
     Ms = ['Ir']
     Xs = ['I','Cl']
-    ratio = [1,2]
-    makePoscars(Ms, Xs, ratio, api_key)
+    print makePoscars(Ms, Xs, 'monos','bulks')
 
 
 

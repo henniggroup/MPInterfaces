@@ -209,7 +209,7 @@ def get_matching_lattices(iface1, iface2, max_area=100,
                     mod_angle = max_angle % min_angle
                     is_angle_factor = False
                     if abs(mod_angle) < 0.001 or abs(
-                                    mod_angle - min_angle) < 0.001:
+                            mod_angle - min_angle) < 0.001:
                         is_angle_factor = True
                     if angle_mismatch < max_angle_diff or is_angle_factor:
                         if angle_mismatch > max_angle_diff:
@@ -262,7 +262,7 @@ def get_uniq_layercoords(struct, nlayers, top=True):
     if not top:
         z_nthlayer = z[zuind[nlayers - 1]]
         zfilter = (z <= z_nthlayer)
-    # site indices in the layers        
+    # site indices in the layers
     indices_layers = np.argwhere(zfilter).ravel()
     sa = SpacegroupAnalyzer(struct)
     symm_data = sa.get_symmetry_dataset()
@@ -297,7 +297,7 @@ def generate_all_configs(mat2d, substrate,
                     material        
     Returns:
         None
-        
+
     TODO: give additional random placement of 2D material on substrate
     """
     # immediate exit if no structures

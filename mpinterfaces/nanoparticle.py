@@ -89,8 +89,8 @@ class Nanoparticle(Molecule):
         normals = []
         for hkl in self.all_equiv_millers:
             normal = self.recp_lattice.matrix[0, :] * hkl[0] + \
-                     self.recp_lattice.matrix[1, :] * hkl[1] + \
-                     self.recp_lattice.matrix[2, :] * hkl[2]
+                self.recp_lattice.matrix[1, :] * hkl[1] + \
+                self.recp_lattice.matrix[2, :] * hkl[2]
             normals.append(normal / np.linalg.norm(normal))
         return normals
 

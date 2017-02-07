@@ -34,9 +34,9 @@ logger.addHandler(sh)
 
 class MPINTComputedEntry(ComputedEntry):
     """
-        
+
     extend ComputedEntry to include structure as well as kpoints
-    
+
     """
 
     def __init__(self, structure, kpoints, incar, energy, correction=0.0,

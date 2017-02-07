@@ -19,19 +19,20 @@ from monty.serialization import loadfn
 PACKAGE_PATH = mpinterfaces.__file__.replace('__init__.pyc', '')
 PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
 
-#set environ variables for MAPI_KEY and VASP_PSP_DIR
+# set environ variables for MAPI_KEY and VASP_PSP_DIR
 
 try:
-    MY_CONFIG = loadfn(PACKAGE_PATH+'config_mine.yaml')
+    MY_CONFIG = loadfn(PACKAGE_PATH + 'config_mine.yaml')
     try:
-       os.environ['VASP_PSP_DIR'] = MY_CONFIG['potentials']
-       os.environ['MAPI_KEY'] = MY_CONFIG['mp_api']
+        os.environ['VASP_PSP_DIR'] = MY_CONFIG['potentials']
+        os.environ['MAPI_KEY'] = MY_CONFIG['mp_api']
     except:
         raise ValueError('config_mine.yaml file not configured .. please'
                          ' set variables potentials and mp_api and retry')
 
 except IOError:
-        raise ValueError('No config_mine.yaml file found. Please check')
+    raise ValueError('No config_mine.yaml file found. Please check')
+
 
 def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
     """

@@ -243,7 +243,7 @@ class Interface(Slab):
         # that the surface normal points outwards from the surface on
         #  to which we want to adsorb the ligand
         vec_vac = self.cart_coords[self.top_atoms[0]] - \
-                  self.cart_coords[self.bottom_atoms[0]]
+            self.cart_coords[self.bottom_atoms[0]]
         # mov_vec = the vector along which the ligand will be displaced
         mov_vec = normal * self.displacement
         angle = get_angle(vec_vac, self.normal)
@@ -274,7 +274,7 @@ class Interface(Slab):
             # vector pointing from the adatom_on_lig to the
             # ligand center of mass
             vec_adatom_cm = self.ligand.center_of_mass - \
-                            self.ligand[adatom_index].coords
+                self.ligand[adatom_index].coords
             # rotate the ligand with respect to a vector that is
             # normal to the vec_adatom_cm and the normal to the surface
             # so that the ligand center of mass is aligned along the
@@ -348,7 +348,7 @@ class Interface(Slab):
             self.n_ligands = nlig
             logger.info(
                 'using {0} ligands on a supercell with in-plane lattice vectors\n{1}'
-                    .format(self.n_ligands, uv))
+                .format(self.n_ligands, uv))
             new_latt_matrix = [uv[0][:],
                                uv[1][:],
                                self.lattice.matrix[2, :]]
@@ -466,12 +466,12 @@ class Ligand(Molecule):
             temp = []
             for i in range(nsites):
                 if i not in temp:
-                    [temp.append([i, j]) for j in range(nsites) \
+                    [temp.append([i, j]) for j in range(nsites)
                      if np.abs(self.max_dist - self.d_mat[i, j]) < 1e-6]
             self.vec_indices.append(temp[0])
         self.mol_vecs = []
         for mol, vind in enumerate(self.vec_indices):
-            self.mol_vecs.append(self.mols[mol].cart_coords[vind[1]] - \
+            self.mol_vecs.append(self.mols[mol].cart_coords[vind[1]] -
                                  self.mols[mol].cart_coords[vind[0]])
 
     def position_mols(self):
@@ -513,9 +513,9 @@ class Ligand(Molecule):
                     # if the vectors are parllel,
                     # then perp_vec = (-y, x, 0)
                     if np.abs(np.dot(self.mol_vecs[int(ind_key)],
-                                     self.mol_vecs[mol]) - \
-                                              np.linalg.norm(self.mol_vecs[
-                                                                 mol]) ** 2) < 1e-6:
+                                     self.mol_vecs[mol]) -
+                              np.linalg.norm(self.mol_vecs[
+                                  mol]) ** 2) < 1e-6:
                         perp_vec = np.array([-self.mol_vecs[mol][1],
                                              self.mol_vecs[mol][0], 0])
                         org_pt = self.vec_indices[mol][0]
@@ -553,7 +553,7 @@ class Ligand(Molecule):
                         if len(non_neg) == 1 and len(link[str(mol)]) == 1:
                             for j, k in enumerate(conn):
                                 coord = self.mols[j].cart_coords[non_neg[0]] + \
-                                        np.random.rand(1, 3) + 1.0
+                                    np.random.rand(1, 3) + 1.0
                             displacement = coord - self.mols[mol].cart_coords[
                                 ind]
                         else:
@@ -614,8 +614,8 @@ if __name__ == '__main__':
     PACKAGE_PATH = mpinterfaces.__file__.replace('__init__.pyc', '')
     PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
 
-    mol0 = Molecule.from_file(PACKAGE_PATH+"test_files/acetic_acid.xyz")
-    mol1 = Molecule.from_file(PACKAGE_PATH+"test_files/acetic_acid.xyz")
+    mol0 = Molecule.from_file(PACKAGE_PATH + "test_files/acetic_acid.xyz")
+    mol1 = Molecule.from_file(PACKAGE_PATH + "test_files/acetic_acid.xyz")
     mol2 = Molecule(["Pb"], [[0, 0, 0]])
     mols = [mol0, mol1, mol2]
     # center of mass distances in angstrom
@@ -666,7 +666,7 @@ if __name__ == '__main__':
     boxed_lead_acetate.to(fmt="poscar",
                           filename="POSCAR_diacetate_boxed.vasp")
     # bulk PbS
-    strt_pbs = Structure.from_file(PACKAGE_PATH+"test_files/POSCAR_PbS")
+    strt_pbs = Structure.from_file(PACKAGE_PATH + "test_files/POSCAR_PbS")
 
     # intital supercell, this wont be the final supercell if surface
     # coverage is specified

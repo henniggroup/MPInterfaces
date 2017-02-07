@@ -12,7 +12,8 @@ defines the inputset and the job
 """
 
 import sys
-import os, shutil
+import os
+import shutil
 import subprocess
 import logging
 
@@ -53,10 +54,10 @@ class MPINTVaspInputSet(DictSet):
         self.poscar = Poscar.from_dict(poscar.as_dict())
         self.potcar = Potcar.from_dict(potcar.as_dict())
         if not type(kpoints) == str:
-           self.kpoints = Kpoints.from_dict(kpoints.as_dict())
+            self.kpoints = Kpoints.from_dict(kpoints.as_dict())
         else:
-           self.kpoints = kpoints
-        self.reuse_path = reuse_path # complete reuse paths
+            self.kpoints = kpoints
+        self.reuse_path = reuse_path  # complete reuse paths
         self.extra = kwargs
         if qadapter is not None:
             self.qadapter = qadapter.from_dict(qadapter.to_dict())
@@ -76,7 +77,7 @@ class MPINTVaspInputSet(DictSet):
             config_dict['KPOINTS'] = self.kpoints
         # self.user_incar_settings = self.incar.as_dict()
         DictSet.__init__(self, name, config_dict,
-                                  ediff_per_atom=False, **kwargs)
+                         ediff_per_atom=False, **kwargs)
         if vis_logger:
             self.logger = vis_logger
         else:
@@ -96,14 +97,14 @@ class MPINTVaspInputSet(DictSet):
         self.incar.write_file(os.path.join(d, 'INCAR'))
 
         if not type(self.kpoints) == str:
-            ## maybe temporary fix, pymatgen does not seem
-            ## to have a versatile kpoints object for writing a
-            ## HSE Kpoints file
+            # maybe temporary fix, pymatgen does not seem
+            # to have a versatile kpoints object for writing a
+            # HSE Kpoints file
             self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
         else:
             with open(os.path.join(d, 'KPOINTS'), 'w') as kpts:
                 for line in self.kpoints:
-                   kpts.write(line)
+                    kpts.write(line)
 
         self.potcar.write_file(os.path.join(d, 'POTCAR'))
         self.poscar.write_file(os.path.join(d, 'POSCAR'),
@@ -119,9 +120,9 @@ class MPINTVaspInputSet(DictSet):
             qadapter = self.qadapter.to_dict()
 
         if not type(self.kpoints) == str:
-           kpoints = self.kpoints.as_dict()
+            kpoints = self.kpoints.as_dict()
         else:
-           kpoints = [self.kpoints]
+            kpoints = [self.kpoints]
 
         d = dict(name=self.name, incar=self.incar.as_dict(),
                  poscar=self.poscar.as_dict(),

@@ -57,7 +57,7 @@ def get_competing_phases_new(structure):
     composition = structure.composition
     energy = 100
     my_entry = ComputedEntry(composition, energy)  # 2D material
-    entries = MPR('MTKLF7R4cAxDivhG').get_entries_in_chemsys([elt.symbol for elt in composition])
+    entries = MPR.get_entries_in_chemsys([elt.symbol for elt in composition])
 
     entries.append(my_entry)  # 2D material
 

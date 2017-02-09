@@ -240,24 +240,8 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
     job_cmd = None
     hostname = socket.gethostname()
 
-    ## old hipergator which can be generalized into a pbs qdapter for fireworks
-
-#    if 'ufhpc_pbs' in hostname:
-#        if job_bin is None:
-#            job_bin = '/home/km468/Software/VASP/vasp.5.3.5/vasp'
-#        else:
-#            job_bin = job_bin
-#        d = {'type': 'PBS',
-#             'params':
-#                 {
-#                     'nnodes': str(nnodes),
-#                     'ppnode': str(int(nprocs / nnodes)),
-#                     'walltime': walltime,
-#                     'job_name': 'vasp_job',
-#                     'email': 'mpinterfaces@gmail.com',
-#                     'notification_options': 'ae',
-#                     'pre_rocket': '#PBS -l pmem=' + str(mem) + 'mb',
-#                     'rocket_launch': 'mpirun ' + job_bin
+    # FIXME: Using hostnames to determine behavior is terrible practice, as is
+    # hard-coding file directories.
 
     # hipergator: currently hipergator2
     if 'ufhpc' in hostname:

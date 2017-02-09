@@ -28,8 +28,8 @@ from pymatgen.util.coord_utils import get_angle
 from mpinterfaces.transformations import reduced_supercell_vectors
 from mpinterfaces.utils import get_ase_slab
 
-from default_logger import get_default_logger
-logger = get_default_logger(__name__); 
+from mpinterfaces.default_logger import get_default_logger
+logger = get_default_logger(__name__)
 
 class Interface(Slab):
     """

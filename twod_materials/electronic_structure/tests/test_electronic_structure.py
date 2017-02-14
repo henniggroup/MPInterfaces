@@ -52,7 +52,8 @@ class AnalysisTest(unittest.TestCase):
                          u'efermi': -6.2162497913404513,
                          u'up_cbm': -4.5298536713404509,
                          u'up_vbm': -6.2530536713404512}
-        self.assertEqual(test_edges, control_edges)
+        for edge in test_edges:
+            self.assertAlmostEqual(test_edges[edge], control_edges[edge])
 
     def test_get_fermi_velocities_for_MoS2_and_FeCl2(self):
         os.chdir(ROOT)

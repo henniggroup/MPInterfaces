@@ -9,7 +9,6 @@ from pymatgen.phasediagram.maker import PhaseDiagram
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.matproj.rest import MPRester
 
 from monty.serialization import loadfn
 
@@ -21,11 +20,7 @@ import matplotlib.pyplot as plt
 
 from mpinterfaces import PACKAGE_PATH, MY_CONFIG
 
-
-if 'MP_API' in os.environ:
-    MPR = MPRester(os.environ['MP_API'])
-else:
-    MPR = MPRester(MY_CONFIG['mp_api'])
+from twod_materials import MPR
 
 
 def get_competing_phases():

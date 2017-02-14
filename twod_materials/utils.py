@@ -20,6 +20,7 @@ from mpinterfaces import PACKAGE_PATH, MY_CONFIG
 
 import itertools as it
 
+from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, QUEUE
 
 
 if 'MP_API' in os.environ:
@@ -501,7 +502,8 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
             else:
                 elements[i] += '_{}'.format(types[i])
 
-        # Create paths, open files, and write files to POTCAR for each potential.
+        # Create paths, open files, and write files to
+        # POTCAR for each potential.
         for potential in sorted_types:
             potentials.append('{}/{}/POTCAR'.format(pot_path, potential))
         outfile = open('POTCAR', 'w')

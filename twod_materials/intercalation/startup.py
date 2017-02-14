@@ -14,18 +14,10 @@ from monty.dev import requires
 
 from monty.serialization import loadfn
 
-
 from mpinterfaces import MY_CONFIG
 
+from twod_materials import QUEUE
 
-if 'queue_system' in MY_CONFIG:
-    QUEUE = MY_CONFIG['queue_system'].lower()
-elif '/ufrc/' in os.getcwd():
-    QUEUE = 'slurm'
-elif '/scratch/' in os.getcwd():
-    QUEUE = 'pbs'
-else:
-    QUEUE = 'N/A'
 
 try:
     import zeo

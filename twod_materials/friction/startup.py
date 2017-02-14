@@ -15,21 +15,8 @@ from pymatgen.io.vasp.inputs import Incar
 
 from mpinterfaces import PACKAGE_PATH, MY_CONFIG
 
-
-VASP = MY_CONFIG['normal_binary']
-VASP_2D = MY_CONFIG['twod_binary']
-POTENTIAL_PATH = MY_CONFIG['potentials']
-USR = MY_CONFIG['username']
-VDW_KERNEL = MY_CONFIG['vdw_kernel']
-
-if 'queue_system' in MY_CONFIG:
-    QUEUE = MY_CONFIG['queue_system'].lower()
-elif '/ufrc/' in os.getcwd():
-    QUEUE = 'slurm'
-elif '/scratch/' in os.getcwd():
-    QUEUE = 'pbs'
-else:
-    QUEUE = 'N/A'
+from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, VDW_KERNEL,\
+    QUEUE
 
 
 def run_gamma_calculations(submit=True, step_size=0.5):

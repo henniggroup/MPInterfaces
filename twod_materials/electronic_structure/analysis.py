@@ -22,7 +22,12 @@ from twod_materials.utils import is_converged
 def get_band_edges():
     """
     Calculate the band edge locations relative to the vacuum level
-    for a semiconductor. If spin-polarized, returns all 4 band edges.
+    for a semiconductor.
+
+    Returns:
+        edges (dict):
+            {'up_cbm': , 'up_vbm': , 'dn_cbm': , 'dn_vbm': ,
+             'efermi'}
     """
 
     # Vacuum level energy from LOCPOT.
@@ -30,26 +35,41 @@ def get_band_edges():
     evac = max(locpot.get_average_along_axis(2))
 
     vasprun = Vasprun('vasprun.xml')
+    bs = vasprun.get_band_structure()
+    eigenvals = vasprun.eigenvalues
     efermi = vasprun.efermi - evac
 
-    if vasprun.get_band_structure().is_spin_polarized:
-        eigenvals = {Spin.up: [], Spin.down: []}
-        for band in vasprun.eigenvalues:
-            for eigenvalue in vasprun.eigenvalues[band]:
-                eigenvals[band[0]].append(eigenvalue)
-
-        up_cbm = min([e[0] for e in eigenvals[Spin.up] if not e[1]]) - evac
-        up_vbm = max([e[0] for e in eigenvals[Spin.up] if e[1]]) - evac
-        dn_cbm = min([e[0] for e in eigenvals[Spin.down] if not e[1]]) - evac
-        dn_vbm = max([e[0] for e in eigenvals[Spin.down] if e[1]]) - evac
+    if bs.is_spin_polarized:
+        print(eigenvals[Spin.up])
+        print([e[0]-evac for e in eigenvals[Spin.up][0]])
+        up_cbm = min(
+            [min(
+                [e[0] for e in eigenvals[Spin.up][i] if not e[1]]
+            ) for i in range(len(eigenvals[Spin.up]))]
+        ) - evac
+        up_vbm = max(
+            [max(
+                [e[0] for e in eigenvals[Spin.up][i] if e[1]]
+            ) for i in range(len(eigenvals[Spin.up]))]
+        ) - evac
+        dn_cbm = min(
+            [min(
+                [e[0] for e in eigenvals[Spin.down][i] if not e[1]]
+            ) for i in range(len(eigenvals[Spin.down]))]
+        ) - evac
+        dn_vbm = max(
+            [max(
+                [e[0] for e in eigenvals[Spin.down][i] if e[1]]
+            ) for i in range(len(eigenvals[Spin.down]))]
+        ) - evac
         edges = {'up_cbm': up_cbm, 'up_vbm': up_vbm, 'dn_cbm': dn_cbm,
                  'dn_vbm': dn_vbm, 'efermi': efermi}
 
     else:
-        bs = vasprun.get_band_structure()
         cbm = bs.get_cbm()['energy'] - evac
         vbm = bs.get_vbm()['energy'] - evac
-        edges = {'cbm': cbm, 'vbm': vbm, 'efermi': efermi}
+        edges = {'up_cbm': cbm, 'up_vbm': vbm, 'dn_cbm': cbm, 'dn_vbm': vbm,
+                 'efermi': efermi}
 
     return edges
 

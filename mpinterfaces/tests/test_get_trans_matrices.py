@@ -5,10 +5,12 @@ from __future__ import unicode_literals
 import unittest
 
 from mpinterfaces.transformations \
-import get_trans_matrices
+    import get_trans_matrices
 
 # We're going to turn the generator into a list,
 # because it really should be.
+
+
 def list_trans(number):
     """ Turn the get_trans_matrices of number into a list, with each pair
         of numbers being a single entry on that list. The is preceding a
@@ -24,16 +26,21 @@ def list_trans(number):
 
     return generated_list_2
 
+
 class TestGetTransMatrices(unittest.TestCase):
     """ Test get_trans_matrices through list_trans """
+
     def test_0(self):
         self.assertEqual([], list_trans(0))
+
     def test_1(self):
         self.assertEqual([[[1, 0], [0, 1]]], list_trans(1))
+
     def test_2(self):
         self.assertEqual([[[1, 0], [0, 2]],
                           [[1, 1], [0, 2]],
                           [[2, 0], [0, 1]]], list_trans(2))
+
     def test_3(self):
         self.assertEqual([[[1, 0], [0, 3]],
                           [[1, 1], [0, 3]],
@@ -54,6 +61,7 @@ class TestGetTransMatrices(unittest.TestCase):
                           [[3, 1], [0, 3]],
                           [[3, 2], [0, 3]],
                           [[9, 0], [0, 1]]], list_trans(9))
+
     def test_10(self):
         self.assertEqual([[[1, 0], [0, 10]],
                           [[1, 1], [0, 10]],

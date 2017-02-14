@@ -5,9 +5,11 @@ from __future__ import unicode_literals
 import unittest
 
 from mpinterfaces.transformations \
-import get_uv
+    import get_uv
+
 
 class TestGetUV(unittest.TestCase):
+
     def test_uv_1_1(self):
         self.assertEqual([1, 1], get_uv([1, 1], [[1, 0], [0, 1]]))
 

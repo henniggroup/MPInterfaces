@@ -54,7 +54,7 @@ from mpinterfaces.interface import Interface, Ligand
 from mpinterfaces.utils import get_ase_slab, get_magmom_string, get_magmom_afm, get_magmom_mae
 
 from twod_materials.electronic_structure.startup import get_2D_hse_kpoints,\
-                               get_2D_incar_hse_prep, get_2D_incar_hse
+    get_2D_incar_hse_prep, get_2D_incar_hse
 
 
 logger = logging.getLogger(__name__)
@@ -64,10 +64,11 @@ sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
-## Error exception catching function for debugging
-## can be a very useful tool for a developer
-## move to utils and activate when debug mode is on
+# Error exception catching function for debugging
+# can be a very useful tool for a developer
+# move to utils and activate when debug mode is on
 import linecache
+
 
 def PrintException():
     exc_type, exc_obj, tb = sys.exc_info()
@@ -76,8 +77,8 @@ def PrintException():
     filename = f.f_code.co_filename
     linecache.checkcache(filename)
     line = linecache.getline(filename, lineno, f.f_globals)
-    print ('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(\
-            filename, lineno, line.strip(), exc_obj))
+    print ('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(
+        filename, lineno, line.strip(), exc_obj))
 
 
 class Calibrate(MSONable):
@@ -94,8 +95,8 @@ class Calibrate(MSONable):
                  parent_job_dir='.', job_dir='Job',
                  qadapter=None, job_cmd='qsub', wait=True,
                  mappings_override=None, functional="PBE",
-                 database=None, magnetism=None, mag_init=None,reuse=None,
-                 reuse_override = None, reuse_incar = None, solvation=None,
+                 database=None, magnetism=None, mag_init=None, reuse=None,
+                 reuse_override=None, reuse_incar=None, solvation=None,
                  turn_knobs=OrderedDict([('ENCUT', []),
                                          ('KPOINTS', [])]),
                  checkpoint_file=None, cal_logger=None):
@@ -217,7 +218,7 @@ class Calibrate(MSONable):
         self.reuse = reuse
         self.reuse_incar = reuse_incar
         self.reuse_override = reuse_override
-        self.reuse_paths = None # list object communicated to instrument
+        self.reuse_paths = None  # list object communicated to instrument
         self.functional = functional
         self.checkpoint_file = checkpoint_file
         if cal_logger:
@@ -297,9 +298,10 @@ class Calibrate(MSONable):
 
         """
         #### Testing ####
-        ## Orig
+        # Orig
         # job_dir = self.job_dir + os.sep + self.key_to_name(keys[i])
-        job_dir = '__'.join([self.job_dir.split('/')[-1], self.key_to_name(keys[i])])
+        job_dir = '__'.join(
+            [self.job_dir.split('/')[-1], self.key_to_name(keys[i])])
         #### Testing ####
         if i == n - 1 and i != 0:
             for val in self.turn_knobs[keys[i]]:
@@ -359,16 +361,16 @@ class Calibrate(MSONable):
         Returns:
             a string filename for the value
         """
-        if type(val) == float:
+        if isinstance(val, float):
             return re.sub('\.', '_', str(val))
-        elif type(val) == list:
+        elif isinstance(val, list):
             return self.kpoint_to_name(val, 'M')
-        elif type(val) == dict:
+        elif isinstance(val, dict):
             return self.potcar_to_name(mapping=val)
         elif isinstance(val, Poscar):
             name = str(val.structure.composition.reduced_formula) \
-                   + '_' + str(int(val.structure.lattice.volume)) \
-                   + '_' + ''.join((val.comment).split())
+                + '_' + str(int(val.structure.lattice.volume)) \
+                + '_' + ''.join((val.comment).split())
             return name.replace('\\', '_').replace('(', '_').replace(')', '_')
         else:
             return str(val)
@@ -386,7 +388,7 @@ class Calibrate(MSONable):
             2 2 2 will be named 2x2x2
         """
         if grid_type == 'M' or grid_type == 'G':
-            kpoint = [str(k).replace('.','_') for k in kpoint]
+            kpoint = [str(k).replace('.', '_') for k in kpoint]
             return 'x'.join(kpoint)
         else:
             return str(kpoint)
@@ -469,19 +471,19 @@ class Calibrate(MSONable):
         # useful to check if a poscar is supplied from setup_poscar_jobs (most often the case)
         # or this is a single poscar use case
         if not poscar:
-           poscar = self.poscar
+            poscar = self.poscar
 
         # splitting into two if elif branches means fewer if statements to check on
         # a run
 
-        ## Most general method of setting the k-points for
-        ## different grid types
-        ## NOTE: requires that at least one k-points value be passed
-        ## as a turn - knobs list value
-        ## this is not true for values that may be caculated out of
-        ## a database
-        ## use this part only if this is a non-database run for example
-        ## for k-points calibration
+        # Most general method of setting the k-points for
+        # different grid types
+        # NOTE: requires that at least one k-points value be passed
+        # as a turn - knobs list value
+        # this is not true for values that may be caculated out of
+        # a database
+        # use this part only if this is a non-database run for example
+        # for k-points calibration
 
         if not self.database:
 
@@ -492,30 +494,29 @@ class Calibrate(MSONable):
             elif self.Grid_type == 'G':
                 self.kpoints = Kpoints.gamma_automatic(kpts=kpoint)
             elif self.Grid_type == '3D_vol':
-                self.kpoints = Kpoints.automatic_density_by_vol(structure= \
-                                                                poscar.structure,
+                self.kpoints = Kpoints.automatic_density_by_vol(structure=poscar.structure,
                                                                 kppvol=kpoint)
             elif self.Grid_type == 'bulk_bands_pbe':
-                self.kpoints = Kpoints.automatic_linemode(divisions=kpoint, \
+                self.kpoints = Kpoints.automatic_linemode(divisions=kpoint,
                                                           ibz=HighSymmKpath(
-                                                          poscar.structure))
+                                                              poscar.structure))
 
-        ## applicable for database runs
-        ## future constructs or settinsg can be activated via a yaml file
-        ## database yaml file or better still the input deck from its speification
-        ## decides what combination of input calibrate constructor settings to use
-        ## one of them being the grid_type tag
+        # applicable for database runs
+        # future constructs or settinsg can be activated via a yaml file
+        # database yaml file or better still the input deck from its speification
+        # decides what combination of input calibrate constructor settings to use
+        # one of them being the grid_type tag
 
-        elif self.database=='twod':
+        elif self.database == 'twod':
 
             # set of kpoints settings according to the 2D database profile
             # the actual settings of k-points density
             # will in future come from any database input file set
 
             if self.Grid_type == 'hse_bands_2D_prep':
-                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure,\
-                                                                   200).as_dict()
-                kpoint_dict['kpoints'][0][2] = 1 # remove z kpoints
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure,
+                                                              200).as_dict()
+                kpoint_dict['kpoints'][0][2] = 1  # remove z kpoints
                 self.kpoints = Kpoints.from_dict(kpoint_dict)
 
             elif self.Grid_type == 'hse_bands_2D':
@@ -525,20 +526,21 @@ class Calibrate(MSONable):
                 self.kpoints = get_2D_hse_kpoints(poscar.structure, ibzkpth)
 
             elif self.Grid_type == 'bands_2D':
-                kpoint_dict = Kpoints.automatic_linemode(divisions=20,\
-                                           ibz=HighSymmKpath(poscar.structure)).as_dict()
+                kpoint_dict = Kpoints.automatic_linemode(divisions=20,
+                                                         ibz=HighSymmKpath(poscar.structure)).as_dict()
                 self.kpoints = Kpoints.from_dict(kpoint_dict)
 
             elif self.Grid_type == 'relax_2D':
-                ## general relaxation settings for 2D
-                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure,\
-                                                                  1000).as_dict()
+                # general relaxation settings for 2D
+                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure,
+                                                              1000).as_dict()
                 kpoint_dict['kpoints'][0][2] = 1
                 self.kpoints = Kpoints.from_dict(kpoint_dict)
 
             elif self.Grid_type == 'relax_3D':
-                ## general relaxation settings for 3D
-                kpoint_dict = Kpoints.automatic_gamma_density(poscar.structure, 1000)
+                # general relaxation settings for 3D
+                kpoint_dict = Kpoints.automatic_gamma_density(
+                    poscar.structure, 1000)
                 self.kpoints = Kpoints.from_dict(kpoint_dict)
 
     def setup_incar_jobs(self, param, val_list):
@@ -552,12 +554,12 @@ class Calibrate(MSONable):
 
         if val_list != ['2D_default']:
             for val in val_list:
-                self.logger.info('setting INCAR parameter ' + param + ' = ' \
+                self.logger.info('setting INCAR parameter ' + param + ' = '
                                  + str(val))
                 self.set_incar(param, val)
                 if not self.is_matrix:
                     job_dir = self.job_dir + os.sep + \
-                              param + os.sep + self.val_to_name(val)
+                        param + os.sep + self.val_to_name(val)
                     self.add_job(name=job_dir, job_dir=job_dir)
         else:
             self.logger.warn('incar list empty')
@@ -573,8 +575,8 @@ class Calibrate(MSONable):
                 if not self.is_matrix:
                     job_dir = self.job_dir + os.sep + self.key_to_name(
                         'KPOINTS') \
-                              + os.sep + self.kpoint_to_name(kpoint,
-                                                             self.Grid_type)
+                        + os.sep + self.kpoint_to_name(kpoint,
+                                                       self.Grid_type)
                     self.add_job(name=job_dir, job_dir=job_dir)
         else:
             self.logger.warn('kpoints_list empty')
@@ -590,7 +592,7 @@ class Calibrate(MSONable):
                 self.set_potcar()
                 if not self.is_matrix:
                     job_dir = self.job_dir + os.sep + 'POS' + \
-                              os.sep + 'VOLUME_' + str(scale)
+                        os.sep + 'VOLUME_' + str(scale)
                     self.add_job(name=job_dir, job_dir=job_dir)
         elif poscar_list:
             for pos in poscar_list:
@@ -618,132 +620,154 @@ class Calibrate(MSONable):
                     # reset kpoints file with IBZKPT
                     # copy a CHGCAR or WAVECAR or both perhaps
                     try:
-                       # first setup of POSCAR initial, INCAR, KPOINTS
-                       poscar = Poscar.from_file(pos+os.sep+'CONTCAR')
-                       self.logger.info('Read previous relaxed CONTCAR file from {}'.\
-                                        format(pos))
-                       # check if it is KPOINTS altering job like HSE
-                       if self.Grid_type == 'hse_bands_2D_prep':
+                        # first setup of POSCAR initial, INCAR, KPOINTS
+                        poscar = Poscar.from_file(pos + os.sep + 'CONTCAR')
+                        self.logger.info('Read previous relaxed CONTCAR file from {}'.
+                                         format(pos))
+                        # check if it is KPOINTS altering job like HSE
+                        if self.Grid_type == 'hse_bands_2D_prep':
                             print ('passed grid type if')
                             # HSE prep calcualtions
                             # reset the INCAR file with a magmom only if exists
                             try:
-                                incar_dict = {'MAGMOM':get_magmom_string(poscar) }
+                                incar_dict = {
+                                    'MAGMOM': get_magmom_string(poscar)}
                             except:
                                 incar_dict = {}
                             incar_dict = get_2D_incar_hse_prep(incar_dict)
                             print ('passed incar_dict update')
                             self.set_kpoints(poscar=poscar)
-                            self.logger.info('updated input set for HSE 2D prep calcaultion')
+                            self.logger.info(
+                                'updated input set for HSE 2D prep calcaultion')
 
-                       elif self.Grid_type == 'hse_bands_2D':
+                        elif self.Grid_type == 'hse_bands_2D':
                             # HSE calculation
                             # reset the incar and kpoints file builds
                             # on the preceding calculations (prep calculation)
                             # IBZKPT
                             try:
-                                 incar_dict = {'MAGMOM':get_magmom_string(poscar) }
+                                incar_dict = {
+                                    'MAGMOM': get_magmom_string(poscar)}
                             except:
-                                 incar_dict = {}
+                                incar_dict = {}
                             incar_dict = get_2D_incar_hse(incar_dict)
-                            self.set_kpoints(poscar=poscar, \
-                                           ibzkpth = pos+os.sep+'IBZKPT')
+                            self.set_kpoints(poscar=poscar,
+                                             ibzkpth=pos + os.sep + 'IBZKPT')
                             self.logger.info('updated input set for HSE calcaultion\
-                                             using IBZKPT from {0}'.format(pos+os.sep+'IBZKPT'))
+                                             using IBZKPT from {0}'.format(pos + os.sep + 'IBZKPT'))
 
-                       elif self.Grid_type == 'hse_bands':
-                            ## general HSE bands
+                        elif self.Grid_type == 'hse_bands':
+                            # general HSE bands
                             pass
 
-                       else:
-                            # use the same kpoints file and build from the old incar
-                            self.kpoints = Kpoints.from_file(pos+os.sep+'KPOINTS')
-                            # decide on how to use incar, use same one or update or afresh
+                        else:
+                            # use the same kpoints file and build from the old
+                            # incar
+                            self.kpoints = Kpoints.from_file(
+                                pos + os.sep + 'KPOINTS')
+                            # decide on how to use incar, use same one or
+                            # update or afresh
                             if self.reuse_incar == 'old':
-                               incar_dict = Incar.from_file(pos+os.sep+'INCAR').as_dict()
+                                incar_dict = Incar.from_file(
+                                    pos + os.sep + 'INCAR').as_dict()
                             elif self.reuse_incar == 'update':
-                               # way to go for cutoff updates, convergence, etc.
-                               # but retain the old functional
-                               incar_dict.update( Incar.from_file(pos+os.sep+'INCAR').\
-                                                   as_dict() )
+                                # way to go for cutoff updates, convergence, etc.
+                                # but retain the old functional
+                                incar_dict.update(Incar.from_file(pos + os.sep + 'INCAR').
+                                                  as_dict())
                             else:
-                               # use a fresh incar as specified by the init
-                               # way to go for example for LDAU or other
-                               # major removals done to INCAR
-                               # but always retain the MAGMOM if present
-                               old_incar_dict = Incar.from_file(pos+os.sep+'INCAR').as_dict()
-                               if 'MAGMOM' in old_incar_dict.keys():
-                                   incar_dict['MAGMOM'] = old_incar_dict['MAGMOM']
-                               else:
-                                   incar_dict = incar_dict
+                                # use a fresh incar as specified by the init
+                                # way to go for example for LDAU or other
+                                # major removals done to INCAR
+                                # but always retain the MAGMOM if present
+                                old_incar_dict = Incar.from_file(
+                                    pos + os.sep + 'INCAR').as_dict()
+                                if 'MAGMOM' in old_incar_dict.keys():
+                                    incar_dict['MAGMOM'] = old_incar_dict[
+                                        'MAGMOM']
+                                else:
+                                    incar_dict = incar_dict
 
-                       if type(self.reuse) == list:
-                           reuse_paths = [pos+os.sep+r for r in self.reuse]
-                           self.reuse_paths = reuse_paths
-                       # Magnetism use cases, updates to be made to the INCAR (MAE)
-                       # and poscar (AFM)
-                       # MAE and AFM
+                        if isinstance(self.reuse, list):
+                            reuse_paths = [
+                                pos + os.sep + r for r in self.reuse]
+                            self.reuse_paths = reuse_paths
+                        # Magnetism use cases, updates to be made to the INCAR (MAE)
+                        # and poscar (AFM)
+                        # MAE and AFM
 
-                       if self.magnetism == 'MAE':
+                        if self.magnetism == 'MAE':
 
-                          # remove vdW tags for MAE calculations
-                          vdW_tags = ('GGA', 'AGGAC', 'LUSE_VDW', 'PARAM1', 'PARAM2')
-                          for key in vdW_tags:
-                             if key in incar_dict:
-                                del incar_dict[key]
+                            # remove vdW tags for MAE calculations
+                            vdW_tags = ('GGA', 'AGGAC', 'LUSE_VDW',
+                                        'PARAM1', 'PARAM2')
+                            for key in vdW_tags:
+                                if key in incar_dict:
+                                    del incar_dict[key]
 
-                          self.logger.info('updating input set for MAE calculation')
-                          self.mag_init = Outcar(pos+os.sep+'OUTCAR').total_mag
-                          nbands = 2*Vasprun(pos+os.sep+'vasprun.xml').parameters['NBANDS']
-                          # u_value = Vasprun(pos+os.sep+'vasprun.xml').incar['LDAUU']
-                          # u_value = 4.0
-                          self.logger.info("updating mag mom with value {0}".format(self.mag_init))
-                          self.logger.info("updating NBANDS with {0}".format(nbands))
-                          incar_dict.update({'NBANDS': nbands,
-                                             'LSORBIT':True,
-                                             'EDIFF': 1e-08,
-                                             'ICHARG': 11,
-                                             'LMAXMIX':4,
-                                             'LCHARG': False,
-                                             'ISYM':0,
-                                             'NSW': 0,
-                                             'ISPIN':2,
-                                             'IBRION':-1,
-                                             'LORBIT':11,
-                                             'MAGMOM':get_magmom_mae(poscar, self.mag_init)
-                                             })
-                          # incar_dict.update({'LDAUU': u_value})
+                            self.logger.info(
+                                'updating input set for MAE calculation')
+                            self.mag_init = Outcar(
+                                pos + os.sep + 'OUTCAR').total_mag
+                            nbands = 2 * \
+                                Vasprun(pos + os.sep +
+                                        'vasprun.xml').parameters['NBANDS']
+                            # u_value = Vasprun(pos+os.sep+'vasprun.xml').incar['LDAUU']
+                            # u_value = 4.0
+                            self.logger.info(
+                                "updating mag mom with value {0}".format(self.mag_init))
+                            self.logger.info(
+                                "updating NBANDS with {0}".format(nbands))
+                            incar_dict.update({'NBANDS': nbands,
+                                               'LSORBIT': True,
+                                               'EDIFF': 1e-08,
+                                               'ICHARG': 11,
+                                               'LMAXMIX': 4,
+                                               'LCHARG': False,
+                                               'ISYM': 0,
+                                               'NSW': 0,
+                                               'ISPIN': 2,
+                                               'IBRION': -1,
+                                               'LORBIT': 11,
+                                               'MAGMOM': get_magmom_mae(poscar, self.mag_init)
+                                               })
+                            # incar_dict.update({'LDAUU': u_value})
 
-                       elif self.magnetism == 'AFM':
-                          self.logger.info('updating INCAR and POSCAR for AFM calculation')
-                          afm, poscar  = get_magmom_afm(poscar, self.database)
-                          incar_dict.update({'MAGMOM':afm})
+                        elif self.magnetism == 'AFM':
+                            self.logger.info(
+                                'updating INCAR and POSCAR for AFM calculation')
+                            afm, poscar = get_magmom_afm(poscar, self.database)
+                            incar_dict.update({'MAGMOM': afm})
                     except:
-                       # check what to do if the previous calculation being reused is not
-                       # actuall done .. system exit or adopt a user override with POSCAR
-                       print (PrintException())
-                       self.logger.warn('Empty relaxed CONTCAR file .. Probably job not done')
-                       if not self.reuse_override:
-                          self.logger.warn('You can set reuse_override to continue with POSCAR file, exiting now ..')
-                          sys.exit(0)
-                       else:
-                          self.logger.info('Using old Poscar for rerun')
-                          poscar = Poscar.from_file(pos+os.sep+'POSCAR')
+                        # check what to do if the previous calculation being reused is not
+                        # actuall done .. system exit or adopt a user override
+                        # with POSCAR
+                        print (PrintException())
+                        self.logger.warn(
+                            'Empty relaxed CONTCAR file .. Probably job not done')
+                        if not self.reuse_override:
+                            self.logger.warn(
+                                'You can set reuse_override to continue with POSCAR file, exiting now ..')
+                            sys.exit(0)
+                        else:
+                            self.logger.info('Using old Poscar for rerun')
+                            poscar = Poscar.from_file(pos + os.sep + 'POSCAR')
 
                 # case for non - reuse
                 else:
                     poscar = pos
                     # temporary: magnetism only set if twod flag is activated
                     if self.database == 'twod':
-                       incar_dict.update({'MAGMOM':get_magmom_string(poscar)})
-                       self.set_kpoints(poscar=poscar)
-                    self.incar= Incar.from_dict(incar_dict)
+                        incar_dict.update(
+                            {'MAGMOM': get_magmom_string(poscar)})
+                        self.set_kpoints(poscar=poscar)
+                    self.incar = Incar.from_dict(incar_dict)
 
                 self.set_poscar(poscar=poscar)
                 self.set_potcar()
                 if not self.is_matrix:
                     job_dir = self.job_dir + os.sep + 'POS' + \
-                              os.sep + self.val_to_name(poscar)
+                        os.sep + self.val_to_name(poscar)
                     self.add_job(name=job_dir, job_dir=job_dir)
 
     def setup_potcar_jobs(self, mappings, functional_list):
@@ -755,8 +779,8 @@ class Calibrate(MSONable):
                 self.set_potcar(functional=func)
                 if not self.is_matrix:
                     job_dir = self.job_dir + os.sep \
-                              + self.key_to_name('POTCAR') \
-                              + os.sep + self.potcar_to_name(func)
+                        + self.key_to_name('POTCAR') \
+                        + os.sep + self.potcar_to_name(func)
                     self.add_job(name=job_dir, job_dir=job_dir)
 
         elif mappings:
@@ -764,8 +788,8 @@ class Calibrate(MSONable):
                 self.set_potcar(mapping)
                 if not self.is_matrix:
                     job_dir = self.job_dir + os.sep \
-                              + self.key_to_name('POTCAR') \
-                              + os.sep + self.potcar_to_name(mapping)
+                        + self.key_to_name('POTCAR') \
+                        + os.sep + self.potcar_to_name(mapping)
                     self.add_job(name=job_dir, job_dir=job_dir)
 
     def add_job(self, name='noname', job_dir='.'):
@@ -776,7 +800,7 @@ class Calibrate(MSONable):
         vis = MPINTVaspInputSet(name, self.incar, self.poscar,
                                 self.potcar, self.kpoints,
                                 self.qadapter, vis_logger=self.logger,
-                                reuse_path = self.reuse_paths)
+                                reuse_path=self.reuse_paths)
         # the job command can be overrridden in the run method
         job = MPINTVaspJob(self.job_cmd, name=name, final=True,
                            parent_job_dir=self.parent_job_dir,
@@ -1095,11 +1119,11 @@ class CalibrateInterface(CalibrateSlab):
         add params that you want to vary
         """
         structure = self.input_structure.copy()
-        iface = Interface(structure,
-                          hkl=self.system['hkl'],
-                          ligand=Ligand.from_dict(self.system['ligand']),
-                          from_ase=self.from_ase)
-        iface.sort()
+        iface = sorted(Interface(structure,
+                                 hkl=self.system['hkl'],
+                                 ligand=Ligand.from_dict(
+                                     self.system['ligand']),
+                                 from_ase=self.from_ase))
         sd = self.set_sd_flags(iface, n_layers=2)
         # if there are other paramters that are being varied
         # change the comment accordingly

@@ -108,7 +108,7 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
                                      "pot_type": pot_type.lower(),
                                      "labels": d2["input"]["potcar"]}
             if len(d["calculations"]) == len(self.runs) or \
-                            list(vasprun_files.keys())[0] != "relax1":
+                    list(vasprun_files.keys())[0] != "relax1":
                 d["state"] = "successful" if d2["has_vasp_completed"] \
                     else "unsuccessful"
             else:
@@ -145,7 +145,7 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
                 d["hkl"] = system.get("hkl")
                 d["ligand"] = system.get("ligand")
         # from pyamtgen-db
-        # Parse OUTCAR for additional information and run 
+        # Parse OUTCAR for additional information and run
         # stats that are generally not in vasprun.xml.
         try:
             run_stats = {}
@@ -166,7 +166,7 @@ class MPINTVaspToDbTaskDrone(VaspToDbTaskDrone):
 
 def get_uri(dir_name):
     """
-    Customized version of the original pymatgen-db version. 
+    Customized version of the original pymatgen-db version.
     Customization required because same job folder on hipergator
     gets different uri for different login nodes .
 
@@ -219,8 +219,8 @@ def analysis_and_error_checks(d, max_force_threshold=0.5,
 
     max_force = None
     if d["state"] == "successful" and \
-                    d["calculations"][0]["input"]["parameters"].get("NSW",
-                                                                    0) > 0:
+        d["calculations"][0]["input"]["parameters"].get("NSW",
+                                                        0) > 0:
         # handle the max force and max force error
         max_force = max([np.linalg.norm(a)
                          for a in d["calculations"][-1]["output"]

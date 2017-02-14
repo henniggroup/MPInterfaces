@@ -5,12 +5,14 @@ from __future__ import unicode_literals
 import unittest
 
 from mpinterfaces.transformations \
-import get_r_list
+    import get_r_list
 
 from io import StringIO
 import sys
 
+
 class TestGetRList(unittest.TestCase):
+
     def setUp(self):
         self.old_stdout = sys.stdout
         sys.stdout = self.mystdout = StringIO()

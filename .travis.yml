@@ -3,7 +3,7 @@ python:
   - "3.5"
 env:
   global:
-    secure: JkVMFGuY+zwD69mON4HtwSEWKEXAPnKekQUzcIM3jB+zje7qVHOfu0gLwsSpHKgamUwtcxxAxT1oYCuZkRZ31PN6AWBX/J+NIT/+Bxj/lQF7L9SHUKI1CRk5PK+Xre9t1lcu1QibM6aV1C1TV0ccWNn00gYktHpmSvL9AO1Hz/iGslmFPQrYcotmjbS/T489J+rTYJk71asMMC8MVV7AEdLwBZsu+dCTyOfczSCswmFd2oQiiYkFVa7CrD1mKUYcjZ1Mxmq4VIfRm6tIKTKAKliajZwFav5eJ5vwmPqczOkiAE/0/aK59CC6RT9S97SpdvWC3rjOTY5LxkvydKu8WUYla6ZKHvaZxfDgsK5g+Od+skwXgk9u1WUNCUbDdPkBGdUX0QhhFvMba6fhqnDMW1AbbwF4qZkTOGn2T4X+Xp1VNa/4Rkk0otYf0rTiJ8Q+kbIw0VW6RN70oQXl8IFdBhsK551Wc8IaID+rh+cB52XGk8891KpdKU6ADnV+4YV74+eE6EEVgDBXBmQQIZHbTkMdxUkAd0JdepwDNdrWziXWXQM2w+i8x4wxPofnOU3b2vR82WnAxBPVsE66d8sXRuCZbPj3nDrHIEocTN4EaCfIFThU3A8rSOxo1sQRCeJ05xu5VUpzwZ9TkCxpF0g7tTSeEF4UlAy0tkINc6IW7ws=
+    secure: "VsTWhRM/kOTzUcZixkgKVczznViy2KAQDXlsQKGfdmVzPDNbQ8/YtNqbmNBQ/7usn6vuMDVRFVeePo9ocyBi2vGTjCHGwvVQRSyx3De8A2JPpSB4NwtSgaJHrpzTmQdwjAiEjofE4LytQlSkoFEK0EiOH5hycwm3QlvqG5UuUGJi9Yee33UDAT8FAAx6ZSc6HrYoOjxQ4eQqp7magmXHE1F8+JlUK1Z05AXySY8avw5QtyEOe/9JXg8UuZfIct17V0j593fkkfEd49zqzR+NOlmU2KFDOskPT20ZDkUtZQX/B5F9Q7d/ZrmTF0uc0id4ruLuvRqIRh0rCwv8FfdmN/t7N+TSHIMSuzpOz1nIz5s/p07t5lM1kOuOS3ZA67Q1iu72gEB1UPVzRR7w2bYtOHtmRm2bZNVxSKXyn10l9avr/aXEcMPYT0N/j5Fq6AzHpXWHYda07YzSo12PvUxukwjzMwrYc9aLtL7jw5Bf7NA6DVfFAzuzhJP46epS1YhFOBuosy7E4DxN9mOKP0JtJrb0uu2DpVWTASVKmUuWF52YG8G62gZ4dl5F7v+SIoaxXJUTbLppWY3P+IX1dXEWoS4usTLpij5/kLwMBDed8ejbvSEHYTPq2KmduLIjO4PdwwjtNzCWFYPSz9tKeOEnR4a+AFohTPgpRP94bnhd468="
 addons:
   apt:
     packages:
@@ -13,8 +13,8 @@ addons:
     - python-scipy
     - python-pip
 install:
-   - pip install numpy
-   - pip install codecov
+   - travis_wait pip install -q numpy
+   - travis_wait pip install -q codecov
    - python setup.py develop
    - cp config.yaml mpinterfaces/config_mine.yaml
 cache:

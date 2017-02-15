@@ -10,26 +10,13 @@ from pymatgen.matproj.rest import MPRester
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
-from twod_materials.utils import *
-
 import twod_materials
+from twod_materials import MPR
+from twod_materials.utils import *
 
 
 PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
 PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-CONFIG_PATH = '/'.join(PACKAGE_PATH.split('/')[:-2])
-
-try:
-    config_vars = loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))
-except:
-    # For testing purposes.
-    config_vars = loadfn(os.path.join(CONFIG_PATH, 'config.yaml'))
-
-if 'MP_API' in os.environ:
-    # For testing purposes.
-    MPR = MPRester(os.environ['MP_API'])
-else:
-    MPR = MPRester(config_vars['mp_api'])
 
 
 class UtilsTest(unittest.TestCase):

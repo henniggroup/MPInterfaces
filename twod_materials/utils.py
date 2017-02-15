@@ -23,24 +23,6 @@ import itertools as it
 from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, QUEUE
 
 
-if 'MP_API' in os.environ:
-    MPR = MPRester(os.environ['MP_API'])
-else:
-    MPR = MPRester(MY_CONFIG['mp_api'])
-
-VASP = MY_CONFIG['normal_binary']
-VASP_2D = MY_CONFIG['twod_binary']
-POTENTIAL_PATH = MY_CONFIG['potentials']
-USR = MY_CONFIG['username']
-
-if 'queue_system' in MY_CONFIG:
-    QUEUE = MY_CONFIG['queue_system'].lower()
-elif '/ufrc/' in os.getcwd():
-    QUEUE = 'slurm'
-elif '/scratch/' in os.getcwd():
-    QUEUE = 'pbs'
-
-
 def is_converged(directory):
     """
     Check if a relaxation has converged.

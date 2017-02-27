@@ -25,7 +25,7 @@ INCAR_DICT = {
     'LVHAR': True, 'ALGO': 'Fast', 'ISPIN': 2
     }
 
-def relax(dim=2, submit=True, force_overwrite=False):
+def relax(dim=2, submit=True, incar_dict=INCAR_DICT, force_overwrite=False):
     """
     Writes input files and (optionally) submits a self-consistent
     relaxation. Should be run before pretty much anything else, in

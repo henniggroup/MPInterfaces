@@ -27,8 +27,8 @@ PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
 REFERENCE_MPIDS = loadfn(os.path.join(
     PACKAGE_PATH, 'pourbaix/reference_mpids.yaml')
 )
-EXPERIMENTAL_OXIDE_FORMATION_ENERGIES = loadfn(os.path.join(
-    PACKAGE_PATH, 'pourbaix/experimental_oxide_formation_energies.yaml')
+EXPERIMENTAL_OXIDE_DATA = loadfn(os.path.join(
+    PACKAGE_PATH, 'pourbaix/experimental_oxide_data.yaml')
 )
 GAS_CORRECTIONS = loadfn(os.path.join(
     PACKAGE_PATH, 'pourbaix/gas_corrections.yaml')
@@ -38,12 +38,12 @@ GAS_CORRECTIONS = loadfn(os.path.join(
 def get_experimental_formation_energies():
     """
     Read in the raw enthalpy and entropy energy data from
-    Kubaschewski in experimental_oxide_formation_energies.yaml
+    Kubaschewski in experimental_oxide_data.yaml
     and interpret it into actual formation energies. This extra
     step is written out mostly just to make the methodology clear
     and reproducible.
     """
-    data = EXPERIMENTAL_OXIDE_FORMATION_ENERGIES
+    data = EXPERIMENTAL_OXIDE_DATA
     oxygen_entropy = 38.48  # Entropy in atomic O, in cal/mol.degree
     formation_energies = {}
     for compound in data:
@@ -62,7 +62,8 @@ def get_experimental_formation_energies():
     return formation_energies
 
 
-def relax_references(potcar_types, incar_dict, submit=True):
+def relax_references(potcar_types, incar_dict, submit=True,
+                     force_overwrite=False):
     """
     Set up calculation directories to calibrate
     the ion corrections to match a specified framework of INCAR
@@ -80,6 +81,10 @@ def relax_references(potcar_types, incar_dict, submit=True):
 
         submit (bool): whether or not to submit each job
             after preparing it.
+
+        force_overwrite (bool): Whether or not to overwrite files
+            if an already converged vasprun.xml exists in the
+            directory.
     """
 
     for element in potcar_types:
@@ -92,23 +97,26 @@ def relax_references(potcar_types, incar_dict, submit=True):
 
     for element in potcar_types:
         elt = element.split('_')[0]
+
         # First, set up a relaxation for the pure element.
         if not os.path.isdir(elt):
             os.mkdir(elt)
         os.chdir(elt)
         s = MPR.get_structure_by_material_id(REFERENCE_MPIDS[elt]['element'])
         s.to('POSCAR', 'POSCAR')
-        relax(dim=3, incar_dict=incar_dict, submit=submit)
+        relax(dim=3, incar_dict=incar_dict, submit=submit,
+              force_overwrite=force_overwrite)
         utl.write_potcar(types=[element])
 
         # Then set up a relaxation for its reference oxide.
-        if elt not in ['O', 'S', 'F', 'Cl', 'Br', 'I']:
+        if elt not in ['O', 'S', 'F', 'Cl', 'Br', 'I', 'H']:
             if not os.path.isdir('oxide'):
                 os.mkdir('oxide')
             os.chdir('oxide')
             s = MPR.get_structure_by_material_id(REFERENCE_MPIDS[elt]['oxide'])
-            s.to('POSCAR', 'POSCAR')
-            relax(dim=3, incar_dict=incar_dict, submit=submit)
+            s.get_sorted_structure().to('POSCAR', 'POSCAR')
+            relax(dim=3, incar_dict=incar_dict, submit=submit,
+                  force_overwrite=force_overwrite)
             utl.write_potcar(types=[element, oxygen_potcar])
 
             os.chdir('../')
@@ -133,7 +141,7 @@ def get_corrections(write_yaml=False):
 
     experimental_formation_energies = get_experimental_formation_energies()
     mu0, corrections = {}, {}
-    special_cases = ['O', 'S', 'F', 'Cl', 'Br', 'I']
+    special_cases = ['O', 'S', 'F', 'Cl', 'Br', 'I', 'H']
 
     elts = [elt for elt in os.listdir(os.getcwd()) if os.path.isdir(elt)
             and elt not in special_cases]
@@ -143,23 +151,26 @@ def get_corrections(write_yaml=False):
     # Add entropic correction for special elements (S * 298K)
     for elt in special_elts:
         os.chdir(elt)
-        vasprun = Vasprun('vasprun.xml')
-        composition = vasprun.final_structure.composition
-        formula_and_factor = composition.get_integer_formula_and_factor()
-        n_formula_units = composition.get_integer_formula_and_factor()[1]
-        if '2' in formula_and_factor[0]:
-            n_formula_units *= 2
-        
-        mu0[elt] = (
-            round(vasprun.final_energy / n_formula_units
-                  + GAS_CORRECTIONS[elt], 3)
-        )
+        try:
+            vasprun = Vasprun('vasprun.xml')
+            composition = vasprun.final_structure.composition
+            formula_and_factor = composition.get_integer_formula_and_factor()
+            n_formula_units = composition.get_integer_formula_and_factor()[1]
+            if '2' in formula_and_factor[0]:
+                n_formula_units *= 2
+            
+            mu0[elt] = (
+                round(vasprun.final_energy / n_formula_units
+                      + GAS_CORRECTIONS['entropy'][elt], 3)
+            )
+        except Exception as e:
+            pass
         os.chdir('../')
 
-    # Oxide correction from L. Wang, T. Maxisch, and G. Ceder,
+    # Oxide correction based on L. Wang, T. Maxisch, and G. Ceder,
     # Phys. Rev. B 73, 195107 (2006). This correction is to get
-    # solid oxide formation energies right, and is for GGA+U
-    mu0['O'] += 0.708
+    # solid oxide formation energies right.
+    #mu0['O'] += GAS_CORRECTIONS['oxide']
 
     for elt in elts:
         EF_exp = experimental_formation_energies[elt]
@@ -174,7 +185,7 @@ def get_corrections(write_yaml=False):
 
             # Nitrogen needs an entropic gas phase correction too.
             if elt == 'N':
-                mu0[elt] -= GAS_CORRECTIONS['N']
+                mu0[elt] -= GAS_CORRECTIONS['entropy']['N']
 
         except Exception as e:
             corrections[elt] = 'Element not finished'
@@ -192,22 +203,31 @@ def get_corrections(write_yaml=False):
             ) / n_formula_units
 
             corrections[elt] = round(
-                (EF_dft - EF_exp) / composition[Element(elt)], 3
-            ) / (composition[Element(elt)] * n_formula_units)
+                (EF_dft - EF_exp)
+                / (composition[Element(elt)]/n_formula_units), 3
+            )
 
-        except UnboundLocalError:
+        except Exception as e:
+            print(e)
             # The relaxation didn't finish.
             if elt in corrections:
-                corrections[elt] += 'and oxide not finished'
+                corrections[elt] += ' and oxide not finished'
             else:
                 corrections[elt] = 'Oxide not finished'
 
         os.chdir('../../')
-
     if write_yaml:
         with open('ion_corrections.yaml', 'w') as yam:
+            yam.write('# Difference in formation energy between\n')
+            yam.write('# DFT framework and experimental data\n')
+            yam.write('# from Materials Thermochemistry\n')
+            yam.write('# (Kubaschewski, Alcock)\n')
+            yam.write('# All values are given in eV per atom.\n\n')
             yam.write(yaml.dump(corrections, default_flow_style=False))
-        with open('end_members.yaml', 'w') as yam:
+        with open('chemical_potentials.yaml', 'w') as yam:
+            yam.write('# chemical potentials of elemental phases to calculate')
+            yam.write('\n')
+            yam.write('# formation energies of all compounds. In eV/atom.\n\n')
             yam.write(yaml.dump(mu0, default_flow_style=False))
 
     return corrections

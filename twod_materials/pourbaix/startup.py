@@ -44,7 +44,7 @@ def get_experimental_formation_energies():
     and reproducible.
     """
     data = EXPERIMENTAL_OXIDE_FORMATION_ENERGIES
-    oxygen_entropy = 38.48  # cal/degree.mole for atomic O
+    oxygen_entropy = 38.48  # Entropy in atomic O, in cal/mol.degree
     formation_energies = {}
     for compound in data:
         composition = Composition(compound)
@@ -88,6 +88,7 @@ def relax_references(potcar_types, incar_dict, submit=True):
             break
     else:
         oxygen_potcar = 'O_s'
+        potcar_types.append('O_s')
 
     for element in potcar_types:
         elt = element.split('_')[0]
@@ -114,7 +115,7 @@ def relax_references(potcar_types, incar_dict, submit=True):
         os.chdir('../')
 
 
-def get_corrections(write_yaml=False, oxide_corr=0.708):
+def get_corrections(write_yaml=False):
     """
     Calculates and collects the corrections to be added for
     each reference element directory in the current working
@@ -124,9 +125,6 @@ def get_corrections(write_yaml=False, oxide_corr=0.708):
         write_yaml (bool): whether or not to write the
             corrections to ion_corrections.yaml and the mu0
             values to end_members.yaml.
-
-        oxide_corr (float): additional correction added for oxygen
-            to get water's formation energy right.
 
     Returns:
         dict. elements as keys and their corrections as values,
@@ -147,16 +145,21 @@ def get_corrections(write_yaml=False, oxide_corr=0.708):
         os.chdir(elt)
         vasprun = Vasprun('vasprun.xml')
         composition = vasprun.final_structure.composition
+        formula_and_factor = composition.get_integer_formula_and_factor()
         n_formula_units = composition.get_integer_formula_and_factor()[1]
-
+        if '2' in formula_and_factor[0]:
+            n_formula_units *= 2
+        
         mu0[elt] = (
             round(vasprun.final_energy / n_formula_units
                   + GAS_CORRECTIONS[elt], 3)
         )
         os.chdir('../')
 
-    # Oxide correction from Materials Project
-    #mu0['O'] += oxide_corr
+    # Oxide correction from L. Wang, T. Maxisch, and G. Ceder,
+    # Phys. Rev. B 73, 195107 (2006). This correction is to get
+    # solid oxide formation energies right, and is for GGA+U
+    mu0['O'] += 0.708
 
     for elt in elts:
         EF_exp = experimental_formation_energies[elt]
@@ -165,13 +168,14 @@ def get_corrections(write_yaml=False, oxide_corr=0.708):
         try:
             vasprun = Vasprun('vasprun.xml')
             composition = vasprun.final_structure.composition
-            n_formula_units = composition.get_integer_formula_and_factor()[1]
-
-            mu0[elt] = round(vasprun.final_energy / n_formula_units, 3)
+            mu0[elt] = round(
+                vasprun.final_energy / composition[Element(elt)], 3
+            )
 
             # Nitrogen needs an entropic gas phase correction too.
             if elt == 'N':
                 mu0[elt] -= GAS_CORRECTIONS['N']
+
         except Exception as e:
             corrections[elt] = 'Element not finished'
 
@@ -181,9 +185,15 @@ def get_corrections(write_yaml=False, oxide_corr=0.708):
             composition = vasprun.final_structure.composition
             n_formula_units = composition.get_integer_formula_and_factor()[1]
 
-            fH_dft = vasprun.final_energy / n_formula_units
-            n_elt_per_formula_unit = composition[Element(elt)]
-            corrections[elt] = round((fH_dft - fH_exp) / n_elt_per_fu, 3)
+            EF_dft = (
+                vasprun.final_energy
+                - mu0[elt]*composition[Element(elt)]
+                - mu0['O']*composition[Element('O')]
+            ) / n_formula_units
+
+            corrections[elt] = round(
+                (EF_dft - EF_exp) / composition[Element(elt)], 3
+            ) / (composition[Element(elt)] * n_formula_units)
 
         except UnboundLocalError:
             # The relaxation didn't finish.

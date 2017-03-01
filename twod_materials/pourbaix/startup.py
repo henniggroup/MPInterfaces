@@ -72,8 +72,8 @@ def relax_references(potcar_types, incar_dict, submit=True,
     Args:
         potcar_types (list): list of all elements to calibrate,
             containing specifications for the kind of potential
-            desired for each element, e.g. ['Na_pv', 'O_s']. If
-            oxygen is not explicitly included in the list, 'O_s'
+            desired for each element, e.g. ['Na_pv', 'O']. If
+            oxygen is not explicitly included in the list, 'O'
             is used.
 
         incar_dict (dict): a dictionary of input parameters
@@ -92,8 +92,8 @@ def relax_references(potcar_types, incar_dict, submit=True,
             oxygen_potcar = element
             break
     else:
-        oxygen_potcar = 'O_s'
-        potcar_types.append('O_s')
+        oxygen_potcar = 'O'
+        potcar_types.append('O')
 
     for element in potcar_types:
         elt = element.split('_')[0]
@@ -158,13 +158,13 @@ def get_corrections(write_yaml=False):
             n_formula_units = composition.get_integer_formula_and_factor()[1]
             if '2' in formula_and_factor[0]:
                 n_formula_units *= 2
-            
+
             mu0[elt] = (
                 round(vasprun.final_energy / n_formula_units
                       + GAS_CORRECTIONS['entropy'][elt], 3)
             )
         except Exception as e:
-            pass
+            mu0[elt] = 'Element not finished'
         os.chdir('../')
 
     # Oxide correction based on L. Wang, T. Maxisch, and G. Ceder,

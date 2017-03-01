@@ -9,7 +9,6 @@ from pymatgen.phasediagram.maker import PhaseDiagram
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.matproj.rest import MPRester
 
 from monty.serialization import loadfn
 
@@ -19,72 +18,66 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
+from mpinterfaces import PACKAGE_PATH, MY_CONFIG
 
-try:
-    MPR = MPRester(
-        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
-        )
-except IOError:
-    try:
-        MPR = MPRester(
-            os.environ['MP_API']
-            )
-    except KeyError:
-        raise ValueError('No Materials Project API key found. Please check'
-                         ' that your ~/config.yaml contains the field'
-                         ' mp_api: your_api_key')
+from twod_materials import MPR
 
 
-def get_competing_phases(directories):
+def get_competing_phases():
     """
-    Collect the species to which the 2D materials might decompose to.
-    Since a lot of 2D materials with similar compositions will have the
-    same competing phases, duplicates aren't counted.
+    Collect the species to which the material might decompose to.
+
+    Returns:
+        A list of phases as tuples formatted as
+        [(formula_1, Materials_Project_ID_1),
+        (formula_2, Materials_Project_ID_2), ...]
     """
 
     total_competing_phases = []
 
-    for directory in directories:
-        os.chdir(directory)
-        composition = Structure.from_file('POSCAR').composition
-        try:
-            energy = Vasprun('vasprun.xml').final_energy
-        except:
-            energy = 100
-        my_entry = ComputedEntry(composition, energy)  # 2D material
-        entries = MPR.get_entries_in_chemsys(
-            [elt.symbol for elt in composition]
-            )
+    composition = Structure.from_file('POSCAR').composition
+    try:
+        energy = Vasprun('vasprun.xml').final_energy
+    except:
+        energy = 100  # The function can work without a vasprun.xml
+    entries = MPR.get_entries_in_chemsys(
+        [elt.symbol for elt in composition]
+        )
+    my_entry = ComputedEntry(composition, energy)
+    entries.append(my_entry)
 
-        entries.append(my_entry)  # 2D material
+    pda = PDAnalyzer(PhaseDiagram(entries))
+    decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
+    competing_phases = [
+        (entry.composition.reduced_formula,
+         entry.entry_id) for entry in decomp[0]
+        ]
 
-        pda = PDAnalyzer(PhaseDiagram(entries))
-        decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
-        competing_phases = [
-            (entry.composition.reduced_formula,
-             entry.entry_id) for entry in decomp[0]
-            ]
-
-        # Keep a running list of all unique competing phases, since in
-        # high throughput 2D searches there is usually some overlap in
-        # competing phases for different materials.
-        for specie in competing_phases:
-            if specie not in total_competing_phases:
-                total_competing_phases.append(specie)
-        os.chdir('../')
-
-    return total_competing_phases
+    return competing_phases
 
 
-def get_hull_distances(directories):
+def get_hull_distance(competing_phase_directory='../competing_phases'):
+    """
+    Calculate the material's distance to the thermodynamic hull,
+    based on species in the Materials Project database.
 
-    hull_distances = {}
+    Args:
+        competing_phase_directory (str): absolute or relative path
+            to the location where your competing phases have been
+            relaxed. The default expectation is that they are stored
+            in a directory named 'competing_phases' at the same level
+            as your material's relaxation directory.
+    Returns:
+        float. distance (eV/atom) between the material and the
+            hull.
+    """
+
     finished_competitors = {}
-
+    original_directory = os.getcwd()
     # Determine which competing phases have been relaxed in the current
     # framework and store them in a dictionary ({formula: entry}).
-    if os.path.isdir('all_competitors'):
-        os.chdir('all_competitors')
+    if os.path.isdir(competing_phase_directory):
+        os.chdir(competing_phase_directory)
         for comp_dir in [
             dir for dir in os.listdir(os.getcwd()) if os.path.isdir(dir) and
             is_converged(dir)
@@ -93,44 +86,47 @@ def get_hull_distances(directories):
             composition = vasprun.final_structure.composition
             energy = vasprun.final_energy
             finished_competitors[comp_dir] = ComputedEntry(composition, energy)
-        os.chdir('../')
+        os.chdir(original_directory)
+    else:
+        raise ValueError('Competing phase directory does not exist.')
 
-    for directory in directories:
-        os.chdir(directory)
-        composition = Structure.from_file('POSCAR').composition
-        try:
-            energy = Vasprun('vasprun.xml').final_energy
-        except:
-            energy = 100
-        my_entry = ComputedEntry(composition, energy)  # 2D material
-        entries = MPR.get_entries_in_chemsys(
-            [elt.symbol for elt in composition]
-            )
+    composition = Structure.from_file('POSCAR').composition
+    try:
+        energy = Vasprun('vasprun.xml').final_energy
+    except:
+        raise ValueError('This directory does not have a converged vasprun.xml')
+    my_entry = ComputedEntry(composition, energy)  # 2D material
+    entries = MPR.get_entries_in_chemsys(
+        [elt.symbol for elt in composition]
+        )
 
-        # If the energies of competing phases have been calculated in
-        # the current framework, put them in the phase diagram instead
-        # of the MP energies.
-        for i in range(len(entries)):
-            formula = entries[i].composition.reduced_formula
-            if formula in finished_competitors:
-                entries[i] = finished_competitors[formula]
-            else:
-                entries[i] = ComputedEntry(entries[i].composition, 100)
+    # If the energies of competing phases have been calculated in
+    # the current framework, put them in the phase diagram instead
+    # of the MP energies.
+    for i in range(len(entries)):
+        formula = entries[i].composition.reduced_formula
+        if formula in finished_competitors:
+            entries[i] = finished_competitors[formula]
+        else:
+            entries[i] = ComputedEntry(entries[i].composition, 100)
 
-        entries.append(my_entry)  # 2D material
+    entries.append(my_entry)  # 2D material
 
-        pda = PDAnalyzer(PhaseDiagram(entries))
-        decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
+    pda = PDAnalyzer(PhaseDiagram(entries))
+    decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
 
-        hull_distances[composition.reduced_formula] = decomp[1]
-        os.chdir('../')
-
-    return hull_distances
+    return decomp[1]
 
 
 def plot_hull_distances(hull_distances, fmt='pdf'):
     """
-    Create a bar graph of the formation energies of the 2D materials.
+    Create a bar graph of the formation energies of several 2D materials.
+
+    Args:
+        hull_distances (dict): follow the format:
+            {reduced_formula: hull_distance (in eV/atom)}
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
     hsize = 12 + (len(hull_distances) - 4) / 3
@@ -177,24 +173,3 @@ def plot_hull_distances(hull_distances, fmt='pdf'):
     ax.set_ylabel(r'$\mathrm{E_F\/(meV/atom)}$', size=40)
 
     plt.savefig('stability_plot.{}'.format(fmt), transparent=True)
-
-
-def all_converged(two_d, three_d):
-    """
-    True if all two_d directories and three_d competing_phases have
-    converged, otherwise false.
-    """
-
-    finished_2d, finished_3d = [], []
-    for directory in two_d:
-        if is_converged(directory):
-            finished_2d.append(directory)
-    for directory in three_d:
-        if is_converged('all_competitors/{}'.format(directory[0])):
-            finished_3d.append(directory[0])
-    if len(finished_2d + finished_3d) == len(
-            two_d + three_d):
-        all_converged = True
-    else:
-        all_converged = False
-    return all_converged

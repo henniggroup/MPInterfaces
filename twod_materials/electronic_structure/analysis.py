@@ -74,7 +74,7 @@ def get_band_edges():
     return edges
 
 
-def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
+def plot_band_alignments(directories, run_type='PBE', fmt='pdf', latex=True):
     """
     Plot CBM's and VBM's of all compounds together, relative to the band
     edges of H2O.
@@ -86,6 +86,8 @@ def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
             subdirectory to go into (pbe_bands or hse_bands).
         fmt (str): matplotlib format style. Check the matplotlib
             docs for options.
+        latex (bool): Whether or not LaTEX is installed, for formatting
+            certain strings in Times New Roman for matplotlib.
     """
 
     if run_type == 'HSE':
@@ -131,9 +133,14 @@ def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
     # Rectangle representing band edges of water.
     ax.add_patch(plt.Rectangle((0, -5.67), height=1.23, width=len(band_gaps),
                  facecolor='#00cc99', linewidth=0))
-    ax.text(len(band_gaps) * 1.01, -4.44, r'$\mathrm{H+/H_2}$', size=20,
+    if latex:
+        texts = [r'$\mathrm{H+/H_2}$', r'$\mathrm{O_2/H_2O}$']
+    else:
+        texts = ['H+/H2', 'O2/H2O']
+
+    ax.text(len(band_gaps) * 1.01, -4.44, texts[0], size=20,
             verticalalignment='center')
-    ax.text(len(band_gaps) * 1.01, -5.67, r'$\mathrm{O_2/H_2O}$', size=20,
+    ax.text(len(band_gaps) * 1.01, -5.67, texts[1], size=20,
             verticalalignment='center')
 
     x_ticklabels = []
@@ -234,7 +241,7 @@ def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
     plt.close()
 
 
-def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
+def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf', latex=True):
     """
     Plot data from the LOCPOT file along any of the 3 primary axes.
     Useful for determining surface dipole moments and electric
@@ -246,6 +253,8 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
             y-axis.
         fmt (str): matplotlib format style. Check the matplotlib
             docs for options.
+        latex (bool): Whether or not LaTEX is installed, for formatting
+            certain strings in Times New Roman for matplotlib.
     """
 
     ax = plt.figure(figsize=(16, 10)).gca()
@@ -271,18 +280,26 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
     ax.set_xlim(0, axis_length)
     ax.set_ylim(ylim[0], ylim[1])
 
-    ax.set_xticklabels([r'$\mathrm{%s}$' % tick for tick in ax.get_xticks()],
-                       size=20)
-    ax.set_yticklabels([r'$\mathrm{%s}$' % tick for tick in ax.get_yticks()],
-                       size=20)
-    ax.set_xlabel(r'$\mathrm{\AA}$', size=24)
-    ax.set_ylabel(r'$\mathrm{V\/(eV)}$', size=24)
+    if latex:
+        ax.set_xticklabels(
+            [r'$\mathrm{%s}$' % tick for tick in ax.get_xticks()], size=20
+        )
+        ax.set_yticklabels(
+            [r'$\mathrm{%s}$' % tick for tick in ax.get_yticks()], size=20
+        )
+        ax.set_xlabel(r'$\mathrm{\AA}$', size=24)
+        ax.set_ylabel(r'$\mathrm{V\/(eV)}$', size=24)
+        band_edge_labels = [r'$\mathrm{CBM}$', r'$\mathrm{VBM}$']
+    else:
+        ax.set_xlabel('Angstroms', size=24)
+        ax.set_ylabel('V (eV)', size=24)
+        band_edge_labels = ['CBM', 'VBM']
 
-    if not bs.ismetal():
-        ax.text(ax.get_xlim()[1], cbm, r'$\mathrm{CBM}$',
+    if not bs.is_metal():
+        ax.text(ax.get_xlim()[1], cbm, band_edge_labels[0],
                 horizontalalignment='right', verticalalignment='bottom',
                 size=20)
-        ax.text(ax.get_xlim()[1], vbm, r'$\mathrm{VBM}$',
+        ax.text(ax.get_xlim()[1], vbm, band_edge_labels[1],
                 horizontalalignment='right', verticalalignment='top', size=20)
 
         ax.fill_between(ax.get_xlim(), cbm, ax.get_ylim()[1],
@@ -294,7 +311,7 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
     plt.close()
 
 
-def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt='pdf'):
+def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt='pdf', latex=True):
     """
     Plot a standard band structure with no projections.
 
@@ -305,6 +322,8 @@ def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt='pdf'):
             E_F.
         fmt (str): matplotlib format style. Check the matplotlib
             docs for options.
+        latex (bool): Whether or not LaTEX is installed, for formatting
+            certain strings in Times New Roman for matplotlib.
     """
 
     vasprun = Vasprun('vasprun.xml')
@@ -314,14 +333,16 @@ def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt='pdf'):
     plot = bsp.get_plot(ylim=ylim)
     fig = plot.gcf()
     ax = fig.gca()
-    ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
+    if latex:
+        ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
+        ax.set_yticklabels([r'$\mathrm{%s}$' % t for t in ax.get_yticklabels()])
     if draw_fermi:
         ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]], [0, 0], 'k--')
     fig.savefig('band_structure.{}'.format(fmt), transparent=True)
     plt.close()
 
 
-def plot_color_projected_bands(ylim=(-5, 5), fmt='pdf'):
+def plot_color_projected_bands(ylim=(-5, 5), fmt='pdf', latex=True):
     """
     Plot a single band structure where the color of the band indicates
     the elemental character of the eigenvalue.
@@ -331,21 +352,23 @@ def plot_color_projected_bands(ylim=(-5, 5), fmt='pdf'):
             y-axis.
         fmt (str): matplotlib format style. Check the matplotlib
             docs for options.
+        latex (bool): Whether or not LaTEX is installed, for formatting
+            certain strings in Times New Roman for matplotlib.
     """
 
     vasprun = Vasprun('vasprun.xml', parse_projected_eigen=True)
     bs = vasprun.get_band_structure('KPOINTS', line_mode=True)
     bspp = BSPlotterProjected(bs)
-    plot = bspp.get_elt_projected_plots_color()
-    fig = plot.gcf()
-    ax = fig.gca()
-    ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
+    ax = bspp.get_elt_projected_plots_color().gcf().gca()
+    if latex:
+        ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
+        ax.set_yticklabels([r'$\mathrm{%s}$' % t for t in ax.get_yticklabels()])
     ax.set_ylim(ylim)
-    fig.savefig('color_projected_bands.{}'.format(fmt))
+    plt.savefig('color_projected_bands.{}'.format(fmt))
     plt.close()
 
 
-def plot_elt_projected_bands(ylim=(-5, 5), fmt='pdf'):
+def plot_elt_projected_bands(ylim=(-5, 5), fmt='pdf', latex=True):
     """
     Plot separate band structures for each element where the size of the
     markers indicates the elemental character of the eigenvalue.
@@ -355,17 +378,22 @@ def plot_elt_projected_bands(ylim=(-5, 5), fmt='pdf'):
             y-axis.
         fmt (str): matplotlib format style. Check the matplotlib
             docs for options.
+        latex (bool): Whether or not LaTEX is installed, for formatting
+            certain strings in Times New Roman for matplotlib.
     """
 
     vasprun = Vasprun('vasprun.xml', parse_projected_eigen=True)
     bs = vasprun.get_band_structure('KPOINTS', line_mode=True)
     bspp = BSPlotterProjected(bs)
-    bspp.get_elt_projected_plots(ylim=ylim).savefig(
-        'elt_projected_bands.{}'.format(fmt))
+    ax = bspp.get_elt_projected_plots(ylim=ylim).gcf().gca()
+    if latex:
+        ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
+        ax.set_yticklabels([r'$\mathrm{%s}$' % t for t in ax.get_yticklabels()])
+    plt.savefig('elt_projected_bands.{}'.format(fmt))
     plt.close()
 
 
-def plot_orb_projected_bands(orbitals, fmt='pdf', ylim=(-5, 5)):
+def plot_orb_projected_bands(orbitals, fmt='pdf', ylim=(-5, 5), latex=True):
     """
     Plot a separate band structure for each orbital of each element in
     orbitals.
@@ -378,13 +406,18 @@ def plot_orb_projected_bands(orbitals, fmt='pdf', ylim=(-5, 5)):
             y-axis.
         fmt (str): matplotlib format style. Check the matplotlib
             docs for options.
+        latex (bool): Whether or not LaTEX is installed, for formatting
+            certain strings in Times New Roman for matplotlib.
     """
 
     vasprun = Vasprun('vasprun.xml', parse_projected_eigen=True)
     bs = vasprun.get_band_structure('KPOINTS', line_mode=True)
     bspp = BSPlotterProjected(bs)
-    bspp.get_projected_plots_dots(orbitals, ylim=ylim).savefig(
-        'orb_projected_bands.{}'.format(fmt))
+    ax = bspp.get_projected_plots_dots(orbitals, ylim=ylim).gcf().gca()
+    if latex:
+        ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
+        ax.set_yticklabels([r'$\mathrm{%s}$' % t for t in ax.get_yticklabels()])
+    plt.savefig('orb_projected_bands.{}'.format(fmt))
     plt.close()
 
 
@@ -519,18 +552,24 @@ def get_effective_mass():
             'hole': {'left': h_m_eff_l, 'right': h_m_eff_r}}
 
 
-def plot_density_of_states(fmt='pdf'):
+def plot_density_of_states(xlim=(-10, 5), ylim=(-1.5, 1.5), fmt='pdf',
+                           latex=True):
     """
     Plots the density of states from the DOSCAR in the cwd. Plots
     spin up in red, down in green, and the sum in black. Efermi = 0.
 
     Args:
+        xlim (tuple): minimum and maximum energies for the plot's
+            x-axis.
+        ylim (tuple): minimum and maximum for the plot's
+            y-axis.
         fmt (str): matplotlib format style. Check the matplotlib
             docs for options.
+        latex (bool): Whether or not LaTEX is installed, for formatting
+            certain strings in Times New Roman for matplotlib.
     """
 
     efermi = Vasprun('vasprun.xml').efermi
-    ticks = [-10, -5, -3, -2, -1, 0, 1, 2, 3, 5]
 
     dos_lines = open ('DOSCAR').readlines()
     x,up,down = np.array(), np.array(), np.array()
@@ -546,11 +585,16 @@ def plot_density_of_states(fmt='pdf'):
 
     ax = plt.figure().gca()
 
-    ax.set_xlim(-10, 5)
-    ax.set_ylim(-1.5, 1.5)
-    ax.set_xlabel('E (eV)')
-    ax.set_ylabel('Density of States')
-    ax.set_xticks(ticks)
+    ax.set_xlim(xlim[0], xlim[1])
+    ax.set_ylim(ylim[0], ylim[1])
+    if latex:
+        ax.set_xlabel(r'$\mathrm{E\/(eV)}$')
+        ax.set_ylabel(r'$\mathrm{Density\/of\/States$')
+        ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
+        ax.set_yticklabels([r'$\mathrm{%s}$' % t for t in ax.get_yticklabels()])
+    else:
+        ax.set_xlabel('E (eV)')
+        ax.set_ylabel('Density of States')
     ax.plot(x, up, color='red' )
     ax.plot(x, down, color='green')
     ax.plot(x, sum, color='black' )

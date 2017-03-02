@@ -72,12 +72,10 @@ class AnalysisTest(unittest.TestCase):
         for i in range(len(test_velocities)):
             self.assertEqual(test_velocities[i], control_velocities[i])
 
-    """ These tests are annoying because they require LaTeX, which
-        has to be installed on Travis and takes forever.
 
     def test_plot_band_alignments_creates_file(self):
         os.chdir(ROOT)
-        plot_band_alignments(['MoS2'])
+        plot_band_alignments(['MoS2'], latex=False)
         self.assertTrue(os.path.isfile('band_alignments.pdf'))
         os.system('rm band_alignments.pdf')
 
@@ -85,7 +83,7 @@ class AnalysisTest(unittest.TestCase):
     def test_plot_local_potential_creates_file(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
-        plot_local_potential()
+        plot_local_potential(latex=False)
         self.assertTrue(os.path.isfile('locpot.pdf'))
         os.system('rm locpot.pdf')
 
@@ -93,7 +91,7 @@ class AnalysisTest(unittest.TestCase):
     def test_plot_band_structure_creates_file(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
-        plot_band_structure()
+        plot_band_structure(latex=False)
         self.assertTrue(os.path.isfile('band_structure.pdf'))
         os.system('rm band_structure.pdf')
 
@@ -101,7 +99,7 @@ class AnalysisTest(unittest.TestCase):
     def test_plot_color_projected_bands_creates_file(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
-        plot_color_projected_bands()
+        plot_color_projected_bands(latex=False)
         self.assertTrue(os.path.isfile('color_projected_bands.pdf'))
         os.system('rm color_projected_bands.pdf')
 
@@ -109,7 +107,7 @@ class AnalysisTest(unittest.TestCase):
     def test_plot_elt_projected_bands_creates_file(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
-        plot_elt_projected_bands()
+        plot_elt_projected_bands(latex=False)
         self.assertTrue(os.path.isfile('elt_projected_bands.pdf'))
         os.system('rm elt_projected_bands.pdf')
 
@@ -118,10 +116,10 @@ class AnalysisTest(unittest.TestCase):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
         orbitals = {'B': ['s', 'p'], 'N': ['s', 'p']}
-        plot_orb_projected_bands(orbitals)
+        plot_orb_projected_bands(orbitals, latex=False)
         self.assertTrue(os.path.isfile('orb_projected_bands.pdf'))
         os.system('rm orb_projected_bands.pdf')
-    """
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -20,6 +20,72 @@ from mpinterfaces import PACKAGE_PATH, MY_CONFIG
 from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, VDW_KERNEL,\
     QUEUE
 
+def get_markovian_path(points):
+     """
+     Calculates the shortest path connecting an array of 2D
+     points. Returns the points in order on that path.
+     """
+
+     def dist(x,y):
+        return math.hypot(y[0] - x[0], y[1] - x[1])
+
+     paths = [p for p in it.permutations(points)]
+     path_distances = [sum(map(lambda x: dist(x[0], x[1]), zip(p[:-1], p[1:]))) for p in paths]
+     min_index = np.argmin(path_distances)
+
+     return paths[min_index]
+
+
+def remove_z_kpoints(output='KPOINTS'):
+     """
+     Strips all k-points linemode KPOINTS that include a
+     z-component, since these are not relevant for 2D materials.
+     Then re-computes the markovian path between the remaining
+     2D points and writes it over the KPOINTS file.
+     """
+
+     kpoint_lines = open('KPOINTS').readlines()
+
+     twod_kpoints = []
+     labels = {}
+     i = 4
+
+     while i < len(kpoint_lines):
+         kpt_1 = kpoint_lines[i].split()
+         kpt_2 = kpoint_lines[i+1].split()
+         if float(kpt_1[2]) == 0.0 and [float(kpt_1[0]), float(kpt_1[1])] not in twod_kpoints:
+             twod_kpoints.append(
+                 [float(kpt_1[0]), float(kpt_1[1])]
+             )
+             labels[kpt_1[4]] = [float(kpt_1[0]), float(kpt_1[1])]
+
+         if float(kpt_2[2]) == 0.0 and [float(kpt_2[0]), float(kpt_2[1])] not in twod_kpoints:
+             twod_kpoints.append(
+                 [float(kpt_2[0]), float(kpt_2[1])]
+             )
+             labels[kpt_2[4]] = [float(kpt_2[0]), float(kpt_2[1])]
+         i += 3
+
+     kpath = get_markovian_path(twod_kpoints)
+
+     with open(output, 'w') as kpts:
+         for line in kpoint_lines[:4]:
+             kpts.write(line)
+
+         for i in range(len(kpath)):
+             label_1 = [l for l in labels if labels[l] == kpath[i]][0]
+             if i == len(kpath) - 1:
+                 kpt_2 = kpath[0]
+                 label_2 = [l for l in labels if labels[l] == kpath[0]][0]
+             else:
+                 kpt_2 = kpath[i+1]
+                 label_2 = [l for l in labels if labels[l] == kpath[i+1]][0]
+
+             kpts.write(' '.join([str(kpath[i][0]), str(kpath[i][1]), '0.0 !', label_1]))
+             kpts.write('\n')
+             kpts.write(' '.join([str(kpt_2[0]), str(kpt_2[1]), '0.0 !', label_2]))
+             kpts.write('\n\n')
+
 
 def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
     """
@@ -221,3 +287,98 @@ def run_hse_calculation(dim=2, submit=True, force_overwrite=False,
             os.system(submission_command)
 
         os.chdir('../')
+
+def get_2D_hse_kpoints(struct_for_path, ibzkpth):
+     """
+     Args: Structure from which linemode k-points will be generated
+
+     Returns: the Kpoints file object in the form of a string
+              ready for execution by MPInterfaces
+              calibrate objects
+     """
+     # Read IBZKPT from prep step
+     ibz_lines = open(ibzkpth).readlines()
+     n_ibz_kpts = int(ibz_lines[1].split()[0])
+
+     # Read linemode KPOINTs from the dict (makes sure it is Kpoints
+     # file with only 20 per atom for the optimized settings
+     # Kpoints.from_dict(kpoint_dict).write_file('linemode_KPOINTS')
+     kpath = HighSymmKpath(struct_for_path)
+     Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS_linemode')
+     remove_z_kpoints_linemode()
+     linemode_lines = open('KPOINTS_linemode').readlines()
+
+     # put them together
+     abs_path = []
+     i = 4
+     while i < len(linemode_lines):
+             start_kpt = linemode_lines[i].split()
+             end_kpt = linemode_lines[i+1].split()
+             increments = [
+                 (float(end_kpt[0]) - float(start_kpt[0])) / 20,
+                 (float(end_kpt[1]) - float(start_kpt[1])) / 20,
+                 (float(end_kpt[2]) - float(start_kpt[2])) / 20
+             ]
+             abs_path.append(start_kpt[:3] + ['0', start_kpt[4]])
+             for n in range(1, 20):
+                 abs_path.append(
+                     [str(float(start_kpt[0]) + increments[0] * n),
+                      str(float(start_kpt[1]) + increments[1] * n),
+                      str(float(start_kpt[2]) + increments[2] * n), '0']
+                     )
+             abs_path.append(end_kpt[:3] + ['0', end_kpt[4]])
+             i += 3
+
+     n_linemode_kpts = len(abs_path)
+
+     # write out the kpoints file and return the object
+
+     Kpoints_hse_file = '\n'.join(['Automatically generated mesh',\
+                                       '{}'.format(n_ibz_kpts + n_linemode_kpts),\
+                                       'Reciprocal Lattice',\
+                                       '{}'.format( str( ''.join([line for line \
+                                                    in ibz_lines[3:]]) ) ),\
+                                      ]) + \
+                                       '{}'.format( str( '\n'.join([ ' '.join(point)  \
+                                                    for point in abs_path  ])  ) )
+
+     ## can be used for test print out
+     # with open('KPOINTS_HSE', 'w') as kpts:
+     #        kpts.write('Automatically generated mesh\n')
+     #        kpts.write('{}\n'.format(n_ibz_kpts + n_linemode_kpts))
+     #        kpts.write('Reciprocal Lattice\n')
+     #        for line in ibz_lines[3:]:
+     #            kpts.write(line)
+     #        for point in abs_path:
+     #            kpts.write('{}\n'.format(' '.join(point)))
+
+     return Kpoints_hse_file
+
+def get_2D_incar_hse_prep(incar_dict):
+     """
+     linker for prep calculation
+     """
+     print ('updating INCAR for prep calculation ')
+     INCAR_PREP = {'NSW': 0, 'NELM': 1, 'LWAVE': False, 'LCHARG': False,
+                        'LAECHG': False}
+     incar_dict.update(INCAR_PREP)
+
+     return incar_dict
+
+
+
+def get_2D_incar_hse(incar_dict):
+     """
+     linker function to complete the
+     HSE input deck to MPInterfaces
+     """
+     HSE_INCAR_DICT = {'LHFCALC': True, 'HFSCREEN': 0.2, 'AEXX': 0.25,
+                       'ALGO': 'D', 'TIME': 0.4, 'NSW': 0, 'NELM': 75,
+                       'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
+                       'LWAVE': False, 'NPAR': 8, 'PREC': 'Accurate',
+                       'EDIFF': 1e-4, 'ENCUT': 450, 'ICHARG': 2, 'ISMEAR': 1,
+                       'SIGMA': 0.1, 'IBRION': 2, 'ISIF': 3, 'ISPIN': 2}
+
+     incar_dict.update(HSE_INCAR_DICT)
+
+     return incar_dict

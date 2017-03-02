@@ -72,7 +72,7 @@ class AnalysisTest(unittest.TestCase):
         for i in range(len(test_velocities)):
             self.assertEqual(test_velocities[i], control_velocities[i])
 
-
+    """
     def test_plot_band_alignments_creates_file(self):
         os.chdir(ROOT)
         plot_band_alignments(['MoS2'], fmt='png', latex=False)
@@ -119,7 +119,7 @@ class AnalysisTest(unittest.TestCase):
         plot_orb_projected_bands(orbitals, fmt='png', latex=False)
         self.assertTrue(os.path.isfile('orb_projected_bands.png'))
         os.system('rm orb_projected_bands.png')
-
+    """
 
 if __name__ == '__main__':
     unittest.main()

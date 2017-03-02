@@ -98,24 +98,19 @@ class AnalysisTest(unittest.TestCase):
     def test_plot_band_structure_creates_data(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
-        ax = plot_band_structure(fmt='None')
-        test_line = ax.get_lines()[0]
-        test_x, test_y = test_line.get_xdata(), test_line.get_ydata()
-        control_x = [
-            0.0, 0.07230748, 0.14461496, 0.21692245, 0.28922993, 0.36153741,
-            0.43384489, 0.50615237, 0.57845986, 0.65076734, 0.72307482,
-            0.7953823 , 0.86768978, 0.93999727, 1.01230475, 1.08461223,
-            1.15691971, 1.22922719, 1.30153468, 1.37384216, 1.44614964
+        test_data = plot_band_structure(fmt='None')['energy'][0]['1'][0]
+        control_data = [
+            -19.441699999999997, -19.428699999999999, -19.389499999999998,
+            -19.3245, -19.233800000000002, -19.118099999999998,
+            -18.977800000000002, -18.813899999999997, -18.627499999999998,
+            -18.420200000000001, -18.1937, -17.950699999999998,
+            -17.694499999999998, -17.429600000000001, -17.161999999999999,
+            -16.899799999999999, -16.653399999999998, -16.436100000000003,
+            -16.263399999999997, -16.151400000000002, -16.112499999999997
         ]
-        control_y = [
-            -19.4417, -19.4287, -19.3895, -19.3245, -19.2338, -19.1181,
-            -18.9778, -18.8139, -18.6275, -18.4202, -18.1937, -17.9507,
-            -17.6945, -17.4296, -17.162 , -16.8998, -16.6534, -16.4361,
-            -16.2634, -16.1514, -16.1125
-        ]
-        for i in range(len(control_x)):
-            self.assertAlmostEqual(test_x[i], control_x[i])
-            self.assertAlmostEqual(test_y[i], control_y[i])
+
+        for i in range(len(control_data)):
+            self.assertAlmostEqual(test_data[i], control_data[i])
 
 
     def test_plot_color_projected_bands_creates_file(self):

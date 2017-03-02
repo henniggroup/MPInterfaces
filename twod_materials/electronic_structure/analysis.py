@@ -320,17 +320,18 @@ def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt='pdf'):
     efermi = vasprun.efermi
     bsp = BSPlotter(vasprun.get_band_structure('KPOINTS', line_mode=True,
                                                efermi=efermi))
-    plot = bsp.get_plot(ylim=ylim)
-    fig = plot.gcf()
-    ax = fig.gca()
-    ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
-    ax.set_yticklabels([r'$\mathrm{%s}$' % t for t in ax.get_yticklabels()])
-    if draw_fermi:
-        ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]], [0, 0], 'k--')
     if fmt == "None":
-        return ax
+        return bsp.bs_plot_data()
     else:
-        fig.savefig('band_structure.{}'.format(fmt), transparent=True)
+        plot = bsp.get_plot(ylim=ylim)
+        fig = plot.gcf()
+        ax = fig.gca()
+        ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
+        ax.set_yticklabels([r'$\mathrm{%s}$' % t for t in ax.get_yticklabels()])
+        if draw_fermi:
+            ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]], [0, 0], 'k--')
+        plt.savefig('band_structure.{}'.format(fmt), transparent=True)
+
     plt.close()
 
 

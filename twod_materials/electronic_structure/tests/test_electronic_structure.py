@@ -2,9 +2,12 @@ import unittest
 
 import os
 
+# Override the 'Agg' backend call in analysis.py.
+# This is necessary since the Agg backend causes
+# errors with LaTEX when running tests on Travis.
 import matplotlib
-matplotlib.use('Agg')
-matplotlib.rc('text', usetex=False)
+matplotlib.rcParams['text.usetex'] = False
+import matplotlib.pyplot as plt
 
 from twod_materials.electronic_structure.startup import *
 from twod_materials.electronic_structure.analysis import *

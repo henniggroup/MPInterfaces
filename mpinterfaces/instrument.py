@@ -46,9 +46,6 @@ class MPINTVaspInputSet(DictSet):
 
         """
         self.name = name
-        print ('Receiving INCAR\n', incar, Incar.from_dict(incar.as_dict()))
-        #print ('Trying to print self.incar')
-        #print(self.incar)
         self.incar_init = Incar.from_dict(incar.as_dict())
         self.poscar_init = Poscar.from_dict(poscar.as_dict())
         self.potcar_init = Potcar.from_dict(potcar.as_dict())

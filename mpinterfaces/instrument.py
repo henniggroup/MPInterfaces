@@ -50,13 +50,16 @@ class MPINTVaspInputSet(DictSet):
 
         """
         self.name = name
-        self.incar = Incar.from_dict(incar.as_dict())
-        self.poscar = Poscar.from_dict(poscar.as_dict())
-        self.potcar = Potcar.from_dict(potcar.as_dict())
+        print ('Receiving INCAR\n', incar, Incar.from_dict(incar.as_dict()))
+        #print ('Trying to print self.incar')
+        #print(self.incar)
+        self.incar_init = Incar.from_dict(incar.as_dict())
+        self.poscar_init = Poscar.from_dict(poscar.as_dict())
+        self.potcar_init = Potcar.from_dict(potcar.as_dict())
         if not isinstance(kpoints, str):
-            self.kpoints = Kpoints.from_dict(kpoints.as_dict())
+            self.kpoints_init = Kpoints.from_dict(kpoints.as_dict())
         else:
-            self.kpoints = kpoints
+            self.kpoints_init = kpoints
         self.reuse_path = reuse_path  # complete reuse paths
         self.extra = kwargs
         if qadapter is not None:
@@ -65,19 +68,21 @@ class MPINTVaspInputSet(DictSet):
             self.qadapter = None
         self.script_name = script_name
         config_dict = {}
-        config_dict['INCAR'] = self.incar.as_dict()
-        config_dict['POSCAR'] = self.poscar.as_dict()
+        config_dict['INCAR'] = self.incar_init.as_dict()
+        config_dict['POSCAR'] = self.poscar_init.as_dict()
         # caution the key and the value are not always the same
-        config_dict['POTCAR'] = self.potcar.as_dict()
+        config_dict['POTCAR'] = self.potcar_init.as_dict()
         # dict(zip(self.potcar.as_dict()['symbols'],
         # self.potcar.as_dict()['symbols']))
         if not isinstance(kpoints, str):
-            config_dict['KPOINTS'] = self.kpoints.as_dict()
+            config_dict['KPOINTS'] = self.kpoints_init.as_dict()
         else:
-            config_dict['KPOINTS'] = self.kpoints
+            # need to find a way to dictify this kpoints string more
+            # appropriately
+            config_dict['KPOINTS'] = {'kpts_hse':self.kpoints_init}
         # self.user_incar_settings = self.incar.as_dict()
-        DictSet.__init__(self, name, config_dict,
-                         ediff_per_atom=False, **kwargs)
+        DictSet.__init__(self, poscar.structure, config_dict)
+                         #**kwargs)
         if vis_logger:
             self.logger = vis_logger
         else:
@@ -94,20 +99,20 @@ class MPINTVaspInputSet(DictSet):
         if make_dir_if_not_present and not os.path.exists(d):
             os.makedirs(d)
         self.logger.info('writing inputset to : ' + d)
-        self.incar.write_file(os.path.join(d, 'INCAR'))
+        self.incar_init.write_file(os.path.join(d, 'INCAR'))
 
-        if not isinstance(self.kpoints, str):
+        if not isinstance(self.kpoints_init, str):
             # maybe temporary fix, pymatgen does not seem
             # to have a versatile kpoints object for writing a
             # HSE Kpoints file
-            self.kpoints.write_file(os.path.join(d, 'KPOINTS'))
+            self.kpoints_init.write_file(os.path.join(d, 'KPOINTS'))
         else:
             with open(os.path.join(d, 'KPOINTS'), 'w') as kpts:
-                for line in self.kpoints:
+                for line in self.kpoints_init:
                     kpts.write(line)
 
-        self.potcar.write_file(os.path.join(d, 'POTCAR'))
-        self.poscar.write_file(os.path.join(d, 'POSCAR'),
+        self.potcar_init.write_file(os.path.join(d, 'POTCAR'))
+        self.poscar_init.write_file(os.path.join(d, 'POSCAR'),
                                significant_figures=10)
         if self.qadapter is not None:
             with open(os.path.join(d, self.script_name), 'w') as f:
@@ -119,14 +124,14 @@ class MPINTVaspInputSet(DictSet):
         if self.qadapter:
             qadapter = self.qadapter.to_dict()
 
-        if not isinstance(self.kpoints, str):
-            kpoints = self.kpoints.as_dict()
+        if not isinstance(self.kpoints_init, str):
+            kpoints = self.kpoints_init.as_dict()
         else:
-            kpoints = [self.kpoints]
+            kpoints = [self.kpoints_init]
 
-        d = dict(name=self.name, incar=self.incar.as_dict(),
-                 poscar=self.poscar.as_dict(),
-                 potcar=self.potcar.as_dict(),
+        d = dict(name=self.name, incar=self.incar_init.as_dict(),
+                 poscar=self.poscar_init.as_dict(),
+                 potcar=self.potcar_init.as_dict(),
                  kpoints=kpoints,
                  qadapter=qadapter, script_name=self.script_name,
                  kwargs=self.extra)

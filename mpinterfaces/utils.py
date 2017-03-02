@@ -39,12 +39,9 @@ from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from ase.lattice.surface import surface
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
-sh = logging.StreamHandler(stream=sys.stdout)
-sh.setFormatter(formatter)
-logger.addHandler(sh)
+from mpinterfaces.default_logger import get_default_logger
+
+logger = get_default_logger(__name__)
 
 
 def get_ase_slab(pmg_struct, hkl=(1, 1, 1), min_thick=10, min_vac=10):
@@ -240,7 +237,9 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
     job_cmd = None
     hostname = socket.gethostname()
 
-    # old hipergator which can be generalized into a pbs qdapter for fireworks
+# FIXME: Using hostnames to determine behavior is terrible practice, as is
+# hard-coding file directories.
+# old hipergator which can be generalized into a pbs qdapter for fireworks
 
 #    if 'ufhpc_pbs' in hostname:
 #        if job_bin is None:

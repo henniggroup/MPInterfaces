@@ -56,13 +56,10 @@ from mpinterfaces.utils import get_ase_slab, get_magmom_string, get_magmom_afm, 
 from twod_materials.electronic_structure.startup import get_2D_hse_kpoints,\
     get_2D_incar_hse_prep, get_2D_incar_hse
 
+from mpinterfaces.default_logger import get_default_logger
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
-sh = logging.StreamHandler(stream=sys.stdout)
-sh.setFormatter(formatter)
-logger.addHandler(sh)
+logger = get_default_logger(__name__)
+
 
 # Error exception catching function for debugging
 # can be a very useful tool for a developer

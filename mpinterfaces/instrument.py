@@ -28,13 +28,9 @@ from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from mpinterfaces.data_processor import MPINTVasprun
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
-sh = logging.StreamHandler(stream=sys.stdout)
-sh.setFormatter(formatter)
-logger.addHandler(sh)
+from mpinterfaces.default_logger import get_default_logger
 
+logger = get_default_logger(__name__)
 
 class MPINTVaspInputSet(DictSet):
     """

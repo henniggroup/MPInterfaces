@@ -2,6 +2,10 @@ import unittest
 
 import os
 
+import matplotlib
+matplotlib.use('Agg')
+matplotlib.rc('text', usetex=False)
+
 from twod_materials.electronic_structure.startup import *
 from twod_materials.electronic_structure.analysis import *
 

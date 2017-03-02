@@ -42,9 +42,9 @@ class AnalysisTest(unittest.TestCase):
         os.chdir(ROOT)
         os.chdir('MoS2_with_lateral_and_normal')
         test_data = get_mu_vs_F_N('2x5')
-        control_data = {'F_N': [10.917128940360275],
+        control_data = {'F_N': [2.7292822350900687],
                         'mu': [0.71346395371219118],
-                        'F_f': [7.7889779769752261]}
+                        'F_f': [1.9472444942438065]}
         for key in control_data:
             self.assertEqual(test_data[key][0], control_data[key][0])
 

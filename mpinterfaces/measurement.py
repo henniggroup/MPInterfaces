@@ -71,8 +71,8 @@ class Measurement(object):
         for cal in self.cal_objs:
             for i, jdir in enumerate(cal.old_job_dir_list):
                 job_dir = self.job_dir + os.sep \
-                          + jdir.replace(os.sep, '_').replace('.', '_') \
-                          + os.sep + 'STATIC'
+                    + jdir.replace(os.sep, '_').replace('.', '_') \
+                    + os.sep + 'STATIC'
                 logger.info('setting up job in {}'.format(job_dir))
                 cal.incar = Incar.from_file(jdir + os.sep + 'INCAR')
                 cal.incar['EDIFF'] = '1E-6'
@@ -173,10 +173,10 @@ class MeasurementSolvation(Measurement):
             prod_list = [self.sol_params.get(k) for k in keys]
             for params in itertools.product(*tuple(prod_list)):
                 job_dir = self.job_dir + os.sep \
-                          + cal.old_job_dir_list[0].replace(os.sep,
-                                                            '_').replace('.',
-                                                                         '_') \
-                          + os.sep + 'SOL'
+                    + cal.old_job_dir_list[0].replace(os.sep,
+                                                      '_').replace('.',
+                                                                   '_') \
+                    + os.sep + 'SOL'
                 for i, k in enumerate(keys):
                     if k == 'NELECT':
                         cal.incar[k] = params[i] + nelectrons
@@ -242,8 +242,8 @@ class MeasurementInterface(Measurement):
         for cal in self.cal_objs:
             for i, jdir in enumerate(cal.old_job_dir_list):
                 job_dir = self.job_dir + os.sep \
-                          + jdir.replace(os.sep, '_').replace('.', '_') + \
-                          os.sep + 'STATIC'
+                    + jdir.replace(os.sep, '_').replace('.', '_') + \
+                    os.sep + 'STATIC'
                 cal.incar = Incar.from_file(jdir + os.sep + 'INCAR')
                 cal.incar['EDIFF'] = '1E-6'
                 cal.incar['NSW'] = 0
@@ -298,8 +298,8 @@ class MeasurementInterface(Measurement):
             key = key_slab + key_ligand
             E_interfaces[key] = self.get_energy(cal)
             E_binding[key] = E_interfaces[key] \
-                             - E_slabs[key_slab] \
-                             - cal.system['num_ligands'] * E_ligands[
+                - E_slabs[key_slab] \
+                - cal.system['num_ligands'] * E_ligands[
                 key_ligand]
         logger.info('Binding energy = {}'.format(E_binding))
 

@@ -4,260 +4,230 @@ import os
 
 import yaml
 
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.io.vasp.outputs import Vasprun
-import twod_materials.utils as utl
 from pymatgen.matproj.rest import MPRester
 
-#from monty.serialization import loadfn
+from monty.serialization import loadfn
+
 from mpinterfaces import MY_CONFIG
 
-#try:
-#    MPR = MPRester(
-#        loadfn(os.path.join(os.path.expanduser('~'), 'config.yaml'))['mp_api']
-#        )
-#except IOError:
-#    try:
-#        MPR = MPRester(
-#            os.environ['MP_API']
-#            )
-#    except KeyError:
-#        raise ValueError('No Materials Project API key found. Please check'
-#                         ' that your ~/config.yaml contains the field'
-#                         ' mp_api: your_api_key')
-
-if '/ufrc/' in os.getcwd():
-    HIPERGATOR = 2
-elif '/scratch/' in os.getcwd():
-    HIPERGATOR = 1
+from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, VDW_KERNEL,\
+    QUEUE
+import twod_materials
+from twod_materials.stability.startup import relax
+import twod_materials.utils as utl
 
 
-class Calibrator():
+PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
+PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
 
-    def __init__(self, incar_dict, potcar_dict, n_kpts_per_atom=500,
-                 ncores=1, nprocs=16, pmem='600mb', walltime='6:00:00',
-                 binary='vasp'):
-        '''
-        args:
-            incar_dict: dictionary of all input parameters used in the
-                        given framework.
+REFERENCE_MPIDS = loadfn(os.path.join(
+    PACKAGE_PATH, 'pourbaix/reference_mpids.yaml')
+)
+EXPERIMENTAL_OXIDE_DATA = loadfn(os.path.join(
+    PACKAGE_PATH, 'pourbaix/experimental_oxide_data.yaml')
+)
+GAS_CORRECTIONS = loadfn(os.path.join(
+    PACKAGE_PATH, 'pourbaix/gas_corrections.yaml')
+)
 
-            n_kpts_per_atom: Create kpoints at specified density per
-                             atom. Defaults to 500.
 
-            potcar_dict: dictionary of all species to be calibrated and
-                         the potcar hashes used in the given framework.
+def get_experimental_formation_energies():
+    """
+    Read in the raw enthalpy and entropy energy data from
+    Kubaschewski in experimental_oxide_data.yaml
+    and interpret it into actual formation energies. This extra
+    step is written out mostly just to make the methodology clear
+    and reproducible.
+    """
+    data = EXPERIMENTAL_OXIDE_DATA
+    oxygen_entropy = 38.48  # Entropy in atomic O, in cal/mol.degree
+    formation_energies = {}
+    for compound in data:
+        composition = Composition(compound)
+        element = [e for e in composition if e.symbol != 'O'][0]
 
-            n_cores, n_procs, pmem, walltime, binary: runjob parameters.
-                    Defaults established for a regular sized job on
-                    hipergator.
+        delta_H = data[compound]['delta_H']
+        delta_S = (
+            data[compound]['S_cmpd']
+            - (data[compound]['S_elt']*composition[element]
+               + oxygen_entropy*composition['O'])
+        ) * 298 / 1000
+        # Convert kcal/mole to eV/formula unit
+        formation_energies[element.symbol] = (delta_H - delta_S) / 22.06035
 
-        '''
+    return formation_energies
 
-        self._incar_dict = incar_dict
-        self._n_kpts_per_atom = n_kpts_per_atom
-        self._potcar_dict = potcar_dict
-        self._ncores = ncores
-        self._nprocs = nprocs
-        self._pmem = pmem
-        self._walltime = walltime
-        self._binary = binary
-        self._config = loadfn('/home/mashton/cal_config.yaml')
 
-    def prepare(self, submit=False):
-        '''
-        This function will set up calculation directories to calibrate
-        the ion corrections to match a specified framework of INCAR
-        parameters, k-points, and potcar hashes.
+def relax_references(potcar_types, incar_dict, submit=True,
+                     force_overwrite=False):
+    """
+    Set up calculation directories to calibrate
+    the ion corrections to match a specified framework of INCAR
+    parameters and potcar hashes.
 
-        args:
+    Args:
+        potcar_types (list): list of all elements to calibrate,
+            containing specifications for the kind of potential
+            desired for each element, e.g. ['Na_pv', 'O']. If
+            oxygen is not explicitly included in the list, 'O'
+            is used.
 
-            submit (bool): whether or not to call qsub within each
-                           directory.
-        '''
+        incar_dict (dict): a dictionary of input parameters
+            and their values, e.g. {'ISMEAR': -5, 'NSW': 10}
 
-        for elt in self._potcar_dict:
+        submit (bool): whether or not to submit each job
+            after preparing it.
 
-            # Set up reference directory for the pure element.
-            if not os.path.isdir(elt):
-                os.mkdir(elt)
-            os.chdir(elt)
+        force_overwrite (bool): Whether or not to overwrite files
+            if an already converged vasprun.xml exists in the
+            directory.
+    """
 
-            # Poscar
-            s = MPR.get_structure_by_material_id(
-                self._config['Mpids'][elt]['self']
-                )
-            s.to('POSCAR', 'POSCAR')
-            plines = open('POSCAR').readlines()
-            elements = plines[5].split()
+    for element in potcar_types:
+        if element.split('_')[0] == 'O':
+            oxygen_potcar = element
+            break
+    else:
+        oxygen_potcar = 'O'
+        potcar_types.append('O')
 
-            # Kpoints
-            kp = Kpoints.automatic_density(s, self._n_kpts_per_atom)
-            kp.write_file('KPOINTS')
+    for element in potcar_types:
+        elt = element.split('_')[0]
 
-            # Incar
-            incar = Incar.from_dict(self._incar_dict)
-            incar.write_file('INCAR')
+        # First, set up a relaxation for the pure element.
+        if not os.path.isdir(elt):
+            os.mkdir(elt)
+        os.chdir(elt)
+        s = MPR.get_structure_by_material_id(REFERENCE_MPIDS[elt]['element'])
+        s.to('POSCAR', 'POSCAR')
+        relax(dim=3, incar_dict=incar_dict, submit=submit,
+              force_overwrite=force_overwrite)
+        utl.write_potcar(types=[element])
 
-            # Potcar
-            utl.write_potcar(types=[self._potcar_dict[el] for el in elements])
+        # Then set up a relaxation for its reference oxide.
+        if elt not in ['O', 'S', 'F', 'Cl', 'Br', 'I', 'H']:
+            if not os.path.isdir('oxide'):
+                os.mkdir('oxide')
+            os.chdir('oxide')
+            s = MPR.get_structure_by_material_id(REFERENCE_MPIDS[elt]['oxide'])
+            s.get_sorted_structure().to('POSCAR', 'POSCAR')
+            relax(dim=3, incar_dict=incar_dict, submit=submit,
+                  force_overwrite=force_overwrite)
+            utl.write_potcar(types=[element, oxygen_potcar])
 
-            # Runjob
-
-            if HIPERGATOR == 1:
-                utl.write_pbs_runjob('{}_cal'.format(elt), self._ncores,
-                                     self._nprocs, self._pmem, self._walltime,
-                                     self._binary)
-                submission_command = 'qsub runjob'
-
-            elif HIPERGATOR == 2:
-                utl.write_slurm_runjob('{}_cal'.format(elt), self._nprocs,
-                                       self._pmem, self._walltime,
-                                       self._binary)
-                submission_command = 'sbatch runjob'
-
-            if submit:
-                os.system(submission_command)
-
-            # Set up reference oxide compound subdirectory.
-            if elt not in ['O', 'S', 'F', 'Cl', 'Br', 'I']:
-                if not os.path.isdir('ref'):
-                    os.mkdir('ref')
-                os.chdir('ref')
-
-                # Poscar
-                s = MPR.get_structure_by_material_id(
-                    self._config['Mpids'][elt]['ref']
-                    )
-                s.to('POSCAR', 'POSCAR')
-                plines = open('POSCAR').readlines()
-                elements = plines[5].split()
-
-                # Kpoints
-                kp = Kpoints.automatic_density(s, self._n_kpts_per_atom)
-                kp.write_file('KPOINTS')
-
-                # Incar
-                incar = Incar.from_dict(self._incar_dict)
-                incar.write_file('INCAR')
-
-                # Potcar
-                utl.write_potcar(types=[self._potcar_dict[el] for el in elements])
-
-                # Runjob
-                if HIPERGATOR == 1:
-                    utl.write_pbs_runjob('{}_cal'.format(elt), self._ncores,
-                                         self._nprocs, self._pmem,
-                                         self._walltime, self._binary)
-                    submission_command = 'qsub runjob'
-
-                elif HIPERGATOR == 2:
-                    utl.write_slurm_runjob('{}_cal'.format(elt), self._nprocs,
-                                           self._pmem, self._walltime,
-                                           self._binary)
-                    submission_command = 'sbatch runjob'
-
-                if submit:
-                    os.system(submission_command)
-
-                os.chdir('../')
             os.chdir('../')
+        os.chdir('../')
 
-    def get_corrections(self, parent_dir=os.getcwd(), write_yaml=False,
-                        oxide_corr=0.708):
-        '''
-        This function returns a dict object, with elements as keys
-        their corrections as values, in eV per atom.
 
-        args:
-            parent_dir: path to parent directory containing
-                        subdirectories created by prepare().
+def get_corrections(write_yaml=False):
+    """
+    Calculates and collects the corrections to be added for
+    each reference element directory in the current working
+    directory.
 
-            write_yaml (bool): whether or not to write the corrections
-                               to ion_corrections.yaml and the mu0
-                               values to end_members.yaml.
-        '''
+    Args:
+        write_yaml (bool): whether or not to write the
+            corrections to ion_corrections.yaml and the mu0
+            values to end_members.yaml.
 
-        mu0 = dict()
-        corrections = dict()
+    Returns:
+        dict. elements as keys and their corrections as values,
+            in eV per atom, e.g. {'Mo': 0.135, 'S': -0.664}.
+    """
 
-        os.chdir(parent_dir)
+    experimental_formation_energies = get_experimental_formation_energies()
+    mu0, corrections = {}, {}
+    special_cases = ['O', 'S', 'F', 'Cl', 'Br', 'I', 'H']
 
-        special_cases = ['O', 'S', 'F', 'Cl', 'Br', 'I']
+    elts = [elt for elt in os.listdir(os.getcwd()) if os.path.isdir(elt)
+            and elt not in special_cases]
+    special_elts = [elt for elt in os.listdir(os.getcwd()) if os.path.isdir(elt)
+            and elt in special_cases]
 
-        elts = [elt for elt in self._potcar_dict if elt not in special_cases]
-
-        # Add entropic correction for special elements (S * 298K)
-        specials = [elt for elt in self._potcar_dict if elt in special_cases]
-        for elt in specials:
-            os.chdir(elt)
+    # Add entropic correction for special elements (S * 298K)
+    for elt in special_elts:
+        os.chdir(elt)
+        try:
             vasprun = Vasprun('vasprun.xml')
             composition = vasprun.final_structure.composition
+            formula_and_factor = composition.get_integer_formula_and_factor()
             n_formula_units = composition.get_integer_formula_and_factor()[1]
+            if '2' in formula_and_factor[0]:
+                n_formula_units *= 2
 
             mu0[elt] = (
                 round(vasprun.final_energy / n_formula_units
-                      + self._config['OtherCorrections'][elt], 3)
-                )
-            os.chdir(parent_dir)
+                      + GAS_CORRECTIONS['entropy'][elt], 3)
+            )
+        except Exception as e:
+            mu0[elt] = 'Element not finished'
+        os.chdir('../')
 
-        # Oxide correction from Materials Project
-        mu0['O'] += oxide_corr
+    # Oxide correction based on L. Wang, T. Maxisch, and G. Ceder,
+    # Phys. Rev. B 73, 195107 (2006). This correction is to get
+    # solid oxide formation energies right.
+    #mu0['O'] += GAS_CORRECTIONS['oxide']
 
-        for elt in elts:
-            os.chdir(elt)
+    for elt in elts:
+        EF_exp = experimental_formation_energies[elt]
+
+        os.chdir(elt)
+        try:
             vasprun = Vasprun('vasprun.xml')
             composition = vasprun.final_structure.composition
-            n_formula_units = composition.get_integer_formula_and_factor()[1]
+            mu0[elt] = round(
+                vasprun.final_energy / composition[Element(elt)], 3
+            )
 
-            mu0[elt] = round(vasprun.final_energy / n_formula_units, 3)
-
-            # Nitrogen needs both kinds of corrections
+            # Nitrogen needs an entropic gas phase correction too.
             if elt == 'N':
-                mu0[elt] -= 0.296
+                mu0[elt] -= GAS_CORRECTIONS['entropy']['N']
 
-            os.chdir(parent_dir)
+        except Exception as e:
+            corrections[elt] = 'Element not finished'
 
-        for elt in elts:
-
-            os.chdir('{}/ref'.format(elt))
+        os.chdir('oxide')
+        try:
             vasprun = Vasprun('vasprun.xml')
             composition = vasprun.final_structure.composition
             n_formula_units = composition.get_integer_formula_and_factor()[1]
 
-            fH_exp = self._config['Experimental_fH'][elt]
-            try:
-                fH_dft = vasprun.final_energy / n_formula_units
+            EF_dft = (
+                vasprun.final_energy
+                - mu0[elt]*composition[Element(elt)]
+                - mu0['O']*composition[Element('O')]
+            ) / n_formula_units
 
-                plines = open('POSCAR').readlines()
-                elements = plines[5].split()
-                stoichiometries = plines[6].split()
-                comp_as_dict = {}
-                for element in elements:
-                    comp_as_dict[element] = 0
-                for i, element in enumerate(elements):
-                    comp_as_dict[element] += int(stoichiometries[i])
+            corrections[elt] = round(
+                (EF_dft - EF_exp)
+                / (composition[Element(elt)]/n_formula_units), 3
+            )
 
-                n_elt_per_fu = (
-                    int(comp_as_dict[elt]) / n_formula_units
-                    )
-                for el in comp_as_dict:
-                    fH_dft -= (
-                        mu0[el] * int(comp_as_dict[el])
-                        / n_formula_units
-                        )
+        except Exception as e:
+            print(e)
+            # The relaxation didn't finish.
+            if elt in corrections:
+                corrections[elt] += ' and oxide not finished'
+            else:
+                corrections[elt] = 'Oxide not finished'
 
-                corrections[elt] = round((fH_dft - fH_exp) / n_elt_per_fu, 3)
+        os.chdir('../../')
+    if write_yaml:
+        with open('ion_corrections.yaml', 'w') as yam:
+            yam.write('# Difference in formation energy between\n')
+            yam.write('# DFT framework and experimental data\n')
+            yam.write('# from Materials Thermochemistry\n')
+            yam.write('# (Kubaschewski, Alcock)\n')
+            yam.write('# All values are given in eV per atom.\n\n')
+            yam.write(yaml.dump(corrections, default_flow_style=False))
+        with open('chemical_potentials.yaml', 'w') as yam:
+            yam.write('# chemical potentials of elemental phases to calculate')
+            yam.write('\n')
+            yam.write('# formation energies of all compounds. In eV/atom.\n\n')
+            yam.write(yaml.dump(mu0, default_flow_style=False))
 
-            except UnboundLocalError:
-                corrections[elt] = 'Not finished'
-
-            os.chdir(parent_dir)
-
-        if write_yaml:
-            with open('ion_corrections.yaml', 'w') as icy:
-                icy.write(yaml.dump(corrections, default_flow_style=False))
-            with open('end_members.yaml', 'w') as emy:
-                emy.write(yaml.dump(mu0, default_flow_style=False))
-
-        return corrections
+    return corrections

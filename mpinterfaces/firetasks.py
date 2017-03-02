@@ -87,7 +87,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
         cal_objs = []
         logger.info(
             'The measurement task will be constructed from {} calibration objects'
-                .format(len(fw_spec['cal_objs'])))
+            .format(len(fw_spec['cal_objs'])))
         for calparams in fw_spec['cal_objs']:
             calparams.update({'que_params': self.get('que_params')})
             cal = get_cal_obj(calparams)
@@ -101,7 +101,7 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             Re-running this firework will activate all the subsequent foreworks too""")
             logger.info('This fireworks id = {}'.format(self.get("fw_id")))
             return FWAction(defuse_children=True)
-            ### to enable dynamic workflow, uncomment the following
+            # to enable dynamic workflow, uncomment the following
             # if self.get("fw_id"):
             #    fw_id = int(self.get("fw_id")) + 1
             #    self["fw_id"] = fw_id
@@ -112,12 +112,12 @@ class MPINTMeasurementTask(FireTaskBase, FWSerializable):
             #    new_fw = Firework(MPINTMeasurementTask(self),
             #                      spec={'cal_objs':fw_spec['cal_objs']},
             #                      name = 'new_fw')
-            #    
+            #
             # return FWAction(detours=new_fw)
         else:
             measure = load_class("mpinterfaces.measurement",
                                  self['measurement'])(cal_objs, **self.get(
-                "other_params", {}))
+                                     "other_params", {}))
             job_cmd = None
             if self.get("job_cmd", None) is not None:
                 job_cmd = self.get("job_cmd")
@@ -141,7 +141,7 @@ class MPINTDatabaseTask(FireTaskBase, FWSerializable):
 
     def run_task(self, fw_spec):
         """
-        go through the measurement job dirs and 
+        go through the measurement job dirs and
         put the measurement jobs in the database
         """
         drone = MPINTVaspToDbTaskDrone(**self.get("dbase_params", {}))

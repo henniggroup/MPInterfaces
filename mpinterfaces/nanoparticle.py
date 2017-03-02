@@ -86,8 +86,8 @@ class Nanoparticle(Molecule):
         normals = []
         for hkl in self.all_equiv_millers:
             normal = self.recp_lattice.matrix[0, :] * hkl[0] + \
-                     self.recp_lattice.matrix[1, :] * hkl[1] + \
-                     self.recp_lattice.matrix[2, :] * hkl[2]
+                self.recp_lattice.matrix[1, :] * hkl[1] + \
+                self.recp_lattice.matrix[2, :] * hkl[2]
             normals.append(normal / np.linalg.norm(normal))
         return normals
 
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     """
     Wulff construction using the ASE package
     works only for cubic systems and doesn't support multiatom basis
-    
+
     from ase.cluster import wulff_construction
     from pymatgen.io.aseio import AseAtomsAdaptor
 
@@ -166,5 +166,5 @@ if __name__ == '__main__':
     #convert to pymatgen structure
     pgen_structure = AseAtomsAdaptor().get_structure(atoms)
     pgen_structure.to(fmt='poscar', filename='POSCAR_pt_nano.vasp')
-    
+
     """

@@ -43,7 +43,7 @@ class StartupTest(unittest.TestCase):
 
 class AnalysisTest(unittest.TestCase):
 
-    def test_get_band_edges(self):
+    def test_get_band_edges_for_MoS2(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
         test_edges = get_band_edges()
@@ -52,58 +52,74 @@ class AnalysisTest(unittest.TestCase):
                          u'efermi': -6.2162497913404513,
                          u'up_cbm': -4.5298536713404509,
                          u'up_vbm': -6.2530536713404512}
-        self.assertEqual(test_edges, control_edges)
+        for edge in test_edges:
+            self.assertAlmostEqual(test_edges[edge], control_edges[edge])
 
-    """ These tests are annoying because they require LaTeX, which
-        has to be installed on Travis and takes forever.
+    def test_get_fermi_velocities_for_MoS2_and_FeCl2(self):
+        os.chdir(ROOT)
+        os.chdir('MoS2')
+        test_velocities = get_fermi_velocities()
+        control_velocities = []
+        self.assertEqual(test_velocities, control_velocities)
+        # Now FeCl2, which does have metallic bands.
+        os.chdir('../FeCl2')
+        test_velocities = get_fermi_velocities()
+        control_velocities = [1211920261158078.5, 1213975748043003.5,
+                              3440582787448865.5, 1525493730297101.2,
+                              2953560839174396.5, 2212830757399824.8,
+                              2855773386125549.0, 1411440366276435.5,
+                              2970869118108168.0, 2018812598303622.8]
+        for i in range(len(test_velocities)):
+            self.assertEqual(test_velocities[i], control_velocities[i])
+
 
     def test_plot_band_alignments_creates_file(self):
         os.chdir(ROOT)
-        plot_band_alignments(['MoS2'])
-        self.assertTrue(os.path.isfile('band_alignments.pdf'))
-        os.system('rm band_alignments.pdf')
+        plot_band_alignments(['MoS2'], fmt='png', latex=False)
+        self.assertTrue(os.path.isfile('band_alignments.png'))
+        os.system('rm band_alignments.png')
 
 
     def test_plot_local_potential_creates_file(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
-        plot_local_potential()
-        self.assertTrue(os.path.isfile('locpot.pdf'))
-        os.system('rm locpot.pdf')
+        plot_local_potential(fmt='png', latex=False)
+        self.assertTrue(os.path.isfile('locpot.png'))
+        os.system('rm locpot.png')
 
 
     def test_plot_band_structure_creates_file(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
-        plot_band_structure()
-        self.assertTrue(os.path.isfile('band_structure.pdf'))
-        os.system('rm band_structure.pdf')
+        plot_band_structure(fmt='png', latex=False)
+        self.assertTrue(os.path.isfile('band_structure.png'))
+        os.system('rm band_structure.png')
 
 
     def test_plot_color_projected_bands_creates_file(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
-        plot_color_projected_bands()
-        self.assertTrue(os.path.isfile('color_projected_bands.pdf'))
-        os.system('rm color_projected_bands.pdf')
+        plot_color_projected_bands(fmt='png', latex=False)
+        self.assertTrue(os.path.isfile('color_projected_bands.png'))
+        os.system('rm color_projected_bands.png')
 
 
     def test_plot_elt_projected_bands_creates_file(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
-        plot_elt_projected_bands()
-        self.assertTrue(os.path.isfile('elt_projected_bands.pdf'))
-        os.system('rm elt_projected_bands.pdf')
+        plot_elt_projected_bands(fmt='png', latex=False)
+        self.assertTrue(os.path.isfile('elt_projected_bands.png'))
+        os.system('rm elt_projected_bands.png')
 
 
     def test_plot_orb_projected_bands_creates_file(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
         orbitals = {'B': ['s', 'p'], 'N': ['s', 'p']}
-        plot_orb_projected_bands(orbitals)
-        self.assertTrue(os.path.isfile('orb_projected_bands.pdf'))
-        os.system('rm orb_projected_bands.pdf')
-    """
+        plot_orb_projected_bands(orbitals, fmt='png', latex=False)
+        self.assertTrue(os.path.isfile('orb_projected_bands.png'))
+        os.system('rm orb_projected_bands.png')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -174,14 +174,15 @@ def get_magmom_mae(poscar, mag_init):
 
     # initialize a magnetic moment on the transition metal
     # in vector form on the x-direction
-    for n,s in enumerate(sites_dict):
+    for n, s in enumerate(sites_dict):
 
         if Element(s['label']).is_transition_metal:
-             mae_magmom.append([0.0, 0.0, mag_init])
+            mae_magmom.append([0.0, 0.0, mag_init])
         else:
-             mae_magmom.append([0.0, 0.0, 0.0])
+            mae_magmom.append([0.0, 0.0, 0.0])
 
     return sum(mae_magmom, [])
+
 
 def get_magmom_afm(poscar, database=None, mag_init=None):
     """
@@ -191,34 +192,33 @@ def get_magmom_afm(poscar, database=None, mag_init=None):
     afm_magmom = []
     orig_structure_name = poscar.comment
 
-    if len(poscar.structure)%2 != 0:
+    if len(poscar.structure) % 2 != 0:
 
-        if database=='twod':
-             ## no need for more vacuum spacing
-             poscar.structure.make_supercell([2,2,1])
+        if database == 'twod':
+            # no need for more vacuum spacing
+            poscar.structure.make_supercell([2, 2, 1])
         else:
-             ## for bulk structure
-             poscar.structure.make_supercell([2,2,2])
+            # for bulk structure
+            poscar.structure.make_supercell([2, 2, 2])
 
     sites_dict = poscar.as_dict()['structure']['sites']
 
-    for n,s in enumerate(sites_dict):
+    for n, s in enumerate(sites_dict):
 
         if Element(s['label']).is_transition_metal:
-             if n%2 == 0:
-                 afm_magmom.append(6.0)
-             else:
-                 afm_magmom.append(-6.0)
+            if n % 2 == 0:
+                afm_magmom.append(6.0)
+            else:
+                afm_magmom.append(-6.0)
 
         else:
-             if n%2 == 0:
-                 afm_magmom.append(0.5)
-             else:
-                 afm_magmom.append(-0.5)
+            if n % 2 == 0:
+                afm_magmom.append(0.5)
+            else:
+                afm_magmom.append(-0.5)
 
-
-    return afm_magmom, Poscar(structure = poscar.structure,\
-                              comment = orig_structure_name )
+    return afm_magmom, Poscar(structure=poscar.structure,
+                              comment=orig_structure_name)
 
 
 def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
@@ -237,8 +237,26 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
     job_cmd = None
     hostname = socket.gethostname()
 
-    # FIXME: Using hostnames to determine behavior is terrible practice, as is
-    # hard-coding file directories.
+# FIXME: Using hostnames to determine behavior is terrible practice, as is
+# hard-coding file directories.
+# old hipergator which can be generalized into a pbs qdapter for fireworks
+
+#    if 'ufhpc_pbs' in hostname:
+#        if job_bin is None:
+#            job_bin = '/home/km468/Software/VASP/vasp.5.3.5/vasp'
+#        else:
+#            job_bin = job_bin
+#        d = {'type': 'PBS',
+#             'params':
+#                 {
+#                     'nnodes': str(nnodes),
+#                     'ppnode': str(int(nprocs / nnodes)),
+#                     'walltime': walltime,
+#                     'job_name': 'vasp_job',
+#                     'email': 'mpinterfaces@gmail.com',
+#                     'notification_options': 'ae',
+#                     'pre_rocket': '#PBS -l pmem=' + str(mem) + 'mb',
+#                     'rocket_launch': 'mpirun ' + job_bin
 
     # hipergator: currently hipergator2
     if 'ufhpc' in hostname:
@@ -450,8 +468,8 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                         done = done + [False]
                     elif state in ['C', 'CF', 'F', '00']:
                         logger.error(
-                            'Job {0} in {1} cancelled or failed. State = {2}'. \
-                                format(j.job_id, j.job_dir, state))
+                            'Job {0} in {1} cancelled or failed. State = {2}'.
+                            format(j.job_id, j.job_dir, state))
                         done = done + [False]
                         if handlers:
                             logger.info('Investigating ... ')
@@ -616,7 +634,8 @@ def get_opt_params_custom(data, tag, param='ENCUT', ev_per_atom=1.0):
                         zip(t[:-1], t[1:])]
     # print("Consecutive_diff",consecutive_diff)
     min_index = np.argmin(consecutive_diff)
-    # return the tag,potcar object, poscar object, incar setting and convergence data for plotting that is optimum
+    # return the tag,potcar object, poscar object, incar setting and
+    # convergence data for plotting that is optimum
     return [tag, data[tag][param][min_index][2],
             data[tag][param][min_index][3], sorted_list[min_index][0], t]
 

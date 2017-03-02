@@ -23,16 +23,23 @@ def plot_gamma_surface(fmt='pdf'):
     Collect the energies from a grid of static energy
     calculations to plot the Gamma surface between two layers of the 2D
     material.
+
+    Args:
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
 
+    os.chdir('friction/lateral')
+
     static_dirs = [
-        d for d in os.listdir(os.getcwd()) if 'x' in d and len(d) == 3
+        d.split('x') for d in os.listdir(os.getcwd()) if 'x' in d and
+        len(d) == 3
     ]
 
     n_divs_x = max([int(d[0]) for d in static_dirs])
     n_divs_y = max([int(d[1]) for d in static_dirs])
 
-    lattice = Structure.from_file('CONTCAR').lattice
+    lattice = Structure.from_file('POSCAR').lattice
     area = np.cross(lattice._matrix[0], lattice._matrix[1])[2]
 
     ax = plt.figure(figsize=(n_divs_x * 1.2, n_divs_y * 1.2)).gca()
@@ -42,10 +49,8 @@ def plot_gamma_surface(fmt='pdf'):
 
     ENERGY_ARRAY = []
 
-    X_VALUES = range(n_divs_x)
-    Y_VALUES = range(n_divs_y)
-
-    os.chdir('friction/lateral')
+    X_VALUES = range(n_divs_x + 1)
+    Y_VALUES = range(n_divs_y + 1)
 
     not_converged = []
     for x in X_VALUES:
@@ -63,7 +68,7 @@ def plot_gamma_surface(fmt='pdf'):
         ENERGY_ARRAY[x].append(ENERGY_ARRAY[x][0])
 
     ENERGY_ARRAY.append([])
-    ENERGY_ARRAY[n_divs_x] = ENERGY_ARRAY[0]
+    #ENERGY_ARRAY[n_divs_x] = ENERGY_ARRAY[0]
 
     if not_converged:
         warnings.warn('{} did not converge.'.format(not_converged))
@@ -100,19 +105,49 @@ def plot_gamma_surface(fmt='pdf'):
     ax.axes.get_yaxis().set_ticks([])
     ax.axes.get_xaxis().set_ticks([])
 
-    plt.savefig('gamma_surface.{}'.format(fmt), transparent=True)
     os.chdir('../../')
+
+    plt.savefig('gamma_surface.{}'.format(fmt), transparent=True)
+    plt.close()
+
+
+def get_number_of_surface_atoms():
+    """
+    Count the number of atoms at a 2D material's surface. This
+    enables energy and force calculations to be normalized to
+    the number of surface atoms.
+
+    Returns:
+        int. Number of surface atoms (top + bottom) for both
+            layers in the bilayer model.
+    """
+
+    structure = Structure.from_file('friction/lateral/POSCAR')
+    heights = np.array([site.z for site in structure.sites])
+    max_height = max(heights)
+    min_height = min(heights)
+
+    n_atoms_top = len([height for height in heights if max_height - height < 0.1])
+    n_atoms_bottom = len([height for height in heights if height - min_height < 0.1])
+
+    return (n_atoms_top + n_atoms_bottom) * 2
 
 
 def get_basin_and_peak_locations():
     """
-    Find which directories inside `friction/lateral` represent
+    Find which directories inside 'friction/lateral' represent
     the minimum (basin) and maximum (peak) energy stacking
-    configurations. Returns a tuple of the form (basin, peak).
+    configurations.
+
+    Returns:
+        tuple. Of the form (basin, peak).
     """
-    
+
+    os.chdir('friction/lateral')
+
     static_dirs = [
-        d for d in os.listdir(os.getcwd()) if 'x' in d and len(d) == 3
+        d.split('x') for d in os.listdir(os.getcwd()) if 'x' in d and
+        len(d) == 3
     ]
 
     n_divs_x = max([int(d[0]) for d in static_dirs])
@@ -120,8 +155,6 @@ def get_basin_and_peak_locations():
 
     X_VALUES = range(n_divs_x)
     Y_VALUES = range(n_divs_y)
-
-    os.chdir('friction/lateral')
 
     abs_maximum = -10000
     abs_minimum = 0
@@ -149,7 +182,13 @@ def plot_friction_force(fmt='pdf'):
     """
     Plot the sinusoidal curve of delta E between basin and saddle
     points for each normal spacing dz.
+
+    Args:
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
+
+    n_surface_atoms = get_number_of_surface_atoms()
 
     os.chdir('friction/normal')
 
@@ -167,7 +206,7 @@ def plot_friction_force(fmt='pdf'):
         amplitude = abs(
             Vasprun('{}/vasprun.xml'.format(subdirectories[0])).final_energy
             - Vasprun('{}/vasprun.xml'.format(subdirectories[1])).final_energy
-            ) / 2
+            ) / (2 * n_surface_atoms)
 
         start_coords = Structure.from_file(
             '{}/POSCAR'.format(subdirectories[0])
@@ -204,15 +243,26 @@ def plot_friction_force(fmt='pdf'):
 
     ax1.legend(loc='upper right')
     ax2.legend(loc='upper right')
-    plt.savefig('F_f.{}'.format(fmt))
+
     os.chdir('../../')
+
+    plt.savefig('F_f.{}'.format(fmt))
 
 
 def plot_normal_force(basin_dir, fmt='pdf'):
     """
     Plot the LJ-like curve of the energy at the basin point
     as a function of normal spacing dz.
+
+    Args:
+        basin_dir (str): directory corresponding to the minimum
+            energy on the gamma surface. Generally obtained by the
+            get_basin_and_peak_locations() function.
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
+
+    n_surface_atoms = get_number_of_surface_atoms()
 
     os.chdir('friction/normal')
     spacings = [float(dir) for dir in os.listdir(os.getcwd()) if
@@ -224,7 +274,7 @@ def plot_normal_force(basin_dir, fmt='pdf'):
     ax2 = ax.twinx()
 
     abs_E = [
-        Vasprun('{}/{}/vasprun.xml'.format(spacing, basin_dir)).final_energy
+        Vasprun('{}/{}/vasprun.xml'.format(spacing, basin_dir)).final_energy / n_surface_atoms
         for spacing in spacings
         ]
     E = [energy - abs_E[-1] for energy in abs_E]
@@ -261,16 +311,25 @@ def plot_normal_force(basin_dir, fmt='pdf'):
     ax.plot(spacings, E, linewidth=0, marker='o', color=plt.cm.jet(0),
             markersize=10, markeredgecolor='none')
 
-    plt.savefig('F_N.{}'.format(fmt))
-
     os.chdir('../../')
+
+    plt.savefig('F_N.{}'.format(fmt))
 
 
 def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
     """
     Plot friction coefficient 'mu' vs. F_Normal.
-    mu = F_friction / F_Normal
+    mu = F_friction / F_Normal.
+
+    Args:
+        basin_dir (str): directory corresponding to the minimum
+            energy on the gamma surface. Generally obtained by the
+            get_basin_and_peak_locations() function.
+        fmt (str): matplotlib format style. Check the matplotlib
+            docs for options.
     """
+
+    n_surface_atoms = get_number_of_surface_atoms()
 
     fig = plt.figure(figsize=(16, 10))
     ax = fig.gca()
@@ -282,7 +341,7 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
     spacings.sort()
 
     abs_E = [
-        Vasprun('{}/{}/vasprun.xml'.format(spacing, basin_dir)).final_energy
+        Vasprun('{}/{}/vasprun.xml'.format(spacing, basin_dir)).final_energy / n_surface_atoms
         for spacing in spacings
         ]
     E = [energy - abs_E[-1] for energy in abs_E]
@@ -292,9 +351,6 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
     ynew = interpolate.splev(xnew, spline, der=0)
     ynew_slope = interpolate.splev(spacings, spline, der=1)
     F_N = [-y * 1.602 for y in ynew_slope]
-
-    os.chdir('../../friction/normal')
-
     F_f = []
 
     for spacing in sorted([float(spc) for spc in os.listdir(os.getcwd()) if
@@ -305,7 +361,7 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
         amplitude = abs(
             Vasprun('{}/vasprun.xml'.format(subdirectories[0])).final_energy
             - Vasprun('{}/vasprun.xml'.format(subdirectories[1])).final_energy
-            ) / 2
+            ) / (2 * n_surface_atoms)
 
         start_coords = Structure.from_file(
             '{}/POSCAR'.format(subdirectories[0])
@@ -339,8 +395,18 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
 def get_mu_vs_F_N(basin_dir):
     """
     Essentially the same function as plotting, but without the plot.
-    Returns {'F_N': F_N, 'mu': mu}. F_N is in units of nN.
+
+    Args:
+        basin_dir (str): directory corresponding to the minimum
+            energy on the gamma surface. Generally obtained by the
+            get_basin_and_peak_locations() function.
+
+    Returns:
+        dict. Of the form {'F_N': F_N, 'mu': mu, 'F_f': F_f}, where
+            forces are in nN.
     """
+
+    n_surface_atoms = get_number_of_surface_atoms()
 
     os.chdir('friction/normal')
     spacings = [float(dir) for dir in os.listdir(os.getcwd()) if
@@ -348,7 +414,7 @@ def get_mu_vs_F_N(basin_dir):
     spacings.sort()
 
     abs_E = [
-        Vasprun('{}/{}/vasprun.xml'.format(spacing, basin_dir)).final_energy
+        Vasprun('{}/{}/vasprun.xml'.format(spacing, basin_dir)).final_energy / n_surface_atoms
         for spacing in spacings
         ]
     E = [energy - abs_E[-1] for energy in abs_E]
@@ -357,10 +423,8 @@ def get_mu_vs_F_N(basin_dir):
     xnew = np.arange(spacings[0], spacings[-1], 0.001)
     ynew = interpolate.splev(xnew, spline, der=0)
     ynew_slope = interpolate.splev(spacings, spline, der=1)
+    # Convert eV.A to nN
     F_N = [-y * 1.602 for y in ynew_slope]
-
-    os.chdir('../../friction/normal')
-
     F_f = []
 
     for spacing in sorted([float(spc) for spc in os.listdir(os.getcwd()) if
@@ -368,10 +432,14 @@ def get_mu_vs_F_N(basin_dir):
         os.chdir(str(spacing))
         subdirectories = os.listdir(os.getcwd())
 
-        amplitude = abs(
-            Vasprun('{}/vasprun.xml'.format(subdirectories[0])).final_energy
-            - Vasprun('{}/vasprun.xml'.format(subdirectories[1])).final_energy
-            ) / 2
+        try:
+            amplitude = abs(
+                Vasprun('{}/vasprun.xml'.format(subdirectories[0])).final_energy
+                -
+                Vasprun('{}/vasprun.xml'.format(subdirectories[1])).final_energy
+                ) / (2 * n_surface_atoms)
+        except:
+            print('One or more jobs in {}/ have not converged.'.format(spacing))
 
         start_coords = Structure.from_file(
             '{}/POSCAR'.format(subdirectories[0])

@@ -11,6 +11,14 @@ from mpinterfaces.rest import MWRester
 
 from pymatgen.core.structure import Structure
 
+__author__ = "Michael V. Ashton"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
+
 
 PACKAGE_PATH = mpinterfaces.__file__.replace('__init__.pyc', '')
 PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')

@@ -20,6 +20,14 @@ from mpinterfaces import PACKAGE_PATH, MY_CONFIG
 from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, VDW_KERNEL,\
     QUEUE
 
+__author__ = "Michael V. Ashton, Joshua J. Gabriel"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Michael V. Ashton, Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
+
 def get_markovian_path(points):
      """
      Calculates the shortest path connecting an array of 2D

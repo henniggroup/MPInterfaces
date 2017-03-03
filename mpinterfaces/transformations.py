@@ -23,6 +23,12 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Kiran Mathew, Arunima Singh"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
 
 
 def get_trans_matrices(n):

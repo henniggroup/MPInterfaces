@@ -18,6 +18,13 @@ from mpinterfaces import PACKAGE_PATH, MY_CONFIG
 from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, VDW_KERNEL,\
     QUEUE
 
+__author__ = "Michael V. Ashton"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Michael V. Ashton"
+__email__ = "ashtonmv@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
 
 def run_gamma_calculations(submit=True, step_size=0.5):
     """

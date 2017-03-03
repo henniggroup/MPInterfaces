@@ -26,6 +26,14 @@ API v2 to enable the creation of data structures and pymatgen objects using
 MaterialsWeb data.
 """
 
+__author__ = "Michael V. Ashton"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
+
 
 class MWRester(object):
     """

@@ -9,6 +9,14 @@ import get_default_logger
 
 from io import StringIO
 
+__author__ = "Seve G. Monahan"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
+
 class TestGetDefaultLogger(unittest.TestCase):
     def setUp(self):
         self.mystdout = StringIO()

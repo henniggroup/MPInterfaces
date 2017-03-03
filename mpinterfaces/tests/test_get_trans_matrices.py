@@ -1,4 +1,4 @@
-""" tests for mpinterfaces """
+""" tests for mpinterfaces.transformations """
 
 from __future__ import unicode_literals
 
@@ -6,6 +6,14 @@ import unittest
 
 from mpinterfaces.transformations \
     import get_trans_matrices
+
+__author__ = "Seve G. Monahan"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
 
 # We're going to turn the generator into a list,
 # because it really should be.

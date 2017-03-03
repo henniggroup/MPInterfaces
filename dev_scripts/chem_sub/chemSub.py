@@ -39,11 +39,15 @@ from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.matproj.rest import MPRester as MPR
 
-
-
-
-
 import numpy as np
+
+__author__ = "Joshua T. Paul, Joshua J. Gabriel"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
 
 #home = os.path.expanduser('~')
 def get_competing_phases_new(structure):

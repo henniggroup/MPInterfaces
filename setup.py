@@ -12,12 +12,12 @@ setup(
     install_requires=["pymatgen==4.6.0", "FireWorks==1.3.3",
                       "custodian==1.0.1", "pymatgen-db==0.5.1",
                       "ase==3.11.0", "six",
-                      "pyhull==1.5.3","pandas>=0.18.0"],
+                      "pyhull==1.5.3","pandas==0.19.2"],
     extras_require={"babel": ["openbabel", "pybel"],
                     "remote": ["fabric"],
                     "doc": ["sphinx>=1.3.1", "sphinx-rtd-theme>=0.1.8"]
                     },
-    author="Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig",
+    author="Kiran Mathew, Joshua J. Gabriel, Arunima K. Singh, Michael V. Ashton, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig",
     author_email="km468@cornell.edu",
     description=(
         "High throughput analysis of interfaces using VASP and Materials Project tools"),

@@ -1,4 +1,4 @@
-""" tests for mpinterfaces """
+""" tests for mpinterfaces.transformations """
 
 from __future__ import unicode_literals
 
@@ -10,6 +10,13 @@ from mpinterfaces.transformations \
 from io import StringIO
 import sys
 
+__author__ = "Seve G. Monahan"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
 
 class TestGetRList(unittest.TestCase):
 

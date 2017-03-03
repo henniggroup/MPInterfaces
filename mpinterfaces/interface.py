@@ -30,6 +30,14 @@ from mpinterfaces.utils import get_ase_slab
 
 from mpinterfaces.default_logger import get_default_logger
 
+__author__ = "Kiran Mathew, Joshua J. Gabriel"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
+
 logger = get_default_logger(__name__)
 
 class Interface(Slab):

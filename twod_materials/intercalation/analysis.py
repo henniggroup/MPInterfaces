@@ -17,6 +17,13 @@ import matplotlib.pyplot as plt
 
 import operator
 
+__author__ = "Michael V. Ashton"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Michael V. Ashton"
+__email__ = "ashtonmv@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
 
 def plot_ion_hull_and_voltages(ion, fmt='pdf'):
     """

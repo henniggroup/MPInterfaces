@@ -37,12 +37,12 @@ except IOError:
 MAPI_KEY = os.environ.get("MAPI_KEY", "")
 MPR = MPRester(MAPI_KEY)
 
-USERNAME = MY_CONFIG['username']
-STD_BINARY: MY_CONFIG['normal_binary']
-TWOD_BINARY: MY_CONFIG['twod_binary']
-VDW_KERNEL: MY_CONFIG['vdw_kernel']
-VASP_POTENTIALS: MY_CONFIG['potentials']
-QUEUE_SYSTEM: MY_CONFIG['queue_system']
+USERNAME= MY_CONFIG['username']
+STD_BINARY= MY_CONFIG['normal_binary']
+TWOD_BINARY= MY_CONFIG['twod_binary']
+VDW_KERNEL= MY_CONFIG['vdw_kernel']
+VASP_POTENTIALS= MY_CONFIG['potentials']
+QUEUE_SYSTEM= MY_CONFIG['queue_system']
 
 def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
     """

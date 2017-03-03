@@ -25,10 +25,10 @@ from matplotlib.patches import Polygon
 
 import twod_materials
 
-__author__ = "Michael V. Ashton"
+__author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
 __version__ = "1.6"
-__maintainer__ = "Michael V. Ashton"
+__maintainer__ = "Michael Ashton"
 __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"

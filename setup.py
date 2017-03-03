@@ -17,7 +17,7 @@ setup(
                     "remote": ["fabric"],
                     "doc": ["sphinx>=1.3.1", "sphinx-rtd-theme>=0.1.8"]
                     },
-    author="Kiran Mathew, Joshua J. Gabriel, Arunima K. Singh, Michael V. Ashton, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig",
+    author="Kiran Mathew, Joshua J. Gabriel, Arunima K. Singh, Michael Ashton, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig",
     author_email="km468@cornell.edu",
     description=(
         "High throughput analysis of interfaces using VASP and Materials Project tools"),

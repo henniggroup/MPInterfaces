@@ -22,10 +22,10 @@ import itertools as it
 
 from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, QUEUE
 
-__author__ = "Michael V. Ashton"
+__author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
 __version__ = "1.6"
-__maintainer__ = "Michael V. Ashton"
+__maintainer__ = "Michael Ashton"
 __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"

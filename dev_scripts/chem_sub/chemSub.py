@@ -193,7 +193,7 @@ def makePoscars(M_elements, X_elements, monolayer_path, bulk_path, getCompeting 
 if __name__=='__main__':
     Ms = ['Ir']
     Xs = ['I','Cl']
-    print makePoscars(Ms, Xs, 'monos','bulks')
+    print (makePoscars(Ms, Xs, 'monos','bulks'))
 
 
 

@@ -25,7 +25,7 @@ import shutil
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
-from mpinterfaces import get_struct_from_mp
+from mpinterfaces import MPR, get_struct_from_mp
 from mpinterfaces.utils import add_vacuum_padding
 from twod_materials.utils import write_potcar # test of this is redundant or there is an extra feature 
 # from twod_materials.stability.startup import relax
@@ -37,8 +37,8 @@ from pymatgen.phasediagram.maker import PhaseDiagram
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.matproj.rest import MPRester as MPR
 
+#MPR = MPRester(MAPI_KEY) 
 import numpy as np
 
 __author__ = "Joshua T. Paul, Joshua J. Gabriel"
@@ -61,7 +61,7 @@ def get_competing_phases_new(structure):
     composition = structure.composition
     energy = 100
     my_entry = ComputedEntry(composition, energy)  # 2D material
-    entries = MPR.get_entries_in_chemsys([elt.symbol for elt in composition])
+    entries = MPR.get_entries_in_chemsys(elements=[elt.symbol for elt in composition])
 
     entries.append(my_entry)  # 2D material
 
@@ -122,7 +122,7 @@ def makePoscars(M_elements, X_elements, monolayer_path, bulk_path, getCompeting 
         monos[mon] = Structure.from_file(monolayer_path+'/'+mon)
         results[mon] = []
     for bulk in bulksDir:
-        bulks[bulk] = Structure.from_file(bulk_path+'/'+mon)
+        bulks[bulk] = Structure.from_file(bulk_path+'/'+bulk)
         results[bulk+'_bulk'] = []
     # perform the chem sub based on the input X and M lists 
     for base_name, mono in monos.items():

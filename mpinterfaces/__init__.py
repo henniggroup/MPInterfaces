@@ -33,6 +33,8 @@ try:
 except IOError:
     raise ValueError('No config_mine.yaml file found. Please check')
 
+MAPI_KEY = os.environ.get("MAPI_KEY", "")
+MPR = MPRester(MAPI_KEY)
 
 def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
     """
@@ -53,7 +55,7 @@ def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
             print(
                 'get API KEY from materialsproject and set it to the MAPI_KEY environment variable. aborting ... ')
             sys.exit()
-    with MPRester(MAPI_KEY) as m:
+    with MPR as m:
         data = m.get_data(formula)
         structures = []
         x = {}

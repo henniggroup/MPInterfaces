@@ -40,6 +40,7 @@ from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 from ase.lattice.surface import surface
 
 from mpinterfaces.default_logger import get_default_logger
+from mpinterfaces import STD_BINARY, QUEUE_SYSTEM
 
 __author__ = "Kiran Mathew, Joshua J. Gabriel"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -243,7 +244,8 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
     """
     d = {}
     job_cmd = None
-    hostname = socket.gethostname()
+    queue = QUEUE_SYSTEM
+    #hostname = socket.gethostname()
 
 # FIXME: Using hostnames to determine behavior is terrible practice, as is
 # hard-coding file directories.
@@ -267,11 +269,14 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
 #                     'rocket_launch': 'mpirun ' + job_bin
 
     # hipergator: currently hipergator2
-    if 'ufhpc' in hostname:
+    if 'slurm' in queue:
+    #if 'ufhpc' in hostname:
         if job_bin is None:
-            job_bin = '/home/mashton/vasp.5.4.1/bin/vasp'
+            job_bin = STD_BINARY
         else:
             job_bin = job_bin
+# FIXME: think of way to generalize this to a SLURM queue, some specs here are
+# ufhpc dependent and depend on the submission script settings for the binary
         d = {'type': 'SLURM',
              'params':
                  {

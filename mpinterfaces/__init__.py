@@ -5,9 +5,10 @@
 from __future__ import division, unicode_literals, print_function
 
 __author__ = ", ".join(
-    ["Kiran Mathew", "Joshua Gabriel", "Arunima Singh", "Richard G. Hennig"])
-__date__ = "Jan 26 2016"
-__version__ = "1.2.0"
+    ["Kiran Mathew", "Joshua J. Gabriel", "Arunima K. Singh", "Michael V. Ashton",\
+     "Joshua T. Paul", "Seve G. Moanahan", "Richard G. Hennig"])
+__date__ = "March 3 2017"
+__version__ = "1.6.0"
 
 import os
 import sys
@@ -35,6 +36,13 @@ except IOError:
 
 MAPI_KEY = os.environ.get("MAPI_KEY", "")
 MPR = MPRester(MAPI_KEY)
+
+USERNAME = MY_CONFIG['username']
+STD_BINARY: MY_CONFIG['normal_binary']
+TWOD_BINARY: MY_CONFIG['twod_binary']
+VDW_KERNEL: MY_CONFIG['vdw_kernel']
+VASP_POTENTIALS: MY_CONFIG['potentials']
+QUEUE_SYSTEM: MY_CONFIG['queue_system']
 
 def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
     """

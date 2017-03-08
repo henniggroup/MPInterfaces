@@ -17,7 +17,14 @@ import subprocess
 import logging
 
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
+
 from pymatgen.io.vasp.sets import DictSet
+# uncomment for python2.7 pymatgen versions compatibility and more changes, refer
+# ufhpc_py27_compat branch 
+#try:
+#    from pymatgen.io.vasp.sets import DictVaspInputSet
+#except ImportError:
+#    from pymatgen.io.vasp.sets import DictSet as DictVaspInputSet
 
 from custodian.custodian import Job, ErrorHandler
 

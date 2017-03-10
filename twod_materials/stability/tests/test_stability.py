@@ -30,7 +30,7 @@ class StartupTest(unittest.TestCase):
             os.system('rm {}'.format(f))
 
 
-class AnalysisTest(unittest.TestCase):
+#class AnalysisTest(unittest.TestCase):
 
 #    def test_get_hull_distance_for_BiTeCl(self):
 #        os.chdir(ROOT)

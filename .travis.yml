@@ -1,7 +1,7 @@
 language: python
 python:
-  - "2.7"
-  - "3.5"
+- '2.7'
+- '3.5'
 git:
   depth: 1
 sudo: false
@@ -14,19 +14,22 @@ addons:
     - python-scipy
     - python-pip
 install:
-  - travis_wait pip install -r requirements.txt
-  - travis_wait pip install -r requirements-optional.txt
+- travis_wait pip install -r requirements.txt
+- travis_wait pip install -r requirements-optional.txt
 before_script:
-  - python setup.py develop
-script: 
-  - nosetests mpinterfaces 
+- python setup.py develop
+script:
+- nosetests mpinterfaces
 branches:
   only:
-    - master
+  - master
 notifications:
   email:
     recipients:
-      - km468@cornell.edu
-      - joshgabriel92@ufl.edu
+    - km468@cornell.edu
+    - joshgabriel92@ufl.edu
     on_success: change
     on_failure: always
+env:
+  global:
+    secure: AyT3Ybx/nQdxJZwou9xSyTBX2aPg1Azsx7oSROxuwrHhc13kDFRA8FHETP02NtpF4+f6ARjmmZzqhBmbEbKykBqDzgN3fKTtZ8Ugdj12C5mXDZeW+XqVpEvV1cALvmT96RED57SdcVLaiY2owMwOjZd7SMovSZaBDtL1FbobARW5lRNzKmsRThaxFAw0Fu6hloAiFSQQQMMiQW60/1VvL7h6Iac6JKtPCkfB47NqgZur/+yClfucz1btgJ9e1v70rpJPy5E3KC4sKRXj8oB9KWkhT1L6CzlLtTg2uwkzk2VuzkhmewaInVYhuzknLo5k6XZNI9LxkwONgxCu9pVWZot7nqgzrJIvhzTjJB6jor7G6Nkz7W0qpSwnZx7SHykOpZ1kVznBG57QmDfWHfv7AaE4sDnSkuSa4vzS630HCMQpc/7vP7LXKkGPrySkzx9wuLCRE52n5OGN3pPjjsm+8/wTOX3lySxARdHvvPHOtSZiEcwX2P/fpX+T36HzXe79LZwHmZSt6K/Z16yfOAbYGjXhdPggqEt5/TsJUJVprRokcGYD+SE87FHReciy82KDaQIoHO9GLtFvlRhjHaNUeICWDmMR9NaGmKHvNRk25iLxHGc5ztvipZ96KQK5KpZpF8fk9RQPOhaHtUtxYLV5vf7Yc6uQLbA8lmrLr8EPCyE=

@@ -1,9 +1,10 @@
 language: python
 python:
-  - "3.5"
-env:
-  global:
-    secure: "VsTWhRM/kOTzUcZixkgKVczznViy2KAQDXlsQKGfdmVzPDNbQ8/YtNqbmNBQ/7usn6vuMDVRFVeePo9ocyBi2vGTjCHGwvVQRSyx3De8A2JPpSB4NwtSgaJHrpzTmQdwjAiEjofE4LytQlSkoFEK0EiOH5hycwm3QlvqG5UuUGJi9Yee33UDAT8FAAx6ZSc6HrYoOjxQ4eQqp7magmXHE1F8+JlUK1Z05AXySY8avw5QtyEOe/9JXg8UuZfIct17V0j593fkkfEd49zqzR+NOlmU2KFDOskPT20ZDkUtZQX/B5F9Q7d/ZrmTF0uc0id4ruLuvRqIRh0rCwv8FfdmN/t7N+TSHIMSuzpOz1nIz5s/p07t5lM1kOuOS3ZA67Q1iu72gEB1UPVzRR7w2bYtOHtmRm2bZNVxSKXyn10l9avr/aXEcMPYT0N/j5Fq6AzHpXWHYda07YzSo12PvUxukwjzMwrYc9aLtL7jw5Bf7NA6DVfFAzuzhJP46epS1YhFOBuosy7E4DxN9mOKP0JtJrb0uu2DpVWTASVKmUuWF52YG8G62gZ4dl5F7v+SIoaxXJUTbLppWY3P+IX1dXEWoS4usTLpij5/kLwMBDed8ejbvSEHYTPq2KmduLIjO4PdwwjtNzCWFYPSz9tKeOEnR4a+AFohTPgpRP94bnhd468="
+- '2.7'
+- '3.5'
+git:
+  depth: 1
+sudo: false
 addons:
   apt:
     packages:
@@ -32,6 +33,10 @@ notifications:
   email:
     recipients:
       - joshgabriel92@ufl.edu
+      - km468@cornell.edu
       - richardghennig@gmail.com
     on_success: always
     on_failure: always
+env:
+  global:
+    secure: AyT3Ybx/nQdxJZwou9xSyTBX2aPg1Azsx7oSROxuwrHhc13kDFRA8FHETP02NtpF4+f6ARjmmZzqhBmbEbKykBqDzgN3fKTtZ8Ugdj12C5mXDZeW+XqVpEvV1cALvmT96RED57SdcVLaiY2owMwOjZd7SMovSZaBDtL1FbobARW5lRNzKmsRThaxFAw0Fu6hloAiFSQQQMMiQW60/1VvL7h6Iac6JKtPCkfB47NqgZur/+yClfucz1btgJ9e1v70rpJPy5E3KC4sKRXj8oB9KWkhT1L6CzlLtTg2uwkzk2VuzkhmewaInVYhuzknLo5k6XZNI9LxkwONgxCu9pVWZot7nqgzrJIvhzTjJB6jor7G6Nkz7W0qpSwnZx7SHykOpZ1kVznBG57QmDfWHfv7AaE4sDnSkuSa4vzS630HCMQpc/7vP7LXKkGPrySkzx9wuLCRE52n5OGN3pPjjsm+8/wTOX3lySxARdHvvPHOtSZiEcwX2P/fpX+T36HzXe79LZwHmZSt6K/Z16yfOAbYGjXhdPggqEt5/TsJUJVprRokcGYD+SE87FHReciy82KDaQIoHO9GLtFvlRhjHaNUeICWDmMR9NaGmKHvNRk25iLxHGc5ztvipZ96KQK5KpZpF8fk9RQPOhaHtUtxYLV5vf7Yc6uQLbA8lmrLr8EPCyE=

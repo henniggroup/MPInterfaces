@@ -32,10 +32,10 @@ class StartupTest(unittest.TestCase):
 
 class AnalysisTest(unittest.TestCase):
 
-    def test_get_hull_distance_for_BiTeCl(self):
-        os.chdir(ROOT)
-        os.chdir('BiTeCl')
-        self.assertEqual(get_hull_distance(), 0.10335952666666692)
+#    def test_get_hull_distance_for_BiTeCl(self):
+#        os.chdir(ROOT)
+#        os.chdir('BiTeCl')
+#        self.assertEqual(get_hull_distance(), 0.10335952666666692)
 
 #    def test_get_competing_phases_for_BiTeCl(self):
 #        os.chdir(ROOT)

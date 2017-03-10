@@ -6,6 +6,7 @@ import numpy as np
 
 from monty.serialization import loadfn
 
+from pymatgen.core.structure import Structure
 from pymatgen.matproj.rest import MPRester
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -24,22 +25,22 @@ __date__ = "March 3, 2017"
 
 PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
 PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
+ROOT = os.path.join(PACKAGE_PATH, 'stability/tests')
 
 
 class UtilsTest(unittest.TestCase):
 
 
     def test_is_converged(self):
-        false_control = is_converged(PACKAGE_PATH)
-        true_control = is_converged(os.path.join(PACKAGE_PATH,
-                                                 'stability/tests/BiTeCl'))
+        false_control = is_converged(ROOT)
+        true_control = is_converged(os.path.join(ROOT, 'BiTeCl'))
         self.assertTrue(true_control)
         self.assertFalse(false_control)
 
 
     def test_add_vacuum_and_get_spacing_with_odd_structures(self):
-        os.chdir(PACKAGE_PATH)
-        structure = MPR.get_structure_by_material_id('mp-2798')  # SiP
+        os.chdir(ROOT)
+        structure = Structure.from_file('POSCAR_SiP')
         top_layer = []
         for i in range(len(structure.sites)):
             if structure.sites[i].c > 0.5:
@@ -53,39 +54,34 @@ class UtilsTest(unittest.TestCase):
 
 
     def test_get_magmom_string_for_FeCl2(self):
-        os.chdir(PACKAGE_PATH)
-        # FeCl2
-        MPR.get_structure_by_material_id('mp-571096').to('POSCAR', 'POSCAR')
+        os.chdir(ROOT)
+        os.system('cp POSCAR_FeCl2 POSCAR')
         self.assertEqual(get_magmom_string(), u'1*6.0 2*0.5')
         os.system('rm POSCAR')
 
 
     def test_get_rotation_matrix(self):
         test_matrix = get_rotation_matrix((0, 0, 1), 2*np.pi)
-        control_matrix = [
-            [  1.00000000e+00,   2.44929360e-16,   0.00000000e+00],
-            [ -2.44929360e-16,   1.00000000e+00,   0.00000000e+00],
-            [  0.00000000e+00,   0.00000000e+00,   1.00000000e+00]
-        ]
+        control_matrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         for i in range(3):
             for j in range(3):
                 self.assertAlmostEqual(test_matrix[i][j], control_matrix[i][j])
 
 
     def test_align_c_axis_for_non_aligned_structure(self):
-        os.chdir(PACKAGE_PATH)
-        structure = MPR.get_structure_by_material_id('mp-975')  # SF6
+        os.chdir(ROOT)
+        structure = Structure.from_file('POSCAR_SF6')
         structure = align_c_axis_along_001(structure)
-        control_axis = [9.04099732e-13, -2.42627092e-13, 8.38290713]
+        control_axis = [9.04099732e-13, -2.42627092e-13, 8.3829076073038635]
         for i in range(3):
             self.assertAlmostEqual(structure.lattice.matrix[2][i],
                                    control_axis[i])
 
 
     def test_align_c_axis_for_already_aligned_structure(self):
-        os.chdir(PACKAGE_PATH)
+        os.chdir(ROOT)
         control_axis = [0, 0, 23.4186286267]
-        structure = Structure.from_file('stability/tests/BiTeCl/POSCAR')
+        structure = Structure.from_file('BiTeCl/POSCAR')
         structure = align_c_axis_along_001(structure)
         for i in range(3):
             self.assertTrue(abs(
@@ -94,13 +90,15 @@ class UtilsTest(unittest.TestCase):
 
 
     def test_get_structure_type_for_conventional_material(self):
-        structure = MPR.get_structure_by_material_id('mp-13')  # Fe
+        os.chdir(ROOT)
+        structure = Structure.from_file('POSCAR_Fe')
         test_type = get_structure_type(structure)
         self.assertEqual(test_type, 'conventional')
 
 
     def test_get_structure_type_for_layered_material(self):
-        structure = MPR.get_structure_by_material_id('mp-571096')  # FeCl2
+        os.chdir(ROOT)
+        structure = Structure.from_file('POSCAR_FeCl2')
         test_type = get_structure_type(structure)
         self.assertEqual(test_type, 'layered')
 
@@ -110,16 +108,17 @@ class UtilsTest(unittest.TestCase):
 
 
     def test_get_structure_type_for_0D_material(self):
-        structure = MPR.get_structure_by_material_id('mp-1009490')  # O2
+        os.chdir(ROOT)
+        structure = Structure.from_file('POSCAR_O2')
         test_type = get_structure_type(structure)
         self.assertEqual(test_type, 'molecular')
 
 
     def test_write_circle_mesh_kpoints(self):
-        os.chdir(PACKAGE_PATH)
+        os.chdir(ROOT)
         write_circle_mesh_kpoints()
         test_lines = open('KPOINTS').readlines()
-        control_lines = open('stability/tests/circle_mesh_KPOINTS').readlines()
+        control_lines = open('circle_mesh_KPOINTS').readlines()
         self.assertEqual(test_lines, control_lines)
         os.system('rm KPOINTS')
 
@@ -133,7 +132,7 @@ class UtilsTest(unittest.TestCase):
 
 
     def test_remove_z_kpoints(self):
-        os.chdir(os.path.join(PACKAGE_PATH, 'stability/tests/BiTeCl'))
+        os.chdir(os.path.join(ROOT, 'BiTeCl'))
         structure = Structure.from_file('POSCAR')
         kpath = HighSymmKpath(structure)
         Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')

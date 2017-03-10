@@ -37,11 +37,11 @@ class AnalysisTest(unittest.TestCase):
         os.chdir('BiTeCl')
         self.assertEqual(get_hull_distance(), 0.10335952666666692)
 
-    def test_get_competing_phases_for_BiTeCl(self):
-        os.chdir(ROOT)
-        os.chdir('BiTeCl')
-        competing_phases = get_competing_phases()
-        self.assertEqual(competing_phases, [(u'BiTeCl', u'mp-28944')])
+#    def test_get_competing_phases_for_BiTeCl(self):
+#        os.chdir(ROOT)
+#        os.chdir('BiTeCl')
+#        competing_phases = get_competing_phases()
+#        self.assertEqual(competing_phases, [(u'BiTeCl', u'mp-28944')])
 
 
 if __name__ == '__main__':

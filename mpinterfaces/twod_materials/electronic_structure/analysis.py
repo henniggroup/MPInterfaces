@@ -31,11 +31,8 @@ def get_band_edges():
     for a semiconductor.
 
     Returns:
-        edges (dict):
-            {'up_cbm': , 'up_vbm': , 'dn_cbm': , 'dn_vbm': ,
-             'efermi'}
+        edges (dict): {'up_cbm': , 'up_vbm': , 'dn_cbm': , 'dn_vbm': , 'efermi'}
     """
-
     # Vacuum level energy from LOCPOT.
     locpot = Locpot.from_file('LOCPOT')
     evac = max(locpot.get_average_along_axis(2))
@@ -49,25 +46,17 @@ def get_band_edges():
         print(eigenvals[Spin.up])
         print([e[0]-evac for e in eigenvals[Spin.up][0]])
         up_cbm = min(
-            [min(
-                [e[0] for e in eigenvals[Spin.up][i] if not e[1]]
-            ) for i in range(len(eigenvals[Spin.up]))]
-        ) - evac
+            [min([e[0] for e in eigenvals[Spin.up][i] if not e[1]])
+             for i in range(len(eigenvals[Spin.up]))]) - evac
         up_vbm = max(
-            [max(
-                [e[0] for e in eigenvals[Spin.up][i] if e[1]]
-            ) for i in range(len(eigenvals[Spin.up]))]
-        ) - evac
+            [max([e[0] for e in eigenvals[Spin.up][i] if e[1]])
+             for i in range(len(eigenvals[Spin.up]))]) - evac
         dn_cbm = min(
-            [min(
-                [e[0] for e in eigenvals[Spin.down][i] if not e[1]]
-            ) for i in range(len(eigenvals[Spin.down]))]
-        ) - evac
+            [min([e[0] for e in eigenvals[Spin.down][i] if not e[1]])
+             for i in range(len(eigenvals[Spin.down]))]) - evac
         dn_vbm = max(
-            [max(
-                [e[0] for e in eigenvals[Spin.down][i] if e[1]]
-            ) for i in range(len(eigenvals[Spin.down]))]
-        ) - evac
+            [max([e[0] for e in eigenvals[Spin.down][i] if e[1]])
+             for i in range(len(eigenvals[Spin.down]))]) - evac
         edges = {'up_cbm': up_cbm, 'up_vbm': up_vbm, 'dn_cbm': dn_cbm,
                  'dn_vbm': dn_vbm, 'efermi': efermi}
 
@@ -251,10 +240,9 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
 
     Args:
         axis (int): 0 = x, 1 = y, 2 = z
-        ylim (tuple): minimum and maximum potentials for the plot's
-            y-axis.
-        fmt (str): matplotlib format style. Check the matplotlib
-            docs for options.
+        ylim (tuple): minimum and maximum potentials for the plot's y-axis.
+        fmt (str): matplotlib format style. Check the matplotlib docs
+            for options.
     """
 
     ax = plt.figure(figsize=(16, 10)).gca()
@@ -281,11 +269,9 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
     ax.set_ylim(ylim[0], ylim[1])
 
     ax.set_xticklabels(
-        [r'$\mathrm{%s}$' % tick for tick in ax.get_xticks()], size=20
-    )
+        [r'$\mathrm{%s}$' % tick for tick in ax.get_xticks()], size=20)
     ax.set_yticklabels(
-        [r'$\mathrm{%s}$' % tick for tick in ax.get_yticks()], size=20
-    )
+        [r'$\mathrm{%s}$' % tick for tick in ax.get_yticks()], size=20)
     ax.set_xlabel(r'$\mathrm{\AA}$', size=24)
     ax.set_ylabel(r'$\mathrm{V\/(eV)}$', size=24)
 
@@ -295,7 +281,6 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
                 size=20)
         ax.text(ax.get_xlim()[1], vbm, r'$\mathrm{VBM}$',
                 horizontalalignment='right', verticalalignment='top', size=20)
-
         ax.fill_between(ax.get_xlim(), cbm, ax.get_ylim()[1],
                         facecolor=plt.cm.jet(0.3), zorder=0, linewidth=0)
         ax.fill_between(ax.get_xlim(), ax.get_ylim()[0], vbm,
@@ -313,12 +298,10 @@ def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt='pdf'):
     Plot a standard band structure with no projections.
 
     Args:
-        ylim (tuple): minimum and maximum potentials for the plot's
-            y-axis.
-        draw_fermi (bool): whether or not to draw a dashed line at
-            E_F.
-        fmt (str): matplotlib format style. Check the matplotlib
-            docs for options.
+        ylim (tuple): minimum and maximum potentials for the plot's y-axis.
+        draw_fermi (bool): whether or not to draw a dashed line at E_F.
+        fmt (str): matplotlib format style. Check the matplotlib docs
+            for options.
     """
 
     vasprun = Vasprun('vasprun.xml')
@@ -565,9 +548,9 @@ def plot_density_of_states(xlim=(-10, 5), ylim=(-1.5, 1.5), fmt='pdf'):
     """
 
     efermi = Vasprun('vasprun.xml').efermi
-
     dos_lines = open ('DOSCAR').readlines()
-    x, up, down = np.array(), np.array(), np.array()
+
+    x, up, down = [], [], []
     nedos = Incar.from_file('INCAR').as_dict()['NEDOS'] - 1
 
     for line in dos_lines[6:6+nedos]:
@@ -576,10 +559,10 @@ def plot_density_of_states(xlim=(-10, 5), ylim=(-1.5, 1.5), fmt='pdf'):
             up.append(float(split_line[1]))
             down.append(-float(split_line[2]))
 
+    x, up, down = np.array(x), np.array(up), np.array(down)
     sum = up + down
 
     ax = plt.figure().gca()
-
     ax.set_xlim(xlim[0], xlim[1])
     ax.set_ylim(ylim[0], ylim[1])
 
@@ -623,16 +606,14 @@ def get_fermi_velocities():
             if max(bands[spin][i]) > efermi > min(bands[spin][i]):
                 fermi_bands.append(bands[spin][i])
 
-
     fermi_velocities = []
     for band in fermi_bands:
         for i in range(len(band)-1):
-            if (band[i] < efermi and band[i+1] > efermi) or (
-                    band[i] > efermi and band[i+1] < efermi):
+            if (band[i] < efermi < band[i+1]) or (band[i] > efermi > band[i+1]):
                 dk = np.sqrt((kpoints[i+1].cart_coords[0]
                               - kpoints[i].cart_coords[0])**2
                              + (kpoints[i+1].cart_coords[1]
-                              - kpoints[i].cart_coords[1])**2)
+                                - kpoints[i].cart_coords[1])**2)
                 v_f = abs((band[i+1] - band[i]) / (h_bar * dk))
                 fermi_velocities.append(v_f)
 
@@ -670,7 +651,8 @@ def find_dirac_nodes():
                 if i != j and (j, i) not in considered:
                     considered.append((j, i))
                     for k in range(len(bands[i][0])):
-                        if -0.1 < bands[i][1][k] < 0.1 and -0.1 < bands[i][1][k] - bands[j][1][k] < 0.1:
+                        if ((-0.1 < bands[i][1][k] < 0.1) and
+                                (-0.1 < bands[i][1][k] - bands[j][1][k] < 0.1)):
                             dirac = True
     return dirac
 
@@ -683,8 +665,8 @@ def plot_spin_texture(inner_index, outer_index, center=(0, 0), fmt='pdf'):
     have split.
 
     Args:
-        inner_index, outer_index (int): indices of the two spin-split
-            bands.
+        inner_index (int): indices of the two spin-split bands.
+        outer_index (int): indices of the two spin-split bands.
         center (tuple): coordinates of the center of the splitting
             (where the bands cross). Defaults to Gamma.
         fmt: matplotlib format style. Check the matplotlib
@@ -718,23 +700,17 @@ def plot_spin_texture(inner_index, outer_index, center=(0, 0), fmt='pdf'):
         kpoints.append([float(procar_lines[i][18:29]) - center[0],
                         float(procar_lines[i][29:40]) - center[1]])
         spin_textures['inner']['x'][j] += float(
-            procar_lines[i+(4+(n_ions+1)*2)+inner_index*band_step].split()[-1]
-        )
+            procar_lines[i+(4+(n_ions+1)*2)+inner_index*band_step].split()[-1])
         spin_textures['inner']['y'][j] += float(
-            procar_lines[i+(4+(n_ions+1)*3)+inner_index*band_step].split()[-1]
-        )
+            procar_lines[i+(4+(n_ions+1)*3)+inner_index*band_step].split()[-1])
         spin_textures['inner']['z'][j] += float(
-            procar_lines[i+(4+(n_ions+1)*4)+inner_index*band_step].split()[-1]
-        )
+            procar_lines[i+(4+(n_ions+1)*4)+inner_index*band_step].split()[-1])
         spin_textures['outer']['x'][j] += float(
-            procar_lines[i+(4+(n_ions+1)*2)+outer_index*band_step].split()[-1]
-        )
+            procar_lines[i+(4+(n_ions+1)*2)+outer_index*band_step].split()[-1])
         spin_textures['outer']['y'][j] += float(
-            procar_lines[i+(4+(n_ions+1)*3)+outer_index*band_step].split()[-1]
-        )
+            procar_lines[i+(4+(n_ions+1)*3)+outer_index*band_step].split()[-1])
         spin_textures['outer']['z'][j] += float(
-            procar_lines[i+(4+(n_ions+1)*4)+outer_index*band_step].split()[-1]
-        )
+            procar_lines[i+(4+(n_ions+1)*4)+outer_index*band_step].split()[-1])
         i += k_step
         j += 1
 
@@ -743,9 +719,7 @@ def plot_spin_texture(inner_index, outer_index, center=(0, 0), fmt='pdf'):
             print('plotting {}_{}.{}'.format(branch, vector, fmt))
             ax = plt.subplot(111, projection='polar')
 
-            raw = [
-                spin_textures[branch][vector][k] for k in range(len(kpoints))
-            ]
+            raw = [spin_textures[branch][vector][k] for k in range(len(kpoints))]
             minimum = min(raw)
             maximum = max(raw) - minimum
 

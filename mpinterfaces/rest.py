@@ -33,6 +33,7 @@ class MWRester(object):
             do_something
     MWRester uses the "requests" package, which provides for HTTP connection
     pooling. All connections are made via https for security.
+
     Args:
         api_key (str): A String API key for accessing the MaterialsWeb
             REST interface. Please obtain your API key at
@@ -116,7 +117,6 @@ class MWRester(object):
                 if hasattr(response, "content") else str(ex)
             raise MWRestError(msg)
 
-
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
         Flexible method to get any data using the MaterialsWeb REST
@@ -137,7 +137,6 @@ class MWRester(object):
         if prop:
             sub_url += "/" + prop
         return self._make_request(sub_url)
-
 
     def get_structure_by_material_id(self, material_id, final=True):
         """

@@ -51,7 +51,7 @@ from monty.serialization import dumpfn
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.interface import Interface, Ligand
 from mpinterfaces.utils import get_ase_slab, get_magmom_string, get_magmom_afm, \
-    get_magmom_mae, PrintException
+    get_magmom_mae, print_exception
 from mpinterfaces.twod_materials.electronic_structure import get_2D_hse_kpoints,\
     get_2D_incar_hse_prep, get_2D_incar_hse
 from mpinterfaces.default_logger import get_default_logger
@@ -729,7 +729,7 @@ class Calibrate(MSONable):
                         # check what to do if the previous calculation being reused is not
                         # actuall done .. system exit or adopt a user override
                         # with POSCAR
-                        print (PrintException())
+                        print (print_exception())
                         self.logger.warn(
                             'Empty relaxed CONTCAR file .. Probably job not done')
                         if not self.reuse_override:

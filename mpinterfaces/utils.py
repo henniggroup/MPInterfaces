@@ -10,14 +10,10 @@ from __future__ import division, print_function, unicode_literals, \
 Utility functions
 """
 
-from six.moves import range
-from six.moves import zip
-from functools import reduce
-# Error exception catching function for debugging
-# can be a very useful tool for a developer
-# move to utils and activate when debug mode is on
-import linecache
+from six.moves import range, zip
 
+from functools import reduce
+import linecache
 import sys
 import os
 import math
@@ -25,15 +21,15 @@ import socket
 import time
 import subprocess as sp
 import logging
-import numpy as np
 from collections import OrderedDict
+
+import numpy as np
 
 from monty.json import MontyEncoder, MontyDecoder
 from monty.serialization import loadfn, dumpfn
 
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
+from pymatgen import Structure, Lattice, Element
 from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.inputs import Poscar
@@ -107,13 +103,13 @@ def slab_from_file(hkl, filename):
                 site_properties=slab_input.site_properties)
 
 
-def add_vacuum_padding(slab, vacuum, hkl=[0, 0, 1]):
+def add_vacuum_padding(slab, vacuum, hkl=(0, 0, 1)):
     """
     add vacuum spacing to the given structure
     Args:
-        slab: sructure/slab object to be padded
-        vacuum: in angstroms
-        hkl: miller index
+        slab (Structure/Slab): sructure/slab object to be padded
+        vacuum (float): in angstroms
+        hkl (tuple/list): miller index
     Returns:
          Structure object
     """
@@ -150,23 +146,20 @@ def add_vacuum_padding(slab, vacuum, hkl=[0, 0, 1]):
 
 def get_magmom_string(poscar):
     """
+    Based on a POSCAR, returns the string required for the MAGMOM
+    setting in the INCAR. Initializes transition metals with 6.0
+    bohr magneton and all others with 0.5.
     TEST: integration of twod_materials function with mpinterfaces
     calibrate.py
     Consider moving to mpinterfaces.utils
 
     Args:
-        poscar: Poscar object
-        ncl: whether non-collinear run, defaults False, activated
-             if a value supplied
+        poscar (Poscar): Poscar object
+
     Returns:
         string with INCAR setting for MAGMOM according to twod_materials
         database calculations
-
-    Based on a POSCAR, returns the string required for the MAGMOM
-    setting in the INCAR. Initializes transition metals with 6.0
-    bohr magneton and all others with 0.5.
     """
-
     magmoms = []
     sites_dict = poscar.as_dict()['structure']['sites']
     for s in sites_dict:
@@ -181,7 +174,6 @@ def get_magmom_mae(poscar, mag_init):
     """
     mae
     """
-
     mae_magmom = []
 
     sites_dict = poscar.as_dict()['structure']['sites']
@@ -198,7 +190,7 @@ def get_magmom_mae(poscar, mag_init):
     return sum(mae_magmom, [])
 
 
-def get_magmom_afm(poscar, database=None, mag_init=None):
+def get_magmom_afm(poscar, database=None):
     """
     returns the magmom string which is an N length list
     """
@@ -235,8 +227,8 @@ def get_magmom_afm(poscar, database=None, mag_init=None):
                               comment=orig_structure_name)
 
 
-def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
-                  job_bin=None, mem='1000', job_name=None):
+def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00', job_bin=None,
+                  job_name=None):
     """
     depends on the supercomputing faciltiy being used.
     set a sample submit script in the fireworks directory which is
@@ -250,28 +242,28 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
     d = {}
     job_cmd = None
     queue = QUEUE_SYSTEM
-    #hostname = socket.gethostname()
+    hostname = socket.gethostname()
 
-# FIXME: Using hostnames to determine behavior is terrible practice, as is
-# hard-coding file directories.
-# old hipergator which can be generalized into a pbs qdapter for fireworks
+    # FIXME: Using hostnames to determine behavior is terrible practice, as is
+    # hard-coding file directories.
+    # old hipergator which can be generalized into a pbs qdapter for fireworks
 
-#    if 'ufhpc_pbs' in hostname:
-#        if job_bin is None:
-#            job_bin = '/home/km468/Software/VASP/vasp.5.3.5/vasp'
-#        else:
-#            job_bin = job_bin
-#        d = {'type': 'PBS',
-#             'params':
-#                 {
-#                     'nnodes': str(nnodes),
-#                     'ppnode': str(int(nprocs / nnodes)),
-#                     'walltime': walltime,
-#                     'job_name': 'vasp_job',
-#                     'email': 'mpinterfaces@gmail.com',
-#                     'notification_options': 'ae',
-#                     'pre_rocket': '#PBS -l pmem=' + str(mem) + 'mb',
-#                     'rocket_launch': 'mpirun ' + job_bin
+    #    if 'ufhpc_pbs' in hostname:
+    #        if job_bin is None:
+    #            job_bin = '/home/km468/Software/VASP/vasp.5.3.5/vasp'
+    #        else:
+    #            job_bin = job_bin
+    #        d = {'type': 'PBS',
+    #             'params':
+    #                 {
+    #                     'nnodes': str(nnodes),
+    #                     'ppnode': str(int(nprocs / nnodes)),
+    #                     'walltime': walltime,
+    #                     'job_name': 'vasp_job',
+    #                     'email': 'mpinterfaces@gmail.com',
+    #                     'notification_options': 'ae',
+    #                     'pre_rocket': '#PBS -l pmem=' + str(mem) + 'mb',
+    #                     'rocket_launch': 'mpirun ' + job_bin
 
     # hipergator: currently hipergator2
     if 'slurm' in queue:
@@ -280,8 +272,9 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
             job_bin = STD_BINARY
         else:
             job_bin = job_bin
-# FIXME: think of way to generalize this to a SLURM queue, some specs here are
-# ufhpc dependent and depend on the submission script settings for the binary
+    # FIXME: think of way to generalize this to a SLURM queue, some specs
+    # here are ufhpc dependent and depend on the submission script settings
+    # for the binary
         d = {'type': 'SLURM',
              'params':
                  {
@@ -306,7 +299,7 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
              'params':
                  {
                      'nodes': str(nnodes),
-                     'ntasks': str(nprocs),
+                     'ntasks': str(ntasks),
                      'walltime': walltime,
                      'queue': 'normal',
                      'account': 'TG-DMR050028N',
@@ -319,7 +312,7 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
                       'lithium', 'beryllium',
                       'carbon']:
         job_cmd = ['nohup', '/opt/openmpi_intel/bin/mpirun',
-                   '-n', str(nprocs),
+                   '-n', str(ntasks),
                    job_bin]
     # test
     else:
@@ -339,8 +332,8 @@ def get_job_state(job):
            the job state and the job output file name
     """
     hostname = socket.gethostname()
-    state = None
     ofname = None
+
     # hipergator,pbs
     if 'ufhpc' in hostname:
         try:
@@ -350,6 +343,7 @@ def get_job_state(job):
             logger.info('Job {} not in the que'.format(job.job_id))
             state = "00"
         ofname = "FW_job.out"
+
     # stampede, slurm
     elif 'stampede' in hostname:
         try:
@@ -361,6 +355,7 @@ def get_job_state(job):
                 'This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
             state = "00"
         ofname = "vasp_job-" + str(job.job_id) + ".out"
+
     # no batch system
     else:
         state = 'XX'
@@ -373,6 +368,7 @@ def update_checkpoint(job_ids=None, jfile=None, **kwargs):
     read from the json checkpoint file, jfile.
     If no job_ids are given then the checkpoint file will
     be updated with corresponding final energy
+
     Args:
         job_ids: list of job ids to update or q resolve
         jfile: check point file
@@ -431,8 +427,7 @@ def update_checkpoint(job_ids=None, jfile=None, **kwargs):
                             'job_id': j.job_id,
                             "corrections": [],
                             'final_energy': final_energy})
-    dumpfn(cal_log_new, jfile, cls=MontyEncoder,
-           indent=4)
+    dumpfn(cal_log_new, jfile, cls=MontyEncoder, indent=4)
 
 
 def jobs_from_file(filename='calibrate.json'):
@@ -440,8 +435,10 @@ def jobs_from_file(filename='calibrate.json'):
     read in json file of format caibrate.json(the default logfile
     created when jobs are run through calibrate) and return the
     list of job objects.
+
     Args:
         filename: checkpoint file name
+
     Returns:
            list of all jobs
     """
@@ -527,7 +524,7 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
             time.sleep(interval)
 
 
-def get_convergence_data(jfile, params=['ENCUT', 'KPOINTS']):
+def get_convergence_data(jfile, params=('ENCUT', 'KPOINTS')):
     """
     returns data dict in the following format
     {'Al':
@@ -582,7 +579,7 @@ def get_opt_params(data, species, param='ENCUT', ev_per_atom=0.001):
 # PLEASE DONT CHANGE THINGS WITHOUT UPDATING SCRIPTS/MODULES THAT DEPEND
 # ON IT
 # get_convergence_data and get_opt_params moved to *_custom
-def get_convergence_data_custom(jfile, params=['ENCUT', 'KPOINTS']):
+def get_convergence_data_custom(jfile, params=('ENCUT', 'KPOINTS')):
     """
     returns data dict in the following format
     {'Al':
@@ -736,12 +733,17 @@ def set_sd_flags(poscar_input=None, n_layers=2, top=True, bottom=True,
     poscar2.write_file(filename=poscar_output)
 
 
-def PrintException():
+def print_exception():
+    """
+    Error exception catching function for debugging
+    can be a very useful tool for a developer
+    move to utils and activate when debug mode is on
+    """
     exc_type, exc_obj, tb = sys.exc_info()
     f = tb.tb_frame
     lineno = tb.tb_lineno
     filename = f.f_code.co_filename
     linecache.checkcache(filename)
     line = linecache.getline(filename, lineno, f.f_globals)
-    print ('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(
-        filename, lineno, line.strip(), exc_obj))
+    print('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno,
+                                                       line.strip(), exc_obj))

@@ -232,7 +232,8 @@ class Interface(Slab):
             return nlig, uv_list[np.argmin(norm_list)]
         else:
             logger.warn(
-                "couldn't find supercell and number of ligands that satisfy the required surface coverage. exiting.")
+                "couldn't find supercell and number of ligands that satisfy "
+                "the required surface coverage. exiting.")
             sys.exit()
 
     def cover_surface(self, site_indices):

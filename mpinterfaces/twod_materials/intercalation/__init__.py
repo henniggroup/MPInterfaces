@@ -1,22 +1,13 @@
 from __future__ import print_function, division, unicode_literals
 
-import os
-
-from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Element
-from pymatgen.analysis.defects.point_defects import (
-    Interstitial, ValenceIonicRadiusEvaluator
-    )
-
 import operator
 
 from monty.dev import requires
-
-from monty.serialization import loadfn
-
-from mpinterfaces import MY_CONFIG
-
-from twod_materials import QUEUE
+from pymatgen.analysis.defects.point_defects import (
+    Interstitial, ValenceIonicRadiusEvaluator
+    )
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

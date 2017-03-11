@@ -2,23 +2,16 @@ from __future__ import print_function, division, unicode_literals
 
 import os
 
+import twod_materials
+import twod_materials.utils as utl
 import yaml
-
+from monty.serialization import loadfn
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.matproj.rest import MPRester
+from twod_materials import MPR
 
-from monty.serialization import loadfn
-
-from mpinterfaces import MY_CONFIG
-
-from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, VDW_KERNEL,\
-    QUEUE
-import twod_materials
-from twod_materials.stability.startup import relax
-import twod_materials.utils as utl
+from mpinterfaces.twod_materials.stability import relax
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

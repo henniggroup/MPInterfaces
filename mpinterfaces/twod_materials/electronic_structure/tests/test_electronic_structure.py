@@ -1,11 +1,9 @@
 import unittest
 
-import os
+from mpinterfaces import twod_materials
+from mpinterfaces.twod_materials.electronic_structure.analysis import *
 
-from twod_materials.electronic_structure.startup import *
-from twod_materials.electronic_structure.analysis import *
-
-import twod_materials
+from mpinterfaces.twod_materials.electronic_structure import *
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

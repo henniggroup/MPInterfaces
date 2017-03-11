@@ -1,26 +1,20 @@
 from __future__ import print_function, division, unicode_literals
 
+import itertools as it
+import math
 import os
 
-from pymatgen.core.structure import Structure
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.matproj.rest import MPRester
-
-from monty.serialization import loadfn
-
 import numpy as np
+from monty.serialization import loadfn
+from pymatgen.core.composition import Composition
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-import math
-
-from mpinterfaces import PACKAGE_PATH, MY_CONFIG
-
-import itertools as it
-
-from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, QUEUE
+from mpinterfaces import PACKAGE_PATH
+from mpinterfaces.twod_materials import POTENTIAL_PATH
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

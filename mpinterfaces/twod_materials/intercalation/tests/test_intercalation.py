@@ -1,13 +1,7 @@
+import os
 import unittest
 
-import os
-
-from pymatgen.core.structure import Structure
-
-from twod_materials.intercalation.startup import *
-from twod_materials.intercalation.analysis import *
-
-import twod_materials
+from mpinterfaces import twod_materials
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

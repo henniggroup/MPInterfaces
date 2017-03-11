@@ -18,28 +18,14 @@
 #   To run bader charge analysis, you must place the 'bader' and 'chgsum.pl' scripts in your bin directory.
 
 import os
-import sys
-import time
-import collections
-import shutil
-from pymatgen.io.vasp.inputs import Poscar
+
+import numpy as np
 from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Element
-from mpinterfaces import MPR, get_struct_from_mp
-from mpinterfaces.utils import add_vacuum_padding
-from twod_materials.utils import write_potcar # test of this is redundant or there is an extra feature 
-# from twod_materials.stability.startup import relax
-from twod_materials.stability.analysis import get_competing_phases
-
-
+from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.phasediagram.maker import PhaseDiagram
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.entries.computed_entries import ComputedEntry
 
-#MPR = MPRester(MAPI_KEY) 
-import numpy as np
+from mpinterfaces import MPR, get_struct_from_mp
 
 __author__ = "Joshua T. Paul, Joshua J. Gabriel"
 __copyright__ = "Copyright 2017, Henniggroup"

@@ -9,14 +9,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pymatgen.core.structure import Structure
-from pymatgen.core.operations import SymmOp
 from pymatgen.io.vasp.outputs import Vasprun, Locpot, VolumetricData
 from pymatgen.io.vasp.inputs import Incar
 from pymatgen.electronic_structure.plotter import BSPlotter, BSPlotterProjected
-from pymatgen.electronic_structure.bandstructure import BandStructure
 from pymatgen.electronic_structure.core import Spin
 
-from twod_materials.utils import is_converged
+from mpinterfaces.twod_materials.utils import is_converged
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

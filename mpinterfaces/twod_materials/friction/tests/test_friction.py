@@ -1,11 +1,8 @@
 import unittest
 
-import os
-
-from twod_materials.friction.startup import *
-from twod_materials.friction.analysis import *
-
-import twod_materials
+from mpinterfaces import twod_materials
+from mpinterfaces.twod_materials.friction import *
+from mpinterfaces.twod_materials.friction.analysis import *
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

@@ -1,24 +1,10 @@
 from __future__ import print_function, division, unicode_literals
 
-import os
-
-from twod_materials.utils import *
-from twod_materials.stability.startup import relax
-
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.core.structure import Structure
-
-from monty.serialization import loadfn
-
-import numpy as np
-
-import math
-
-from mpinterfaces import PACKAGE_PATH, MY_CONFIG
-
-from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, VDW_KERNEL,\
-    QUEUE
+from mpinterfaces.twod_materials import VASP, QUEUE
+from mpinterfaces.twod_materials.utils import *
+from mpinterfaces.twod_materials.stability import relax
 
 __author__ = "Michael Ashton, Joshua J. Gabriel"
 __copyright__ = "Copyright 2017, Henniggroup"

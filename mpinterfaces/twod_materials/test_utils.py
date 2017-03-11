@@ -1,19 +1,10 @@
 import unittest
 
-import os
-
-import numpy as np
-
-from monty.serialization import loadfn
-
-from pymatgen.core.structure import Structure
-from pymatgen.matproj.rest import MPRester
+import twod_materials
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
-import twod_materials
-from twod_materials import MPR
-from twod_materials.utils import *
+from mpinterfaces.twod_materials.utils import *
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

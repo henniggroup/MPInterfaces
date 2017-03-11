@@ -1,26 +1,21 @@
 from __future__ import print_function, division, unicode_literals
 
+import operator
 import os
 
-import operator
-
+import matplotlib as mpl
+from pymatgen.core.structure import Structure
+from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.phasediagram.maker import PhaseDiagram
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.entries.computed_entries import ComputedEntry
 
-from monty.serialization import loadfn
+from mpinterfaces.twod_materials.utils import is_converged
 
-from twod_materials.utils import is_converged
-
-import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-from mpinterfaces import PACKAGE_PATH, MY_CONFIG
-
-from twod_materials import MPR
+from mpinterfaces.twod_materials import MPR
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

@@ -1,14 +1,10 @@
+import os
 import unittest
 
-import os
-
+from mpinterfaces import twod_materials
 from monty.serialization import loadfn
-
-from twod_materials.pourbaix.startup import *
-from twod_materials.pourbaix.analysis import *
-from twod_materials.stability.startup import INCAR_DICT
-
-import twod_materials
+from mpinterfaces.twod_materials.pourbaix.analysis import *
+from mpinterfaces.twod_materials.pourbaix import *
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

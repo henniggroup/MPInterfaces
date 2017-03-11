@@ -1,22 +1,15 @@
 from __future__ import print_function, division, unicode_literals
 
+import math
 import os
 
-import math
-
 import numpy as np
-
-from monty.serialization import loadfn
-
-import twod_materials.utils as utl
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
-
-from mpinterfaces import PACKAGE_PATH, MY_CONFIG
-
-from twod_materials import MPR, VASP, VASP_2D, POTENTIAL_PATH, USR, VDW_KERNEL,\
+from twod_materials import VASP, VDW_KERNEL,\
     QUEUE
+
+import mpinterfaces.twod_materials.utils as utl
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

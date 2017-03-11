@@ -12,12 +12,12 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-ROOT = os.path.join(PACKAGE_PATH, 'friction/tests')
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tests"))
+
 
 class StartupTest(unittest.TestCase):
 
+    @unittest.skipIf(not twod_materials.MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_run_gamma_calculations(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
@@ -25,7 +25,7 @@ class StartupTest(unittest.TestCase):
         self.assertTrue(os.path.isfile('friction/lateral/0x0/POSCAR'))
         os.system('rm -r friction')
 
-
+    @unittest.skipIf(not twod_materials.MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_run_normal_force_calculations(self):
         os.chdir(ROOT)
         os.chdir('MoS2_with_lateral')
@@ -40,7 +40,6 @@ class AnalysisTest(unittest.TestCase):
         os.chdir(ROOT)
         os.chdir('MoS2_with_lateral')
         self.assertEqual(get_basin_and_peak_locations(), (('2x5', '0x0')))
-
 
     def test_get_mu_vs_F_N(self):
         os.chdir(ROOT)

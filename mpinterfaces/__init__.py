@@ -33,6 +33,7 @@ try:
     VASP_POTENTIALS = MPINT_CONFIG['potentials']
     QUEUE_SYSTEM = MPINT_CONFIG['queue_system']
 except:
+    MPINT_CONFIG = {}
     warnings.warn('config_mine.yaml file not configured. Please'
                   ' set variables potentials and mp_api and retry')
 

@@ -11,9 +11,8 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-ROOT = os.path.join(PACKAGE_PATH, 'intercalation/tests')
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tests"))
+
 
 class StartupTest(unittest.TestCase):
 
@@ -31,6 +30,7 @@ class StartupTest(unittest.TestCase):
         for i in range(len(control_lines)):
             self.assertEqual(control_lines[i], test_lines[i])
     """
+    pass
 
 if __name__ == '__main__':
     unittest.main()

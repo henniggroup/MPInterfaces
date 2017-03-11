@@ -18,7 +18,7 @@ __status__ = "Production"
 __date__ = "March 3, 2017"
 
 
-TEST_FILES_DIR = os.path.dirname(__file__)
+TEST_FILES_DIR = os.path.join(os.path.dirname(__file__), "..", "test_files")
 MWR = MWRester()
 
 

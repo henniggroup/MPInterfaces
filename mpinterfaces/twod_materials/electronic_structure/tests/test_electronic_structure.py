@@ -13,9 +13,8 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-ROOT = os.path.join(PACKAGE_PATH, 'electronic_structure/tests')
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tests"))
 
 
 class StartupTest(unittest.TestCase):
@@ -28,6 +27,7 @@ class StartupTest(unittest.TestCase):
             self.assertTrue(os.path.isfile('pbe_bands/{}'.format(f)))
         os.system('rm -r pbe_bands')
 
+    @unittest.skipIf(not twod_materials.MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_run_hse_calculation_creates_files(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
@@ -36,6 +36,7 @@ class StartupTest(unittest.TestCase):
             self.assertTrue(os.path.isfile('hse_bands/{}'.format(f)))
         os.system('rm -r hse_bands')
 
+    @unittest.skipIf(not twod_materials.MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_run_hse_prep_calculation_creates_files(self):
         os.chdir(ROOT)
         os.chdir('MoS2')

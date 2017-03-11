@@ -1,8 +1,9 @@
 import unittest
+import os
 
-from mpinterfaces import twod_materials
-from mpinterfaces.twod_materials.utils import *
+from mpinterfaces.twod_materials.utils.utils import *
 
+from pymatgen import Structure
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -14,9 +15,8 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-ROOT = os.path.join(PACKAGE_PATH, 'stability/tests')
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "stability", "tests"))
 
 
 class UtilsTest(unittest.TestCase):

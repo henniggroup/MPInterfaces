@@ -14,9 +14,8 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-ROOT = os.path.join(PACKAGE_PATH, 'pourbaix/tests')
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tests"))
+
 
 class StartupTest(unittest.TestCase):
 
@@ -33,7 +32,6 @@ class StartupTest(unittest.TestCase):
         for elt in control_energies:
             self.assertEqual(test_energies[elt], control_energies[elt])
 
-
 #    def test_relax_references_for_Mo_and_S(self):
 #        os.chdir(ROOT)
 #        relax_references(['Mo_pv', 'S'], incar_dict=INCAR_DICT, submit=False)
@@ -43,7 +41,6 @@ class StartupTest(unittest.TestCase):
 #                self.assertTrue(os.path.isfile('{}/{}'.format(d, f)))
 #        for d in ['Mo', 'S', 'O']:
 #            os.system('rm -r {}'.format(d))
-
 
     def test_get_corrections_for_Mo_Ta_and_W(self):
         os.chdir(os.path.join(ROOT, 'Mo_Ta_W_controls'))
@@ -60,8 +57,6 @@ class StartupTest(unittest.TestCase):
         os.system('rm ion_corrections.yaml')
         os.system('rm chemical_potentials.yaml')
         os.chdir(ROOT)
-
-#class AnalysisTest(unittest.TestCase):
 
 
 if __name__ == '__main__':

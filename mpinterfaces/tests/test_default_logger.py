@@ -17,6 +17,7 @@ __email__ = "joshgabriel92@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
+
 class TestGetDefaultLogger(unittest.TestCase):
     def setUp(self):
         self.mystdout = StringIO()

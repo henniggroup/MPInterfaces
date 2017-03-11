@@ -4,8 +4,7 @@ from __future__ import unicode_literals
 
 import unittest
 
-from mpinterfaces.transformations \
-    import get_uv
+from mpinterfaces.transformations import get_uv
 
 __author__ = "Seve G. Monahan"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -14,6 +13,7 @@ __maintainer__ = "Joshua J. Gabriel"
 __email__ = "joshgabriel92@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
+
 
 class TestGetUV(unittest.TestCase):
 

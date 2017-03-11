@@ -6,9 +6,7 @@ import os
 
 import json
 
-import mpinterfaces
 from mpinterfaces.rest import MWRester
-
 from pymatgen.core.structure import Structure
 
 __author__ = "Michael Ashton"
@@ -20,15 +18,11 @@ __status__ = "Production"
 __date__ = "March 3, 2017"
 
 
-PACKAGE_PATH = mpinterfaces.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-TEST_FILES_DIR = os.path.join(PACKAGE_PATH, 'test_files')
-
+TEST_FILES_DIR = os.path.dirname(__file__)
 MWR = MWRester()
 
 
 class RestTest(unittest.TestCase):
-
 
     def test_get_data_for_mw_43(self):
         test_data = MWR.get_data('mw-43')[0]
@@ -36,7 +30,6 @@ class RestTest(unittest.TestCase):
             control_data = json.load(j)['response'][0]
         for k in ['last_updated', 'unit_cell_formula', 'material_id']:
             self.assertEqual(test_data[k], control_data[k])
-
 
     def test_get_structure_by_material_id_for_mw_43(self):
         test_structure = MWR.get_structure_by_material_id('mw-43')

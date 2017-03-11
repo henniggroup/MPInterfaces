@@ -25,12 +25,11 @@ try:
     MPINT_CONFIG = loadfn(os.path.join(PACKAGE_PATH, 'mpint_config.yaml'))
 except:
     MPINT_CONFIG = {}
-    warnings.warn('mpint_config.yaml file not configured. Please'
-                  ' set variables potentials and mp_api and retry')
+    warnings.warn('mpint_config.yaml file not configured.')
 
 # set environ variables for MAPI_KEY and VASP_PSP_DIR
-os.environ['VASP_PSP_DIR'] = MPINT_CONFIG.get('potentials', None)
-MP_API = MPINT_CONFIG.get('mp_api', None)
+os.environ['VASP_PSP_DIR'] = MPINT_CONFIG.get('potentials', '')
+MP_API = MPINT_CONFIG.get('mp_api', '')
 os.environ['MAPI_KEY'] = MP_API
 MPR = MPRester(os.environ['MAPI_KEY'])
 

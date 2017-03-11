@@ -1,9 +1,13 @@
+import os
 import unittest
 
-from mpinterfaces import twod_materials
-from mpinterfaces.twod_materials.electronic_structure.analysis import *
-
+from mpinterfaces import MPINT_CONFIG
 from mpinterfaces.twod_materials.electronic_structure import *
+from mpinterfaces.twod_materials.electronic_structure.analysis import get_band_edges, \
+    get_fermi_velocities, plot_band_alignments, plot_band_structure, \
+    plot_color_projected_bands, plot_orb_projected_bands, plot_local_potential, \
+    plot_elt_projected_bands
+
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -26,7 +30,7 @@ class StartupTest(unittest.TestCase):
             self.assertTrue(os.path.isfile('pbe_bands/{}'.format(f)))
         os.system('rm -r pbe_bands')
 
-    @unittest.skipIf(not twod_materials.MPINT_CONFIG, "MPINT_CONFIG not set")
+    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_run_hse_calculation_creates_files(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
@@ -35,7 +39,7 @@ class StartupTest(unittest.TestCase):
             self.assertTrue(os.path.isfile('hse_bands/{}'.format(f)))
         os.system('rm -r hse_bands')
 
-    @unittest.skipIf(not twod_materials.MPINT_CONFIG, "MPINT_CONFIG not set")
+    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_run_hse_prep_calculation_creates_files(self):
         os.chdir(ROOT)
         os.chdir('MoS2')

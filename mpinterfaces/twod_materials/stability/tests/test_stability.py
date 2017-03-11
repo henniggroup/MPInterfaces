@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from mpinterfaces import twod_materials
-from mpinterfaces.twod_materials.electronic_structure import *
+from mpinterfaces import MPINT_CONFIG
+from mpinterfaces.twod_materials.stability import *
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -17,7 +17,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tests"))
 
 class StartupTest(unittest.TestCase):
 
-    @unittest.skipIf(not twod_materials.MPINT_CONFIG, "MPINT_CONFIG not set")
+    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_relax_creates_files(self):
         os.chdir(ROOT)
         os.chdir('BiTeCl')

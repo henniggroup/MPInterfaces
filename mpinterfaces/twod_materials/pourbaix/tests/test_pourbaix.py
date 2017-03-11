@@ -1,9 +1,7 @@
 import os
 import unittest
 
-from mpinterfaces import twod_materials
 from monty.serialization import loadfn
-from mpinterfaces.twod_materials.pourbaix.analysis import *
 from mpinterfaces.twod_materials.pourbaix import *
 
 __author__ = "Michael Ashton"

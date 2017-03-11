@@ -1,8 +1,6 @@
 import os
 import unittest
 
-from mpinterfaces import twod_materials
-
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
 __maintainer__ = "Michael Ashton"

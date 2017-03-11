@@ -1,8 +1,10 @@
+import os
 import unittest
 
-from mpinterfaces import twod_materials
+from mpinterfaces import MPINT_CONFIG
 from mpinterfaces.twod_materials.friction import *
-from mpinterfaces.twod_materials.friction.analysis import *
+from mpinterfaces.twod_materials.friction.analysis import get_basin_and_peak_locations, \
+    get_mu_vs_F_N
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -16,7 +18,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tests"))
 
 class StartupTest(unittest.TestCase):
 
-    @unittest.skipIf(not twod_materials.MPINT_CONFIG, "MPINT_CONFIG not set")
+    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_run_gamma_calculations(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
@@ -24,7 +26,7 @@ class StartupTest(unittest.TestCase):
         self.assertTrue(os.path.isfile('friction/lateral/0x0/POSCAR'))
         os.system('rm -r friction')
 
-    @unittest.skipIf(not twod_materials.MPINT_CONFIG, "MPINT_CONFIG not set")
+    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_run_normal_force_calculations(self):
         os.chdir(ROOT)
         os.chdir('MoS2_with_lateral')

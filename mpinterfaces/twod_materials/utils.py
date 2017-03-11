@@ -13,7 +13,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from mpinterfaces import PACKAGE_PATH
+from mpinterfaces import twod_materials
 from mpinterfaces.twod_materials import POTENTIAL_PATH
 
 __author__ = "Michael Ashton"
@@ -465,10 +465,8 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
         elements = lines[5].split()
         poscar.close()
 
-        ROOT_PATH = '/'.join(PACKAGE_PATH.split('/')[:-2])
-        potcar_symbols = loadfn(
-            os.path.join(ROOT_PATH, 'twod_materials/potcar_symbols.yaml')
-        )
+        ROOT_PATH = os.path.dirname(twod_materials.__file__)
+        potcar_symbols = loadfn(os.path.join(ROOT_PATH, 'potcar_symbols.yaml'))
 
         if types == 'None':
             sorted_types = [potcar_symbols[elt] for elt in elements]

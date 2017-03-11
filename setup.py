@@ -8,11 +8,10 @@ MPINT_DIR = os.path.dirname(os.path.abspath(__file__))
 setup(
     name="mpinterfaces",
     version="1.2.0",
-
-    install_requires=["pymatgen==4.6.0", "FireWorks==1.3.3",
-                      "custodian==1.0.1", "pymatgen-db==0.5.1",
-                      "ase==3.11.0", "six",
-                      "pyhull==1.5.3", "pandas==0.19.2"],
+    install_requires=["pymatgen>=4.7.0", "FireWorks>=1.4.0",
+                      "custodian>=1.0.1", "pymatgen-db>=0.5.1",
+                      "ase>=3.11.0", "six",
+                      "pyhull>=1.5.3", "pandas>=0.19.2"],
     extras_require={"babel": ["openbabel", "pybel"],
                     "remote": ["fabric"],
                     "doc": ["sphinx>=1.3.1", "sphinx-rtd-theme>=0.1.8"]

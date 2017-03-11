@@ -1,11 +1,18 @@
 from __future__ import print_function, division, unicode_literals
 
+import itertools
+import math
+import numpy as np
+import os
+
+from pymatgen import Structure
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 from mpinterfaces.twod_materials import VASP, QUEUE
-from mpinterfaces.twod_materials.utils import *
 from mpinterfaces.twod_materials.stability import relax
+from mpinterfaces.twod_materials.utils.utils import write_pbs_runjob, \
+    write_slurm_runjob, is_converged, get_magmom_string
 
 __author__ = "Michael Ashton, Joshua J. Gabriel"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -25,7 +32,7 @@ def get_markovian_path(points):
      def dist(x,y):
         return math.hypot(y[0] - x[0], y[1] - x[1])
 
-     paths = [p for p in it.permutations(points)]
+     paths = [p for p in itertools.permutations(points)]
      path_distances = [sum(map(lambda x: dist(x[0], x[1]), zip(p[:-1], p[1:]))) for p in paths]
      min_index = np.argmin(path_distances)
 
@@ -330,14 +337,12 @@ def get_2D_hse_kpoints(struct_for_path, ibzkpth):
 
      # write out the kpoints file and return the object
 
-     Kpoints_hse_file = '\n'.join(['Automatically generated mesh',\
-                                       '{}'.format(n_ibz_kpts + n_linemode_kpts),\
-                                       'Reciprocal Lattice',\
-                                       '{}'.format( str( ''.join([line for line \
-                                                    in ibz_lines[3:]]) ) ),\
-                                      ]) + \
-                                       '{}'.format( str( '\n'.join([ ' '.join(point)  \
-                                                    for point in abs_path  ])  ) )
+     Kpoints_hse_file = '\n'.join(['Automatically generated mesh',
+                                   '{}'.format(n_ibz_kpts + n_linemode_kpts),
+                                   'Reciprocal Lattice',
+                                   '{}'.format( str(''.join([line for line in ibz_lines[3:]]) ) ),\
+                                      ]) + '{}'.format(
+         str( '\n'.join([ ' '.join(point) for point in abs_path  ])  ) )
 
      ## can be used for test print out
      # with open('KPOINTS_HSE', 'w') as kpts:

@@ -4,17 +4,16 @@ import operator
 import os
 
 import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+
 from pymatgen.core.structure import Structure
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.phasediagram.maker import PhaseDiagram
 
-from mpinterfaces.twod_materials.utils import is_converged
-
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-
+from mpinterfaces.twod_materials.utils.utils import is_converged
 from mpinterfaces.twod_materials import MPR
 
 __author__ = "Michael Ashton"
@@ -99,9 +98,7 @@ def get_hull_distance(competing_phase_directory='../competing_phases'):
     except:
         raise ValueError('This directory does not have a converged vasprun.xml')
     my_entry = ComputedEntry(composition, energy)  # 2D material
-    entries = MPR.get_entries_in_chemsys(
-        [elt.symbol for elt in composition]
-        )
+    entries = MPR.get_entries_in_chemsys([elt.symbol for elt in composition])
 
     # If the energies of competing phases have been calculated in
     # the current framework, put them in the phase diagram instead

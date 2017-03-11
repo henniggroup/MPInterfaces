@@ -2,13 +2,13 @@ from __future__ import print_function, division, unicode_literals
 
 import math
 import os
-
 import numpy as np
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
-from mpinterfaces.twod_materials import VASP, VDW_KERNEL,\
-    QUEUE
-import mpinterfaces.twod_materials.utils as utl
+
+from mpinterfaces.twod_materials import VASP, VDW_KERNEL,QUEUE
+import mpinterfaces.twod_materials.utils.utils as utl
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -17,6 +17,7 @@ __maintainer__ = "Michael Ashton"
 __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
+
 
 def run_gamma_calculations(submit=True, step_size=0.5):
     """

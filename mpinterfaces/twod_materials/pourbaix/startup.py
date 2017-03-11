@@ -2,15 +2,17 @@ from __future__ import print_function, division, unicode_literals
 
 import os
 
-from mpinterfaces import twod_materials
-import mpinterfaces.twod_materials.utils as utl
 import yaml
+
 from monty.serialization import loadfn
+
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.outputs import Vasprun
-from mpinterfaces.twod_materials import MPR
 
+from mpinterfaces import twod_materials
+import mpinterfaces.twod_materials.utils.utils as utl
+from mpinterfaces.twod_materials import MPR
 from mpinterfaces.twod_materials.stability import relax
 
 __author__ = "Michael Ashton"

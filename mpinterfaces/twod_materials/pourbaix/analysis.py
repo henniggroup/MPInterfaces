@@ -7,7 +7,12 @@ from __future__ import print_function, division, unicode_literals
 import os
 
 import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
+
 from monty.serialization import loadfn
+
 from pymatgen import Element
 from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
 from pymatgen.analysis.pourbaix.entry import PourbaixEntry, IonEntry
@@ -17,9 +22,6 @@ from pymatgen.core.ion import Ion
 from pymatgen.core.structure import Structure
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.io.vasp.outputs import Vasprun
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
 
 from mpinterfaces import twod_materials
 

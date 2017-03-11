@@ -2,7 +2,7 @@ import os
 
 from pymatgen.io.vasp.inputs import Incar
 
-from mpinterfaces.twod_materials.utils import get_magmom_string
+from mpinterfaces.twod_materials.utils.utils import get_magmom_string
 from mpinterfaces.twod_materials.stability import INCAR_DICT
 
 __author__ = "Michael Ashton"
@@ -28,7 +28,7 @@ def run_major_axis_anisotropy_calculations(submit=True):
     os.chdir('MAE')
     for d in ['100', '010', '001']:
         if not os.path.isdir(d):
-            os.path.mkdir(d)
+            os.mkdir(d)
         os.chdir(d)
         os.system('cp ../CONTCAR POSCAR')
         os.system('cp ../POTCAR .')
@@ -61,6 +61,7 @@ def run_xy_anisotropy_calculations(resolution=10, submit=True):
             number of calculations will be 90 / `resolution`.
         submit (bool): Whether or not to submit the job.
     """
+    pass
 
 
 def run_xz_anisotropy_calculations(resolution=10, submit=True):
@@ -73,3 +74,5 @@ def run_xz_anisotropy_calculations(resolution=10, submit=True):
             number of calculations will be 90 / `resolution`.
         submit (bool): Whether or not to submit the job.
     """
+    pass
+

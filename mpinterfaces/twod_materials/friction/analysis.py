@@ -41,8 +41,7 @@ def plot_gamma_surface(fmt='pdf'):
 
     static_dirs = [
         d.split('x') for d in os.listdir(os.getcwd()) if 'x' in d and
-        len(d) == 3
-    ]
+        len(d) == 3]
 
     n_divs_x = max([int(d[0]) for d in static_dirs])
     n_divs_y = max([int(d[1]) for d in static_dirs])

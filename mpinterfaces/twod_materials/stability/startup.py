@@ -4,10 +4,9 @@ import os
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Kpoints, Incar
-from mpinterfaces.twod_materials import VASP_2D, VDW_KERNEL,\
-    QUEUE
 
-import mpinterfaces.twod_materials.utils as utl
+from mpinterfaces.twod_materials import VASP_2D, VDW_KERNEL,QUEUE
+import mpinterfaces.twod_materials.utils.utils as utl
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

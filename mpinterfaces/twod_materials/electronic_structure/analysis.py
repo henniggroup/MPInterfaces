@@ -14,7 +14,7 @@ from pymatgen.io.vasp.inputs import Incar
 from pymatgen.electronic_structure.plotter import BSPlotter, BSPlotterProjected
 from pymatgen.electronic_structure.core import Spin
 
-from mpinterfaces.twod_materials.utils import is_converged
+from mpinterfaces.twod_materials.utils.utils import is_converged
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -119,7 +119,6 @@ def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
             else:
                 cbm = None
                 vbm = None
-                is_metal = True
                 is_direct = False
 
             band_gaps[directory] = {'CBM': cbm, 'VBM': vbm,
@@ -568,7 +567,7 @@ def plot_density_of_states(xlim=(-10, 5), ylim=(-1.5, 1.5), fmt='pdf'):
     efermi = Vasprun('vasprun.xml').efermi
 
     dos_lines = open ('DOSCAR').readlines()
-    x,up,down = np.array(), np.array(), np.array()
+    x, up, down = np.array(), np.array(), np.array()
     nedos = Incar.from_file('INCAR').as_dict()['NEDOS'] - 1
 
     for line in dos_lines[6:6+nedos]:
@@ -592,10 +591,11 @@ def plot_density_of_states(xlim=(-10, 5), ylim=(-1.5, 1.5), fmt='pdf'):
     ax.plot(x, up, color='red' )
     ax.plot(x, down, color='green')
     ax.plot(x, sum, color='black' )
-    if ft == "None":
-        return ax
-    else:
+    if fmt is not None:
         plt.savefig('density_of_states.{}'.format(fmt))
+    else:
+        return ax
+
     plt.close()
 
 
@@ -610,7 +610,7 @@ def get_fermi_velocities():
     """
 
     vr = Vasprun('vasprun.xml')
-    eigenvalues = vr.eigenvalues
+    # eigenvalues = vr.eigenvalues
     bs = vr.get_band_structure()
     bands = bs.bands
     kpoints = bs.kpoints

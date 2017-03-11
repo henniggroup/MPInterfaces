@@ -5,7 +5,9 @@ import math
 import os
 
 import numpy as np
+
 from monty.serialization import loadfn
+
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element

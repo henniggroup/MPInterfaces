@@ -48,7 +48,7 @@ class UtilsTest(unittest.TestCase):
         os.system('rm POSCAR')
 
     def test_get_rotation_matrix(self):
-        test_matrix = get_rotation_matrix((0, 0, 1), 2*np.pi)
+        test_matrix = get_rotation_matrix([0, 0, 1], 2*np.pi)
         control_matrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         for i in range(3):
             for j in range(3):

@@ -138,17 +138,17 @@ def get_rotation_matrix(axis, theta):
 
     Args:
         axis (list): rotation axis of the form [x, y, z]
-        theta (list): rotational angle in radians
+        theta (float): rotational angle in radians
 
     Returns:
         array. Rotation matrix.
     """
 
-    axis = np.asarray(axis)
-    theta = np.asarray(theta)
-    axis /= np.sqrt(np.dot(axis, axis))
-    a = math.cos(theta/2.0)
-    b, c, d = -axis*math.sin(theta/2.0)
+    axis = np.array(list(axis))
+    axis = axis / np.linalg.norm(axis)
+    axis *= -np.sin(theta/2.0)
+    a = np.cos(theta/2.0)
+    b, c, d = tuple(axis.tolist())
     aa, bb, cc, dd = a*a, b*b, c*c, d*d
     bc, ad, ac, ab, bd, cd = b*c, a*d, a*c, a*b, b*d, c*d
     return np.array([[aa+bb-cc-dd, 2*(bc+ad), 2*(bd-ac)],

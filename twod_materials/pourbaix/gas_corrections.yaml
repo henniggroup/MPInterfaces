@@ -1,0 +1,16 @@
+# eV/atom entropy correction for gas-phase elements.
+# Taken from https://github.com/materialsproject/pymatgen/blob/master/pymatgen/entries/MPCompatibility.yaml
+entropy:
+  O: -0.317
+  H: -3.602
+  N: -0.296
+  S: -0.704
+  F: -0.313
+  Cl: -0.344
+  Br: -0.470
+  I: -0.359
+
+# Oxide correction based on L. Wang, T. Maxisch, and G. Ceder,
+# Phys. Rev. B 73, 195107 (2006). This correction is to get
+# solid oxide formation energies right.
+oxide: -0.702

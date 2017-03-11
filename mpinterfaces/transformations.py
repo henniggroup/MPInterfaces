@@ -23,11 +23,17 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Kiran Mathew, Arunima Singh"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
 
 
 def get_trans_matrices(n):
     """
-    yields a list of 2x2 transformation matrices for the 
+    yields a list of 2x2 transformation matrices for the
     given supercell
     n: size
     """
@@ -86,8 +92,8 @@ def get_reduced_uv(uv, tm):
 
 def reduced_supercell_vectors(ab, n):
     """
-    returns all possible reduced in-plane lattice vectors and 
-    transition matrices for the given starting unit cell lattice 
+    returns all possible reduced in-plane lattice vectors and
+    transition matrices for the given starting unit cell lattice
     vectors(ab) and the supercell size n
     """
     uv_list = []
@@ -107,7 +113,7 @@ def get_r_list(area1, area2, max_area, tol=0.02):
     r1/r2 = area2/area1 with the constraints:
     r1 <= Area_max/area1 and r2 <= Area_max/area2
     r1 and r2 corresponds to the supercell sizes of the 2 interfaces
-    that align them     
+    that align them
     """
     r_list = []
     rmax1 = int(max_area / area1)
@@ -209,7 +215,7 @@ def get_matching_lattices(iface1, iface2, max_area=100,
                     mod_angle = max_angle % min_angle
                     is_angle_factor = False
                     if abs(mod_angle) < 0.001 or abs(
-                                    mod_angle - min_angle) < 0.001:
+                            mod_angle - min_angle) < 0.001:
                         is_angle_factor = True
                     if angle_mismatch < max_angle_diff or is_angle_factor:
                         if angle_mismatch > max_angle_diff:
@@ -262,7 +268,7 @@ def get_uniq_layercoords(struct, nlayers, top=True):
     if not top:
         z_nthlayer = z[zuind[nlayers - 1]]
         zfilter = (z <= z_nthlayer)
-    # site indices in the layers        
+    # site indices in the layers
     indices_layers = np.argwhere(zfilter).ravel()
     sa = SpacegroupAnalyzer(struct)
     symm_data = sa.get_symmetry_dataset()
@@ -294,10 +300,10 @@ def generate_all_configs(mat2d, substrate,
         nlayers_substrate: number of substrate layers
         nlayers_2d: number of 2d material layers
         seperation: seperation between the substrate and the 2d
-                    material        
+                    material
     Returns:
         None
-        
+
     TODO: give additional random placement of 2D material on substrate
     """
     # immediate exit if no structures

@@ -18,8 +18,9 @@ from pymatgen.io.vasp.inputs import Incar, Poscar
 from pymatgen.io.vasp.inputs import Potcar, Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from mpinterfaces import get_struct_from_mp, Interface
+from mpinterfaces import get_struct_from_mp
 from mpinterfaces.calibrate import CalibrateSlab
+from mpinterfaces.interface import Interface
 from mpinterfaces.utils import get_run_cmmnd
 
 MAPI_KEY = os.environ.get("MAPI_KEY", "")

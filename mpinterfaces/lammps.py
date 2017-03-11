@@ -29,12 +29,9 @@ from ase.calculators.lammpsrun import LAMMPS, prism
 from mpinterfaces.instrument import MPINTJob
 from mpinterfaces.calibrate import Calibrate
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
-sh = logging.StreamHandler(stream=sys.stdout)
-sh.setFormatter(formatter)
-logger.addHandler(sh)
+from mpinterfaces.default_logger import get_default_logger
+
+logger = get_default_logger(__name__)
 
 
 class MPINTLammps(LAMMPS, MSONable):
@@ -397,7 +394,7 @@ class CalibrateLammps(Calibrate):
             if not self.is_matrix:
                 name = self.val_to_name(s)
                 job_dir = self.job_dir + os.sep + \
-                          self.key_to_name('STRUCTURES') + os.sep + name
+                    self.key_to_name('STRUCTURES') + os.sep + name
                 self.add_job(name=name, job_dir=job_dir)
 
     def setup_paircoeff_jobs(self, paircoeff_list):
@@ -406,7 +403,7 @@ class CalibrateLammps(Calibrate):
             if not self.is_matrix:
                 name = self.val_to_name(pcoeff)
                 job_dir = self.job_dir + os.sep + \
-                          self.key_to_name('PAIR_COEFF') + os.sep + name
+                    self.key_to_name('PAIR_COEFF') + os.sep + name
                 self.add_job(name=name, job_dir=job_dir)
 
     def setup_params_jobs(self, params_list):
@@ -415,7 +412,7 @@ class CalibrateLammps(Calibrate):
             if not self.is_matrix:
                 name = self.val_to_name(params)
                 job_dir = self.job_dir + os.sep + \
-                          self.key_to_name('PARAMS') + os.sep + name
+                    self.key_to_name('PARAMS') + os.sep + name
                 self.add_job(name=name, job_dir=job_dir)
 
     def setup_genericparam_jobs(self, key, vals):
@@ -424,7 +421,7 @@ class CalibrateLammps(Calibrate):
             if not self.is_matrix:
                 name = self.val_to_name(v)
                 job_dir = self.job_dir + os.sep + \
-                          self.key_to_name(key) + os.sep + name
+                    self.key_to_name(key) + os.sep + name
                 self.add_job(name=name, job_dir=job_dir)
 
     def set_paircoeff(self, structure, pcoeff):
@@ -454,8 +451,8 @@ class CalibrateLammps(Calibrate):
         """
         setup workflow for the given turn_knobs i.e create jobs
         for each knob settings
-        keys with special support(everything else handled by 
-        genericparam job setup): 
+        keys with special support(everything else handled by
+        genericparam job setup):
              STRUCTURES: list of pymatgen structure objects
              PARAMS: list of lammps parameter dictionaries
              PAIR_COEFF: list of pair coefficient files

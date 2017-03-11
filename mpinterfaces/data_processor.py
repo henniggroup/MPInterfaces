@@ -24,19 +24,16 @@ from pymatgen.entries.computed_entries import ComputedEntry, \
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.hive import _get_transformation_history
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
-sh = logging.StreamHandler(stream=sys.stdout)
-sh.setFormatter(formatter)
-logger.addHandler(sh)
+from mpinterfaces.default_logger import get_default_logger
+
+logger = get_default_logger(__name__)
 
 
 class MPINTComputedEntry(ComputedEntry):
     """
-        
+
     extend ComputedEntry to include structure as well as kpoints
-    
+
     """
 
     def __init__(self, structure, kpoints, incar, energy, correction=0.0,
@@ -87,7 +84,7 @@ class MPINTComputedEntry(ComputedEntry):
 
 
 class MPINTVasprun(Vasprun):
-    """        
+    """
     Extend Vasprun to use custom ComputedEntry: MPINTComputedEntry
     """
 
@@ -114,14 +111,14 @@ class MPINTVasprun(Vasprun):
                 ComputedStructureEntries to be returned instead of
                 ComputedEntries.
             inc_incar_n_kpoints (bool): along with inc_structure set
-                to True if you want MPINTComputedEntries to be 
+                to True if you want MPINTComputedEntries to be
                 returned
-            parameters (list): Input parameters to include. 
-                It has to be one of the properties supported by the 
-                Vasprun object. If parameters == None, a default set 
-                of parameters that are necessary for typical 
+            parameters (list): Input parameters to include.
+                It has to be one of the properties supported by the
+                Vasprun object. If parameters == None, a default set
+                of parameters that are necessary for typical
                 post-processing will be set.
-            data (list): Output data to include. Has to be one of the 
+            data (list): Output data to include. Has to be one of the
                 properties supported by the Vasprun object.
 
         Returns:
@@ -153,8 +150,8 @@ class MPINTVasprun(Vasprun):
 
 class MPINTVaspDrone(VaspToComputedEntryDrone):
     """
-    extend VaspToComputedEntryDrone to use the custom 
-    Vasprun: MPINTVasprun    
+    extend VaspToComputedEntryDrone to use the custom
+    Vasprun: MPINTVasprun
     """
 
     def __init__(self, inc_structure=False, inc_incar_n_kpoints=False,

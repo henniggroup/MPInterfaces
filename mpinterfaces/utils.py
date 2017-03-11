@@ -39,12 +39,18 @@ from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from ase.lattice.surface import surface
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
-sh = logging.StreamHandler(stream=sys.stdout)
-sh.setFormatter(formatter)
-logger.addHandler(sh)
+from mpinterfaces.default_logger import get_default_logger
+from mpinterfaces import STD_BINARY, QUEUE_SYSTEM
+
+__author__ = "Kiran Mathew, Joshua J. Gabriel"
+__copyright__ = "Copyright 2017, Henniggroup"
+__version__ = "1.6"
+__maintainer__ = "Joshua J. Gabriel"
+__email__ = "joshgabriel92@gmail.com"
+__status__ = "Production"
+__date__ = "March 3, 2017"
+
+logger = get_default_logger(__name__)
 
 
 def get_ase_slab(pmg_struct, hkl=(1, 1, 1), min_thick=10, min_vac=10):
@@ -52,12 +58,12 @@ def get_ase_slab(pmg_struct, hkl=(1, 1, 1), min_thick=10, min_vac=10):
     takes in the intial structure as pymatgen Structure object
     uses ase to generate the slab
     returns pymatgen Slab object
-    
+
     Args:
         pmg_struct: pymatgen structure object
         hkl: hkl index of surface of slab to be created
         min_thick: minimum thickness of slab in Angstroms
-        min_vac: minimum vacuum spacing 
+        min_vac: minimum vacuum spacing
     """
     ase_atoms = AseAtomsAdaptor().get_atoms(pmg_struct)
     pmg_slab_gen = SlabGenerator(pmg_struct, hkl, min_thick, min_vac)
@@ -80,7 +86,7 @@ def slab_from_file(hkl, filename):
     useful for reading in 2d/substrate structures from file.
     Args:
          hkl: miller index of the slab in the input file.
-         filename: structure file in any format 
+         filename: structure file in any format
                    supported by pymatgen
     Returns:
          Slab object
@@ -100,7 +106,7 @@ def add_vacuum_padding(slab, vacuum, hkl=[0, 0, 1]):
     """
     add vacuum spacing to the given structure
     Args:
-        slab: sructure/slab object to be padded 
+        slab: sructure/slab object to be padded
         vacuum: in angstroms
         hkl: miller index
     Returns:
@@ -137,28 +143,152 @@ def add_vacuum_padding(slab, vacuum, hkl=[0, 0, 1]):
                 site_properties=new_struct.site_properties)
 
 
-def get_run_cmmnd(nnodes=1, nprocs=16, walltime='24:00:00',
-                  job_bin=None, mem='1000'):
+def get_magmom_string(poscar):
+    """
+    TEST: integration of twod_materials function with mpinterfaces
+    calibrate.py
+    Consider moving to mpinterfaces.utils
+
+    Args:
+        poscar: Poscar object
+        ncl: whether non-collinear run, defaults False, activated
+             if a value supplied
+    Returns:
+        string with INCAR setting for MAGMOM according to twod_materials
+        database calculations
+
+    Based on a POSCAR, returns the string required for the MAGMOM
+    setting in the INCAR. Initializes transition metals with 6.0
+    bohr magneton and all others with 0.5.
+    """
+
+    magmoms = []
+    sites_dict = poscar.as_dict()['structure']['sites']
+    for s in sites_dict:
+        if Element(s['label']).is_transition_metal:
+            magmoms.append(6.0)
+        else:
+            magmoms.append(0.5)
+    return magmoms
+
+
+def get_magmom_mae(poscar, mag_init):
+    """
+    mae
+    """
+
+    mae_magmom = []
+
+    sites_dict = poscar.as_dict()['structure']['sites']
+
+    # initialize a magnetic moment on the transition metal
+    # in vector form on the x-direction
+    for n, s in enumerate(sites_dict):
+
+        if Element(s['label']).is_transition_metal:
+            mae_magmom.append([0.0, 0.0, mag_init])
+        else:
+            mae_magmom.append([0.0, 0.0, 0.0])
+
+    return sum(mae_magmom, [])
+
+
+def get_magmom_afm(poscar, database=None, mag_init=None):
+    """
+    returns the magmom string which is an N length list
+    """
+
+    afm_magmom = []
+    orig_structure_name = poscar.comment
+
+    if len(poscar.structure) % 2 != 0:
+
+        if database == 'twod':
+            # no need for more vacuum spacing
+            poscar.structure.make_supercell([2, 2, 1])
+        else:
+            # for bulk structure
+            poscar.structure.make_supercell([2, 2, 2])
+
+    sites_dict = poscar.as_dict()['structure']['sites']
+
+    for n, s in enumerate(sites_dict):
+
+        if Element(s['label']).is_transition_metal:
+            if n % 2 == 0:
+                afm_magmom.append(6.0)
+            else:
+                afm_magmom.append(-6.0)
+
+        else:
+            if n % 2 == 0:
+                afm_magmom.append(0.5)
+            else:
+                afm_magmom.append(-0.5)
+
+    return afm_magmom, Poscar(structure=poscar.structure,
+                              comment=orig_structure_name)
+
+
+def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00',
+                  job_bin=None, mem='1000', job_name=None):
+    """
+    depends on the supercomputing faciltiy being used.
+    set a sample submit script in the fireworks directory which is
+    installed in your virtual environment as for example:
+    /my_venv/lib/python2.7/site-packages/FireWorks-1.2.5-py2.7.egg/
+    fireworks/user_objects/queue_adapters/
+    the keys to the dictionary d are the defaults on ufhpc's
+    hipergator2 supercomputing facility
+
+    """
     d = {}
     job_cmd = None
-    hostname = socket.gethostname()
-    # hipergator
-    if 'ufhpc' in hostname:
+    queue = QUEUE_SYSTEM
+    #hostname = socket.gethostname()
+
+# FIXME: Using hostnames to determine behavior is terrible practice, as is
+# hard-coding file directories.
+# old hipergator which can be generalized into a pbs qdapter for fireworks
+
+#    if 'ufhpc_pbs' in hostname:
+#        if job_bin is None:
+#            job_bin = '/home/km468/Software/VASP/vasp.5.3.5/vasp'
+#        else:
+#            job_bin = job_bin
+#        d = {'type': 'PBS',
+#             'params':
+#                 {
+#                     'nnodes': str(nnodes),
+#                     'ppnode': str(int(nprocs / nnodes)),
+#                     'walltime': walltime,
+#                     'job_name': 'vasp_job',
+#                     'email': 'mpinterfaces@gmail.com',
+#                     'notification_options': 'ae',
+#                     'pre_rocket': '#PBS -l pmem=' + str(mem) + 'mb',
+#                     'rocket_launch': 'mpirun ' + job_bin
+
+    # hipergator: currently hipergator2
+    if 'slurm' in queue:
+    #if 'ufhpc' in hostname:
         if job_bin is None:
-            job_bin = '/home/km468/Software/VASP/vasp.5.3.5/vasp'
+            job_bin = STD_BINARY
         else:
             job_bin = job_bin
-        d = {'type': 'PBS',
+# FIXME: think of way to generalize this to a SLURM queue, some specs here are
+# ufhpc dependent and depend on the submission script settings for the binary
+        d = {'type': 'SLURM',
              'params':
                  {
-                     'nnodes': str(nnodes),
-                     'ppnode': str(int(nprocs / nnodes)),
+                     'nodes': str(nnodes),
+                     'ntasks': str(int(ntasks)),
                      'walltime': walltime,
-                     'job_name': 'vasp_job',
+                     'job_name': job_name,
                      'email': 'mpinterfaces@gmail.com',
                      'notification_options': 'ae',
-                     'pre_rocket': '#PBS -l pmem=' + str(mem) + 'mb',
-                     'rocket_launch': 'mpirun ' + job_bin
+                     'pre_rocket': 'module load intel/2016.0.109 openmpi',
+                     'rocket_launch': 'mpiexec ' + job_bin
+
                  }
              }
     # stampede
@@ -235,8 +365,8 @@ def get_job_state(job):
 def update_checkpoint(job_ids=None, jfile=None, **kwargs):
     """
     rerun the jobs with job ids in the job_ids list. The jobs are
-    read from the json checkpoint file, jfile. 
-    If no job_ids are given then the checkpoint file will 
+    read from the json checkpoint file, jfile.
+    If no job_ids are given then the checkpoint file will
     be updated with corresponding final energy
     Args:
         job_ids: list of job ids to update or q resolve
@@ -351,8 +481,8 @@ def launch_daemon(steps, interval, handlers=None, ld_logger=None):
                         done = done + [False]
                     elif state in ['C', 'CF', 'F', '00']:
                         logger.error(
-                            'Job {0} in {1} cancelled or failed. State = {2}'. \
-                                format(j.job_id, j.job_dir, state))
+                            'Job {0} in {1} cancelled or failed. State = {2}'.
+                            format(j.job_id, j.job_dir, state))
                         done = done + [False]
                         if handlers:
                             logger.info('Investigating ... ')
@@ -396,7 +526,7 @@ def get_convergence_data(jfile, params=['ENCUT', 'KPOINTS']):
     """
     returns data dict in the following format
     {'Al':
-          {'ENCUT': [ [500,1.232], [600,0.8798] ], 
+          {'ENCUT': [ [500,1.232], [600,0.8798] ],
             'KPOINTS':[ [], [] ]
           },
      'W': ...
@@ -451,7 +581,7 @@ def get_convergence_data_custom(jfile, params=['ENCUT', 'KPOINTS']):
     """
     returns data dict in the following format
     {'Al':
-          {'ENCUT': [ [500,1.232], [600,0.8798] ], 
+          {'ENCUT': [ [500,1.232], [600,0.8798] ],
             'KPOINTS':[ [], [] ]
           },
      'W': ...
@@ -500,13 +630,13 @@ def get_opt_params_custom(data, tag, param='ENCUT', ev_per_atom=1.0):
         data:  dictionary of convergence data
         tag:   key to dictionary of convergence dara
         param: parameter to be optimized
-        ev_per_atom: minimizing criterion in eV per unit 
-    
+        ev_per_atom: minimizing criterion in eV per unit
+
     Returns
         [list] optimum parameter set consisting of tag, potcar object,
-        poscar object, list of convergence data energies sorted according to 
+        poscar object, list of convergence data energies sorted according to
         param
-    
+
     default criterion: 1 meV/atom
     """
     sorted_list = sorted(data[tag][param], key=lambda x: x[0])
@@ -517,7 +647,8 @@ def get_opt_params_custom(data, tag, param='ENCUT', ev_per_atom=1.0):
                         zip(t[:-1], t[1:])]
     # print("Consecutive_diff",consecutive_diff)
     min_index = np.argmin(consecutive_diff)
-    # return the tag,potcar object, poscar object, incar setting and convergence data for plotting that is optimum
+    # return the tag,potcar object, poscar object, incar setting and
+    # convergence data for plotting that is optimum
     return [tag, data[tag][param][min_index][2],
             data[tag][param][min_index][3], sorted_list[min_index][0], t]
 
@@ -555,8 +686,8 @@ def partition_jobs(turn_knobs, max_jobs):
 
 def get_logger(log_file_name):
     """
-    writes out logging file. 
-    Very useful project logging, recommended for use 
+    writes out logging file.
+    Very useful project logging, recommended for use
     to monitor the start and completion of steps in the workflow
     Arg:
         log_file_name: name of the log file, log_file_name.log
@@ -573,9 +704,9 @@ def get_logger(log_file_name):
 def set_sd_flags(poscar_input=None, n_layers=2, top=True, bottom=True,
                  poscar_output='POSCAR2'):
     """
-    set the relaxation flags for top and bottom layers of interface.        
+    set the relaxation flags for top and bottom layers of interface.
     The upper and lower bounds of the z coordinate are determined
-    based on the slab. 
+    based on the slab.
     Args:
          poscar_input: input poscar file name
          n_layers: number of layers to be relaxed

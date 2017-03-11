@@ -17,7 +17,7 @@ __author__ = "Kiran Mathew, Joshua J. Gabriel, Michael Ashton, " \
              "Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, " \
              "Richard G. Hennig"
 __date__ = "March 3 2017"
-__version__ = "1.6.0"
+__version__ = "1.7.0"
 
 PACKAGE_PATH = os.path.dirname(__file__)
 

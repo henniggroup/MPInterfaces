@@ -16,7 +16,6 @@ from mpinterfaces.twod_materials.utils.utils import write_pbs_runjob, \
 
 __author__ = "Michael Ashton, Joshua J. Gabriel"
 __copyright__ = "Copyright 2017, Henniggroup"
-__version__ = "1.6"
 __maintainer__ = "Michael Ashton, Joshua J. Gabriel"
 __email__ = "joshgabriel92@gmail.com"
 __status__ = "Production"

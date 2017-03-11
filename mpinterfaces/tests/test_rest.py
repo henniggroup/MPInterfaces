@@ -11,7 +11,6 @@ from pymatgen.core.structure import Structure
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
-__version__ = "1.6"
 __maintainer__ = "Joshua J. Gabriel"
 __email__ = "joshgabriel92@gmail.com"
 __status__ = "Production"

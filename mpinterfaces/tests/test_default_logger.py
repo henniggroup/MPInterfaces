@@ -11,7 +11,6 @@ from io import StringIO
 
 __author__ = "Seve G. Monahan"
 __copyright__ = "Copyright 2017, Henniggroup"
-__version__ = "1.6"
 __maintainer__ = "Joshua J. Gabriel"
 __email__ = "joshgabriel92@gmail.com"
 __status__ = "Production"

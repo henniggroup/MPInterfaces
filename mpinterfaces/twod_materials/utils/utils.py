@@ -20,7 +20,6 @@ from mpinterfaces.twod_materials import VASP_PSP
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
-__version__ = "1.6"
 __maintainer__ = "Michael Ashton"
 __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"

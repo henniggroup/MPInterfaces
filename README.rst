@@ -2,9 +2,10 @@
 .. image:: https://codecov.io/gh/joshgabriel/MPInterfaces/coverage.svg?branch=master
 
 MPinterfaces is a python package that enables high throughput Density
-Functional Theory(DFT) analysis of arbitrary material interfaces(ligand capped
-nanoparticles, surfaces in the presence of solvents and hetero-structure
-interfaces) using VASP_, VASPsol_, LAMMPS_, materialsproject_ database
+Functional Theory(DFT) analysis of arbitrary material interfaces(two dimensional
+materials, hetero-structure, ligand capped
+nanoparticles and surfaces in the presence of solvents) using
+VASP_, VASPsol_, LAMMPS_, materialsproject_ database
 as well as their open source tools_ and a little bit of ase_.
 
 .. _materialsproject: https://github.com/materialsproject

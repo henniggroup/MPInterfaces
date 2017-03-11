@@ -373,13 +373,15 @@ def get_2D_incar_hse_prep(incar_dict):
         incar_dict (dict)
 
     Returns:
-
+        dict: incar dict
     """
-    print ('updating INCAR for prep calculation ')
-    INCAR_PREP = {'NSW': 0, 'NELM': 1, 'LWAVE': False, 'LCHARG': False,
-                        'LAECHG': False}
+    print('updating INCAR for prep calculation ')
+    INCAR_PREP = {'NSW': 0,
+                  'NELM': 1,
+                  'LWAVE': False,
+                  'LCHARG': False,
+                  'LAECHG': False}
     incar_dict.update(INCAR_PREP)
-
     return incar_dict
 
 
@@ -391,15 +393,13 @@ def get_2D_incar_hse(incar_dict):
         incar_dict (dict)
 
     Returns:
-
+        dict: incar dict
     """
     HSE_INCAR_DICT = {'LHFCALC': True, 'HFSCREEN': 0.2, 'AEXX': 0.25,
-                       'ALGO': 'D', 'TIME': 0.4, 'NSW': 0, 'NELM': 75,
-                       'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
-                       'LWAVE': False, 'NPAR': 8, 'PREC': 'Accurate',
-                       'EDIFF': 1e-4, 'ENCUT': 450, 'ICHARG': 2, 'ISMEAR': 1,
-                       'SIGMA': 0.1, 'IBRION': 2, 'ISIF': 3, 'ISPIN': 2}
-
+                      'ALGO': 'D', 'TIME': 0.4, 'NSW': 0, 'NELM': 75,
+                      'LVTOT': True, 'LVHAR': True, 'LORBIT': 11,
+                      'LWAVE': False, 'NPAR': 8, 'PREC': 'Accurate',
+                      'EDIFF': 1e-4, 'ENCUT': 450, 'ICHARG': 2, 'ISMEAR': 1,
+                      'SIGMA': 0.1, 'IBRION': 2, 'ISIF': 3, 'ISPIN': 2}
     incar_dict.update(HSE_INCAR_DICT)
-
     return incar_dict

@@ -7,7 +7,7 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
 
-from mpinterfaces.twod_materials import VASP, VDW_KERNEL,QUEUE
+from mpinterfaces.twod_materials import VASP, VDW_KERNEL, QUEUE
 import mpinterfaces.twod_materials.utils.utils as utl
 
 __author__ = "Michael Ashton"
@@ -121,8 +121,7 @@ def run_gamma_calculations(submit=True, step_size=0.5):
 
 
 def run_normal_force_calculations(basin_and_saddle_dirs,
-                                  spacings=np.arange(1.5, 4.25, 0.25),
-                                  submit=True):
+                                  spacings=(1.5, 4.25, 0.25), submit=True):
     """
     Set up and run static calculations of the basin directory and
     saddle directory at specified interlayer spacings to get f_N and
@@ -140,8 +139,8 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
             run_normal_force_calculations(get_basin_and_peak_locations())
 
             will both work.
-        spacings (list): list of interlayer spacings (in Angstroms,
-            as floats) at which to run the calculations.
+        spacings (tuple): list of interlayer spacings (in Angstroms, as floats)
+            at which to run the calculations.
         submit (bool): Whether or not to submit the jobs.
     """
 
@@ -178,20 +177,18 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
                     [site.coords[0],
                      site.coords[1],
                      site.coords[2] - bottom_of_top_layer
-                     + max_height + float(spacing)],
-                     coords_are_cartesian=True
-                    )
+                     + max_height + float(spacing)], coords_are_cartesian=True)
 
             structure.to('POSCAR', 'POSCAR')
 
             if QUEUE == 'pbs':
-                utl.write_pbs_runjob('{}_{}'.format(subdirectory, spacing), 1,
-                    8, '1000mb', '2:00:00', VASP)
+                utl.write_pbs_runjob('{}_{}'.format(
+                    subdirectory, spacing), 1, 8, '1000mb', '2:00:00', VASP)
                 submission_command = 'qsub runjob'
 
             elif QUEUE == 'slurm':
-                utl.write_slurm_runjob('{}_{}'.format(subdirectory, spacing), 8,
-                    '1000mb', '2:00:00', VASP)
+                utl.write_slurm_runjob('{}_{}'.format(
+                    subdirectory, spacing), 8, '1000mb', '2:00:00', VASP)
                 submission_command = 'sbatch runjob'
 
             if submit:

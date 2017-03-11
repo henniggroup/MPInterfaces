@@ -1,12 +1,11 @@
 from __future__ import print_function, division, unicode_literals
 
 import os
+import warnings
 
 import numpy as np
 
 from scipy import interpolate
-
-import math
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -15,7 +14,6 @@ import matplotlib.pyplot as plt
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.core.structure import Structure
 
-import warnings
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -39,9 +37,8 @@ def plot_gamma_surface(fmt='pdf'):
 
     os.chdir('friction/lateral')
 
-    static_dirs = [
-        d.split('x') for d in os.listdir(os.getcwd()) if 'x' in d and
-        len(d) == 3]
+    static_dirs = [d.split('x') for d in os.listdir(os.getcwd())
+                   if 'x' in d and len(d) == 3]
 
     n_divs_x = max([int(d[0]) for d in static_dirs])
     n_divs_y = max([int(d[1]) for d in static_dirs])
@@ -54,59 +51,55 @@ def plot_gamma_surface(fmt='pdf'):
     ax.set_xlim(0, n_divs_x + 1)
     ax.set_ylim(0, n_divs_y + 1)
 
-    ENERGY_ARRAY = []
+    energies = []
 
-    X_VALUES = range(n_divs_x + 1)
-    Y_VALUES = range(n_divs_y + 1)
+    x_values = range(n_divs_x + 1)
+    y_values = range(n_divs_y + 1)
 
     not_converged = []
-    for x in X_VALUES:
-        ENERGY_ARRAY.append([])
-        for y in Y_VALUES:
+    for x in x_values:
+        energies.append([])
+        for y in y_values:
             dir = '{}x{}'.format(x, y)
             os.chdir(dir)
             try:
                 energy = Vasprun('vasprun.xml').final_energy / area
-                ENERGY_ARRAY[x].append(energy)
+                energies[x].append(energy)
             except:
                 not_converged.append('{}x{}'.format(x, y))
-                ENERGY_ARRAY[x].append(0)
+                energies[x].append(0)
             os.chdir('../')
-        ENERGY_ARRAY[x].append(ENERGY_ARRAY[x][0])
+        energies[x].append(energies[x][0])
 
-    ENERGY_ARRAY.append([])
-    #ENERGY_ARRAY[n_divs_x] = ENERGY_ARRAY[0]
+    energies.append([])
+    # ENERGY_ARRAY[n_divs_x] = ENERGY_ARRAY[0]
 
     if not_converged:
         warnings.warn('{} did not converge.'.format(not_converged))
         for coords in not_converged:
-            ENERGY_ARRAY[
-                int(coords.split('x')[0])][int(coords.split('x')[1])] = energy
+            energies[int(coords.split('x')[0])][int(coords.split('x')[1])] = energy
 
     minima = []
     maxima = []
-    for x in X_VALUES:
-        minima.append(min(ENERGY_ARRAY[x]))
-        maxima.append(max(ENERGY_ARRAY[x]))
+    for x in x_values:
+        minima.append(min(energies[x]))
+        maxima.append(max(energies[x]))
 
     abs_minimum = min(minima)
     abs_maximum = max(maxima)
 
     for x in range(n_divs_x + 1):
         for y in range(n_divs_y + 1):
-
             # Plot all energies relative to the global minimum.
-            scaled_energy = ENERGY_ARRAY[x][y] - abs_minimum
+            scaled_energy = energies[x][y] - abs_minimum
             if '{}x{}'.format(x, y) in not_converged:
                 color_code = 'w'
             else:
                 color_code = plt.cm.jet(
-                    scaled_energy / (abs_maximum - abs_minimum)
-                    )
+                    scaled_energy/(abs_maximum - abs_minimum))
 
             ax.add_patch(plt.Rectangle((x, y), width=1, height=1,
-                                       facecolor=color_code,
-                                       linewidth=0))
+                                       facecolor=color_code, linewidth=0))
 
     # Get rid of annoying ticks.
     ax.axes.get_yaxis().set_ticks([])
@@ -152,21 +145,19 @@ def get_basin_and_peak_locations():
 
     os.chdir('friction/lateral')
 
-    static_dirs = [
-        d.split('x') for d in os.listdir(os.getcwd()) if 'x' in d and
-        len(d) == 3
-    ]
+    static_dirs = [d.split('x') for d in os.listdir(os.getcwd())
+                   if 'x' in d and len(d) == 3]
 
     n_divs_x = max([int(d[0]) for d in static_dirs])
     n_divs_y = max([int(d[1]) for d in static_dirs])
 
-    X_VALUES = range(n_divs_x)
-    Y_VALUES = range(n_divs_y)
+    x_values = range(n_divs_x)
+    y_values = range(n_divs_y)
 
     abs_maximum = -10000
     abs_minimum = 0
-    for x in X_VALUES:
-        for y in Y_VALUES:
+    for x in x_values:
+        for y in y_values:
             dir = '{}x{}'.format(x, y)
             os.chdir(dir)
             try:
@@ -216,14 +207,12 @@ def plot_friction_force(fmt='pdf'):
             ) / (2 * n_surface_atoms)
 
         start_coords = Structure.from_file(
-            '{}/POSCAR'.format(subdirectories[0])
-            ).sites[-1].coords
+            '{}/POSCAR'.format(subdirectories[0])).sites[-1].coords
         end_coords = Structure.from_file(
-            '{}/POSCAR'.format(subdirectories[1])
-            ).sites[-1].coords
+            '{}/POSCAR'.format(subdirectories[1])).sites[-1].coords
         dist = np.sqrt(
-            (start_coords[0] - end_coords[0])**2
-            + (start_coords[1] - end_coords[1])**2)
+            (start_coords[0] - end_coords[0])**2 +
+            (start_coords[1] - end_coords[1])**2)
 
         b = (2 * np.pi) / (dist * 2)
 
@@ -236,15 +225,13 @@ def plot_friction_force(fmt='pdf'):
                  color=plt.cm.jet(-(spacing - 4) / spc_range), label=spacing)
         ax1.set_xticklabels(ax1.get_xticks(), family='serif', fontsize=18)
         ax1.set_yticklabels(ax1.get_yticks(), family='serif', fontsize=18)
-        ax1.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif',
-            fontsize=24)
+        ax1.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif', fontsize=24)
         ax1.set_ylabel(r'$\mathrm{E(z)\/(eV)}$', family='serif', fontsize=24)
         ax2.plot(x, cosx, linewidth=8,
                  color=plt.cm.jet(-(spacing - 4) / spc_range), label=spacing)
         ax2.set_xticklabels(ax2.get_xticks(), family='serif', fontsize=18)
         ax2.set_yticklabels(ax2.get_yticks(), family='serif', fontsize=18)
-        ax2.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif',
-            fontsize=24)
+        ax2.set_xlabel(r'$\mathrm{\Delta d\/(\AA)}$', family='serif', fontsize=24)
         ax2.set_ylabel(r'$\mathrm{F_f\/(eV/\AA)}$', family='serif', fontsize=24)
         os.chdir('../')
 
@@ -272,8 +259,8 @@ def plot_normal_force(basin_dir, fmt='pdf'):
     n_surface_atoms = get_number_of_surface_atoms()
 
     os.chdir('friction/normal')
-    spacings = [float(dir) for dir in os.listdir(os.getcwd()) if
-                os.path.isdir(dir)]
+    spacings = [float(dir) for dir in os.listdir(os.getcwd())
+                if os.path.isdir(dir)]
     spacings.sort()
 
     fig = plt.figure(figsize=(16, 10))
@@ -339,8 +326,8 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
     n_surface_atoms = get_number_of_surface_atoms()
 
     fig = plt.figure(figsize=(16, 10))
-    ax = fig.gca()
-    ax2 = ax.twinx()
+    # ax = fig.gca()
+    # ax2 = ax.twinx()
 
     os.chdir('friction/normal')
     spacings = [float(dir) for dir in os.listdir(os.getcwd()) if
@@ -354,14 +341,15 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
     E = [energy - abs_E[-1] for energy in abs_E]
 
     spline = interpolate.splrep(spacings, E, s=0)
-    xnew = np.arange(spacings[0], spacings[-1], 0.001)
-    ynew = interpolate.splev(xnew, spline, der=0)
+    # xnew = np.arange(spacings[0], spacings[-1], 0.001)
+    # ynew = interpolate.splev(xnew, spline, der=0)
     ynew_slope = interpolate.splev(spacings, spline, der=1)
     F_N = [-y * 1.602 for y in ynew_slope]
     F_f = []
+    sorted_dirs = sorted([float(spc) for spc in os.listdir(os.getcwd())
+                          if os.path.isdir(spc)])
 
-    for spacing in sorted([float(spc) for spc in os.listdir(os.getcwd()) if
-            os.path.isdir(spc)]):
+    for spacing in sorted_dirs:
         os.chdir(str(spacing))
         subdirectories = os.listdir(os.getcwd())
 
@@ -371,11 +359,9 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
             ) / (2 * n_surface_atoms)
 
         start_coords = Structure.from_file(
-            '{}/POSCAR'.format(subdirectories[0])
-            ).sites[-1].coords
+            '{}/POSCAR'.format(subdirectories[0])).sites[-1].coords
         end_coords = Structure.from_file(
-            '{}/POSCAR'.format(subdirectories[1])
-            ).sites[-1].coords
+            '{}/POSCAR'.format(subdirectories[1])).sites[-1].coords
         dist = np.sqrt(
             (start_coords[0] - end_coords[0])**2
             + (start_coords[1] - end_coords[1])**2)
@@ -383,7 +369,7 @@ def plot_mu_vs_F_N(basin_dir, fmt='pdf'):
         b = (2 * np.pi) / (dist * 2)
 
         x = np.arange(0, 4, 0.01)
-        sinx = [amplitude * np.sin(b * val) + amplitude for val in x]
+        # sinx = [amplitude * np.sin(b * val) + amplitude for val in x]
         cosx = [b * amplitude * np.cos(b * val)
                 if np.cos(b * val) > 0 else 0 for val in x]
         F_f.append(max(cosx) * 1.602)
@@ -409,15 +395,15 @@ def get_mu_vs_F_N(basin_dir):
             get_basin_and_peak_locations() function.
 
     Returns:
-        dict. Of the form {'F_N': F_N, 'mu': mu, 'F_f': F_f}, where
+        dic: Of the form {'F_N': F_N, 'mu': mu, 'F_f': F_f}, where
             forces are in nN.
     """
 
     n_surface_atoms = get_number_of_surface_atoms()
 
     os.chdir('friction/normal')
-    spacings = [float(dir) for dir in os.listdir(os.getcwd()) if
-                os.path.isdir(dir)]
+    spacings = [float(dir) for dir in os.listdir(os.getcwd())
+                if os.path.isdir(dir)]
     spacings.sort()
 
     abs_E = [
@@ -449,11 +435,9 @@ def get_mu_vs_F_N(basin_dir):
             print('One or more jobs in {}/ have not converged.'.format(spacing))
 
         start_coords = Structure.from_file(
-            '{}/POSCAR'.format(subdirectories[0])
-            ).sites[-1].coords
+            '{}/POSCAR'.format(subdirectories[0])).sites[-1].coords
         end_coords = Structure.from_file(
-            '{}/POSCAR'.format(subdirectories[1])
-            ).sites[-1].coords
+            '{}/POSCAR'.format(subdirectories[1])).sites[-1].coords
         dist = np.sqrt(
             (start_coords[0] - end_coords[0])**2
             + (start_coords[1] - end_coords[1])**2)
@@ -461,7 +445,7 @@ def get_mu_vs_F_N(basin_dir):
         b = (2 * np.pi) / (dist * 2)
 
         x = np.arange(0, 4, 0.01)
-        sinx = [amplitude * np.sin(b * val) + amplitude for val in x]
+        # sinx = [amplitude * np.sin(b * val) + amplitude for val in x]
         cosx = [b * amplitude * np.cos(b * val)
                 if np.cos(b * val) > 0 else 0 for val in x]
         F_f.append(max(cosx) * 1.602)
@@ -471,4 +455,4 @@ def get_mu_vs_F_N(basin_dir):
 
     mu = [f / N for f, N in zip(F_f, F_N)]
 
-    return({'F_N': F_N, 'mu': mu, 'F_f': F_f})
+    return {'F_N': F_N, 'mu': mu, 'F_f': F_f}

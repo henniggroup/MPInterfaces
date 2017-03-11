@@ -2,7 +2,8 @@ import os
 
 from pymatgen.io.vasp.inputs import Incar
 
-from mpinterfaces.twod_materials.stability import get_magmom_string, INCAR_DICT
+from mpinterfaces.twod_materials.utils import get_magmom_string
+from mpinterfaces.twod_materials.stability import INCAR_DICT
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

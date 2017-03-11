@@ -14,6 +14,7 @@ __email__ = "joshgabriel92@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
+
 def get_markovian_path(points):
      """
      Calculates the shortest path connecting an array of 2D
@@ -282,6 +283,7 @@ def run_hse_calculation(dim=2, submit=True, force_overwrite=False,
 
         os.chdir('../')
 
+
 def get_2D_hse_kpoints(struct_for_path, ibzkpth):
      """
      Args: Structure from which linemode k-points will be generated
@@ -348,6 +350,7 @@ def get_2D_hse_kpoints(struct_for_path, ibzkpth):
 
      return Kpoints_hse_file
 
+
 def get_2D_incar_hse_prep(incar_dict):
      """
      linker for prep calculation
@@ -358,7 +361,6 @@ def get_2D_incar_hse_prep(incar_dict):
      incar_dict.update(INCAR_PREP)
 
      return incar_dict
-
 
 
 def get_2D_incar_hse(incar_dict):

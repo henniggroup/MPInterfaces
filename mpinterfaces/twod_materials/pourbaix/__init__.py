@@ -2,14 +2,14 @@ from __future__ import print_function, division, unicode_literals
 
 import os
 
-import twod_materials
-import twod_materials.utils as utl
+from mpinterfaces import twod_materials
+import mpinterfaces.twod_materials.utils as utl
 import yaml
 from monty.serialization import loadfn
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.outputs import Vasprun
-from twod_materials import MPR
+from mpinterfaces.twod_materials import MPR
 
 from mpinterfaces.twod_materials.stability import relax
 

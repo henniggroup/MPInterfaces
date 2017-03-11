@@ -23,6 +23,7 @@ try:
 except ImportError:
     zeo_found = False
 
+
 @requires(zeo_found, 'get_voronoi_nodes requires Zeo++ cython extension to be '
           'installed. Please contact developers of Zeo++ to obtain it.')
 def inject_ions(structure, ion, atomic_fraction):

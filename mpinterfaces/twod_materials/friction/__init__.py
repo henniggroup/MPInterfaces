@@ -6,9 +6,8 @@ import os
 import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
-from twod_materials import VASP, VDW_KERNEL,\
+from mpinterfaces.twod_materials import VASP, VDW_KERNEL,\
     QUEUE
-
 import mpinterfaces.twod_materials.utils as utl
 
 __author__ = "Michael Ashton"

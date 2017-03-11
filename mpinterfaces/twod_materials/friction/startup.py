@@ -7,7 +7,7 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
 
-from mpinterfaces.twod_materials import VASP, VDW_KERNEL, QUEUE
+from mpinterfaces.twod_materials import VASP_STD_BIN, VDW_KERNEL, QUEUE
 import mpinterfaces.twod_materials.utils.utils as utl
 
 __author__ = "Michael Ashton"
@@ -105,11 +105,11 @@ def run_gamma_calculations(submit=True, step_size=0.5):
                                  + '\n')
 
             if QUEUE == 'pbs':
-                utl.write_pbs_runjob(dir, 1, 8, '1000mb', '2:00:00', VASP)
+                utl.write_pbs_runjob(dir, 1, 8, '1000mb', '2:00:00', VASP_STD_BIN)
                 submission_command = 'qsub runjob'
 
             elif QUEUE == 'slurm':
-                utl.write_slurm_runjob(dir, 8, '1000mb', '2:00:00', VASP)
+                utl.write_slurm_runjob(dir, 8, '1000mb', '2:00:00', VASP_STD_BIN)
                 submission_command = 'sbatch runjob'
 
             if submit:
@@ -183,12 +183,12 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
 
             if QUEUE == 'pbs':
                 utl.write_pbs_runjob('{}_{}'.format(
-                    subdirectory, spacing), 1, 8, '1000mb', '2:00:00', VASP)
+                    subdirectory, spacing), 1, 8, '1000mb', '2:00:00', VASP_STD_BIN)
                 submission_command = 'qsub runjob'
 
             elif QUEUE == 'slurm':
                 utl.write_slurm_runjob('{}_{}'.format(
-                    subdirectory, spacing), 8, '1000mb', '2:00:00', VASP)
+                    subdirectory, spacing), 8, '1000mb', '2:00:00', VASP_STD_BIN)
                 submission_command = 'sbatch runjob'
 
             if submit:

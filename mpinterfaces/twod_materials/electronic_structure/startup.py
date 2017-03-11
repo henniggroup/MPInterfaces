@@ -9,7 +9,7 @@ from pymatgen import Structure
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
-from mpinterfaces.twod_materials import VASP, QUEUE
+from mpinterfaces.twod_materials import VASP_STD_BIN, QUEUE
 from mpinterfaces.twod_materials.stability import relax
 from mpinterfaces.twod_materials.utils.utils import write_pbs_runjob, \
     write_slurm_runjob, is_converged, get_magmom_string, remove_z_kpoints
@@ -130,11 +130,11 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
         if dim == 2:
             remove_z_kpoints()
         if QUEUE == 'pbs':
-            write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00', VASP)
+            write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00', VASP_STD_BIN)
             submission_command = 'qsub runjob'
 
         elif QUEUE == 'slurm':
-            write_slurm_runjob(directory, 16, '800mb', '6:00:00', VASP)
+            write_slurm_runjob(directory, 16, '800mb', '6:00:00', VASP_STD_BIN)
             submission_command = 'sbatch runjob'
 
         if submit:
@@ -182,12 +182,12 @@ def run_hse_prep_calculation(dim=2, submit=True):
 
     if QUEUE == 'pbs':
         write_pbs_runjob('{}_prep'.format(
-            os.getcwd().split('/')[-2]), 1, 16, '800mb', '6:00:00', VASP)
+            os.getcwd().split('/')[-2]), 1, 16, '800mb', '6:00:00', VASP_STD_BIN)
         submission_command = 'qsub runjob'
 
     elif QUEUE == 'slurm':
         write_slurm_runjob('{}_prep'.format(
-            os.getcwd().split('/')[-2]), 16, '800mb', '6:00:00', VASP)
+            os.getcwd().split('/')[-2]), 16, '800mb', '6:00:00', VASP_STD_BIN)
         submission_command = 'sbatch runjob'
 
     if submit:
@@ -282,12 +282,12 @@ def run_hse_calculation(dim=2, submit=True, force_overwrite=False,
 
         if QUEUE == 'pbs':
             write_pbs_runjob('{}_hsebands'.format(
-                os.getcwd().split('/')[-2]), 2, 64, '1800mb', '50:00:00', VASP)
+                os.getcwd().split('/')[-2]), 2, 64, '1800mb', '50:00:00', VASP_STD_BIN)
             submission_command = 'qsub runjob'
 
         elif QUEUE == 'slurm':
             write_slurm_runjob('{}_hsebands'.format(
-                os.getcwd().split('/')[-2]), 64, '1800mb', '50:00:00', VASP)
+                os.getcwd().split('/')[-2]), 64, '1800mb', '50:00:00', VASP_STD_BIN)
             submission_command = 'sbatch runjob'
 
         if submit:

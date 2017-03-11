@@ -41,7 +41,7 @@ from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 from ase.lattice.surface import surface
 
 from mpinterfaces.default_logger import get_default_logger
-from mpinterfaces import STD_BINARY, QUEUE_SYSTEM
+from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM
 
 __author__ = "Kiran Mathew, Joshua J. Gabriel"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -269,7 +269,7 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00', job_bin=None,
     if 'slurm' in queue:
     #if 'ufhpc' in hostname:
         if job_bin is None:
-            job_bin = STD_BINARY
+            job_bin = VASP_STD_BIN
         else:
             job_bin = job_bin
     # FIXME: think of way to generalize this to a SLURM queue, some specs

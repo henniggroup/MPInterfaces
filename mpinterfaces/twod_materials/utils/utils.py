@@ -16,7 +16,7 @@ from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from mpinterfaces import twod_materials
-from mpinterfaces.twod_materials import POTENTIAL_PATH
+from mpinterfaces.twod_materials import VASP_PSP
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -441,7 +441,7 @@ def add_vacuum(delta, cut=0.9):
     os.remove('new_POSCAR')
 
 
-def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
+def write_potcar(pot_path=VASP_PSP, types='None'):
     """
     Writes a POTCAR file based on a list of types.
 

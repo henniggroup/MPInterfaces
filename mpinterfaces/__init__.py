@@ -22,23 +22,32 @@ __version__ = "1.6.0"
 PACKAGE_PATH = os.path.dirname(__file__)
 
 try:
-    MPINT_CONFIG = loadfn(os.path.join(PACKAGE_PATH, 'config_mine.yaml'))
-    # set environ variables for MAPI_KEY and VASP_PSP_DIR
-    os.environ['VASP_PSP_DIR'] = MPINT_CONFIG['potentials']
-    os.environ['MAPI_KEY'] = MPINT_CONFIG['mp_api']
-    USERNAME = MPINT_CONFIG['username']
-    STD_BINARY = MPINT_CONFIG['normal_binary']
-    TWOD_BINARY = MPINT_CONFIG['twod_binary']
-    VDW_KERNEL = MPINT_CONFIG['vdw_kernel']
-    VASP_POTENTIALS = MPINT_CONFIG['potentials']
-    QUEUE_SYSTEM = MPINT_CONFIG['queue_system']
+    MPINT_CONFIG = loadfn(os.path.join(PACKAGE_PATH, 'mpint_config.yaml'))
 except:
     MPINT_CONFIG = {}
-    warnings.warn('config_mine.yaml file not configured. Please'
+    warnings.warn('mpint_config.yaml file not configured. Please'
                   ' set variables potentials and mp_api and retry')
 
-MAPI_KEY = os.environ.get("MAPI_KEY", "")
-MPR = MPRester(MAPI_KEY)
+# set environ variables for MAPI_KEY and VASP_PSP_DIR
+os.environ['VASP_PSP_DIR'] = MPINT_CONFIG.get('potentials', None)
+MP_API = MPINT_CONFIG.get('mp_api', None)
+os.environ['MAPI_KEY'] = MP_API
+MPR = MPRester(os.environ['MAPI_KEY'])
+
+USERNAME = MPINT_CONFIG.get('username', None)
+VASP_STD_BIN = MPINT_CONFIG.get('normal_binary', None)
+VASP_TWOD_BIN = MPINT_CONFIG.get('twod_binary', None)
+VDW_KERNEL = MPINT_CONFIG.get('vdw_kernel', None)
+VASP_PSP = MPINT_CONFIG.get('potentials', None)
+QUEUE_SYSTEM = MPINT_CONFIG.get('queue_system', None)
+
+if not QUEUE_SYSTEM:
+    if '/ufrc/' in os.getcwd():
+        QUEUE_SYSTEM = 'slurm'
+    elif '/scratch/' in os.getcwd():
+        QUEUE_SYSTEM = 'pbs'
+    else:
+        QUEUE_SYSTEM = 'N/A'
 
 
 def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):

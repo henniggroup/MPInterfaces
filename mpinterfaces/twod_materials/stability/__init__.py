@@ -4,7 +4,7 @@ import os
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Kpoints, Incar
-from twod_materials import VASP_2D, VDW_KERNEL,\
+from mpinterfaces.twod_materials import VASP_2D, VDW_KERNEL,\
     QUEUE
 
 import mpinterfaces.twod_materials.utils as utl
@@ -25,6 +25,7 @@ INCAR_DICT = {
     'PREC': 'Accurate', 'ENCUT': 500, 'SIGMA': 0.1, 'LVTOT': True,
     'LVHAR': True, 'ALGO': 'Fast', 'ISPIN': 2
     }
+
 
 def relax(dim=2, submit=True, incar_dict=INCAR_DICT, force_overwrite=False):
     """

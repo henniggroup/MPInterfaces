@@ -23,6 +23,7 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
+
 def plot_ion_hull_and_voltages(ion, fmt='pdf'):
     """
     Plots the phase diagram between the pure material and pure ion,

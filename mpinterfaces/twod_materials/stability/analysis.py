@@ -25,6 +25,7 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
+
 def get_competing_phases():
     """
     Collect the species to which the material might decompose to.

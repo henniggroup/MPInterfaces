@@ -25,6 +25,7 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
+
 def plot_gamma_surface(fmt='pdf'):
     """
     Collect the energies from a grid of static energy

@@ -24,6 +24,7 @@ __email__ = "joshgabriel92@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
+
 def get_band_edges():
     """
     Calculate the band edge locations relative to the vacuum level

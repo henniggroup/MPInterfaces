@@ -24,6 +24,7 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
+
 def is_converged(directory):
     """
     Check if a relaxation has converged.

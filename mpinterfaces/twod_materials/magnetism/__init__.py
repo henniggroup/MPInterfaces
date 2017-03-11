@@ -12,6 +12,7 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
+
 def run_major_axis_anisotropy_calculations(submit=True):
     """
     Perform static calculations with the magnetic axis along

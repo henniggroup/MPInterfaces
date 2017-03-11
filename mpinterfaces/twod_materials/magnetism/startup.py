@@ -19,7 +19,7 @@ def run_major_axis_anisotropy_calculations(submit=True):
     Perform static calculations with the magnetic axis along
     100, 010, and 001.
 
-    Kwargs:
+    Args:
         submit (bool): Whether or not to submit the job.
     """
 
@@ -41,10 +41,16 @@ def run_major_axis_anisotropy_calculations(submit=True):
 
         saxis = ' '.join(axis)
         incar_dict = INCAR_DICT
-        incar_dict.update({'EDIFF': 1e-8, 'GGA_COMPAT': False, 'ISMEAR': -5,
-                           'LORBIT': 11, 'LSORBIT': True, 'LWAVE': False,
-                           'LCHARG': False, 'LAECHG': False,
-                           'MAGMOM': get_magmom_string(), 'SAXIS': saxis})
+        incar_dict.update({'EDIFF': 1e-8,
+                           'GGA_COMPAT': False,
+                           'ISMEAR': -5,
+                           'LORBIT': 11,
+                           'LSORBIT': True,
+                           'LWAVE': False,
+                           'LCHARG': False,
+                           'LAECHG': False,
+                           'MAGMOM': get_magmom_string(),
+                           'SAXIS': saxis})
         Incar.from_dict(incar_dict).write_file('INCAR')
 
         if submit:
@@ -56,7 +62,7 @@ def run_xy_anisotropy_calculations(resolution=10, submit=True):
     Perform static calculations with the magnetic axis along
     several directions between 100 and 010.
 
-    Kwargs:
+    Args:
         resolution (int): step size between axes. The total
             number of calculations will be 90 / `resolution`.
         submit (bool): Whether or not to submit the job.
@@ -69,10 +75,9 @@ def run_xz_anisotropy_calculations(resolution=10, submit=True):
     Perform static calculations with the magnetic axis along
     several directions between 100 and 001.
 
-    Kwargs:
+    Args:
         resolution (int): step size between axes. The total
             number of calculations will be 90 / `resolution`.
         submit (bool): Whether or not to submit the job.
     """
     pass
-

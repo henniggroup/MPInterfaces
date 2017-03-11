@@ -1,19 +1,21 @@
 from __future__ import print_function, division, unicode_literals
 
 import os
+import operator
 
 import matplotlib
-import numpy as np
-from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.outputs import Vasprun
-from scipy.spatial import ConvexHull
-
-from mpinterfaces.twod_materials.utils import is_converged
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-import operator
+import numpy as np
+
+from scipy.spatial import ConvexHull
+
+from pymatgen.core.composition import Composition
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.outputs import Vasprun
+
+from mpinterfaces.twod_materials.utils.utils import is_converged
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -56,8 +58,8 @@ def plot_ion_hull_and_voltages(ion, fmt='pdf'):
     twod_ev_fu = energy / composition.get_reduced_composition_and_factor()[1]
 
     data = [(0, 0, 0, twod_ev_fu)]  # (at% ion, n_ions, E_F, abs_energy)
-    for directory in [
-            dir for dir in os.listdir(os.getcwd()) if os.path.isdir(dir)]:
+    dirs = [dir for dir in os.listdir(os.getcwd()) if os.path.isdir(dir)]
+    for directory in dirs:
         if is_converged(directory):
             os.chdir(directory)
             energy = Vasprun('vasprun.xml').final_energy
@@ -71,11 +73,8 @@ def plot_ion_hull_and_voltages(ion, fmt='pdf'):
             n_twod_fu = no_ion_comp.get_reduced_composition_and_factor()[1]
             n_ions = composition[ion] / n_twod_fu
 
-            E_F = (
-                (energy - composition[ion] * ion_ev_fu[ion]
-                 - twod_ev_fu * n_twod_fu)
-                / composition.num_atoms
-            )
+            E_F = ((energy - composition[ion] * ion_ev_fu[ion] -
+                    twod_ev_fu * n_twod_fu)/ composition.num_atoms)
 
             data.append((ion_fraction, n_ions, E_F, energy / n_twod_fu))
 
@@ -85,32 +84,28 @@ def plot_ion_hull_and_voltages(ion, fmt='pdf'):
     sorted_data = sorted(data, key=operator.itemgetter(0))
 
     # Determine which compositions are on the convex hull.
-    energy_profile = np.array([[item[0], item[2]]
-                                for item in sorted_data if item[2] <= 0])
+    energy_profile = np.array([[item[0], item[2]] for item in sorted_data
+                               if item[2] <= 0])
     hull = ConvexHull(energy_profile)
-    convex_ion_fractions = [
-        energy_profile[vertex, 0] for vertex in hull.vertices]
-    convex_formation_energies = [
-        energy_profile[vertex, 1] for vertex in hull.vertices]
+    convex_ion_fractions = [energy_profile[vertex, 0] for vertex in hull.vertices]
+    convex_formation_energies = [energy_profile[vertex, 1] for vertex in hull.vertices]
 
     convex_ion_fractions.append(convex_ion_fractions.pop(0))
     convex_formation_energies.append(convex_formation_energies.pop(0))
 
-    concave_ion_fractions = [
-        pt[0] for pt in sorted_data if pt[0] not in convex_ion_fractions]
-    concave_formation_energies = [
-        pt[2] for pt in sorted_data if pt[0] not in convex_ion_fractions]
+    concave_ion_fractions = [pt[0] for pt in sorted_data
+                             if pt[0] not in convex_ion_fractions]
+    concave_formation_energies = [pt[2] for pt in sorted_data
+                                  if pt[0] not in convex_ion_fractions]
 
     voltage_profile = []
     j = 0
     k = 0
     for i in range(1, len(sorted_data) - 1):
         if sorted_data[i][0] in convex_ion_fractions:
-            voltage = -(
-                ((sorted_data[i][3] - sorted_data[k][3])
-                 - (sorted_data[i][1] - sorted_data[k][1]) * ion_ev_fu[ion])
-                / (sorted_data[i][1] - sorted_data[k][1])
-                )
+            voltage = -(((sorted_data[i][3] - sorted_data[k][3])-
+                         (sorted_data[i][1] - sorted_data[k][1]) * ion_ev_fu[ion])
+                        / (sorted_data[i][1] - sorted_data[k][1]))
             voltage_profile.append((sorted_data[k][0], voltage))
             voltage_profile.append((sorted_data[i][0], voltage))
             j += 1

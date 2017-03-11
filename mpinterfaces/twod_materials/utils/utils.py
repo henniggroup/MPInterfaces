@@ -43,7 +43,6 @@ def is_converged(directory):
             return True
         else:
             return False
-
     except:
         return False
 
@@ -125,8 +124,8 @@ def get_spacing(filename='POSCAR', cut=0.9):
         z_coords.append(z_coord)
     max_height = max([z_height for z_height in z_coords])
     min_height = min([z_height for z_height in z_coords])
-    spacing = ((1.0 + min_height) - max_height) * abs(float(c_axis[2]))\
-        * float(lattice_parameter[0])
+    spacing = ((1.0 + min_height) - max_height) * \
+              abs(float(c_axis[2])) * float(lattice_parameter[0])
 
     return spacing
 
@@ -139,7 +138,7 @@ def get_rotation_matrix(axis, theta):
 
     Args:
         axis (list): rotation axis of the form [x, y, z]
-        theta (float): rotational angle in radians
+        theta (list): rotational angle in radians
 
     Returns:
         array. Rotation matrix.
@@ -147,7 +146,7 @@ def get_rotation_matrix(axis, theta):
 
     axis = np.asarray(axis)
     theta = np.asarray(theta)
-    axis = axis/math.sqrt(np.dot(axis, axis))
+    axis /= np.sqrt(np.dot(axis, axis))
     a = math.cos(theta/2.0)
     b, c, d = -axis*math.sin(theta/2.0)
     aa, bb, cc, dd = a*a, b*b, c*c, d*d
@@ -165,7 +164,7 @@ def align_c_axis_along_001(structure):
     z-axis relaxation.
 
     Args:
-        structure (structure): Pymatgen Structure object to rotate.
+        structure (Structure): Pymatgen Structure object to rotate.
 
     Returns:
         structure. Rotated to align c-axis along [001].
@@ -175,8 +174,7 @@ def align_c_axis_along_001(structure):
     z = [0, 0, 1]
     axis = np.cross(c, z)
     if not(axis[0] == 0 and axis[1] == 0):
-        theta = (np.arccos(np.dot(c, z) /
-                 (np.linalg.norm(c) * np.linalg.norm(z))))
+        theta = (np.arccos(np.dot(c, z) / (np.linalg.norm(c) * np.linalg.norm(z))))
         R = get_rotation_matrix(axis, theta)
         rotation = SymmOp.from_rotation_and_translation(rotation_matrix=R)
         structure.apply_operation(rotation)
@@ -201,12 +199,11 @@ def get_structure_type(structure, write_poscar_from_cluster=False):
     # The conventional standard structure is much easier to work
     # with.
 
-    structure = SpacegroupAnalyzer(
-        structure).get_conventional_standard_structure()
+    structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
 
     # Noble gases don't have well-defined bonding radii.
     if not len([e for e in structure.composition
-            if e.symbol in ['He', 'Ne', 'Ar', 'Kr', 'Xe']]) == 0:
+                if e.symbol in ['He', 'Ne', 'Ar', 'Kr', 'Xe']]) == 0:
         type = 'noble gas'
     else:
         if len(structure.sites) < 45:
@@ -223,8 +220,8 @@ def get_structure_type(structure, write_poscar_from_cluster=False):
             site_1 = sites[i]
             for site_2 in sites[i+1:]:
                 if (site_1.distance(site_2) <
-                        float(Element(site_1.specie).atomic_radius
-                        + Element(site_2.specie).atomic_radius) * 1.1):
+                            float(Element(site_1.specie).atomic_radius
+                                      + Element(site_2.specie).atomic_radius) * 1.1):
                     bonds[site_1].append(site_2)
                     bonds[site_2].append(site_1)
 
@@ -353,7 +350,7 @@ def add_vacuum(delta, cut=0.9):
     atom_line_2s = []
     for atom_line in atom_lines:
         atom_line_2s.append(float(atom_line[2]))
-    fixable = False
+    # fixable = False
     addables = []
     for atom_line_2 in atom_line_2s:
         if float(atom_line_2) > cut or\
@@ -362,9 +359,9 @@ def add_vacuum(delta, cut=0.9):
                 atom_line_2 = float(atom_line_2) + 1.0
             addables.append(atom_line_2)
             fixable = True
-#    if fixable:
-#        add_factor = 1.0 - min(addables)
-#    else:
+    # if fixable:
+    #     add_factor = 1.0 - min(addables)
+    #  else:
     add_factor = 0.0
     new_atom_lines = []
     for atom_line in atom_lines:
@@ -499,8 +496,7 @@ def write_potcar(pot_path=POTENTIAL_PATH, types='None'):
         outfile.close()
 
 
-def write_circle_mesh_kpoints(center=[0, 0, 0], radius=0.1,
-                              resolution=20):
+def write_circle_mesh_kpoints(center=[0, 0, 0], radius=0.1, resolution=20):
     """
     Create a circular mesh of k-points centered around a specific
     k-point and write it to the KPOINTS file. Non-circular meshes
@@ -521,8 +517,8 @@ def write_circle_mesh_kpoints(center=[0, 0, 0], radius=0.1,
     for i in range(-resolution, resolution):
         for j in range(-resolution, resolution):
             if i**2 + j**2 <= resolution**2:
-                kpoints.append([str(center[0]+step*i), str(center[1]+step*j),
-                '0', '1'])
+                kpoints.append([str(center[0]+step*i),
+                                str(center[1]+step*j), '0', '1'])
     with open('KPOINTS', 'w') as kpts:
         kpts.write('KPOINTS\n{}\ndirect\n'.format(len(kpoints)))
         for kpt in kpoints:
@@ -540,16 +536,16 @@ def get_markovian_path(points):
             [[x_1, y_1, z_1], [x_2, y_2, z_2], ...]
 
     Returns:
-        A sorted list of the points in order on the markovian path.
+        list: A sorted list of the points in order on the markovian path.
     """
 
-    def dist(x,y):
+    def dist(x, y):
         return math.hypot(y[0] - x[0], y[1] - x[1])
 
     paths = [p for p in it.permutations(points)]
     path_distances = [
-        sum(map(lambda x: dist(x[0], x[1]), zip(p[:-1], p[1:]))) for p in paths
-    ]
+        sum(map(lambda x: dist(x[0], x[1]), zip(p[:-1], p[1:])))
+        for p in paths]
     min_index = np.argmin(path_distances)
 
     return paths[min_index]
@@ -572,16 +568,12 @@ def remove_z_kpoints():
         kpt_2 = kpoint_lines[i+1].split()
         if float(kpt_1[2]) == 0.0 and [float(kpt_1[0]),
                                        float(kpt_1[1])] not in twod_kpoints:
-            twod_kpoints.append(
-                [float(kpt_1[0]), float(kpt_1[1])]
-            )
+            twod_kpoints.append([float(kpt_1[0]), float(kpt_1[1])])
             labels[kpt_1[4]] = [float(kpt_1[0]), float(kpt_1[1])]
 
         if float(kpt_2[2]) == 0.0 and [float(kpt_2[0]),
                                        float(kpt_2[1])] not in twod_kpoints:
-            twod_kpoints.append(
-                [float(kpt_2[0]), float(kpt_2[1])]
-            )
+            twod_kpoints.append([float(kpt_2[0]), float(kpt_2[1])])
             labels[kpt_2[4]] = [float(kpt_2[0]), float(kpt_2[1])]
         i += 3
 

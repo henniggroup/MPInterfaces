@@ -3,9 +3,9 @@ from __future__ import print_function, division, unicode_literals
 import operator
 
 from monty.dev import requires
-from pymatgen.analysis.defects.point_defects import (
-    Interstitial, ValenceIonicRadiusEvaluator
-    )
+
+from pymatgen.analysis.defects.point_defects import Interstitial, \
+    ValenceIonicRadiusEvaluator
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 
@@ -58,8 +58,7 @@ def inject_ions(structure, ion, atomic_fraction):
 
     interstitial_sites = [
         (site._fcoords, site.properties.get('voronoi_radius', None))
-        for site in interstitial._defect_sites
-        ]
+        for site in interstitial._defect_sites]
 
     # Sort the interstitial sites by their voronoi radii.
     interstitial_sites.sort(key=operator.itemgetter(1))
@@ -68,8 +67,7 @@ def inject_ions(structure, ion, atomic_fraction):
     i = 0
     while n_ions / (structure.num_sites + 1) <= atomic_fraction:
         try:
-            structure.append(species=specie,
-                             coords=interstitial_sites[i][0],
+            structure.append(species=specie, coords=interstitial_sites[i][0],
                              validate_proximity=True)
             n_ions += 1
             i += 1
@@ -80,8 +78,7 @@ def inject_ions(structure, ion, atomic_fraction):
 
             interstitial_sites = [
                 (site._fcoords, site.properties.get('voronoi_radius', None))
-                for site in interstitial._defect_sites
-                ]
+                for site in interstitial._defect_sites]
 
             # Sort the interstitial sites by their voronoi radii.
             interstitial_sites.sort(key=operator.itemgetter(1))

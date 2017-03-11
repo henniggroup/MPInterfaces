@@ -35,25 +35,19 @@ def get_competing_phases():
         (formula_2, Materials_Project_ID_2), ...]
     """
 
-    total_competing_phases = []
-
     composition = Structure.from_file('POSCAR').composition
     try:
         energy = Vasprun('vasprun.xml').final_energy
     except:
         energy = 100  # The function can work without a vasprun.xml
-    entries = MPR.get_entries_in_chemsys(
-        [elt.symbol for elt in composition]
-        )
+    entries = MPR.get_entries_in_chemsys([elt.symbol for elt in composition])
     my_entry = ComputedEntry(composition, energy)
     entries.append(my_entry)
 
     pda = PDAnalyzer(PhaseDiagram(entries))
     decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
-    competing_phases = [
-        (entry.composition.reduced_formula,
-         entry.entry_id) for entry in decomp[0]
-        ]
+    competing_phases = [(entry.composition.reduced_formula, entry.entry_id)
+                        for entry in decomp[0]]
 
     return competing_phases
 
@@ -70,7 +64,7 @@ def get_hull_distance(competing_phase_directory='../competing_phases'):
             in a directory named 'competing_phases' at the same level
             as your material's relaxation directory.
     Returns:
-        float. distance (eV/atom) between the material and the
+        float: distance (eV/atom) between the material and the
             hull.
     """
 
@@ -80,10 +74,8 @@ def get_hull_distance(competing_phase_directory='../competing_phases'):
     # framework and store them in a dictionary ({formula: entry}).
     if os.path.isdir(competing_phase_directory):
         os.chdir(competing_phase_directory)
-        for comp_dir in [
-            dir for dir in os.listdir(os.getcwd()) if os.path.isdir(dir) and
-            is_converged(dir)
-                ]:
+        for comp_dir in [dir for dir in os.listdir(os.getcwd())
+                         if os.path.isdir(dir) and is_converged(dir)]:
             vasprun = Vasprun('{}/vasprun.xml'.format(comp_dir))
             composition = vasprun.final_structure.composition
             energy = vasprun.final_energy
@@ -136,13 +128,11 @@ def plot_hull_distances(hull_distances, fmt='pdf'):
 
     x_ticklabels = []
     i = 0
-    for compound in sorted(
-            hull_distances.items(), key=operator.itemgetter(1)):
+    for compound in sorted(hull_distances.items(), key=operator.itemgetter(1)):
 
         proper_formula = ''
         for char in compound[0]:
             try:
-                int(char)
                 proper_formula += '_{}'.format(char)
             except ValueError:
                 proper_formula += char

@@ -23,8 +23,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.io.vasp.outputs import Vasprun
 
-from mpinterfaces import twod_materials
-
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
 __version__ = "1.6"
@@ -33,19 +31,14 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
 
-ION_CORRECTIONS = loadfn(
-    os.path.join(PACKAGE_PATH, 'pourbaix/ion_corrections.yaml')
-)
-ION_FORMATION_ENERGIES = loadfn(
-    os.path.join(PACKAGE_PATH, 'pourbaix/ion_formation_energies.yaml')
-)
-CHEMICAL_POTENTIALS = loadfn(
-    os.path.join(PACKAGE_PATH, 'pourbaix/chemical_potentials.yaml')
-)
-ION_COLORS = loadfn(os.path.join(PACKAGE_PATH, 'pourbaix/ion_colors.yaml'))
+PACKAGE_PATH = os.path.dirname(__file__)
+ION_CORRECTIONS = loadfn(os.path.join(PACKAGE_PATH, 'ion_corrections.yaml'))
+ION_FORMATION_ENERGIES = loadfn(os.path.join(PACKAGE_PATH,
+                                             'ion_formation_energies.yaml'))
+CHEMICAL_POTENTIALS = loadfn(os.path.join(PACKAGE_PATH,
+                                          'chemical_potentials.yaml'))
+ION_COLORS = loadfn(os.path.join(PACKAGE_PATH, 'ion_colors.yaml'))
 
 
 def contains_entry(entry_list, entry):
@@ -56,13 +49,14 @@ def contains_entry(entry_list, entry):
         entry_list (list): List of Pymatgen ComputedEntry objects.
         entry (ComputedEntry): the Pymatgen ComputedEntry object of
             interest.
+
+    Returns:
+        bool
     """
     for ent in entry_list:
-        if (ent.entry_id == entry.entry_id
-            or (abs(entry.energy_per_atom - ent.energy_per_atom) < 1e-6
-                and (entry.composition.reduced_formula ==
-                     ent.composition.reduced_formula)
-                )):
+        if (ent.entry_id == entry.entry_id or
+                (abs(entry.energy_per_atom - ent.energy_per_atom) < 1e-6 and
+                     (entry.composition.reduced_formula == ent.composition.reduced_formula))):
             return True
 
 
@@ -147,8 +141,8 @@ def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6, fmt='pdf'):
     pourbaix = PourbaixDiagram(all_entries)
 
     # Analysis features
-    panalyzer = PourbaixAnalyzer(pourbaix)
-#    instability = panalyzer.get_e_above_hull(pbx_cmpd)
+    # panalyzer = PourbaixAnalyzer(pourbaix)
+    # instability = panalyzer.get_e_above_hull(pbx_cmpd)
 
     plotter = PourbaixPlotter(pourbaix)
     plot = plotter.get_pourbaix_plot(limits=[[0, 14], [-2, 2]],
@@ -185,7 +179,7 @@ def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6, fmt='pdf'):
             transparent=True)
     else:
         plot.savefig('{}_{}.{}'.format(composition.reduced_formula,
-                                        ion_concentration, fmt),
+                                       ion_concentration, fmt),
                      transparent=True)
 
     plot.close()

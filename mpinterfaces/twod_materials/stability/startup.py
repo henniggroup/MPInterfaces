@@ -26,7 +26,7 @@ INCAR_DICT = {
     }
 
 
-def relax(dim=2, submit=True, incar_dict=INCAR_DICT, force_overwrite=False):
+def relax(dim=2, submit=True, force_overwrite=False):
     """
     Writes input files and (optionally) submits a self-consistent
     relaxation. Should be run before pretty much anything else, in
@@ -70,13 +70,11 @@ def relax(dim=2, submit=True, incar_dict=INCAR_DICT, force_overwrite=False):
 
         # Submission script
         if QUEUE == 'pbs':
-            utl.write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00',
-                                 VASP_2D)
+            utl.write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00', VASP_2D)
             submission_command = 'qsub runjob'
 
         elif QUEUE == 'slurm':
-            utl.write_slurm_runjob(directory, 16, '800mb', '6:00:00',
-                                   VASP_2D)
+            utl.write_slurm_runjob(directory, 16, '800mb', '6:00:00', VASP_2D)
             submission_command = 'sbatch runjob'
 
         if submit:

@@ -1,7 +1,6 @@
 from __future__ import print_function, division, unicode_literals
 
 import os
-
 import yaml
 
 from monty.serialization import loadfn
@@ -10,7 +9,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.outputs import Vasprun
 
-from mpinterfaces import twod_materials
 import mpinterfaces.twod_materials.utils.utils as utl
 from mpinterfaces.twod_materials import MPR
 from mpinterfaces.twod_materials.stability import relax
@@ -23,18 +21,11 @@ __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
-PACKAGE_PATH = twod_materials.__file__.replace('__init__.pyc', '')
-PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
-
-REFERENCE_MPIDS = loadfn(os.path.join(
-    PACKAGE_PATH, 'pourbaix/reference_mpids.yaml')
-)
-EXPERIMENTAL_OXIDE_DATA = loadfn(os.path.join(
-    PACKAGE_PATH, 'pourbaix/experimental_oxide_data.yaml')
-)
-GAS_CORRECTIONS = loadfn(os.path.join(
-    PACKAGE_PATH, 'pourbaix/gas_corrections.yaml')
-)
+PACKAGE_PATH = os.path.dirname(__file__)
+REFERENCE_MPIDS = loadfn(os.path.join(PACKAGE_PATH, 'reference_mpids.yaml'))
+EXPERIMENTAL_OXIDE_DATA = loadfn(os.path.join(PACKAGE_PATH,
+                                              'experimental_oxide_data.yaml'))
+GAS_CORRECTIONS = loadfn(os.path.join(PACKAGE_PATH, 'gas_corrections.yaml'))
 
 
 def get_experimental_formation_energies():
@@ -44,6 +35,9 @@ def get_experimental_formation_energies():
     and interpret it into actual formation energies. This extra
     step is written out mostly just to make the methodology clear
     and reproducible.
+
+    Returns:
+
     """
     data = EXPERIMENTAL_OXIDE_DATA
     oxygen_entropy = 38.48  # Entropy in atomic O, in cal/mol.degree
@@ -51,13 +45,10 @@ def get_experimental_formation_energies():
     for compound in data:
         composition = Composition(compound)
         element = [e for e in composition if e.symbol != 'O'][0]
-
         delta_H = data[compound]['delta_H']
-        delta_S = (
-            data[compound]['S_cmpd']
-            - (data[compound]['S_elt']*composition[element]
-               + oxygen_entropy*composition['O'])
-        ) * 298 / 1000
+        delta_S = (data[compound]['S_cmpd']
+                   - (data[compound]['S_elt']*composition[element]
+                      + oxygen_entropy*composition['O'])) * 298 / 1000
         # Convert kcal/mole to eV/formula unit
         formation_energies[element.symbol] = (delta_H - delta_S) / 22.06035
 
@@ -137,7 +128,7 @@ def get_corrections(write_yaml=False):
             values to end_members.yaml.
 
     Returns:
-        dict. elements as keys and their corrections as values,
+        dict: elements as keys and their corrections as values,
             in eV per atom, e.g. {'Mo': 0.135, 'S': -0.664}.
     """
 
@@ -145,10 +136,10 @@ def get_corrections(write_yaml=False):
     mu0, corrections = {}, {}
     special_cases = ['O', 'S', 'F', 'Cl', 'Br', 'I', 'H']
 
-    elts = [elt for elt in os.listdir(os.getcwd()) if os.path.isdir(elt)
-            and elt not in special_cases]
-    special_elts = [elt for elt in os.listdir(os.getcwd()) if os.path.isdir(elt)
-            and elt in special_cases]
+    elts = [elt for elt in os.listdir(os.getcwd())
+            if os.path.isdir(elt) and elt not in special_cases]
+    special_elts = [elt for elt in os.listdir(os.getcwd())
+                    if os.path.isdir(elt) and elt in special_cases]
 
     # Add entropic correction for special elements (S * 298K)
     for elt in special_elts:
@@ -161,10 +152,8 @@ def get_corrections(write_yaml=False):
             if '2' in formula_and_factor[0]:
                 n_formula_units *= 2
 
-            mu0[elt] = (
-                round(vasprun.final_energy / n_formula_units
-                      + GAS_CORRECTIONS['entropy'][elt], 3)
-            )
+            mu0[elt] = (round(vasprun.final_energy / n_formula_units
+                              + GAS_CORRECTIONS['entropy'][elt], 3))
         except Exception as e:
             mu0[elt] = 'Element not finished'
         os.chdir('../')
@@ -176,20 +165,17 @@ def get_corrections(write_yaml=False):
 
     for elt in elts:
         EF_exp = experimental_formation_energies[elt]
-
         os.chdir(elt)
         try:
             vasprun = Vasprun('vasprun.xml')
             composition = vasprun.final_structure.composition
-            mu0[elt] = round(
-                vasprun.final_energy / composition[Element(elt)], 3
-            )
+            mu0[elt] = round(vasprun.final_energy/composition[Element(elt)], 3)
 
             # Nitrogen needs an entropic gas phase correction too.
             if elt == 'N':
                 mu0[elt] -= GAS_CORRECTIONS['entropy']['N']
 
-        except Exception as e:
+        except Exception as _:
             corrections[elt] = 'Element not finished'
 
         os.chdir('oxide')
@@ -198,16 +184,12 @@ def get_corrections(write_yaml=False):
             composition = vasprun.final_structure.composition
             n_formula_units = composition.get_integer_formula_and_factor()[1]
 
-            EF_dft = (
-                vasprun.final_energy
-                - mu0[elt]*composition[Element(elt)]
-                - mu0['O']*composition[Element('O')]
-            ) / n_formula_units
+            EF_dft = (vasprun.final_energy
+                      - mu0[elt]*composition[Element(elt)]
+                      - mu0['O']*composition[Element('O')]) / n_formula_units
 
-            corrections[elt] = round(
-                (EF_dft - EF_exp)
-                / (composition[Element(elt)]/n_formula_units), 3
-            )
+            corrections[elt] = round((EF_dft - EF_exp)
+                                     / (composition[Element(elt)]/n_formula_units), 3)
 
         except Exception as e:
             print(e)

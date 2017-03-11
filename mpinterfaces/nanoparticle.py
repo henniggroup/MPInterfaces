@@ -11,11 +11,9 @@ Wulff construction to create the nanoparticle
 
 from six.moves import range
 
-import sys
 import itertools
-from fractions import gcd
+from math import gcd
 from functools import reduce
-import logging
 
 import numpy as np
 

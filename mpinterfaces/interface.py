@@ -15,7 +15,6 @@ from six.moves import range
 import sys
 import math
 import copy
-import logging
 
 import numpy as np
 
@@ -39,6 +38,7 @@ __status__ = "Production"
 __date__ = "March 3, 2017"
 
 logger = get_default_logger(__name__)
+
 
 class Interface(Slab):
     """

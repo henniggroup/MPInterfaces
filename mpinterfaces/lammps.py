@@ -13,7 +13,6 @@ from six.moves import map
 from six.moves import zip
 
 import os
-import sys
 import logging
 from collections import OrderedDict
 

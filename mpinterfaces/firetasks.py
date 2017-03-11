@@ -9,9 +9,6 @@ from __future__ import division, print_function, unicode_literals, \
 Defines various firetasks
 """
 
-import sys
-import logging
-
 from pymatgen.apps.borg.queen import BorgQueen
 
 from monty.json import MontyDecoder
@@ -21,7 +18,6 @@ from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import explicit_serialize
 
 from mpinterfaces.database import MPINTVaspToDbTaskDrone
-
 from mpinterfaces.default_logger import get_default_logger
 
 logger = get_default_logger(__name__)

@@ -5,6 +5,7 @@
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
+
 """
 Utility functions
 """
@@ -12,6 +13,10 @@ Utility functions
 from six.moves import range
 from six.moves import zip
 from functools import reduce
+# Error exception catching function for debugging
+# can be a very useful tool for a developer
+# move to utils and activate when debug mode is on
+import linecache
 
 import sys
 import os
@@ -729,3 +734,14 @@ def set_sd_flags(poscar_input=None, n_layers=2, top=True, bottom=True,
         sd_flags[np.where(z_coords >= z_upper_bound)] = np.ones((1, 3))
     poscar2 = Poscar(poscar1.structure, selective_dynamics=sd_flags.tolist())
     poscar2.write_file(filename=poscar_output)
+
+
+def PrintException():
+    exc_type, exc_obj, tb = sys.exc_info()
+    f = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = f.f_code.co_filename
+    linecache.checkcache(filename)
+    line = linecache.getline(filename, lineno, f.f_globals)
+    print ('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(
+        filename, lineno, line.strip(), exc_obj))

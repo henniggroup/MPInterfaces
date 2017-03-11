@@ -10,11 +10,9 @@ process vasprun.xml file by walking through the enitre directory tree
 in the parent directory
 """
 
-import sys
 import os
 import glob
 import re
-import logging
 
 from monty.json import MontyDecoder
 

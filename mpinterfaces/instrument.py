@@ -10,14 +10,12 @@ The instrument module:
 defines the inputset and the job
 
 """
-import sys
 import os
 import shutil
 import subprocess
 import logging
 
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
-
 from pymatgen.io.vasp.sets import DictSet
 # uncomment for python2.7 pymatgen versions compatibility and more changes, refer
 # ufhpc_py27_compat branch 
@@ -33,7 +31,6 @@ from monty.json import MontyDecoder
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
 from mpinterfaces.data_processor import MPINTVasprun
-
 from mpinterfaces.default_logger import get_default_logger
 
 __author__ = "Kiran Mathew, Joshua J. Gabriel"
@@ -45,6 +42,7 @@ __status__ = "Production"
 __date__ = "March 3, 2017"
 
 logger = get_default_logger(__name__)
+
 
 class MPINTVaspInputSet(DictSet):
     """

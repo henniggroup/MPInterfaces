@@ -1,22 +1,5 @@
 from __future__ import division, unicode_literals
 
-import itertools
-import json
-import re
-import warnings
-
-from monty.json import MontyDecoder, MontyEncoder
-from six import string_types
-
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
-
-from pymatgen.entries.computed_entries import ComputedEntry, \
-    ComputedStructureEntry
-from pymatgen.entries.exp_entries import ExpEntry
-
-
 """
 This is essentially just a clone of the MPRester object in pymatgen with
 slight modifications to work with MaterialsWeb.
@@ -25,6 +8,12 @@ This module provides classes to interface with the MaterialsWeb REST
 API v2 to enable the creation of data structures and pymatgen objects using
 MaterialsWeb data.
 """
+
+import json
+import warnings
+
+from monty.json import MontyDecoder
+from pymatgen.core.structure import Structure
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

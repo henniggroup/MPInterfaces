@@ -50,11 +50,10 @@ from monty.serialization import dumpfn
 
 from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.interface import Interface, Ligand
-from mpinterfaces.utils import get_ase_slab, get_magmom_string, get_magmom_afm, get_magmom_mae
-
+from mpinterfaces.utils import get_ase_slab, get_magmom_string, get_magmom_afm, \
+    get_magmom_mae, PrintException
 from mpinterfaces.twod_materials.electronic_structure import get_2D_hse_kpoints,\
     get_2D_incar_hse_prep, get_2D_incar_hse
-
 from mpinterfaces.default_logger import get_default_logger
 
 __author__ = "Kiran Mathew, Joshua J. Gabriel"
@@ -67,23 +66,6 @@ __date__ = "March 3, 2017"
 
 
 logger = get_default_logger(__name__)
-
-
-# Error exception catching function for debugging
-# can be a very useful tool for a developer
-# move to utils and activate when debug mode is on
-import linecache
-
-
-def PrintException():
-    exc_type, exc_obj, tb = sys.exc_info()
-    f = tb.tb_frame
-    lineno = tb.tb_lineno
-    filename = f.f_code.co_filename
-    linecache.checkcache(filename)
-    line = linecache.getline(filename, lineno, f.f_globals)
-    print ('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(
-        filename, lineno, line.strip(), exc_obj))
 
 
 class Calibrate(MSONable):

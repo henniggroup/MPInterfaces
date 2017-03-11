@@ -15,7 +15,6 @@ import sys
 import shutil
 import os
 import json
-import logging
 import itertools
 
 from pymatgen.io.vasp.inputs import Incar, Poscar
@@ -55,8 +54,7 @@ class Measurement(object):
                  modules
     """
 
-    def __init__(self, cal_objs, parent_job_dir='.',
-                 job_dir='./Measurement'):
+    def __init__(self, cal_objs, parent_job_dir='.', job_dir='./Measurement'):
         self.jobs = []
         self.handlers = []
         self.calmol = []

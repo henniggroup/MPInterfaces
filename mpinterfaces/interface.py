@@ -26,7 +26,6 @@ from pymatgen.util.coord_utils import get_angle
 
 from mpinterfaces.transformations import reduced_supercell_vectors
 from mpinterfaces.utils import get_ase_slab
-
 from mpinterfaces.default_logger import get_default_logger
 
 __author__ = "Kiran Mathew, Joshua J. Gabriel"
@@ -612,14 +611,14 @@ if __name__ == '__main__':
 
     # create lead acetate ligand
     # from 3 molecules: 2 acetic acid + 1 Pb
-    import mpinterfaces
     import os
 
-    PACKAGE_PATH = mpinterfaces.__file__.replace('__init__.pyc', '')
-    PACKAGE_PATH = PACKAGE_PATH.replace('__init__.py', '')
+    PACKAGE_PATH = os.path.dirname(__file__)
 
-    mol0 = Molecule.from_file(PACKAGE_PATH + "test_files/acetic_acid.xyz")
-    mol1 = Molecule.from_file(PACKAGE_PATH + "test_files/acetic_acid.xyz")
+    mol0 = Molecule.from_file(
+        os.path.join(PACKAGE_PATH, "test_files", "acetic_acid.xyz"))
+    mol1 = Molecule.from_file(
+        os.path.join(PACKAGE_PATH, "test_files", "acetic_acid.xyz"))
     mol2 = Molecule(["Pb"], [[0, 0, 0]])
     mols = [mol0, mol1, mol2]
     # center of mass distances in angstrom
@@ -670,7 +669,8 @@ if __name__ == '__main__':
     boxed_lead_acetate.to(fmt="poscar",
                           filename="POSCAR_diacetate_boxed.vasp")
     # bulk PbS
-    strt_pbs = Structure.from_file(PACKAGE_PATH + "test_files/POSCAR_PbS")
+    strt_pbs = Structure.from_file(
+        os.path.join(PACKAGE_PATH, "test_files", "POSCAR_PbS"))
 
     # intital supercell, this wont be the final supercell if surface
     # coverage is specified

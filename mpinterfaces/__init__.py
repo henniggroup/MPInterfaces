@@ -22,16 +22,16 @@ __version__ = "1.6.0"
 PACKAGE_PATH = os.path.dirname(__file__)
 
 try:
-    MY_CONFIG = loadfn(os.path.join(PACKAGE_PATH, 'config_mine.yaml'))
+    MPINT_CONFIG = loadfn(os.path.join(PACKAGE_PATH, 'config_mine.yaml'))
     # set environ variables for MAPI_KEY and VASP_PSP_DIR
-    os.environ['VASP_PSP_DIR'] = MY_CONFIG['potentials']
-    os.environ['MAPI_KEY'] = MY_CONFIG['mp_api']
-    USERNAME = MY_CONFIG['username']
-    STD_BINARY = MY_CONFIG['normal_binary']
-    TWOD_BINARY = MY_CONFIG['twod_binary']
-    VDW_KERNEL = MY_CONFIG['vdw_kernel']
-    VASP_POTENTIALS = MY_CONFIG['potentials']
-    QUEUE_SYSTEM = MY_CONFIG['queue_system']
+    os.environ['VASP_PSP_DIR'] = MPINT_CONFIG['potentials']
+    os.environ['MAPI_KEY'] = MPINT_CONFIG['mp_api']
+    USERNAME = MPINT_CONFIG['username']
+    STD_BINARY = MPINT_CONFIG['normal_binary']
+    TWOD_BINARY = MPINT_CONFIG['twod_binary']
+    VDW_KERNEL = MPINT_CONFIG['vdw_kernel']
+    VASP_POTENTIALS = MPINT_CONFIG['potentials']
+    QUEUE_SYSTEM = MPINT_CONFIG['queue_system']
 except:
     warnings.warn('config_mine.yaml file not configured. Please'
                   ' set variables potentials and mp_api and retry')

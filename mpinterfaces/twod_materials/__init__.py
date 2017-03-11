@@ -1,33 +1,31 @@
 import os
-
+import warnings
 from pymatgen.matproj.rest import MPRester
 
-from mpinterfaces import MY_CONFIG
+__author__ = "Michael Ashton, Joshua J. Gabriel, Joshua T. Paul, Seve G. Monahan"
 
-__author__ = "Michael Ashton, Joshua J. Gabriel, " \
-             "Joshua T. Paul, Seve G. Monahan"
-
-if 'MP_API' in os.environ:
-    MPR = MPRester(os.environ['MP_API'])
-else:
-    MPR = MPRester(MY_CONFIG['mp_api'])
 
 try:
-    VASP = MY_CONFIG['normal_binary']
-    VASP_2D = MY_CONFIG['twod_binary']
-    POTENTIAL_PATH = MY_CONFIG['potentials']
-    USR = MY_CONFIG['username']
-    VDW_KERNEL = MY_CONFIG['vdw_kernel']
-except:
-    raise ValueError('config_mine.yaml file(required for the twod_materials '
-                     'subpackage) not configured. Please set '
-                     'variables potentials and mp_api and retry')
+    from mpinterfaces import MPINT_CONFIG
+    MPR = MPRester(os.environ['MP_API']) if 'MP_API' in os.environ else \
+        MPRester(MPINT_CONFIG.get('mp_api', None))
+    VASP = MPINT_CONFIG.get('normal_binary', None)
+    VASP_2D = MPINT_CONFIG.get('twod_binary', None)
+    POTENTIAL_PATH = MPINT_CONFIG.get('potentials')
+    USR = MPINT_CONFIG.get('username')
+    VDW_KERNEL = MPINT_CONFIG.get('vdw_kernel')
+    QUEUE = MPINT_CONFIG.get('queue_system', '').lower()
+except ImportError:
+    QUEUE = None
+    warnings.warn('config_mine.yaml file(required for the twod_materials '
+                  'subpackage) not configured. Please set '
+                  'variables potentials and mp_api and retry')
 
-if 'queue_system' in MY_CONFIG:
-    QUEUE = MY_CONFIG['queue_system'].lower()
-elif '/ufrc/' in os.getcwd():
-    QUEUE = 'slurm'
-elif '/scratch/' in os.getcwd():
-    QUEUE = 'pbs'
-else:
-    QUEUE = 'N/A'
+
+if not QUEUE:
+    if '/ufrc/' in os.getcwd():
+        QUEUE = 'slurm'
+    elif '/scratch/' in os.getcwd():
+        QUEUE = 'pbs'
+    else:
+        QUEUE = 'N/A'

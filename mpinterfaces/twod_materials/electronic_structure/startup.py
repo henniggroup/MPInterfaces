@@ -12,7 +12,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from mpinterfaces.twod_materials import VASP, QUEUE
 from mpinterfaces.twod_materials.stability import relax
 from mpinterfaces.twod_materials.utils.utils import write_pbs_runjob, \
-    write_slurm_runjob, is_converged, get_magmom_string
+    write_slurm_runjob, is_converged, get_magmom_string, remove_z_kpoints
 
 __author__ = "Michael Ashton, Joshua J. Gabriel"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -39,7 +39,7 @@ def get_markovian_path(points):
      return paths[min_index]
 
 
-def remove_z_kpoints(output='KPOINTS'):
+def remove_z_kpoints_linemode(output='KPOINTS'):
      """
      Strips all k-points linemode KPOINTS that include a
      z-component, since these are not relevant for 2D materials.

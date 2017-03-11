@@ -28,7 +28,6 @@ class StartupTest(unittest.TestCase):
             self.assertTrue(os.path.isfile('pbe_bands/{}'.format(f)))
         os.system('rm -r pbe_bands')
 
-
     def test_run_hse_calculation_creates_files(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
@@ -36,7 +35,6 @@ class StartupTest(unittest.TestCase):
         for f in ['POSCAR', 'INCAR', 'KPOINTS', 'runjob']:
             self.assertTrue(os.path.isfile('hse_bands/{}'.format(f)))
         os.system('rm -r hse_bands')
-
 
     def test_run_hse_prep_calculation_creates_files(self):
         os.chdir(ROOT)
@@ -61,7 +59,6 @@ class AnalysisTest(unittest.TestCase):
         for edge in test_edges:
             self.assertAlmostEqual(test_edges[edge], control_edges[edge])
 
-
     def test_get_fermi_velocities_for_MoS2_and_FeCl2(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
@@ -79,12 +76,10 @@ class AnalysisTest(unittest.TestCase):
         for i in range(len(test_velocities)):
             self.assertEqual(test_velocities[i], control_velocities[i])
 
-
     def test_plot_band_alignments_creates_data(self):
         os.chdir(ROOT)
         ax = plot_band_alignments(['MoS2'], fmt='None')
         self.assertEqual(ax.get_children()[0].get_height(), 1.23)
-
 
     def test_plot_local_potential_creates_data(self):
         os.chdir(ROOT)
@@ -98,7 +93,6 @@ class AnalysisTest(unittest.TestCase):
         for i in range(len(control_x)):
             self.assertAlmostEqual(test_x[i], control_x[i])
             self.assertAlmostEqual(test_y[i], control_y[i])
-
 
     def test_plot_band_structure_creates_data(self):
         os.chdir(ROOT)
@@ -117,7 +111,6 @@ class AnalysisTest(unittest.TestCase):
         for i in range(len(control_data)):
             self.assertAlmostEqual(test_data[i], control_data[i])
 
-
     def test_plot_color_projected_bands_creates_file(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
@@ -129,7 +122,6 @@ class AnalysisTest(unittest.TestCase):
             self.assertAlmostEqual(test_x[i], control_x[i])
             self.assertAlmostEqual(test_y[i], control_y[i])
 
-
     def test_plot_elt_projected_bands_creates_data(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
@@ -139,7 +131,6 @@ class AnalysisTest(unittest.TestCase):
         control_x, control_y = 0.14461496, -19.3895
         self.assertAlmostEqual(test_x, control_x)
         self.assertAlmostEqual(test_y, control_y)
-
 
     def test_plot_orb_projected_bands_creates_data(self):
         os.chdir(ROOT)

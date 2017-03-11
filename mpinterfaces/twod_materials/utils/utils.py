@@ -15,8 +15,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from mpinterfaces import twod_materials
-from mpinterfaces.twod_materials import VASP_PSP
+from mpinterfaces import twod_materials, VASP_PSP
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

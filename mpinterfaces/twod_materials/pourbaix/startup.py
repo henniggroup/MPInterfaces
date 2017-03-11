@@ -9,8 +9,8 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.outputs import Vasprun
 
+from mpinterfaces import MPR
 import mpinterfaces.twod_materials.utils.utils as utl
-from mpinterfaces.twod_materials import MPR
 from mpinterfaces.twod_materials.stability import relax
 
 __author__ = "Michael Ashton"

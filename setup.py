@@ -36,5 +36,5 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering",
     ],
-    scripts=glob.glob(os.path.join(MPINT_DIR, "scripts", "*"))
+    scripts=glob.glob(os.path.join(MPINT_DIR, "mpinterfaces", "scripts", "*"))
 )

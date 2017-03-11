@@ -2,6 +2,7 @@ import os
 
 from pymatgen.io.vasp.inputs import Incar
 
+from mpinterfaces import QUEUE_SYSTEM
 from mpinterfaces.twod_materials.utils.utils import get_magmom_string
 from mpinterfaces.twod_materials.stability import INCAR_DICT
 
@@ -51,6 +52,16 @@ def run_major_axis_anisotropy_calculations(submit=True):
                            'MAGMOM': get_magmom_string(),
                            'SAXIS': saxis})
         Incar.from_dict(incar_dict).write_file('INCAR')
+
+        if QUEUE_SYSTEM == 'pbs':
+            utl.write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00',
+                VASP_TWOD_BIN)
+            submission_command = 'qsub runjob'
+
+        elif QUEUE_SYSTEM == 'slurm':
+            utl.write_slurm_runjob(directory, 16, '800mb', '6:00:00',
+                VASP_TWOD_BIN)
+            submission_command = 'sbatch runjob'
 
         if submit:
             os.system(submission_command)

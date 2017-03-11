@@ -69,11 +69,13 @@ def relax(dim=2, submit=True, force_overwrite=False):
 
         # Submission script
         if QUEUE_SYSTEM == 'pbs':
-            utl.write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00', VASP_TWOD_BIN)
+            utl.write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00',
+                VASP_TWOD_BIN)
             submission_command = 'qsub runjob'
 
         elif QUEUE_SYSTEM == 'slurm':
-            utl.write_slurm_runjob(directory, 16, '800mb', '6:00:00', VASP_TWOD_BIN)
+            utl.write_slurm_runjob(directory, 16, '800mb', '6:00:00',
+                VASP_TWOD_BIN)
             submission_command = 'sbatch runjob'
 
         if submit:

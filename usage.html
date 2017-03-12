@@ -8,9 +8,11 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview &mdash; mpinterfaces 1.1.2alpha documentation</title>
+  <title>Overview &mdash; mpinterfaces 1.7.0alpha documentation</title>
   
 
+  
+  
   
   
 
@@ -30,8 +32,10 @@
   
 
   
-    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="index.html"/>
-        <link rel="prev" title="mpinterfaces package" href="mpinterfaces.html"/> 
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="mpinterfaces 1.7.0alpha documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -40,21 +44,32 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="index.html" class="icon icon-home"> mpinterfaces
-        
+          
+            <a href="index.html" class="icon icon-home"> mpinterfaces
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                1.7.0
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -63,92 +78,94 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Overview</a></li>
+<li><a class="reference internal" href="#capabilities">Capabilities</a><ul>
+<li><a class="reference internal" href="#interface-creation">Interface Creation</a></li>
+<li><a class="reference internal" href="#offline-vasp-project-management">Offline vasp project management</a></li>
+<li><a class="reference internal" href="#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
+<li><a class="reference internal" href="#workflow-submission-and-launching">Workflow submission and launching</a></li>
+<li><a class="reference internal" href="#workflow-query-examples">Workflow query examples</a></li>
+<li><a class="reference internal" href="#query-for-individual-fireworks">Query for individual Fireworks</a></li>
+<li><a class="reference internal" href="#connecting-to-our-local-database">Connecting to our local Database</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
           
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="readme.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="readme.html#prepping">Prepping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="readme.html#get-the-latest-version">Get the latest version</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="readme.html#documentation">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="readme.html#usage">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="readme.html#contributing">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="readme.html#authors">Authors</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.html">mpinterfaces package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
-</ul>
-</li>
-</ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#capabilities">Capabilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#interface-creation">Interface Creation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#offline-vasp-project-management">Offline vasp project management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#workflow-submission-and-launching">Workflow submission and launching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#workflow-query-examples">Workflow query examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#query-for-individual-fireworks">Query for individual Fireworks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#connecting-to-our-local-database">Connecting to our local Database</a></li>
-</ul>
-</li>
-</ul>
-
-          
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">mpinterfaces</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">mpinterfaces</a>
+        
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Overview</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Overview</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/usage.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
-          <div role="main" class="document">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
@@ -382,25 +399,23 @@ Contact me (<a class="reference external" href="mailto:km468&#37;&#52;&#48;corne
 </div>
 
 
+           </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-      
-        <a href="mpinterfaces.html" class="btn btn-neutral" title="mpinterfaces package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
+        &copy; Copyright 2015, Kiran Mathew, Joshua J. Gabriel, Michael Ashton, Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -418,10 +433,11 @@ Contact me (<a class="reference external" href="mailto:km468&#37;&#52;&#48;corne
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.1.2alpha',
+            VERSION:'1.7.0alpha',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>

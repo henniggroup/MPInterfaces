@@ -8,9 +8,11 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; mpinterfaces 1.1.2alpha documentation</title>
+  <title>Installation &mdash; mpinterfaces 1.7.0alpha documentation</title>
   
 
+  
+  
   
   
 
@@ -30,9 +32,10 @@
   
 
   
-    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="index.html"/>
-        <link rel="next" title="mpinterfaces package" href="mpinterfaces.html"/>
-        <link rel="prev" title="Introduction" href="index.html"/> 
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="mpinterfaces 1.7.0alpha documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -41,21 +44,32 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-        
-          <a href="index.html" class="icon icon-home"> mpinterfaces
-        
+          
+            <a href="index.html" class="icon icon-home"> mpinterfaces
+          
 
-        
-        </a>
+          
+          </a>
 
-        
+          
+            
+            
+              <div class="version">
+                1.7.0
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -64,134 +78,107 @@
   </form>
 </div>
 
-        
-      </div>
+          
+        </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#install-pymatgen">Install Pymatgen</a></li>
+<li><a class="reference internal" href="#get-the-latest-version">Get the latest version</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#cite">Cite</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
+<li><a class="reference internal" href="#authors">Authors</a></li>
+</ul>
+</div>
+            
           
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#prepping">Prepping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#get-the-latest-version">Get the latest version</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#documentation">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#usage">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#contributing">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#authors">Authors</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.html">mpinterfaces package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#capabilities">Capabilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#interface-creation">Interface Creation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#offline-vasp-project-management">Offline vasp project management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#workflow-submission-and-launching">Workflow submission and launching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#workflow-query-examples">Workflow query examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#query-for-individual-fireworks">Query for individual Fireworks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#connecting-to-our-local-database">Connecting to our local Database</a></li>
-</ul>
-</li>
-</ul>
-
-          
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">mpinterfaces</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">mpinterfaces</a>
+        
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Installation</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/readme.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/readme.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
-          <div role="main" class="document">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
-  <p>MPinterfaces is a python package that enables high throughput Density
-Functional Theory(DFT) analysis of arbitrary material interfaces(ligand capped
-nanoparticles, surfaces in the presence of solvents and hetero-structure
-interfaces) using <a class="reference external" href="http://www.vasp.at/">VASP</a>, <a class="reference external" href="https://github.com/henniggroup/VASPsol">VASPsol</a>, <a class="reference external" href="http://lammps.sandia.gov/">LAMMPS</a> and <a class="reference external" href="https://github.com/materialsproject">materialsproject</a> database as well
-as their open source <a class="reference external" href="https://github.com/materialsproject">tools</a>.</p>
+  <img alt="https://travis-ci.org/joshgabriel/MPInterfaces.svg?branch=master" src="https://travis-ci.org/joshgabriel/MPInterfaces.svg?branch=master" />
+<img alt="https://codecov.io/gh/joshgabriel/MPInterfaces/coverage.svg?branch=master" src="https://codecov.io/gh/joshgabriel/MPInterfaces/coverage.svg?branch=master" />
+<p>MPinterfaces is a python package that enables high throughput Density
+Functional Theory(DFT) analysis of arbitrary material interfaces(two dimensional
+materials, hetero-structure, ligand capped
+nanoparticles and surfaces in the presence of solvents) using
+<a class="reference external" href="http://www.vasp.at/">VASP</a>, <a class="reference external" href="https://github.com/henniggroup/VASPsol">VASPsol</a>, <a class="reference external" href="http://lammps.sandia.gov/">LAMMPS</a>, <a class="reference external" href="https://github.com/materialsproject">materialsproject</a> database
+as well as their open source <a class="reference external" href="https://github.com/materialsproject">tools</a> and a little bit of <a class="reference external" href="https://wiki.fysik.dtu.dk/ase/">ase</a>.</p>
+<a class="reference internal image-reference" href="https://github.com/henniggroup/MPInterfaces/blob/master/docs/mpinterfaces-logo.png"><img alt="https://github.com/henniggroup/MPInterfaces/blob/master/docs/mpinterfaces-logo.png" class="align-center" src="https://github.com/henniggroup/MPInterfaces/blob/master/docs/mpinterfaces-logo.png" style="width: 75%;" /></a>
 <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>The following steps applies only to linux and OSX(with xcode) operating systems.</p>
-<div class="section" id="prepping">
-<h2>Prepping<a class="headerlink" href="#prepping" title="Permalink to this headline">¶</a></h2>
-<ol class="arabic">
-<li><p class="first">Make sure that you are using python&gt;=2.7 (do a &#8220;python &#8211;version&#8221;).</p>
-<p>Note: ASE does not work with python3</p>
-</li>
-<li><p class="first">it is highly recommended that you use gcc compiler. So type:</p>
-<p>export CC=gcc</p>
-<p>Note: <em>Don&#8217;t use gcc if the already available numpy/scipy packages
-were setup using intel MKL</em></p>
-</li>
-<li><p class="first">Unless you have admin privilege on the machine you are installing, it is
-better to install this package and all its dependencies in a virtual environment.</p>
-<ul class="simple">
-<li>get the latest version from <a class="reference external" href="https://pypi.python.org/pypi/virtualenv#downloads">https://pypi.python.org/pypi/virtualenv#downloads</a></li>
-<li>tar xvfz virtualenv-X.X.X.tar.gz</li>
-<li>cd virtualenv-X.X.X</li>
-<li>setup the virtual environment in ~/myvenv (or set to some other path and folder name)<ul>
-<li>python virtualenv.py ~/myvenv</li>
-</ul>
-</li>
-<li>activate the virtual environment<ul>
-<li>source ~/myvenv/bin/activate</li>
-</ul>
-</li>
-</ul>
-<p>For detailed instructions and documentation see</p>
-<p><a class="reference external" href="http://virtualenv.readthedocs.org/en/latest/installation.html">http://virtualenv.readthedocs.org/en/latest/installation.html</a></p>
-</li>
-<li><p class="first">Install numpy:</p>
-<p>pip install numpy</p>
-</li>
-</ol>
+<div class="section" id="install-pymatgen">
+<h2>Install Pymatgen<a class="headerlink" href="#install-pymatgen" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference external" href="http://pymatgen.org/#getting-pymatgen">http://pymatgen.org/#getting-pymatgen</a></p>
+<p>Note: for hpg2 users refer to ufhpc_readme.md in the docs and follow it for installation</p>
 </div>
 <div class="section" id="get-the-latest-version">
 <h2>Get the latest version<a class="headerlink" href="#get-the-latest-version" title="Permalink to this headline">¶</a></h2>
@@ -209,7 +196,9 @@ step 3(if the local copy was installed in the develop mode this step can be skip
 <ol class="arabic simple" start="2">
 <li>cd MPInterfaces</li>
 <li>python setup.py install(or develop)</li>
-<li>set the evironment variables:<ul>
+<li>(optional) Copy the config.yaml file to mpinterfaces/config_mine.yaml
+and update the file so that you have the following
+environment variables :<ul>
 <li>MAPI_KEY=the_key_obtained_from_materialsproject</li>
 <li>VASP_PSP_DIR=path_to_vasp_potcar_files</li>
 </ul>
@@ -232,6 +221,34 @@ be a good idea to start from here:</p>
 usage of mpinterfaces as well as materialsproject packages. For basic
 usage please see <strong>docs/usage.rst</strong>.</p>
 </div>
+<div class="section" id="cite">
+<h1>Cite<a class="headerlink" href="#cite" title="Permalink to this headline">¶</a></h1>
+<p>If you use MPInterfaces for your work, please cite the paper: <a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S0927025616302440">mpinterfaces-paper</a></p>
+</div>
+<div class="section" id="license">
+<h1>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
+<p>MPInterfaces is released under the MIT License.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2014</span><span class="o">-</span><span class="mi">2017</span> <span class="n">Henniggroup</span> <span class="n">Cornell</span><span class="o">/</span><span class="n">University</span> <span class="n">of</span> <span class="n">Florida</span> <span class="o">&amp;</span> <span class="n">NIST</span>
+
+<span class="n">Permission</span> <span class="ow">is</span> <span class="n">hereby</span> <span class="n">granted</span><span class="p">,</span> <span class="n">free</span> <span class="n">of</span> <span class="n">charge</span><span class="p">,</span> <span class="n">to</span> <span class="nb">any</span> <span class="n">person</span> <span class="n">obtaining</span> <span class="n">a</span> <span class="n">copy</span> <span class="n">of</span>
+<span class="n">this</span> <span class="n">software</span> <span class="ow">and</span> <span class="n">associated</span> <span class="n">documentation</span> <span class="n">files</span> <span class="p">(</span><span class="n">the</span> <span class="s2">&quot;Software&quot;</span><span class="p">),</span> <span class="n">to</span> <span class="n">deal</span> <span class="ow">in</span>
+<span class="n">the</span> <span class="n">Software</span> <span class="n">without</span> <span class="n">restriction</span><span class="p">,</span> <span class="n">including</span> <span class="n">without</span> <span class="n">limitation</span> <span class="n">the</span> <span class="n">rights</span> <span class="n">to</span>
+<span class="n">use</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">modify</span><span class="p">,</span> <span class="n">merge</span><span class="p">,</span> <span class="n">publish</span><span class="p">,</span> <span class="n">distribute</span><span class="p">,</span> <span class="n">sublicense</span><span class="p">,</span> <span class="ow">and</span><span class="o">/</span><span class="ow">or</span> <span class="n">sell</span> <span class="n">copies</span> <span class="n">of</span>
+<span class="n">the</span> <span class="n">Software</span><span class="p">,</span> <span class="ow">and</span> <span class="n">to</span> <span class="n">permit</span> <span class="n">persons</span> <span class="n">to</span> <span class="n">whom</span> <span class="n">the</span> <span class="n">Software</span> <span class="ow">is</span> <span class="n">furnished</span> <span class="n">to</span> <span class="n">do</span> <span class="n">so</span><span class="p">,</span>
+<span class="n">subject</span> <span class="n">to</span> <span class="n">the</span> <span class="n">following</span> <span class="n">conditions</span><span class="p">:</span>
+
+<span class="n">The</span> <span class="n">above</span> <span class="n">copyright</span> <span class="n">notice</span> <span class="ow">and</span> <span class="n">this</span> <span class="n">permission</span> <span class="n">notice</span> <span class="n">shall</span> <span class="n">be</span> <span class="n">included</span> <span class="ow">in</span> <span class="nb">all</span>
+<span class="n">copies</span> <span class="ow">or</span> <span class="n">substantial</span> <span class="n">portions</span> <span class="n">of</span> <span class="n">the</span> <span class="n">Software</span><span class="o">.</span>
+
+<span class="n">THE</span> <span class="n">SOFTWARE</span> <span class="n">IS</span> <span class="n">PROVIDED</span> <span class="s2">&quot;AS IS&quot;</span><span class="p">,</span> <span class="n">WITHOUT</span> <span class="n">WARRANTY</span> <span class="n">OF</span> <span class="n">ANY</span> <span class="n">KIND</span><span class="p">,</span> <span class="n">EXPRESS</span> <span class="n">OR</span>
+<span class="n">IMPLIED</span><span class="p">,</span> <span class="n">INCLUDING</span> <span class="n">BUT</span> <span class="n">NOT</span> <span class="n">LIMITED</span> <span class="n">TO</span> <span class="n">THE</span> <span class="n">WARRANTIES</span> <span class="n">OF</span> <span class="n">MERCHANTABILITY</span><span class="p">,</span> <span class="n">FITNESS</span>
+<span class="n">FOR</span> <span class="n">A</span> <span class="n">PARTICULAR</span> <span class="n">PURPOSE</span> <span class="n">AND</span> <span class="n">NONINFRINGEMENT</span><span class="o">.</span> <span class="n">IN</span> <span class="n">NO</span> <span class="n">EVENT</span> <span class="n">SHALL</span> <span class="n">THE</span> <span class="n">AUTHORS</span> <span class="n">OR</span>
+<span class="n">COPYRIGHT</span> <span class="n">HOLDERS</span> <span class="n">BE</span> <span class="n">LIABLE</span> <span class="n">FOR</span> <span class="n">ANY</span> <span class="n">CLAIM</span><span class="p">,</span> <span class="n">DAMAGES</span> <span class="n">OR</span> <span class="n">OTHER</span> <span class="n">LIABILITY</span><span class="p">,</span> <span class="n">WHETHER</span>
+<span class="n">IN</span> <span class="n">AN</span> <span class="n">ACTION</span> <span class="n">OF</span> <span class="n">CONTRACT</span><span class="p">,</span> <span class="n">TORT</span> <span class="n">OR</span> <span class="n">OTHERWISE</span><span class="p">,</span> <span class="n">ARISING</span> <span class="n">FROM</span><span class="p">,</span> <span class="n">OUT</span> <span class="n">OF</span> <span class="n">OR</span> <span class="n">IN</span>
+<span class="n">CONNECTION</span> <span class="n">WITH</span> <span class="n">THE</span> <span class="n">SOFTWARE</span> <span class="n">OR</span> <span class="n">THE</span> <span class="n">USE</span> <span class="n">OR</span> <span class="n">OTHER</span> <span class="n">DEALINGS</span> <span class="n">IN</span> <span class="n">THE</span> <span class="n">SOFTWARE</span><span class="o">.</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
 <p>We try to follow the coding style used by pymatgen(PEP8):</p>
@@ -242,31 +259,28 @@ usage please see <strong>docs/usage.rst</strong>.</p>
 <p>Kiran Mathew</p>
 <p>Joshua Gabriel</p>
 <p>Arunima Singh</p>
+<p>Michael Ashton</p>
 <p>Richard G. Hennig</p>
 </div>
 
 
+           </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="mpinterfaces.html" class="btn btn-neutral float-right" title="mpinterfaces package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="index.html" class="btn btn-neutral" title="Introduction" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
+        &copy; Copyright 2015, Kiran Mathew, Joshua J. Gabriel, Michael Ashton, Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig.
+
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -284,10 +298,11 @@ usage please see <strong>docs/usage.rst</strong>.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.1.2alpha',
+            VERSION:'1.7.0alpha',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>

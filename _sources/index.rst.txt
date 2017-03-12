@@ -1,35 +1,35 @@
-Introduction
-=============
+.. mpinterfaces documentation master file, created by
+   sphinx-quickstart on Sat Mar 11 21:29:43 2017.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to mpinterfaces's documentation!
+========================================
 
 .. toctree::
-:maxdepth: 2
+   :maxdepth: 2
 
-       readme
+   readme
 
-
+   
 .. toctree::
-:maxdepth: 4
+   :maxdepth: 4
+   :caption: Contents:
 
-       mpinterfaces
+   mpinterfaces
 
 Usage
 ======
 
 .. toctree::
-:maxdepth: 2
+   :maxdepth: 2
 
-       usage
+   usage
 
 Examples
 =========
 
 See the examples folder
-
-API documentation
-==================
-
-For detailed documentation of all modules and classes, please refer to the
-:doc:`API docs </modules>`.
 
 Indices and tables
 ==================
@@ -37,9 +37,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-.. _materialsproject: https://github.com/materialsproject
-
-.. _VASPsol: http://vaspsol.mse.ufl.edu/
-
-.. _VASP: http://www.vasp.at/

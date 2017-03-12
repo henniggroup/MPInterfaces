@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>mpinterfaces.twod_materials.utils package &#8212; mpinterfaces 1.7.0beta documentation</title>
+    <title>mpinterfaces.twod_materials.utils package &#8212; mpinterfaces  documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.7.0beta',
+        VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -67,19 +67,14 @@
 <dt id="mpinterfaces.twod_materials.utils.utils.add_vacuum">
 <code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">add_vacuum</code><span class="sig-paren">(</span><em>delta</em>, <em>cut=0.9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#add_vacuum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.add_vacuum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds vacuum to a POSCAR.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>delta</strong> (<em>float</em>) &#8211; vacuum thickness in Angstroms</li>
-<li><strong>cut</strong> (<em>delta</em>) &#8211; fractional height above which atoms will
-need to be fixed. Defaults to 0.9.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">delta (float): vacuum thickness in Angstroms
+cut (delta): fractional height above which atoms will</p>
+<blockquote class="last">
+<div>need to be fixed. Defaults to 0.9.</div></blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -89,16 +84,12 @@ need to be fixed. Defaults to 0.9.</li>
 returns the same structure rotated so that the c-axis is along
 the [001] direction. This is useful for vasp compiled with no
 z-axis relaxation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<em>Structure</em>) &#8211; Pymatgen Structure object to rotate.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">structure. Rotated to align c-axis along [001].</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>structure (Structure): Pymatgen Structure object to rotate.</dd>
+<dt>Returns:</dt>
+<dd>structure. Rotated to align c-axis along [001].</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -107,14 +98,10 @@ z-axis relaxation.</p>
 <dd><p>Based on a POSCAR, returns the string required for the MAGMOM
 setting in the INCAR. Initializes transition metals with 6.0
 bohr magneton and all others with 0.5.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string. e.g. &#8216;1*6.0 3*0.5&#8217;</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>string. e.g. &#8216;1*6.0 3*0.5&#8217;</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -122,19 +109,16 @@ bohr magneton and all others with 0.5.</p>
 <code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">get_markovian_path</code><span class="sig-paren">(</span><em>points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#get_markovian_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.get_markovian_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the shortest path connecting an array of 2D
 points.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>points</strong> (<em>list</em>) &#8211; list/array of points of the format
-[[x_1, y_1, z_1], [x_2, y_2, z_2], ...]</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A sorted list of the points in order on the markovian path.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>points (list): list/array of points of the format</dt>
+<dd>[[x_1, y_1, z_1], [x_2, y_2, z_2], ...]</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>list: A sorted list of the points in order on the markovian path.</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -143,44 +127,31 @@ points.</p>
 <dd><p>Find the rotation matrix associated with counterclockwise rotation
 about the given axis by theta radians.
 Credit: <a class="reference external" href="http://stackoverflow.com/users/190597/unutbu">http://stackoverflow.com/users/190597/unutbu</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>axis</strong> (<em>list</em>) &#8211; rotation axis of the form [x, y, z]</li>
-<li><strong>theta</strong> (<em>float</em>) &#8211; rotational angle in radians</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">array. Rotation matrix.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>axis (list): rotation axis of the form [x, y, z]
+theta (float): rotational angle in radians</dd>
+<dt>Returns:</dt>
+<dd>array. Rotation matrix.</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="mpinterfaces.twod_materials.utils.utils.get_spacing">
 <code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">get_spacing</code><span class="sig-paren">(</span><em>filename='POSCAR'</em>, <em>cut=0.9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#get_spacing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.get_spacing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the interlayer spacing for a 2D material.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>filename</strong> (<em>str</em>) &#8211; &#8216;CONTCAR&#8217; or &#8216;POSCAR&#8217;, whichever file to
-check.</li>
-<li><strong>cut</strong> (<em>float</em>) &#8211; a fractional z-coordinate that must be within
-the vacuum region.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">float. Spacing in Angstroms.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename (str): &#8216;CONTCAR&#8217; or &#8216;POSCAR&#8217;, whichever file to</dt>
+<dd>check.</dd>
+<dt>cut (float): a fractional z-coordinate that must be within</dt>
+<dd>the vacuum region.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>float. Spacing in Angstroms.</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -188,20 +159,16 @@ the vacuum region.</li>
 <code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">get_status</code><span class="sig-paren">(</span><em>directory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#get_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.get_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the state of job in a directory. Designed for use on
 Slurm systems.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>directory</strong> (<em>str</em>) &#8211; <em>absolute</em> path to the directory to check.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>directory (str): <em>absolute</em> path to the directory to check.</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
 <dt>string version of SLURM job status.</dt>
 <dd>&#8216;None&#8217; = No running job in this directory</dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -209,43 +176,32 @@ Slurm systems.</p>
 <code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">get_structure_type</code><span class="sig-paren">(</span><em>structure</em>, <em>write_poscar_from_cluster=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#get_structure_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.get_structure_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is a topology-scaling algorithm used to describe the
 periodicity of bonded clusters in a bulk structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<em>structure</em>) &#8211; Pymatgen structure object to classify.</li>
-<li><strong>write_poscar_from_cluster</strong> (<em>bool</em>) &#8211; Set to True to write a
-POSCAR from the sites in the cluster.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><dl class="docutils">
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">structure (structure): Pymatgen structure object to classify.
+write_poscar_from_cluster (bool): Set to True to write a</p>
+<blockquote class="last">
+<div>POSCAR from the sites in the cluster.</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
 <dt>string. &#8216;molecular&#8217; (0D), &#8216;chain&#8217;, &#8216;layered&#8217;, &#8216;heterogeneous&#8217;</dt>
-<dd><p class="first last">(intercalated 3D), or &#8216;conventional&#8217; (3D)</p>
+<dd>(intercalated 3D), or &#8216;conventional&#8217; (3D)</dd>
+</dl>
 </dd>
 </dl>
-</p>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="mpinterfaces.twod_materials.utils.utils.is_converged">
 <code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">is_converged</code><span class="sig-paren">(</span><em>directory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#is_converged"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.is_converged" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if a relaxation has converged.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>directory</strong> (<em>str</em>) &#8211; path to directory to check.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">boolean. Whether or not the job is converged.</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>directory (str): path to directory to check.</dd>
+<dt>Returns:</dt>
+<dd>boolean. Whether or not the job is converged.</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -262,21 +218,18 @@ z-component, since these are not relevant for 2D materials.</p>
 k-point and write it to the KPOINTS file. Non-circular meshes
 are not supported, but shouldn&#8217;t be too hard to code. All
 k-point weights are 1.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>center</strong> (<em>list</em>) &#8211; x, y, and z coordinates of mesh center.
-Defaults to Gamma.</li>
-<li><strong>radius</strong> (<em>float</em>) &#8211; Size of the mesh in inverse Angstroms.</li>
-<li><strong>resolution</strong> (<em>int</em>) &#8211; Number of mesh divisions along the
-radius in the 3 primary directions.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>center (list): x, y, and z coordinates of mesh center.</dt>
+<dd>Defaults to Gamma.</dd>
+</dl>
+<p>radius (float): Size of the mesh in inverse Angstroms.
+resolution (int): Number of mesh divisions along the</p>
+<blockquote class="last">
+<div>radius in the 3 primary directions.</div></blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -285,45 +238,34 @@ radius in the 3 primary directions.</li>
 <dd><p>writes a runjob based on a name, nnodes, nprocessors, walltime,
 and binary. Designed for runjobs on the Hennig group_list on
 HiperGator 1 (PBS).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; job name.</li>
-<li><strong>nnodes</strong> (<em>int</em>) &#8211; number of requested nodes.</li>
-<li><strong>nprocessors</strong> (<em>int</em>) &#8211; number of requested processors.</li>
-<li><strong>pmem</strong> (<em>str</em>) &#8211; requested memory including units, e.g. &#8216;1600mb&#8217;.</li>
-<li><strong>walltime</strong> (<em>str</em>) &#8211; requested wall time, hh:mm:ss e.g. &#8216;2:00:00&#8217;.</li>
-<li><strong>binary</strong> (<em>str</em>) &#8211; absolute path to binary to run.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name (str): job name.
+nnodes (int): number of requested nodes.
+nprocessors (int): number of requested processors.
+pmem (str): requested memory including units, e.g. &#8216;1600mb&#8217;.
+walltime (str): requested wall time, hh:mm:ss e.g. &#8216;2:00:00&#8217;.
+binary (str): absolute path to binary to run.</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="mpinterfaces.twod_materials.utils.utils.write_potcar">
 <code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">write_potcar</code><span class="sig-paren">(</span><em>pot_path=None</em>, <em>types='None'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#write_potcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.write_potcar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes a POTCAR file based on a list of types.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pot_path</strong> (<em>str</em>) &#8211; can be changed to override default location
-of POTCAR files.</li>
-<li><strong>types</strong> (<em>list</em>) &#8211; list of same length as number of elements
-containing specifications for the kind of potential
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>pot_path (str): can be changed to override default location</dt>
+<dd>of POTCAR files.</dd>
+<dt>types (list): list of same length as number of elements</dt>
+<dd>containing specifications for the kind of potential
 desired for each element, e.g. [&#8216;Na_pv&#8217;, &#8216;O_s&#8217;]. If
 left as &#8216;None&#8217;, uses the defaults in the
-&#8216;potcar_symbols.yaml&#8217; file in the package root.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+&#8216;potcar_symbols.yaml&#8217; file in the package root.</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -332,21 +274,14 @@ left as &#8216;None&#8217;, uses the defaults in the
 <dd><p>writes a runjob based on a name, nnodes, nprocessors, walltime, and
 binary. Designed for runjobs on the Hennig group_list on HiperGator
 2 (SLURM).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<em>str</em>) &#8211; job name.</li>
-<li><strong>ntasks</strong> (<em>int</em>) &#8211; total number of requested processors.</li>
-<li><strong>pmem</strong> (<em>str</em>) &#8211; requested memory including units, e.g. &#8216;1600mb&#8217;.</li>
-<li><strong>walltime</strong> (<em>str</em>) &#8211; requested wall time, hh:mm:ss e.g. &#8216;2:00:00&#8217;.</li>
-<li><strong>binary</strong> (<em>str</em>) &#8211; absolute path to binary to run.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name (str): job name.
+ntasks (int): total number of requested processors.
+pmem (str): requested memory including units, e.g. &#8216;1600mb&#8217;.
+walltime (str): requested wall time, hh:mm:ss e.g. &#8216;2:00:00&#8217;.
+binary (str): absolute path to binary to run.</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -406,7 +341,7 @@ binary. Designed for runjobs on the Hennig group_list on HiperGator
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2017, Kiran Mathew, Joshua J. Gabriel, Michael Ashton, Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig.
+      &copy;2017, Kiran Mathew, Joshua J. Gabriel, Michael Ashton, Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>

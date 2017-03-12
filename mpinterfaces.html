@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>mpinterfaces package &#8212; mpinterfaces 1.7.0beta documentation</title>
+    <title>mpinterfaces package &#8212; mpinterfaces  documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.7.0beta',
+        VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -209,42 +209,27 @@ kpoints</p>
 <dt id="mpinterfaces.calibrate.Calibrate.key_to_name">
 <code class="descname">key_to_name</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.key_to_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.key_to_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>convenient string mapping for the keys in the turn_knobs dict</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; key to the knob dict</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">an appropriate string representation of the key so that
-the name doesnt clash with the filenames</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>key: key to the knob dict</dd>
+<dt>Returns:</dt>
+<dd>an appropriate string representation of the key so that
+the name doesnt clash with the filenames</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="mpinterfaces.calibrate.Calibrate.kpoint_to_name">
 <code class="descname">kpoint_to_name</code><span class="sig-paren">(</span><em>kpoint</em>, <em>grid_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.kpoint_to_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.kpoint_to_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>get a string representation for the given kpoint</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>kpoint</strong> &#8211; an iterable</li>
-<li><strong>grid_type</strong> &#8211; grid_type used for the KPOINTS</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Monkhorst Pack
-2 2 2 will be named 2x2x2</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">string representation for kpoint eg</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>kpoint: an iterable
+grid_type: grid_type used for the KPOINTS</dd>
+<dt>Returns:</dt>
+<dd>string representation for kpoint eg: Monkhorst Pack
+2 2 2 will be named 2x2x2</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -266,33 +251,22 @@ can be used for setting up the potcar jobs</p>
 </dd>
 </dl>
 </div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>string</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="mpinterfaces.calibrate.Calibrate.recursive_jobs">
 <code class="descname">recursive_jobs</code><span class="sig-paren">(</span><em>n</em>, <em>keys</em>, <em>i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.recursive_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.recursive_jobs" title="Permalink to this definition">¶</a></dt>
 <dd><p>recursively setup the jobs: used by setup_matrix_job</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n</strong> &#8211; total number of knobs aka parameters to be tuned</li>
-<li><strong>keys</strong> &#8211; list of knobs i.e parameter names</li>
-<li><strong>i</strong> &#8211; ith knob</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>n: total number of knobs aka parameters to be tuned
+keys: list of knobs i.e parameter names
+i: ith knob</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -320,19 +294,13 @@ run a single job with the initial input set</p>
 <code class="descname">set_poscar</code><span class="sig-paren">(</span><em>scale=None</em>, <em>poscar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.set_poscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.set_poscar" title="Permalink to this definition">¶</a></dt>
 <dd><p>perturbs given structure by volume scaling factor
 or takes user defined variants of Poscar</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>scale</strong> &#8211; Volume Scaling parameter</li>
-<li><strong>poscar</strong> &#8211; Poscar object of user defined structure</li>
-<li><strong>the poscar</strong> (<em>set</em>) &#8211; volume scaled by the scale factor</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">scale : Volume Scaling parameter</p>
+<p>poscar : Poscar object of user defined structure</p>
+<p class="last">set the poscar: volume scaled by the scale factor</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -354,18 +322,11 @@ is independent</p>
 <dt id="mpinterfaces.calibrate.Calibrate.setup_incar_jobs">
 <code class="descname">setup_incar_jobs</code><span class="sig-paren">(</span><em>param</em>, <em>val_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#Calibrate.setup_incar_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.Calibrate.setup_incar_jobs" title="Permalink to this definition">¶</a></dt>
 <dd><p>set up incar jobs,, calls set_incar to set the value to param</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>param</strong> &#8211; Name of INCAR parameter</li>
-<li><strong>val_list</strong> &#8211; List of values to vary for the param</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>param: Name of INCAR parameter
+val_list: List of values to vary for the param</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -407,17 +368,16 @@ since
 only kpoint values are expected to be of type list
 if the values is of type dict then potcar_to_name method is
 invoked</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> &#8211; knob value to be converted into an appropriate string
-representation</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a string filename for the value</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>val: knob value to be converted into an appropriate string</dt>
+<dd>representation</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>a string filename for the value</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -564,32 +524,27 @@ Vasprun: MPINTVasprun</p>
 <dt id="mpinterfaces.data_processor.MPINTVasprun.get_computed_entry">
 <code class="descname">get_computed_entry</code><span class="sig-paren">(</span><em>inc_structure=False</em>, <em>inc_incar_n_kpoints=False</em>, <em>parameters=None</em>, <em>data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/data_processor.html#MPINTVasprun.get_computed_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.data_processor.MPINTVasprun.get_computed_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a ComputedEntry from the vasprun.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>inc_structure</strong> (<em>bool</em>) &#8211; Set to True if you want
-ComputedStructureEntries to be returned instead of
-ComputedEntries.</li>
-<li><strong>inc_incar_n_kpoints</strong> (<em>bool</em>) &#8211; along with inc_structure set
-to True if you want MPINTComputedEntries to be
-returned</li>
-<li><strong>parameters</strong> (<em>list</em>) &#8211; Input parameters to include.
-It has to be one of the properties supported by the
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>inc_structure (bool): Set to True if you want</dt>
+<dd>ComputedStructureEntries to be returned instead of
+ComputedEntries.</dd>
+<dt>inc_incar_n_kpoints (bool): along with inc_structure set</dt>
+<dd>to True if you want MPINTComputedEntries to be
+returned</dd>
+<dt>parameters (list): Input parameters to include.</dt>
+<dd>It has to be one of the properties supported by the
 Vasprun object. If parameters == None, a default set
 of parameters that are necessary for typical
-post-processing will be set.</li>
-<li><strong>data</strong> (<em>list</em>) &#8211; Output data to include. Has to be one of the
-properties supported by the Vasprun object.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ComputedStructureEntry/ComputedEntry</p>
-</td>
-</tr>
-</tbody>
-</table>
+post-processing will be set.</dd>
+<dt>data (list): Output data to include. Has to be one of the</dt>
+<dd>properties supported by the Vasprun object.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>ComputedStructureEntry/ComputedEntry</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -632,17 +587,17 @@ Customization required because same job folder on hipergator
 gets different uri for different login nodes .</p>
 <p>Returns the URI path for a directory. This allows files hosted on
 different file servers to have distinct locations.
-:param dir_name: A directory name.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">/full/path/of/dir_name.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Full URI path, e.g., fileserver.host.com</td>
-</tr>
-</tbody>
-</table>
+Args:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>dir_name:</dt>
+<dd>A directory name.</dd>
+</dl>
+</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Full URI path, e.g., fileserver.host.com:/full/path/of/dir_name.</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -746,19 +701,15 @@ this function is adapted from materialsproject</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">custodian.custodian.Job</span></code></p>
 <p>defines a job i.e setup the required input files and
 launch the job</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>job_cmd</strong> &#8211; a list, the command to be issued in each job_dir
-eg: [&#8216;qsub&#8217;, &#8216;submit_job&#8217;]</li>
-<li><strong>job_dir</strong> &#8211; the directory from which the jobs will be launched</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>job_cmd: a list, the command to be issued in each job_dir</dt>
+<dd>eg: [&#8216;qsub&#8217;, &#8216;submit_job&#8217;]</dd>
+</dl>
+<p class="last">job_dir: the directory from which the jobs will be launched</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="mpinterfaces.instrument.MPINTJob.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTJob.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTJob.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -834,19 +785,15 @@ structures read from the poscar files in the directory</p>
 <dd><p>Bases: <a class="reference internal" href="#mpinterfaces.instrument.MPINTJob" title="mpinterfaces.instrument.MPINTJob"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.instrument.MPINTJob</span></code></a></p>
 <p>defines a vasp job i.e setup the required input files and
 launch the job</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>job_cmd</strong> &#8211; a list, the command to be issued in each job_dir
-eg: [&#8216;qsub&#8217;, &#8216;submit_job&#8217;]</li>
-<li><strong>job_dir</strong> &#8211; the directory from which the jobs will be launched</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>job_cmd: a list, the command to be issued in each job_dir</dt>
+<dd>eg: [&#8216;qsub&#8217;, &#8216;submit_job&#8217;]</dd>
+</dl>
+<p class="last">job_dir: the directory from which the jobs will be launched</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="mpinterfaces.instrument.MPINTVaspJob.get_final_energy">
 <code class="descname">get_final_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/instrument.html#MPINTVaspJob.get_final_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.instrument.MPINTVaspJob.get_final_energy" title="Permalink to this definition">¶</a></dt>
@@ -864,52 +811,58 @@ eg: [&#8216;qsub&#8217;, &#8216;submit_job&#8217;]</li>
 <p>Interface = slab + ligand + environment(solvent)
 Creates a Slab - Ligand Interface of given coverage and given
 slab-ligand displacement</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>strt</strong> &#8211; Starting Structure Object for Slab of the Interface</li>
-<li><strong>hkl</strong> &#8211; Miller Index of Slab</li>
-<li><strong>min_thick</strong> &#8211; Minimum Slab Thickness in Angstroms desired</li>
-<li><strong>min_vac</strong> &#8211; Minimum Vacuum Spacing (Padding top and bottom, each)
-in Angstroms</li>
-<li><strong>supercell</strong> &#8211; Trial supercell to start with to enforce coverage,
-default 1x1x1</li>
-<li><strong>name</strong> &#8211; System name to specify database entry
-(can be a combination of miller indices of slab and
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">strt: Starting Structure Object for Slab of the Interface
+hkl: Miller Index of Slab
+min_thick: Minimum Slab Thickness in Angstroms desired
+min_vac: Minimum Vacuum Spacing (Padding top and bottom, each)</p>
+<blockquote>
+<div>in Angstroms</div></blockquote>
+<dl class="docutils">
+<dt>supercell: Trial supercell to start with to enforce coverage,</dt>
+<dd>default 1x1x1</dd>
+<dt>name: System name to specify database entry</dt>
+<dd>(can be a combination of miller indices of slab and
 ligand and solvent)
-eg: &#8220;PbS [1,1,1] + Hydrazine in DMF (epsilon = 37.5)&#8221;</li>
-<li><strong>adsorb_on_species</strong> &#8211; Reference atom on slab to adsorb on</li>
-<li><strong>adatom_on_lig</strong> &#8211; bonding atom on ligand</li>
-<li><strong>ligand</strong> &#8211; structure object for ligand</li>
-<li><strong>displacement</strong> &#8211; initial adsorption distance desired above the
-adsorb_on_species</li>
-<li><strong>surface_coverage</strong> &#8211; Number of ligands desired per surface area
-of slab, in ligands per square angstroms</li>
-<li><strong>scell_max</strong> &#8211; Maximum number of supercells to create (used for
-finding supercell for the given coverage requirement</li>
-<li><strong>coverage_tol</strong> &#8211; Tolerance for coverage calculation in Ligands
-per square Angstroms</li>
-<li><strong>solvent</strong> &#8211; Name of solvent to be added for the run</li>
-<li><strong>start_from_slab</strong> &#8211; Whether slab is given as input. Useful when
-custom reconstructed slabs are to be used</li>
-<li><strong>validate_proximity</strong> &#8211; Check whether any atoms are too close
-(using pymatgen default of 0.01 Angstroms)</li>
-<li><strong>to_unit_cell</strong> &#8211; Pymatgen Slab routine to find unit cell</li>
-<li><strong>coords_are_cartesian</strong> &#8211; Whether the input coordinates are in
-cartesian</li>
-<li><strong>from_ase</strong> &#8211; Whether to create Slab using python-ase for producing
-slabs that have orthogonal lattice vectors</li>
-<li><strong>NOTE</strong> &#8211; </li>
-<li><strong>starting from the bulk structure</strong><strong>, </strong><strong>create slab</strong> (<em>if</em>) &#8211; </li>
-<li><strong>note</strong> &#8211; if the starting structure is a slab, the vaccum extension</li>
-<li><strong>not possible</strong> (<em>is</em>) &#8211; </li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+eg: &#8220;PbS [1,1,1] + Hydrazine in DMF (epsilon = 37.5)&#8221;</dd>
+</dl>
+<p>adsorb_on_species: Reference atom on slab to adsorb on
+adatom_on_lig: bonding atom on ligand
+ligand: structure object for ligand
+displacement: initial adsorption distance desired above the</p>
+<blockquote>
+<div>adsorb_on_species</div></blockquote>
+<dl class="docutils">
+<dt>surface_coverage: Number of ligands desired per surface area</dt>
+<dd>of slab, in ligands per square angstroms</dd>
+<dt>scell_max: Maximum number of supercells to create (used for</dt>
+<dd>finding supercell for the given coverage requirement</dd>
+<dt>coverage_tol: Tolerance for coverage calculation in Ligands</dt>
+<dd>per square Angstroms</dd>
+</dl>
+<p>solvent: Name of solvent to be added for the run
+start_from_slab: Whether slab is given as input. Useful when</p>
+<blockquote>
+<div>custom reconstructed slabs are to be used</div></blockquote>
+<dl class="docutils">
+<dt>validate_proximity: Check whether any atoms are too close</dt>
+<dd>(using pymatgen default of 0.01 Angstroms)</dd>
+</dl>
+<p>to_unit_cell: Pymatgen Slab routine to find unit cell
+coords_are_cartesian: Whether the input coordinates are in</p>
+<blockquote>
+<div>cartesian</div></blockquote>
+<dl class="docutils">
+<dt>from_ase: Whether to create Slab using python-ase for producing</dt>
+<dd>slabs that have orthogonal lattice vectors</dd>
+</dl>
+<p class="last">NOTE:
+if starting from the bulk structure, create slab
+note: if the starting structure is a slab, the vaccum extension
+is not possible</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="mpinterfaces.interface.Interface.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/interface.html#Interface.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.interface.Interface.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -922,9 +875,13 @@ slabs that have orthogonal lattice vectors</li>
 defined energy model, useful for pre-screening
 candidate structures, returns 5 lowest energy
 structures
-:param model: energy model to compute according to, default is</p>
+Args:</p>
 <blockquote>
-<div>Coulomb</div></blockquote>
+<div><dl class="docutils">
+<dt>model: energy model to compute according to, default is</dt>
+<dd>Coulomb</dd>
+</dl>
+</div></blockquote>
 <p>Returns: energy of structure according to model</p>
 </dd></dl>
 
@@ -1204,20 +1161,15 @@ measurement calculations such as solvation, ligand binding energy
 etc. The default behaviour is to setup and run static calculations
 for all the given calibrate jobs.</p>
 <p>Serves as Base Class. Override this class for custom measurements.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>cal_objs</strong> &#8211; List of Calibration Object Names</li>
-<li><strong>parent_job_dir</strong> &#8211; Directory in which measuremnt is setup</li>
-<li><strong>job_dir</strong> &#8211; Path name to directory for running the Measurement
-modules</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">cal_objs: List of Calibration Object Names
+parent_job_dir: Directory in which measuremnt is setup
+job_dir: Path name to directory for running the Measurement</p>
+<blockquote class="last">
+<div>modules</div></blockquote>
+</dd>
+</dl>
 <dl class="method">
 <dt id="mpinterfaces.measurement.Measurement.get_energy">
 <code class="descname">get_energy</code><span class="sig-paren">(</span><em>cal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#Measurement.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.Measurement.get_energy" title="Permalink to this definition">¶</a></dt>
@@ -1256,14 +1208,10 @@ sets NSW = 0</p>
 <p>Interface</p>
 <p>Takes list of Calibration Objects of Interface, Slab and
 Ligand and separates them</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cal_objs</strong> &#8211; List of Calibration Objects</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cal_objs: List of Calibration Objects</dd>
+</dl>
 <dl class="method">
 <dt id="mpinterfaces.measurement.MeasurementInterface.make_measurements">
 <code class="descname">make_measurements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/measurement.html#MeasurementInterface.make_measurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.measurement.MeasurementInterface.make_measurements" title="Permalink to this definition">¶</a></dt>
@@ -1368,23 +1316,19 @@ manager to ensure that sessions are properly closed after usage:</p>
 </div>
 <p>MWRester uses the &#8220;requests&#8221; package, which provides for HTTP connection
 pooling. All connections are made via https for security.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>api_key</strong> (<em>str</em>) &#8211; A String API key for accessing the MaterialsWeb
-REST interface. Please obtain your API key at
-<a class="reference external" href="https://www.materialsweb.org">https://www.materialsweb.org</a>.</li>
-<li><strong>endpoint</strong> (<em>str</em>) &#8211; Url of endpoint to access the MaterialsWeb REST
-interface. Defaults to the standard MaterialsWeb REST
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>api_key (str): A String API key for accessing the MaterialsWeb</dt>
+<dd>REST interface. Please obtain your API key at
+<a class="reference external" href="https://www.materialsweb.org">https://www.materialsweb.org</a>.</dd>
+<dt>endpoint (str): Url of endpoint to access the MaterialsWeb REST</dt>
+<dd>interface. Defaults to the standard MaterialsWeb REST
 address, but can be changed to other urls implementing a similar
-interface.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+interface.</dd>
+</dl>
+</dd>
+</dl>
 <dl class="method">
 <dt id="mpinterfaces.rest.MWRester.get_data">
 <code class="descname">get_data</code><span class="sig-paren">(</span><em>chemsys_formula_id</em>, <em>data_type='vasp'</em>, <em>prop=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/rest.html#MWRester.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.rest.MWRester.get_data" title="Permalink to this definition">¶</a></dt>
@@ -1393,44 +1337,37 @@ interface. Generally used by other methods for more specific queries.
 Format of REST return is <em>always</em> a list of dict (regardless of the
 number of pieces of data returned. The general format is as follows:
 [{&#8220;material_id&#8221;: material_id, &#8220;property_name&#8221; : value}, ...]
-:param chemsys_formula_id: A chemical system (e.g., Li-Fe-O),</p>
+Args:</p>
 <blockquote>
-<div>or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data_type</strong> (<em>str</em>) &#8211; Type of data to return. Currently can either be
-&#8220;vasp&#8221; or &#8220;exp&#8221;.</li>
-<li><strong>prop</strong> (<em>str</em>) &#8211; Property to be obtained. Should be one of the
-MWRester.supported_task_properties. Leave as empty string for a
-general list of useful properties.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<div><dl class="docutils">
+<dt>chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),</dt>
+<dd>or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).</dd>
+<dt>data_type (str): Type of data to return. Currently can either be</dt>
+<dd>&#8220;vasp&#8221; or &#8220;exp&#8221;.</dd>
+<dt>prop (str): Property to be obtained. Should be one of the</dt>
+<dd>MWRester.supported_task_properties. Leave as empty string for a
+general list of useful properties.</dd>
+</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
 <dt id="mpinterfaces.rest.MWRester.get_structure_by_material_id">
 <code class="descname">get_structure_by_material_id</code><span class="sig-paren">(</span><em>material_id</em>, <em>final=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/rest.html#MWRester.get_structure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.rest.MWRester.get_structure_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a Structure corresponding to a material_id.
-:param material_id: MaterialsWeb material_id (a string,</p>
+Args:</p>
 <blockquote>
-<div>e.g., mp-1234).</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>final</strong> (<em>bool</em>) &#8211; Whether to get the final structure, or the initial
-(pre-relaxation) structure. Defaults to True.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Structure object.</td>
-</tr>
-</tbody>
-</table>
+<div><dl class="docutils">
+<dt>material_id (str): MaterialsWeb material_id (a string,</dt>
+<dd>e.g., mp-1234).</dd>
+<dt>final (bool): Whether to get the final structure, or the initial</dt>
+<dd>(pre-relaxation) structure. Defaults to True.</dd>
+</dl>
+</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Structure object.</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -1455,25 +1392,19 @@ general list of useful properties.</li>
 this functions computes all unique sites in the interface layers
 and subsequently generates all possible unique 2d/substrate
 interfaces and writes the corresponding poscar files</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>mat2d</strong> &#8211; Lattice and symmetry-matched 2D material structure</li>
-<li><strong>substrate</strong> &#8211; Lattice and symmetry-matched 2D substrate structure</li>
-<li><strong>nlayers_substrate</strong> &#8211; number of substrate layers</li>
-<li><strong>nlayers_2d</strong> &#8211; number of 2d material layers</li>
-<li><strong>seperation</strong> &#8211; seperation between the substrate and the 2d
-material</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">mat2d: Lattice and symmetry-matched 2D material structure
+substrate: Lattice and symmetry-matched 2D substrate structure
+nlayers_substrate: number of substrate layers
+nlayers_2d: number of 2d material layers
+seperation: seperation between the substrate and the 2d</p>
+<blockquote class="last">
+<div>material</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+</dl>
 <p>TODO: give additional random placement of 2D material on substrate</p>
 </dd></dl>
 
@@ -1539,22 +1470,14 @@ n: size</p>
 <code class="descclassname">mpinterfaces.transformations.</code><code class="descname">get_uniq_layercoords</code><span class="sig-paren">(</span><em>struct</em>, <em>nlayers</em>, <em>top=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/transformations.html#get_uniq_layercoords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.transformations.get_uniq_layercoords" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the coordinates of unique sites in the top or bottom
 nlayers of the given structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>struct</strong> &#8211; input structure</li>
-<li><strong>nlayers</strong> &#8211; number of layers</li>
-<li><strong>top</strong> &#8211; top or bottom layers, default is top layer</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">numpy array of unique coordinates</p>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>struct: input structure
+nlayers: number of layers
+top: top or bottom layers, default is top layer</dd>
+<dt>Return:</dt>
+<dd>numpy array of unique coordinates</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1579,20 +1502,15 @@ vectors(ab) and the supercell size n</p>
 <dt id="mpinterfaces.utils.add_vacuum_padding">
 <code class="descclassname">mpinterfaces.utils.</code><code class="descname">add_vacuum_padding</code><span class="sig-paren">(</span><em>slab</em>, <em>vacuum</em>, <em>hkl=(0</em>, <em>0</em>, <em>1)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#add_vacuum_padding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.add_vacuum_padding" title="Permalink to this definition">¶</a></dt>
 <dd><p>add vacuum spacing to the given structure
-:param slab: sructure/slab object to be padded
-:type slab: Structure/Slab
-:param vacuum: in angstroms
-:type vacuum: float
-:param hkl: miller index
-:type hkl: tuple/list</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Structure object</td>
-</tr>
-</tbody>
-</table>
+Args:</p>
+<blockquote>
+<div>slab (Structure/Slab): sructure/slab object to be padded
+vacuum (float): in angstroms
+hkl (tuple/list): miller index</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Structure object</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1601,20 +1519,13 @@ vectors(ab) and the supercell size n</p>
 <dd><p>takes in the intial structure as pymatgen Structure object
 uses ase to generate the slab
 returns pymatgen Slab object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pmg_struct</strong> &#8211; pymatgen structure object</li>
-<li><strong>hkl</strong> &#8211; hkl index of surface of slab to be created</li>
-<li><strong>min_thick</strong> &#8211; minimum thickness of slab in Angstroms</li>
-<li><strong>min_vac</strong> &#8211; minimum vacuum spacing</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>pmg_struct: pymatgen structure object
+hkl: hkl index of surface of slab to be created
+min_thick: minimum thickness of slab in Angstroms
+min_vac: minimum vacuum spacing</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1660,16 +1571,12 @@ comment line and potcar functional</p>
 <dl class="function">
 <dt id="mpinterfaces.utils.get_job_state">
 <code class="descclassname">mpinterfaces.utils.</code><code class="descname">get_job_state</code><span class="sig-paren">(</span><em>job</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#get_job_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.get_job_state" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>job</strong> &#8211; job</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the job state and the job output file name</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="docutils">
+<dt>Args:</dt>
+<dd>job: job</dd>
+<dt>Returns:</dt>
+<dd>the job state and the job output file name</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1704,17 +1611,13 @@ bohr magneton and all others with 0.5.
 TEST: integration of twod_materials function with mpinterfaces
 calibrate.py
 Consider moving to mpinterfaces.utils</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>poscar</strong> (<em>Poscar</em>) &#8211; Poscar object</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">string with INCAR setting for MAGMOM according to twod_materials
-database calculations</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>poscar (Poscar): Poscar object</dd>
+<dt>Returns:</dt>
+<dd>string with INCAR setting for MAGMOM according to twod_materials
+database calculations</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1727,21 +1630,12 @@ default: 1 meV/atom</p>
 <dl class="function">
 <dt id="mpinterfaces.utils.get_opt_params_custom">
 <code class="descclassname">mpinterfaces.utils.</code><code class="descname">get_opt_params_custom</code><span class="sig-paren">(</span><em>data</em>, <em>tag</em>, <em>param='ENCUT'</em>, <em>ev_per_atom=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#get_opt_params_custom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.get_opt_params_custom" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> &#8211; dictionary of convergence data</li>
-<li><strong>tag</strong> &#8211; key to dictionary of convergence dara</li>
-<li><strong>param</strong> &#8211; parameter to be optimized</li>
-<li><strong>ev_per_atom</strong> &#8211; minimizing criterion in eV per unit</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
+<dd><dl class="docutils">
+<dt>Args:</dt>
+<dd>data:  dictionary of convergence data
+tag:   key to dictionary of convergence dara
+param: parameter to be optimized
+ev_per_atom: minimizing criterion in eV per unit</dd>
 <dt>Returns</dt>
 <dd>[list] optimum parameter set consisting of tag, potcar object,
 poscar object, list of convergence data energies sorted according to
@@ -1768,16 +1662,12 @@ hipergator2 supercomputing facility</p>
 <dd><p>read in json file of format caibrate.json(the default logfile
 created when jobs are run through calibrate) and return the
 list of job objects.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; checkpoint file name</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of all jobs</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filename: checkpoint file name</dd>
+<dt>Returns:</dt>
+<dd>list of all jobs</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1809,20 +1699,18 @@ move to utils and activate when debug mode is on</p>
 <dd><p>set the relaxation flags for top and bottom layers of interface.
 The upper and lower bounds of the z coordinate are determined
 based on the slab.
-:param poscar_input: input poscar file name
-:param n_layers: number of layers to be relaxed
-:param top: whether n_layers from top are be relaxed
-:param bottom: whether n_layers from bottom are be relaxed
-:param poscar_output: output poscar file name</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None
-writes the modified poscar file</td>
-</tr>
-</tbody>
-</table>
+Args:</p>
+<blockquote>
+<div>poscar_input: input poscar file name
+n_layers: number of layers to be relaxed
+top: whether n_layers from top are be relaxed
+bottom: whether n_layers from bottom are be relaxed
+poscar_output: output poscar file name</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>None
+writes the modified poscar file</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1830,18 +1718,17 @@ writes the modified poscar file</td>
 <code class="descclassname">mpinterfaces.utils.</code><code class="descname">slab_from_file</code><span class="sig-paren">(</span><em>hkl</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#slab_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.slab_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>reads in structure from the file and returns slab object.
 useful for reading in 2d/substrate structures from file.
-:param hkl: miller index of the slab in the input file.
-:param filename: structure file in any format</p>
+Args:</p>
+<blockquote>
+<div><p>hkl: miller index of the slab in the input file.
+filename: structure file in any format</p>
 <blockquote>
 <div>supported by pymatgen</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Slab object</td>
-</tr>
-</tbody>
-</table>
+</div></blockquote>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Slab object</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1851,18 +1738,11 @@ useful for reading in 2d/substrate structures from file.
 read from the json checkpoint file, jfile.
 If no job_ids are given then the checkpoint file will
 be updated with corresponding final energy</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>job_ids</strong> &#8211; list of job ids to update or q resolve</li>
-<li><strong>jfile</strong> &#8211; check point file</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>job_ids: list of job ids to update or q resolve
+jfile: check point file</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -1942,7 +1822,7 @@ unless all_structs is set to True</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2017, Kiran Mathew, Joshua J. Gabriel, Michael Ashton, Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig.
+      &copy;2017, Kiran Mathew, Joshua J. Gabriel, Michael Ashton, Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>

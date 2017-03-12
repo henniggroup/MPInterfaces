@@ -164,12 +164,14 @@ def get_magmom_string(structure):
         string with INCAR setting for MAGMOM according to mat2D
         database calculations
     """
-    magmoms = []
-    for elt in structure.composition:
-        if elt.is_transition_metal:
-            magmoms.append('{}*6.0'.format(structure.composition[elt]))
-        else:
-            magmoms.append('{}*0.5'.format(structure.composition[elt]))
+    magmoms, considered = [], []
+    for s in structure.sites:
+        if s.specie not in considered:
+            if s.specie.is_transition_metal:
+                magmoms.append('{}*6.0'.format(structure.composition[s.specie]))
+            else:
+                magmoms.append('{}*0.5'.format(structure.composition[s.specie]))
+            considered.append(s.specie)
     return ' '.join(magmoms)
 
 

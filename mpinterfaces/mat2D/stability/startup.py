@@ -50,7 +50,9 @@ def relax(dim=2, submit=True, force_overwrite=False):
                                   1000).write_file('KPOINTS')
 
         # INCAR
-        INCAR_DICT.update({'MAGMOM': utl.get_magmom_string()})
+        INCAR_DICT.update(
+            {'MAGMOM': utl.get_magmom_string(Structure.from_file('POSCAR'))}
+        )
         Incar.from_dict(INCAR_DICT).write_file('INCAR')
         # POTCAR
         utl.write_potcar()
@@ -58,7 +60,7 @@ def relax(dim=2, submit=True, force_overwrite=False):
         # Special tasks only performed for 2D materials.
         if dim == 2:
             # Ensure 20A interlayer vacuum
-            utl.ensure_vacuum_padding(Structure.from_file('POSCAR'), 20)
+            utl.ensure_vacuum(Structure.from_file('POSCAR'), 20)
             # Remove all z k-points.
             kpts_lines = open('KPOINTS').readlines()
             with open('KPOINTS', 'w') as kpts:

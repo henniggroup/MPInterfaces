@@ -788,7 +788,6 @@ def get_spacing(structure):
     structure = center_slab(structure)
     max_height = max([s.coords[2] for s in structure.sites])
     min_height = min([s.coords[2] for s in structure.sites])
-    print(structure.lattice.c - (max_height - min_height))
     return structure.lattice.c - (max_height - min_height)
 
 
@@ -819,11 +818,13 @@ def add_vacuum(structure, vacuum):
     Returns:
         Structure object with vacuum added.
     """
+    structure = align_c_axis_along_001(structure)
     coords = [s.coords for s in structure.sites]
     species = [s.specie for s in structure.sites]
     lattice = structure.lattice.matrix
     lattice[2][2] += vacuum
-    return Structure(lattice, species, coords, coords_are_cartesian=True)
+    structure = Structure(lattice, species, coords, coords_are_cartesian=True)
+    return center_slab(structure)
 
 
 def ensure_vacuum(structure, vacuum):
@@ -838,7 +839,6 @@ def ensure_vacuum(structure, vacuum):
         Structure object with vacuum added.
     """
 
-    # Fix the POSCAR to make it easier to work with.
     structure = align_c_axis_along_001(structure)
     spacing = get_spacing(structure)
     structure = add_vacuum(structure, vacuum - spacing)

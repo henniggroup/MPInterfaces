@@ -120,7 +120,9 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
         os.system('cp CONTCAR pbe_bands/POSCAR')
         if os.path.isfile('POTCAR'):
             os.system('cp POTCAR pbe_bands/')
-        PBE_INCAR_DICT.update({'MAGMOM': get_magmom_string()})
+        PBE_INCAR_DICT.update(
+            {'MAGMOM': get_magmom_string(Structure.from_file('POSCAR'))}
+        )
         Incar.from_dict(PBE_INCAR_DICT).write_file('pbe_bands/INCAR')
         structure = Structure.from_file('POSCAR')
         kpath = HighSymmKpath(structure)
@@ -228,7 +230,9 @@ def run_hse_calculation(dim=2, submit=True, force_overwrite=False,
         os.system('cp ../CONTCAR ./POSCAR')
         if os.path.isfile('../POTCAR'):
             os.system('cp ../POTCAR .')
-        HSE_INCAR_DICT.update({'MAGMOM': get_magmom_string()})
+        HSE_INCAR_DICT.update(
+            {'MAGMOM': get_magmom_string(Structure.from_file('POSCAR'))}
+        )
         Incar.from_dict(HSE_INCAR_DICT).write_file('INCAR')
 
         # Re-use the irreducible brillouin zone KPOINTS from a

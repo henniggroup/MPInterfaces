@@ -49,7 +49,9 @@ def run_major_axis_anisotropy_calculations(submit=True):
                            'LWAVE': False,
                            'LCHARG': False,
                            'LAECHG': False,
-                           'MAGMOM': get_magmom_string(),
+                           'MAGMOM': get_magmom_string(
+                                Structure.from_file('POSCAR')
+                            ),
                            'SAXIS': saxis})
         Incar.from_dict(incar_dict).write_file('INCAR')
 

@@ -28,11 +28,10 @@ class UtilsTest(unittest.TestCase):
         self.assertTrue(true_control)
         self.assertFalse(false_control)
 
-    def test_ensure_vacuum_for_SiP(self):
+    def test_ensure_vacuum_padding_for_SiP(self):
         os.chdir(ROOT)
         structure = Structure.from_file('POSCAR_SiP')
         structure = ensure_vacuum(structure, vacuum=15)
-        structure.to(filename='POSCAR_test', fmt='POSCAR')
         self.assertEqual(15.0, get_spacing(structure))
 
     def test_get_magmom_string_for_FeCl2(self):

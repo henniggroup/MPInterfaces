@@ -7,7 +7,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
 
 from mpinterfaces import VASP_STD_BIN, VDW_KERNEL, QUEUE_SYSTEM
-import mpinterfaces.mat2D.utils.utils as utl
+import mpinterfaces.utils as utl
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -40,7 +40,7 @@ def run_gamma_calculations(submit=True, step_size=0.5):
     os.system('cp ../../CONTCAR POSCAR')
 
     # Pad the bottom layer with 20 Angstroms of vacuum.
-    utl.add_vacuum(20 - utl.get_spacing(), 0.8)
+    utl.ensure_vacuum(Structure.from_file('POSCAR'), 20)
     structure = Structure.from_file('POSCAR')
     n_sites_per_layer = structure.num_sites
 

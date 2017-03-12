@@ -11,7 +11,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM
 from mpinterfaces.mat2D.stability import relax
-from mpinterfaces.mat2D.utils.utils import write_pbs_runjob, \
+from mpinterfaces.utils import write_pbs_runjob, \
     write_slurm_runjob, is_converged, get_magmom_string, remove_z_kpoints
 
 __author__ = "Michael Ashton, Joshua J. Gabriel"

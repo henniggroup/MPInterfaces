@@ -15,7 +15,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 
-from mpinterfaces.mat2D.utils.utils import is_converged
+from mpinterfaces.utils import is_converged
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

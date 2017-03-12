@@ -6,7 +6,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 
 from mpinterfaces import VASP_TWOD_BIN, VDW_KERNEL, QUEUE_SYSTEM
-import mpinterfaces.mat2D.utils.utils as utl
+import mpinterfaces.utils as utl
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -58,7 +58,7 @@ def relax(dim=2, submit=True, force_overwrite=False):
         # Special tasks only performed for 2D materials.
         if dim == 2:
             # Ensure 20A interlayer vacuum
-            utl.add_vacuum(20 - utl.get_spacing(), 0.9)
+            utl.ensure_vacuum_padding(Structure.from_file('POSCAR'), 20)
             # Remove all z k-points.
             kpts_lines = open('KPOINTS').readlines()
             with open('KPOINTS', 'w') as kpts:

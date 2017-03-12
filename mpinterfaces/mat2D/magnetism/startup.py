@@ -3,7 +3,7 @@ import os
 from pymatgen.io.vasp.inputs import Incar
 
 from mpinterfaces import QUEUE_SYSTEM
-from mpinterfaces.mat2D.utils.utils import get_magmom_string
+from mpinterfaces.utils import get_magmom_string
 from mpinterfaces.mat2D.stability import INCAR_DICT
 
 __author__ = "Michael Ashton"

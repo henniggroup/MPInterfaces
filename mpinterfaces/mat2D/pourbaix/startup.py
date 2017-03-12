@@ -10,7 +10,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.outputs import Vasprun
 
 from mpinterfaces import MPR
-import mpinterfaces.mat2D.utils.utils as utl
+import mpinterfaces.utils as utl
 from mpinterfaces.mat2D.stability import relax
 
 __author__ = "Michael Ashton"

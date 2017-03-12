@@ -13,7 +13,7 @@ from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.phasediagram.maker import PhaseDiagram
 
-from mpinterfaces.mat2D.utils.utils import is_converged
+from mpinterfaces.utils import is_converged
 from mpinterfaces.mat2D import MPR
 
 __author__ = "Michael Ashton"

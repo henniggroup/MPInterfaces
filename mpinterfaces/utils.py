@@ -771,7 +771,7 @@ def is_converged(directory):
         return False
 
 
-def get_spacing(structure, cut=0.9):
+def get_spacing(structure):
     """
     Returns the interlayer spacing for a 2D material or slab.
 
@@ -785,21 +785,20 @@ def get_spacing(structure, cut=0.9):
     """
 
     structure = align_c_axis_along_001(structure)
-    structure = center_slab(structure, cut)
+    structure = center_slab(structure)
     max_height = max([s.coords[2] for s in structure.sites])
     min_height = min([s.coords[2] for s in structure.sites])
+    print(structure.lattice.c - (max_height - min_height))
     return structure.lattice.c - (max_height - min_height)
 
 
-def center_slab(structure, cut=0.9):
+def center_slab(structure):
     """
     Centers the atoms in a slab structure around 0.5
     fractional height.
 
     Args:
         structure (Structure): Structure to center
-        cut (float): Fractional height somewhere outside of the
-            slab, for defining its top and bottom.
     Returns:
         Centered Structure object.
     """
@@ -810,7 +809,24 @@ def center_slab(structure, cut=0.9):
     return structure
 
 
-def ensure_vacuum(structure, vacuum, cut=0.9):
+def add_vacuum(structure, vacuum):
+    """
+    Adds padding to a slab or 2D material.
+
+    Args:
+        structure (Structure): Structure to add vacuum to
+        vacuum (float): Vacuum thickness to add in Angstroms
+    Returns:
+        Structure object with vacuum added.
+    """
+    coords = [s.coords for s in structure.sites]
+    species = [s.specie for s in structure.sites]
+    lattice = structure.lattice.matrix
+    lattice[2][2] += vacuum
+    return Structure(lattice, species, coords, coords_are_cartesian=True)
+
+
+def ensure_vacuum(structure, vacuum):
     """
     Adds padding to a slab or 2D material until the desired amount
     of vacuum is reached.
@@ -818,22 +834,15 @@ def ensure_vacuum(structure, vacuum, cut=0.9):
     Args:
         structure (Structure): Structure to add vacuum to
         vacuum (float): Final desired vacuum thickness in Angstroms
-        cut (delta): fractional height somewhere outside the slab,
-            to help define its top and bottom
     Returns:
         Structure object with vacuum added.
     """
 
-    # Fix the POSCAR to make it easiest to work with.
+    # Fix the POSCAR to make it easier to work with.
     structure = align_c_axis_along_001(structure)
-    structure = center_slab(structure, cut)
-    spacing = get_spacing(structure, cut)
-    coords = [s.coords for s in structure.sites]
-    species = [s.specie for s in structure.sites]
-    lattice = [[l[0], l[1], l[2]] for l in structure.lattice.matrix]
-    lattice[2][2] += vacuum - spacing
-    structure = Structure(lattice, species, coords, coords_are_cartesian=True)
-    return center_slab(structure, cut)
+    spacing = get_spacing(structure)
+    structure = add_vacuum(structure, vacuum - spacing)
+    return center_slab(structure)
 
 
 def get_rotation_matrix(axis, theta):

@@ -14,7 +14,7 @@ from pymatgen.io.vasp.inputs import Incar
 from pymatgen.electronic_structure.plotter import BSPlotter, BSPlotterProjected
 from pymatgen.electronic_structure.core import Spin
 
-from mpinterfaces.mat2D.utils.utils import is_converged
+from mpinterfaces.utils import is_converged
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

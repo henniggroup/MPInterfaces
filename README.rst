@@ -1,8 +1,5 @@
 .. image:: https://travis-ci.org/joshgabriel/MPInterfaces.svg?branch=master
 .. image:: https://codecov.io/gh/joshgabriel/MPInterfaces/coverage.svg?branch=master
-.. image:: https://github.com/henniggroup/MPInterfaces/blob/master/docs/mpinterfaces-logo.png
-   :width: 75 %
-   :align: right
 
 MPinterfaces is a python package that enables high throughput Density
 Functional Theory(DFT) analysis of arbitrary material interfaces(two dimensional
@@ -23,6 +20,9 @@ as well as their open source tools_ and a little bit of ase_.
 
 .. _ase: https://wiki.fysik.dtu.dk/ase/
 
+.. image:: https://github.com/henniggroup/MPInterfaces/blob/master/docs/mpinterfaces-logo.png
+   :width: 75 %
+   :align: center
 
 Installation
 ==============

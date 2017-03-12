@@ -2,7 +2,7 @@ import os
 import unittest
 
 from mpinterfaces import MPINT_CONFIG
-from mpinterfaces.mat2D.friction.startup import *
+from mpinterfaces.mat2D.friction import *
 from mpinterfaces.mat2D.friction.analysis import get_basin_and_peak_locations, \
     get_mu_vs_F_N
 

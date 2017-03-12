@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from mpinterfaces import MPINT_CONFIG
+from mpinterfaces import MP_API
 from mpinterfaces.mat2D.stability import *
 
 __author__ = "Michael Ashton"
@@ -28,13 +28,13 @@ class StartupTest(unittest.TestCase):
 
 class AnalysisTest(unittest.TestCase):
 
-    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
+    @unittest.skipIf(MP_API == None, "API key not set")
     def test_get_hull_distance_for_BiTeCl(self):
         os.chdir(ROOT)
         os.chdir('BiTeCl')
         self.assertEqual(get_hull_distance(), 0.10335952666666692)
 
-    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
+    @unittest.skipIf(MP_API == None, "API key not set")
     def test_get_competing_phases_for_BiTeCl(self):
         os.chdir(ROOT)
         os.chdir('BiTeCl')

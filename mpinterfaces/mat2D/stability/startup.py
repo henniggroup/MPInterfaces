@@ -43,7 +43,7 @@ def relax(dim=2, submit=True, force_overwrite=False):
         directory = os.getcwd().split('/')[-1]
 
         # vdw_kernel.bindat file required for VDW calculations.
-        if VDW_KERNEL != '/path/to/vdw_kernel.bindat':
+        if VDW_KERNEL:
             os.system('cp {} .'.format(VDW_KERNEL))
         # KPOINTS
         Kpoints.automatic_density(Structure.from_file('POSCAR'),

@@ -53,17 +53,17 @@ def run_gamma_calculations(submit=True, step_size=0.5):
     thickness = max_height - min_height
 
     # Make a new layer.
-    new_sites = []
+    species, coords = [], []
     for site in structure.sites:
-        new_sites.append((site.specie,
-                          [site.coords[0], site.coords[1],
-                           site.coords[2] + thickness + 3.5]))
+        # Original site
+        species.append(site.specie)
+        coords.append(site.coords)
+        # New layer site
+        species.append(site.specie)
+        coords.append([site.coords[0], site.coords[1],
+                       site.coords[2] + thickness + 3.5])
 
-    for site in new_sites:
-        structure.append(site[0], site[1], coords_are_cartesian=True)
-
-    #structure.get_sorted_structure().to('POSCAR', 'POSCAR')
-    structure.to('POSCAR', 'POSCAR')
+    Structure(structure.lattice, species, coords).to('POSCAR', 'POSCAR')
 
     for x in range(n_divs_x):
         for y in range(n_divs_y):
@@ -77,7 +77,7 @@ def run_gamma_calculations(submit=True, step_size=0.5):
             os.system('cp ../../../INCAR .')
             os.system('cp ../../../KPOINTS .')
             os.system('cp ../POSCAR .')
-            if VDW_KERNEL != '/path/to/vdw_kernel.bindat':
+            if VDW_KERNEL:
                 os.system('cp {} .'.format(VDW_KERNEL))
 
             utl.write_potcar()
@@ -183,12 +183,14 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
 
             if QUEUE_SYSTEM == 'pbs':
                 utl.write_pbs_runjob('{}_{}'.format(
-                    subdirectory, spacing), 1, 8, '1000mb', '2:00:00', VASP_STD_BIN)
+                    subdirectory, spacing), 1, 8, '1000mb', '2:00:00',
+                    VASP_STD_BIN)
                 submission_command = 'qsub runjob'
 
             elif QUEUE_SYSTEM == 'slurm':
                 utl.write_slurm_runjob('{}_{}'.format(
-                    subdirectory, spacing), 8, '1000mb', '2:00:00', VASP_STD_BIN)
+                    subdirectory, spacing), 8, '1000mb', '2:00:00',
+                    VASP_STD_BIN)
                 submission_command = 'sbatch runjob'
 
             if submit:

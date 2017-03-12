@@ -2,6 +2,8 @@ import os
 import unittest
 
 from monty.serialization import loadfn
+
+from mpinterfaces import MPINT_CONFIG
 from mpinterfaces.mat2D.pourbaix import *
 
 __author__ = "Michael Ashton"
@@ -29,15 +31,16 @@ class StartupTest(unittest.TestCase):
         for elt in control_energies:
             self.assertEqual(test_energies[elt], control_energies[elt])
 
-#    def test_relax_references_for_Mo_and_S(self):
-#        os.chdir(ROOT)
-#        relax_references(['Mo_pv', 'S'], incar_dict=INCAR_DICT, submit=False)
-#        for d in ['Mo', 'Mo/oxide', 'S', 'O']:
-#            self.assertTrue(os.path.isdir(d))
-#            for f in ['POSCAR', 'INCAR', 'KPOINTS', 'runjob']:
-#                self.assertTrue(os.path.isfile('{}/{}'.format(d, f)))
-#        for d in ['Mo', 'S', 'O']:
-#            os.system('rm -r {}'.format(d))
+    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
+    def test_relax_references_for_Mo_and_S(self):
+        os.chdir(ROOT)
+        relax_references(['Mo_pv', 'S'], incar_dict=INCAR_DICT, submit=False)
+        for d in ['Mo', 'Mo/oxide', 'S', 'O']:
+            self.assertTrue(os.path.isdir(d))
+            for f in ['POSCAR', 'INCAR', 'KPOINTS', 'runjob']:
+                self.assertTrue(os.path.isfile('{}/{}'.format(d, f)))
+        for d in ['Mo', 'S', 'O']:
+            os.system('rm -r {}'.format(d))
 
     def test_get_corrections_for_Mo_Ta_and_W(self):
         os.chdir(os.path.join(ROOT, 'Mo_Ta_W_controls'))

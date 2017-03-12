@@ -30,7 +30,6 @@ class StartupTest(unittest.TestCase):
             self.assertTrue(os.path.isfile('pbe_bands/{}'.format(f)))
         os.system('rm -r pbe_bands')
 
-    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_run_hse_calculation_creates_files(self):
         os.chdir(ROOT)
         os.chdir('MoS2')
@@ -39,7 +38,6 @@ class StartupTest(unittest.TestCase):
             self.assertTrue(os.path.isfile('hse_bands/{}'.format(f)))
         os.system('rm -r hse_bands')
 
-    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_run_hse_prep_calculation_creates_files(self):
         os.chdir(ROOT)
         os.chdir('MoS2')

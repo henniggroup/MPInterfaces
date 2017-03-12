@@ -46,7 +46,8 @@ from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 from ase.lattice.surface import surface
 
 from mpinterfaces.default_logger import get_default_logger
-from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM, VASP_PSP, PACKAGE_PATH
+from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM, VASP_PSP, PACKAGE_PATH, \
+    MPINT_CONFIG
 
 __author__ = "Kiran Mathew, Joshua J. Gabriel"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -1030,7 +1031,7 @@ def write_potcar(pot_path=VASP_PSP, types='None'):
             'potcar_symbols.yaml' file in the package root.
     """
 
-    if pot_path == '/path/to/POTCAR/files':
+    if not MPINT_CONFIG:
         # This means the config.yaml file has not been set up.
         pass
     else:
@@ -1040,7 +1041,7 @@ def write_potcar(pot_path=VASP_PSP, types='None'):
         poscar.close()
 
         potcar_symbols = loadfn(
-            os.path.join(PACKAGE_PATH, '2D', 'potcar_symbols.yaml')
+            os.path.join(PACKAGE_PATH, 'mat2D', 'potcar_symbols.yaml')
         )
 
         if types == 'None':

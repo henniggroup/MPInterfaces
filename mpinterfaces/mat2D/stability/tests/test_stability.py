@@ -17,7 +17,6 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tests"))
 
 class StartupTest(unittest.TestCase):
 
-    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
     def test_relax_creates_files(self):
         os.chdir(ROOT)
         os.chdir('BiTeCl')
@@ -27,18 +26,20 @@ class StartupTest(unittest.TestCase):
             os.system('rm {}'.format(f))
 
 
-#class AnalysisTest(unittest.TestCase):
+class AnalysisTest(unittest.TestCase):
 
-#    def test_get_hull_distance_for_BiTeCl(self):
-#        os.chdir(ROOT)
-#        os.chdir('BiTeCl')
-#        self.assertEqual(get_hull_distance(), 0.10335952666666692)
+    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
+    def test_get_hull_distance_for_BiTeCl(self):
+        os.chdir(ROOT)
+        os.chdir('BiTeCl')
+        self.assertEqual(get_hull_distance(), 0.10335952666666692)
 
-#    def test_get_competing_phases_for_BiTeCl(self):
-#        os.chdir(ROOT)
-#        os.chdir('BiTeCl')
-#        competing_phases = get_competing_phases()
-#        self.assertEqual(competing_phases, [(u'BiTeCl', u'mp-28944')])
+    @unittest.skipIf(not MPINT_CONFIG, "MPINT_CONFIG not set")
+    def test_get_competing_phases_for_BiTeCl(self):
+        os.chdir(ROOT)
+        os.chdir('BiTeCl')
+        competing_phases = get_competing_phases()
+        self.assertEqual(competing_phases, [(u'BiTeCl', u'mp-28944')])
 
 
 if __name__ == '__main__':

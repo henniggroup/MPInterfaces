@@ -41,12 +41,7 @@ VASP_PSP = MPINT_CONFIG.get('potentials', None)
 QUEUE_SYSTEM = MPINT_CONFIG.get('queue_system', None)
 
 if not QUEUE_SYSTEM:
-    if '/ufrc/' in os.getcwd():
-        QUEUE_SYSTEM = 'slurm'
-    elif '/scratch/' in os.getcwd():
-        QUEUE_SYSTEM = 'pbs'
-    else:
-        QUEUE_SYSTEM = 'N/A'
+    QUEUE_SYSTEM = 'slurm'
 
 
 def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):

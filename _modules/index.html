@@ -1,220 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Overview: module code &mdash; mpinterfaces 1.1.2alpha documentation</title>
-  
-
-  
-  
-
-  
-
-  
-  
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-
-  
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="../index.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
-</head>
-
-<body class="wy-body-for-nav" role="document">
-
-  <div class="wy-grid-for-nav">
-
+    <title>Overview: module code &#8212; mpinterfaces  documentation</title>
     
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-        
-          <a href="../index.html" class="icon icon-home"> mpinterfaces
-        
+  </head>
+  <body role="document">
+  
 
-        
-        </a>
-
-        
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-
-        
-      </div>
-
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
-          
-          
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../readme.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../readme.html#prepping">Prepping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../readme.html#get-the-latest-version">Get the latest version</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../readme.html#documentation">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../readme.html#usage">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../readme.html#contributing">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../readme.html#authors">Authors</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../mpinterfaces.html">mpinterfaces package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../usage.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage.html#capabilities">Capabilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../usage.html#interface-creation">Interface Creation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../usage.html#offline-vasp-project-management">Offline vasp project management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../usage.html#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../usage.html#workflow-submission-and-launching">Workflow submission and launching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../usage.html#workflow-query-examples">Workflow query examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../usage.html#query-for-individual-fireworks">Query for individual Fireworks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../usage.html#connecting-to-our-local-database">Connecting to our local Database</a></li>
-</ul>
-</li>
-</ul>
-
-          
-        
-      </div>
-      &nbsp;
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">mpinterfaces</a>
-      </nav>
-
-
-      
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
-    <li>Overview: module code</li>
-      <li class="wy-breadcrumbs-aside">
-        
-          
-        
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document">
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
             
   <h1>All modules for which code is available</h1>
 <ul><li><a href="mpinterfaces.html">mpinterfaces</a></li>
 <ul><li><a href="mpinterfaces/calibrate.html">mpinterfaces.calibrate</a></li>
 <li><a href="mpinterfaces/data_processor.html">mpinterfaces.data_processor</a></li>
 <li><a href="mpinterfaces/database.html">mpinterfaces.database</a></li>
+<li><a href="mpinterfaces/default_logger.html">mpinterfaces.default_logger</a></li>
 <li><a href="mpinterfaces/firetasks.html">mpinterfaces.firetasks</a></li>
 <li><a href="mpinterfaces/instrument.html">mpinterfaces.instrument</a></li>
 <li><a href="mpinterfaces/interface.html">mpinterfaces.interface</a></li>
+<li><a href="mpinterfaces/lammps.html">mpinterfaces.lammps</a></li>
 <li><a href="mpinterfaces/measurement.html">mpinterfaces.measurement</a></li>
 <li><a href="mpinterfaces/nanoparticle.html">mpinterfaces.nanoparticle</a></li>
+<li><a href="mpinterfaces/rest.html">mpinterfaces.rest</a></li>
+<li><a href="mpinterfaces/tests/test_default_logger.html">mpinterfaces.tests.test_default_logger</a></li>
+<li><a href="mpinterfaces/tests/test_get_r_list.html">mpinterfaces.tests.test_get_r_list</a></li>
+<li><a href="mpinterfaces/tests/test_get_trans_matrices.html">mpinterfaces.tests.test_get_trans_matrices</a></li>
+<li><a href="mpinterfaces/tests/test_get_uv.html">mpinterfaces.tests.test_get_uv</a></li>
+<li><a href="mpinterfaces/tests/test_rest.html">mpinterfaces.tests.test_rest</a></li>
 <li><a href="mpinterfaces/transformations.html">mpinterfaces.transformations</a></li>
+<li><a href="mpinterfaces/twod_materials/electronic_structure/analysis.html">mpinterfaces.twod_materials.electronic_structure.analysis</a></li>
+<li><a href="mpinterfaces/twod_materials/electronic_structure/startup.html">mpinterfaces.twod_materials.electronic_structure.startup</a></li>
+<li><a href="mpinterfaces/twod_materials/electronic_structure/tests/test_electronic_structure.html">mpinterfaces.twod_materials.electronic_structure.tests.test_electronic_structure</a></li>
+<li><a href="mpinterfaces/twod_materials/friction/analysis.html">mpinterfaces.twod_materials.friction.analysis</a></li>
+<li><a href="mpinterfaces/twod_materials/friction/startup.html">mpinterfaces.twod_materials.friction.startup</a></li>
+<li><a href="mpinterfaces/twod_materials/friction/tests/test_friction.html">mpinterfaces.twod_materials.friction.tests.test_friction</a></li>
+<li><a href="mpinterfaces/twod_materials/intercalation/analysis.html">mpinterfaces.twod_materials.intercalation.analysis</a></li>
+<li><a href="mpinterfaces/twod_materials/intercalation/startup.html">mpinterfaces.twod_materials.intercalation.startup</a></li>
+<li><a href="mpinterfaces/twod_materials/intercalation/tests/test_intercalation.html">mpinterfaces.twod_materials.intercalation.tests.test_intercalation</a></li>
+<li><a href="mpinterfaces/twod_materials/magnetism/startup.html">mpinterfaces.twod_materials.magnetism.startup</a></li>
+<li><a href="mpinterfaces/twod_materials/pourbaix/analysis.html">mpinterfaces.twod_materials.pourbaix.analysis</a></li>
+<li><a href="mpinterfaces/twod_materials/pourbaix/startup.html">mpinterfaces.twod_materials.pourbaix.startup</a></li>
+<li><a href="mpinterfaces/twod_materials/pourbaix/tests/test_pourbaix.html">mpinterfaces.twod_materials.pourbaix.tests.test_pourbaix</a></li>
+<li><a href="mpinterfaces/twod_materials/stability/analysis.html">mpinterfaces.twod_materials.stability.analysis</a></li>
+<li><a href="mpinterfaces/twod_materials/stability/startup.html">mpinterfaces.twod_materials.stability.startup</a></li>
+<li><a href="mpinterfaces/twod_materials/stability/tests/test_stability.html">mpinterfaces.twod_materials.stability.tests.test_stability</a></li>
+<li><a href="mpinterfaces/twod_materials/utils/tests/test_utils.html">mpinterfaces.twod_materials.utils.tests.test_utils</a></li>
+<li><a href="mpinterfaces/twod_materials/utils/utils.html">mpinterfaces.twod_materials.utils.utils</a></li>
 <li><a href="mpinterfaces/utils.html">mpinterfaces.utils</a></li>
 </ul></ul>
 
           </div>
-          <footer>
-  
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>
-        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
-    </p>
-  </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-
-</footer>
-
         </div>
       </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
 
-    </section>
+    
 
-  </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.1.2alpha',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
-      });
-  </script>
-   
-
-</body>
+    
+  </body>
 </html>

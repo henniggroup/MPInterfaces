@@ -1,0 +1,286 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.twod_materials.friction.startup &#8212; mpinterfaces  documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mpinterfaces.twod_materials.friction.startup</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces</span> <span class="k">import</span> <span class="n">VASP_STD_BIN</span><span class="p">,</span> <span class="n">VDW_KERNEL</span><span class="p">,</span> <span class="n">QUEUE_SYSTEM</span>
+<span class="kn">import</span> <span class="nn">mpinterfaces.twod_materials.utils.utils</span> <span class="k">as</span> <span class="nn">utl</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ashtonmv@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
+
+
+<div class="viewcode-block" id="run_gamma_calculations"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.friction.html#mpinterfaces.twod_materials.friction.startup.run_gamma_calculations">[docs]</a><span class="k">def</span> <span class="nf">run_gamma_calculations</span><span class="p">(</span><span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Setup a 2D grid of static energy calculations to plot the Gamma</span>
+<span class="sd">    surface between two layers of the 2D material. These calculations</span>
+<span class="sd">    are run and stored in subdirectories under &#39;friction/lateral&#39;.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        submit (bool): Whether or not to submit the jobs.</span>
+<span class="sd">        step_size (float): the distance between grid points in</span>
+<span class="sd">            Angstroms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">&#39;friction&#39;</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;friction&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;friction&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">&#39;lateral&#39;</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;lateral&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;lateral&#39;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp ../../CONTCAR POSCAR&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Pad the bottom layer with 20 Angstroms of vacuum.</span>
+    <span class="n">utl</span><span class="o">.</span><span class="n">add_vacuum</span><span class="p">(</span><span class="mi">20</span> <span class="o">-</span> <span class="n">utl</span><span class="o">.</span><span class="n">get_spacing</span><span class="p">(),</span> <span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+    <span class="n">n_sites_per_layer</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
+
+    <span class="n">n_divs_x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">))</span>
+    <span class="n">n_divs_y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">b</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">))</span>
+
+    <span class="c1"># Get the thickness of the material.</span>
+    <span class="n">max_height</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">])</span>
+    <span class="n">min_height</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">])</span>
+    <span class="n">thickness</span> <span class="o">=</span> <span class="n">max_height</span> <span class="o">-</span> <span class="n">min_height</span>
+
+    <span class="c1"># Make a new layer.</span>
+    <span class="n">new_sites</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
+        <span class="n">new_sites</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                           <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">thickness</span> <span class="o">+</span> <span class="mf">3.5</span><span class="p">]))</span>
+
+    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">new_sites</span><span class="p">:</span>
+        <span class="n">structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">site</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1">#structure.get_sorted_structure().to(&#39;POSCAR&#39;, &#39;POSCAR&#39;)</span>
+    <span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_divs_x</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_divs_y</span><span class="p">):</span>
+            <span class="nb">dir</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">x</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+
+            <span class="c1"># Copy input files</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp ../../../INCAR .&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp ../../../KPOINTS .&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp ../POSCAR .&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">VDW_KERNEL</span> <span class="o">!=</span> <span class="s1">&#39;/path/to/vdw_kernel.bindat&#39;</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp </span><span class="si">{}</span><span class="s1"> .&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">VDW_KERNEL</span><span class="p">))</span>
+
+            <span class="n">utl</span><span class="o">.</span><span class="n">write_potcar</span><span class="p">()</span>
+            <span class="n">incar_dict</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;INCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+            <span class="n">incar_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;NSW&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;LAECHG&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;LCHARG&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                               <span class="s1">&#39;LWAVE&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;LVTOT&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                               <span class="s1">&#39;MAGMOM&#39;</span><span class="p">:</span> <span class="n">utl</span><span class="o">.</span><span class="n">get_magmom_string</span><span class="p">()})</span>
+            <span class="n">incar_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;NPAR&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">Incar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">incar_dict</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;INCAR&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Shift the top layer</span>
+            <span class="n">poscar_lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">poscar</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">poscar_lines</span><span class="p">[:</span><span class="mi">8</span> <span class="o">+</span> <span class="n">n_sites_per_layer</span><span class="p">]:</span>
+                    <span class="n">poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">poscar_lines</span><span class="p">[</span><span class="mi">8</span> <span class="o">+</span> <span class="n">n_sites_per_layer</span><span class="p">:]:</span>
+                    <span class="n">split_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="n">new_coords</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n_divs_x</span><span class="p">),</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n_divs_y</span><span class="p">),</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
+                    <span class="n">poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">new_coords</span><span class="p">])</span>
+                                 <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span>
+                <span class="n">utl</span><span class="o">.</span><span class="n">write_pbs_runjob</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;1000mb&#39;</span><span class="p">,</span> <span class="s1">&#39;2:00:00&#39;</span><span class="p">,</span> <span class="n">VASP_STD_BIN</span><span class="p">)</span>
+                <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;qsub runjob&#39;</span>
+
+            <span class="k">elif</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
+                <span class="n">utl</span><span class="o">.</span><span class="n">write_slurm_runjob</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;1000mb&#39;</span><span class="p">,</span> <span class="s1">&#39;2:00:00&#39;</span><span class="p">,</span> <span class="n">VASP_STD_BIN</span><span class="p">)</span>
+                <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;sbatch runjob&#39;</span>
+
+            <span class="k">if</span> <span class="n">submit</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">submission_command</span><span class="p">)</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../../&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_normal_force_calculations"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.friction.html#mpinterfaces.twod_materials.friction.startup.run_normal_force_calculations">[docs]</a><span class="k">def</span> <span class="nf">run_normal_force_calculations</span><span class="p">(</span><span class="n">basin_and_saddle_dirs</span><span class="p">,</span>
+                                  <span class="n">spacings</span><span class="o">=</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">4.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set up and run static calculations of the basin directory and</span>
+<span class="sd">    saddle directory at specified interlayer spacings to get f_N and</span>
+<span class="sd">    f_F.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        basin_and_saddle_dirs (tuple): Can be obtained by the</span>
+<span class="sd">            get_basin_and_peak_locations() function under</span>
+<span class="sd">            friction.analysis. For example,</span>
+
+<span class="sd">            run_normal_force_calculations((&#39;0x0&#39;, &#39;3x6&#39;))</span>
+
+<span class="sd">            or</span>
+
+<span class="sd">            run_normal_force_calculations(get_basin_and_peak_locations())</span>
+
+<span class="sd">            will both work.</span>
+<span class="sd">        spacings (tuple): list of interlayer spacings (in Angstroms, as floats)</span>
+<span class="sd">            at which to run the calculations.</span>
+<span class="sd">        submit (bool): Whether or not to submit the jobs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">spacings</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">spc</span><span class="p">)</span> <span class="k">for</span> <span class="n">spc</span> <span class="ow">in</span> <span class="n">spacings</span><span class="p">]</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;friction&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">&#39;normal&#39;</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">spacing</span> <span class="ow">in</span> <span class="n">spacings</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">spacing</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">spacing</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">subdirectory</span> <span class="ow">in</span> <span class="n">basin_and_saddle_dirs</span><span class="p">:</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp -r ../lateral/</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">/&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">subdirectory</span><span class="p">,</span> <span class="n">spacing</span><span class="p">))</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="n">subdirectory</span><span class="p">))</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+            <span class="n">n_sites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+            <span class="n">top_layer</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">n_sites</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):]</span>
+            <span class="n">bottom_of_top_layer</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">z_coord</span> <span class="k">for</span> <span class="n">z_coord</span> <span class="ow">in</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">top_layer</span><span class="p">]])</span>
+
+            <span class="n">remove_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_sites</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">n_sites</span><span class="p">)</span>
+
+            <span class="n">structure</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">remove_indices</span><span class="p">)</span>
+            <span class="n">max_height</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">top_layer</span><span class="p">:</span>
+                <span class="n">structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
+                    <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                     <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                     <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">bottom_of_top_layer</span>
+                     <span class="o">+</span> <span class="n">max_height</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">spacing</span><span class="p">)],</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span>
+                <span class="n">utl</span><span class="o">.</span><span class="n">write_pbs_runjob</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">subdirectory</span><span class="p">,</span> <span class="n">spacing</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;1000mb&#39;</span><span class="p">,</span> <span class="s1">&#39;2:00:00&#39;</span><span class="p">,</span> <span class="n">VASP_STD_BIN</span><span class="p">)</span>
+                <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;qsub runjob&#39;</span>
+
+            <span class="k">elif</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
+                <span class="n">utl</span><span class="o">.</span><span class="n">write_slurm_runjob</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">subdirectory</span><span class="p">,</span> <span class="n">spacing</span><span class="p">),</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;1000mb&#39;</span><span class="p">,</span> <span class="s1">&#39;2:00:00&#39;</span><span class="p">,</span> <span class="n">VASP_STD_BIN</span><span class="p">)</span>
+                <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;sbatch runjob&#39;</span>
+
+            <span class="k">if</span> <span class="n">submit</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">submission_command</span><span class="p">)</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../../&#39;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../../&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../../mpinterfaces.html">mpinterfaces</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

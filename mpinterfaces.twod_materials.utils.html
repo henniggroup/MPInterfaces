@@ -1,0 +1,359 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.twod_materials.utils package &#8212; mpinterfaces  documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mpinterfaces.twod_materials.utils.tests package" href="mpinterfaces.twod_materials.utils.tests.html" />
+    <link rel="prev" title="mpinterfaces.twod_materials.stability.tests package" href="mpinterfaces.twod_materials.stability.tests.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="mpinterfaces-twod-materials-utils-package">
+<h1>mpinterfaces.twod_materials.utils package<a class="headerlink" href="#mpinterfaces-twod-materials-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.twod_materials.utils.tests.html">mpinterfaces.twod_materials.utils.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.twod_materials.utils.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.twod_materials.utils.tests.html#module-mpinterfaces.twod_materials.utils.tests.test_utils">mpinterfaces.twod_materials.utils.tests.test_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.twod_materials.utils.tests.html#module-mpinterfaces.twod_materials.utils.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-mpinterfaces.twod_materials.utils.utils">
+<span id="mpinterfaces-twod-materials-utils-utils-module"></span><h2>mpinterfaces.twod_materials.utils.utils module<a class="headerlink" href="#module-mpinterfaces.twod_materials.utils.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.add_vacuum">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">add_vacuum</code><span class="sig-paren">(</span><em>delta</em>, <em>cut=0.9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#add_vacuum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.add_vacuum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds vacuum to a POSCAR.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">delta (float): vacuum thickness in Angstroms
+cut (delta): fractional height above which atoms will</p>
+<blockquote class="last">
+<div>need to be fixed. Defaults to 0.9.</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.align_c_axis_along_001">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">align_c_axis_along_001</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#align_c_axis_along_001"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.align_c_axis_along_001" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a structure with a c-axis not along [001],
+returns the same structure rotated so that the c-axis is along
+the [001] direction. This is useful for vasp compiled with no
+z-axis relaxation.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>structure (Structure): Pymatgen Structure object to rotate.</dd>
+<dt>Returns:</dt>
+<dd>structure. Rotated to align c-axis along [001].</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.get_magmom_string">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">get_magmom_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#get_magmom_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.get_magmom_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Based on a POSCAR, returns the string required for the MAGMOM
+setting in the INCAR. Initializes transition metals with 6.0
+bohr magneton and all others with 0.5.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>string. e.g. &#8216;1*6.0 3*0.5&#8217;</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.get_markovian_path">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">get_markovian_path</code><span class="sig-paren">(</span><em>points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#get_markovian_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.get_markovian_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the shortest path connecting an array of 2D
+points.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>points (list): list/array of points of the format</dt>
+<dd>[[x_1, y_1, z_1], [x_2, y_2, z_2], ...]</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>list: A sorted list of the points in order on the markovian path.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.get_rotation_matrix">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">get_rotation_matrix</code><span class="sig-paren">(</span><em>axis</em>, <em>theta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#get_rotation_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.get_rotation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the rotation matrix associated with counterclockwise rotation
+about the given axis by theta radians.
+Credit: <a class="reference external" href="http://stackoverflow.com/users/190597/unutbu">http://stackoverflow.com/users/190597/unutbu</a></p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>axis (list): rotation axis of the form [x, y, z]
+theta (float): rotational angle in radians</dd>
+<dt>Returns:</dt>
+<dd>array. Rotation matrix.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.get_spacing">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">get_spacing</code><span class="sig-paren">(</span><em>filename='POSCAR'</em>, <em>cut=0.9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#get_spacing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.get_spacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the interlayer spacing for a 2D material.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename (str): &#8216;CONTCAR&#8217; or &#8216;POSCAR&#8217;, whichever file to</dt>
+<dd>check.</dd>
+<dt>cut (float): a fractional z-coordinate that must be within</dt>
+<dd>the vacuum region.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>float. Spacing in Angstroms.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.get_status">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">get_status</code><span class="sig-paren">(</span><em>directory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#get_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.get_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the state of job in a directory. Designed for use on
+Slurm systems.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>directory (str): <em>absolute</em> path to the directory to check.</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>string version of SLURM job status.</dt>
+<dd>&#8216;None&#8217; = No running job in this directory</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.get_structure_type">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">get_structure_type</code><span class="sig-paren">(</span><em>structure</em>, <em>write_poscar_from_cluster=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#get_structure_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.get_structure_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a topology-scaling algorithm used to describe the
+periodicity of bonded clusters in a bulk structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">structure (structure): Pymatgen structure object to classify.
+write_poscar_from_cluster (bool): Set to True to write a</p>
+<blockquote class="last">
+<div>POSCAR from the sites in the cluster.</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>string. &#8216;molecular&#8217; (0D), &#8216;chain&#8217;, &#8216;layered&#8217;, &#8216;heterogeneous&#8217;</dt>
+<dd>(intercalated 3D), or &#8216;conventional&#8217; (3D)</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.is_converged">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">is_converged</code><span class="sig-paren">(</span><em>directory</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#is_converged"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.is_converged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a relaxation has converged.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>directory (str): path to directory to check.</dd>
+<dt>Returns:</dt>
+<dd>boolean. Whether or not the job is converged.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.remove_z_kpoints">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">remove_z_kpoints</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#remove_z_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.remove_z_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strips all linemode k-points from the KPOINTS file that include a
+z-component, since these are not relevant for 2D materials.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.write_circle_mesh_kpoints">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">write_circle_mesh_kpoints</code><span class="sig-paren">(</span><em>center=[0, 0, 0], radius=0.1, resolution=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#write_circle_mesh_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.write_circle_mesh_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a circular mesh of k-points centered around a specific
+k-point and write it to the KPOINTS file. Non-circular meshes
+are not supported, but shouldn&#8217;t be too hard to code. All
+k-point weights are 1.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>center (list): x, y, and z coordinates of mesh center.</dt>
+<dd>Defaults to Gamma.</dd>
+</dl>
+<p>radius (float): Size of the mesh in inverse Angstroms.
+resolution (int): Number of mesh divisions along the</p>
+<blockquote class="last">
+<div>radius in the 3 primary directions.</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.write_pbs_runjob">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">write_pbs_runjob</code><span class="sig-paren">(</span><em>name</em>, <em>nnodes</em>, <em>nprocessors</em>, <em>pmem</em>, <em>walltime</em>, <em>binary</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#write_pbs_runjob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.write_pbs_runjob" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes a runjob based on a name, nnodes, nprocessors, walltime,
+and binary. Designed for runjobs on the Hennig group_list on
+HiperGator 1 (PBS).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name (str): job name.
+nnodes (int): number of requested nodes.
+nprocessors (int): number of requested processors.
+pmem (str): requested memory including units, e.g. &#8216;1600mb&#8217;.
+walltime (str): requested wall time, hh:mm:ss e.g. &#8216;2:00:00&#8217;.
+binary (str): absolute path to binary to run.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.write_potcar">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">write_potcar</code><span class="sig-paren">(</span><em>pot_path=None</em>, <em>types='None'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#write_potcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.write_potcar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a POTCAR file based on a list of types.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>pot_path (str): can be changed to override default location</dt>
+<dd>of POTCAR files.</dd>
+<dt>types (list): list of same length as number of elements</dt>
+<dd>containing specifications for the kind of potential
+desired for each element, e.g. [&#8216;Na_pv&#8217;, &#8216;O_s&#8217;]. If
+left as &#8216;None&#8217;, uses the defaults in the
+&#8216;potcar_symbols.yaml&#8217; file in the package root.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.utils.utils.write_slurm_runjob">
+<code class="descclassname">mpinterfaces.twod_materials.utils.utils.</code><code class="descname">write_slurm_runjob</code><span class="sig-paren">(</span><em>name</em>, <em>ntasks</em>, <em>pmem</em>, <em>walltime</em>, <em>binary</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/utils/utils.html#write_slurm_runjob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.utils.utils.write_slurm_runjob" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes a runjob based on a name, nnodes, nprocessors, walltime, and
+binary. Designed for runjobs on the Hennig group_list on HiperGator
+2 (SLURM).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name (str): job name.
+ntasks (int): total number of requested processors.
+pmem (str): requested memory including units, e.g. &#8216;1600mb&#8217;.
+walltime (str): requested wall time, hh:mm:ss e.g. &#8216;2:00:00&#8217;.
+binary (str): absolute path to binary to run.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.twod_materials.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mpinterfaces.twod_materials.utils" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">mpinterfaces.twod_materials.utils package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-mpinterfaces.twod_materials.utils.utils">mpinterfaces.twod_materials.utils.utils module</a></li>
+<li><a class="reference internal" href="#module-mpinterfaces.twod_materials.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="mpinterfaces.html">mpinterfaces package</a><ul>
+  <li><a href="mpinterfaces.twod_materials.html">mpinterfaces.twod_materials package</a><ul>
+      <li>Previous: <a href="mpinterfaces.twod_materials.stability.tests.html" title="previous chapter">mpinterfaces.twod_materials.stability.tests package</a></li>
+      <li>Next: <a href="mpinterfaces.twod_materials.utils.tests.html" title="next chapter">mpinterfaces.twod_materials.utils.tests package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/mpinterfaces.twod_materials.utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/mpinterfaces.twod_materials.utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

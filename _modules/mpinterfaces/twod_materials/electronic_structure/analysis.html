@@ -1,0 +1,842 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.twod_materials.electronic_structure.analysis &#8212; mpinterfaces  documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mpinterfaces.twod_materials.electronic_structure.analysis</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Locpot</span><span class="p">,</span> <span class="n">VolumetricData</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="k">import</span> <span class="n">BSPlotter</span><span class="p">,</span> <span class="n">BSPlotterProjected</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces.twod_materials.utils.utils</span> <span class="k">import</span> <span class="n">is_converged</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;joshgabriel92@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
+
+
+<div class="viewcode-block" id="get_band_edges"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.get_band_edges">[docs]</a><span class="k">def</span> <span class="nf">get_band_edges</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the band edge locations relative to the vacuum level</span>
+<span class="sd">    for a semiconductor.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        edges (dict): {&#39;up_cbm&#39;: , &#39;up_vbm&#39;: , &#39;dn_cbm&#39;: , &#39;dn_vbm&#39;: , &#39;efermi&#39;}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Vacuum level energy from LOCPOT.</span>
+    <span class="n">locpot</span> <span class="o">=</span> <span class="n">Locpot</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;LOCPOT&#39;</span><span class="p">)</span>
+    <span class="n">evac</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">locpot</span><span class="o">.</span><span class="n">get_average_along_axis</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span>
+    <span class="n">bs</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">()</span>
+    <span class="n">eigenvals</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">eigenvalues</span>
+    <span class="n">efermi</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">evac</span>
+
+    <span class="k">if</span> <span class="n">bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">evac</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="n">up_cbm</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">min</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]))])</span> <span class="o">-</span> <span class="n">evac</span>
+        <span class="n">up_vbm</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">max</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]))])</span> <span class="o">-</span> <span class="n">evac</span>
+        <span class="n">dn_cbm</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">min</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]))])</span> <span class="o">-</span> <span class="n">evac</span>
+        <span class="n">dn_vbm</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">max</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]))])</span> <span class="o">-</span> <span class="n">evac</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;up_cbm&#39;</span><span class="p">:</span> <span class="n">up_cbm</span><span class="p">,</span> <span class="s1">&#39;up_vbm&#39;</span><span class="p">:</span> <span class="n">up_vbm</span><span class="p">,</span> <span class="s1">&#39;dn_cbm&#39;</span><span class="p">:</span> <span class="n">dn_cbm</span><span class="p">,</span>
+                 <span class="s1">&#39;dn_vbm&#39;</span><span class="p">:</span> <span class="n">dn_vbm</span><span class="p">,</span> <span class="s1">&#39;efermi&#39;</span><span class="p">:</span> <span class="n">efermi</span><span class="p">}</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cbm</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_cbm</span><span class="p">()[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">evac</span>
+        <span class="n">vbm</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_vbm</span><span class="p">()[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">evac</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;up_cbm&#39;</span><span class="p">:</span> <span class="n">cbm</span><span class="p">,</span> <span class="s1">&#39;up_vbm&#39;</span><span class="p">:</span> <span class="n">vbm</span><span class="p">,</span> <span class="s1">&#39;dn_cbm&#39;</span><span class="p">:</span> <span class="n">cbm</span><span class="p">,</span> <span class="s1">&#39;dn_vbm&#39;</span><span class="p">:</span> <span class="n">vbm</span><span class="p">,</span>
+                 <span class="s1">&#39;efermi&#39;</span><span class="p">:</span> <span class="n">efermi</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">edges</span></div>
+
+
+<div class="viewcode-block" id="plot_band_alignments"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.plot_band_alignments">[docs]</a><span class="k">def</span> <span class="nf">plot_band_alignments</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">run_type</span><span class="o">=</span><span class="s1">&#39;PBE&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot CBM&#39;s and VBM&#39;s of all compounds together, relative to the band</span>
+<span class="sd">    edges of H2O.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        directories (list): list of the directory paths for materials</span>
+<span class="sd">            to include in the plot.</span>
+<span class="sd">        run_type (str): &#39;PBE&#39; or &#39;HSE&#39;, so that the function knows which</span>
+<span class="sd">            subdirectory to go into (pbe_bands or hse_bands).</span>
+<span class="sd">        fmt (str): matplotlib format style. Check the matplotlib</span>
+<span class="sd">            docs for options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">run_type</span> <span class="o">==</span> <span class="s1">&#39;HSE&#39;</span><span class="p">:</span>
+        <span class="n">subdirectory</span> <span class="o">=</span> <span class="s1">&#39;hse_bands&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">subdirectory</span> <span class="o">=</span> <span class="s1">&#39;pbe_bands&#39;</span>
+
+    <span class="n">band_gaps</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">directories</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_converged</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">subdirectory</span><span class="p">)):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">subdirectory</span><span class="p">))</span>
+            <span class="n">band_structure</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">()</span>
+            <span class="n">band_gap</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">get_band_gap</span><span class="p">()</span>
+
+            <span class="c1"># Vacuum level energy from LOCPOT.</span>
+            <span class="n">locpot</span> <span class="o">=</span> <span class="n">Locpot</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;LOCPOT&#39;</span><span class="p">)</span>
+            <span class="n">evac</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">locpot</span><span class="o">.</span><span class="n">get_average_along_axis</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">is_metal</span><span class="p">():</span>
+                <span class="n">is_direct</span> <span class="o">=</span> <span class="n">band_gap</span><span class="p">[</span><span class="s1">&#39;direct&#39;</span><span class="p">]</span>
+                <span class="n">cbm</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">get_cbm</span><span class="p">()</span>
+                <span class="n">vbm</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">get_vbm</span><span class="p">()</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cbm</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">vbm</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">is_direct</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">band_gaps</span><span class="p">[</span><span class="n">directory</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;CBM&#39;</span><span class="p">:</span> <span class="n">cbm</span><span class="p">,</span> <span class="s1">&#39;VBM&#39;</span><span class="p">:</span> <span class="n">vbm</span><span class="p">,</span>
+                                    <span class="s1">&#39;Direct&#39;</span><span class="p">:</span> <span class="n">is_direct</span><span class="p">,</span>
+                                    <span class="s1">&#39;Metal&#39;</span><span class="p">:</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">is_metal</span><span class="p">(),</span>
+                                    <span class="s1">&#39;E_vac&#39;</span><span class="p">:</span> <span class="n">evac</span><span class="p">}</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../../&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+    <span class="n">x_max</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">band_gaps</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.315</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x_max</span><span class="p">)</span>
+
+    <span class="c1"># Rectangle representing band edges of water.</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.67</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mf">1.23</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">band_gaps</span><span class="p">),</span>
+                 <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;#00cc99&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">band_gaps</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.44</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mathrm{H+/H_2}$&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+            <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">band_gaps</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.67</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mathrm{O_2/H_2O}$&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+            <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+
+    <span class="n">x_ticklabels</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">y_min</span> <span class="o">=</span> <span class="o">-</span><span class="mi">8</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Nothing but lies.</span>
+    <span class="n">are_directs</span><span class="p">,</span> <span class="n">are_indirects</span><span class="p">,</span> <span class="n">are_metals</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">compound</span> <span class="ow">in</span> <span class="p">[</span><span class="n">cpd</span> <span class="k">for</span> <span class="n">cpd</span> <span class="ow">in</span> <span class="n">directories</span> <span class="k">if</span> <span class="n">cpd</span> <span class="ow">in</span> <span class="n">band_gaps</span><span class="p">]:</span>
+        <span class="n">x_ticklabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">compound</span><span class="p">)</span>
+
+        <span class="c1"># Plot all energies relative to their vacuum level.</span>
+        <span class="n">evac</span> <span class="o">=</span> <span class="n">band_gaps</span><span class="p">[</span><span class="n">compound</span><span class="p">][</span><span class="s1">&#39;E_vac&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">band_gaps</span><span class="p">[</span><span class="n">compound</span><span class="p">][</span><span class="s1">&#39;Metal&#39;</span><span class="p">]:</span>
+            <span class="n">cbm</span> <span class="o">=</span> <span class="o">-</span><span class="mi">8</span>
+            <span class="n">vbm</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cbm</span> <span class="o">=</span> <span class="n">band_gaps</span><span class="p">[</span><span class="n">compound</span><span class="p">][</span><span class="s1">&#39;CBM&#39;</span><span class="p">][</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">evac</span>
+            <span class="n">vbm</span> <span class="o">=</span> <span class="n">band_gaps</span><span class="p">[</span><span class="n">compound</span><span class="p">][</span><span class="s1">&#39;VBM&#39;</span><span class="p">][</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">evac</span>
+
+        <span class="c1"># Add a box around direct gap compounds to distinguish them.</span>
+        <span class="k">if</span> <span class="n">band_gaps</span><span class="p">[</span><span class="n">compound</span><span class="p">][</span><span class="s1">&#39;Direct&#39;</span><span class="p">]:</span>
+            <span class="n">are_directs</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">band_gaps</span><span class="p">[</span><span class="n">compound</span><span class="p">][</span><span class="s1">&#39;Metal&#39;</span><span class="p">]:</span>
+            <span class="n">are_indirects</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Metals are grey.</span>
+        <span class="k">if</span> <span class="n">band_gaps</span><span class="p">[</span><span class="n">compound</span><span class="p">][</span><span class="s1">&#39;Metal&#39;</span><span class="p">]:</span>
+            <span class="n">are_metals</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">color_code</span> <span class="o">=</span> <span class="s1">&#39;#404040&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">color_code</span> <span class="o">=</span> <span class="s1">&#39;#002b80&#39;</span>
+
+        <span class="c1"># CBM</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">cbm</span><span class="p">),</span> <span class="n">height</span><span class="o">=-</span><span class="n">cbm</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                                   <span class="n">facecolor</span><span class="o">=</span><span class="n">color_code</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
+                                   <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;#e68a00&quot;</span><span class="p">))</span>
+        <span class="c1"># VBM</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">y_min</span><span class="p">),</span>
+                                   <span class="n">height</span><span class="o">=</span><span class="p">(</span><span class="n">vbm</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                                   <span class="n">facecolor</span><span class="o">=</span><span class="n">color_code</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
+                                   <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;#e68a00&quot;</span><span class="p">))</span>
+
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Set tick labels</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="n">n</span> <span class="o">+</span> <span class="mf">0.4</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">)])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">x_ticklabels</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_yticks</span><span class="p">(),</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="c1"># Add a legend</span>
+    <span class="n">height</span> <span class="o">=</span> <span class="n">y_min</span>
+    <span class="k">if</span> <span class="n">are_directs</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">i</span><span class="o">*</span><span class="mf">1.165</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="n">i</span><span class="o">*</span><span class="mf">0.15</span><span class="p">,</span>
+                                   <span class="n">height</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">y_min</span><span class="o">*</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;#002b80&#39;</span><span class="p">,</span>
+                                   <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;#e68a00&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="mf">1.24</span><span class="p">,</span> <span class="n">height</span> <span class="o">-</span> <span class="n">y_min</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s1">&#39;Direct&#39;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+                <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+        <span class="n">height</span> <span class="o">-=</span> <span class="n">y_min</span> <span class="o">*</span> <span class="mf">0.15</span>
+
+    <span class="k">if</span> <span class="n">are_indirects</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">i</span><span class="o">*</span><span class="mf">1.165</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="n">i</span><span class="o">*</span><span class="mf">0.15</span><span class="p">,</span>
+                                   <span class="n">height</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">y_min</span><span class="o">*</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;#002b80&#39;</span><span class="p">,</span>
+                                   <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="mf">1.24</span><span class="p">,</span> <span class="n">height</span> <span class="o">-</span> <span class="n">y_min</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s1">&#39;Indirect&#39;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+                <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+        <span class="n">height</span> <span class="o">-=</span> <span class="n">y_min</span> <span class="o">*</span> <span class="mf">0.15</span>
+
+    <span class="k">if</span> <span class="n">are_metals</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">i</span><span class="o">*</span><span class="mf">1.165</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="n">i</span><span class="o">*</span><span class="mf">0.15</span><span class="p">,</span>
+                                   <span class="n">height</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">y_min</span><span class="o">*</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;#404040&#39;</span><span class="p">,</span>
+                                   <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="mf">1.24</span><span class="p">,</span> <span class="n">height</span> <span class="o">-</span> <span class="n">y_min</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s1">&#39;Metal&#39;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+                <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Who needs axes?</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;bottom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s1">&#39;bottom&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;eV&#39;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ax</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;band_alignments.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">),</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_local_potential"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.plot_local_potential">[docs]</a><span class="k">def</span> <span class="nf">plot_local_potential</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot data from the LOCPOT file along any of the 3 primary axes.</span>
+<span class="sd">    Useful for determining surface dipole moments and electric</span>
+<span class="sd">    potentials on the interior of the material.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        axis (int): 0 = x, 1 = y, 2 = z</span>
+<span class="sd">        ylim (tuple): minimum and maximum potentials for the plot&#39;s y-axis.</span>
+<span class="sd">        fmt (str): matplotlib format style. Check the matplotlib docs</span>
+<span class="sd">            for options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+    <span class="n">locpot</span> <span class="o">=</span> <span class="n">Locpot</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;LOCPOT&#39;</span><span class="p">)</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;CONTCAR&#39;</span><span class="p">)</span>
+    <span class="n">vd</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">locpot</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">abs_potentials</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">get_average_along_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+    <span class="n">vacuum_level</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">abs_potentials</span><span class="p">)</span>
+
+    <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span>
+    <span class="n">bs</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">bs</span><span class="o">.</span><span class="n">is_metal</span><span class="p">():</span>
+        <span class="n">cbm</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_cbm</span><span class="p">()[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">vacuum_level</span>
+        <span class="n">vbm</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_vbm</span><span class="p">()[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">vacuum_level</span>
+
+    <span class="n">potentials</span> <span class="o">=</span> <span class="p">[</span><span class="n">potential</span> <span class="o">-</span> <span class="n">vacuum_level</span> <span class="k">for</span> <span class="n">potential</span> <span class="ow">in</span> <span class="n">abs_potentials</span><span class="p">]</span>
+    <span class="n">axis_length</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">_lengths</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis_length</span><span class="p">,</span> <span class="n">axis_length</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">potentials</span><span class="p">))</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">potentials</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis_length</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
+        <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">tick</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticks</span><span class="p">()],</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span>
+        <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">tick</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticks</span><span class="p">()],</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{\AA}$&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{V\/(eV)}$&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">bs</span><span class="o">.</span><span class="n">is_metal</span><span class="p">():</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cbm</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mathrm</span><span class="si">{CBM}</span><span class="s1">$&#39;</span><span class="p">,</span>
+                <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vbm</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mathrm</span><span class="si">{VBM}</span><span class="s1">$&#39;</span><span class="p">,</span>
+                <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">(),</span> <span class="n">cbm</span><span class="p">,</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="n">facecolor</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">(</span><span class="mf">0.3</span><span class="p">),</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vbm</span><span class="p">,</span>
+                        <span class="n">facecolor</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">(</span><span class="mf">0.7</span><span class="p">),</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ax</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;locpot.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_band_structure"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.plot_band_structure">[docs]</a><span class="k">def</span> <span class="nf">plot_band_structure</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">draw_fermi</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a standard band structure with no projections.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ylim (tuple): minimum and maximum potentials for the plot&#39;s y-axis.</span>
+<span class="sd">        draw_fermi (bool): whether or not to draw a dashed line at E_F.</span>
+<span class="sd">        fmt (str): matplotlib format style. Check the matplotlib docs</span>
+<span class="sd">            for options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span>
+    <span class="n">efermi</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">efermi</span>
+    <span class="n">bsp</span> <span class="o">=</span> <span class="n">BSPlotter</span><span class="p">(</span><span class="n">vasprun</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">,</span> <span class="n">line_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                               <span class="n">efermi</span><span class="o">=</span><span class="n">efermi</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">bsp</span><span class="o">.</span><span class="n">bs_plot_data</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">bsp</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()])</span>
+        <span class="k">if</span> <span class="n">draw_fermi</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;band_structure.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">),</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_color_projected_bands"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.plot_color_projected_bands">[docs]</a><span class="k">def</span> <span class="nf">plot_color_projected_bands</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a single band structure where the color of the band indicates</span>
+<span class="sd">    the elemental character of the eigenvalue.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ylim (tuple): minimum and maximum energies for the plot&#39;s</span>
+<span class="sd">            y-axis.</span>
+<span class="sd">        fmt (str): matplotlib format style. Check the matplotlib</span>
+<span class="sd">            docs for options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">bs</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">,</span> <span class="n">line_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">bspp</span> <span class="o">=</span> <span class="n">BSPlotterProjected</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">bspp</span><span class="o">.</span><span class="n">get_elt_projected_plots_color</span><span class="p">()</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ax</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;color_projected_bands.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_elt_projected_bands"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.plot_elt_projected_bands">[docs]</a><span class="k">def</span> <span class="nf">plot_elt_projected_bands</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot separate band structures for each element where the size of the</span>
+<span class="sd">    markers indicates the elemental character of the eigenvalue.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ylim (tuple): minimum and maximum energies for the plot&#39;s</span>
+<span class="sd">            y-axis.</span>
+<span class="sd">        fmt (str): matplotlib format style. Check the matplotlib</span>
+<span class="sd">            docs for options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">bs</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">,</span> <span class="n">line_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">bspp</span> <span class="o">=</span> <span class="n">BSPlotterProjected</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">bspp</span><span class="o">.</span><span class="n">get_elt_projected_plots</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()])</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ax</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;elt_projected_bands.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_orb_projected_bands"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.plot_orb_projected_bands">[docs]</a><span class="k">def</span> <span class="nf">plot_orb_projected_bands</span><span class="p">(</span><span class="n">orbitals</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a separate band structure for each orbital of each element in</span>
+<span class="sd">    orbitals.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        orbitals (dict): dictionary of the form</span>
+<span class="sd">            {element: [orbitals]},</span>
+<span class="sd">            e.g. {&#39;Mo&#39;: [&#39;s&#39;, &#39;p&#39;, &#39;d&#39;], &#39;S&#39;: [&#39;p&#39;]}</span>
+<span class="sd">        ylim (tuple): minimum and maximum energies for the plot&#39;s</span>
+<span class="sd">            y-axis.</span>
+<span class="sd">        fmt (str): matplotlib format style. Check the matplotlib</span>
+<span class="sd">            docs for options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">bs</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">,</span> <span class="n">line_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">bspp</span> <span class="o">=</span> <span class="n">BSPlotterProjected</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">bspp</span><span class="o">.</span><span class="n">get_projected_plots_dots</span><span class="p">(</span><span class="n">orbitals</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()])</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ax</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;orb_projected_bands.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="get_effective_mass"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.get_effective_mass">[docs]</a><span class="k">def</span> <span class="nf">get_effective_mass</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function is in a beta stage, and its results are not</span>
+<span class="sd">    guaranteed to be useful.</span>
+
+<span class="sd">    Finds effective masses from a band structure, using parabolic</span>
+<span class="sd">    fitting to determine the band curvature at the CBM</span>
+<span class="sd">    for electrons and at the VBM for holes. This curvature enters</span>
+<span class="sd">    the equation m* = (hbar)**2 / (d^2E/dk^2).</span>
+
+<span class="sd">    To consider anisotropy, the k-space directions to the left and right</span>
+<span class="sd">    of the CBM/VBM in the band diagram are returned separately.</span>
+
+<span class="sd">    *NOTE* Only works for semiconductors and linemode calculations (non-</span>
+<span class="sd">           spin polarized).</span>
+<span class="sd">           &gt;30 k-points per string recommended to obtain</span>
+<span class="sd">           reliable curvatures.</span>
+
+<span class="sd">    *NOTE* The parabolic fit can be quite sensitive to the number of</span>
+<span class="sd">           k-points fit to, so it might be worthwhile adjusting N_KPTS</span>
+<span class="sd">           to obtain some sense of the error bar.</span>
+
+<span class="sd">    TODO: Warn user if CBM/VBM is at the edge of the diagram, and which</span>
+<span class="sd">          direction (either left or right) was not actually fit to.</span>
+<span class="sd">          Until fixed, this (most likely) explains any negative masses</span>
+<span class="sd">          returned.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary of the form</span>
+<span class="sd">            {&#39;electron&#39;: {&#39;left&#39;: e_m_eff_l, &#39;right&#39;: e_m_eff_r},</span>
+<span class="sd">             &#39;hole&#39;: {&#39;left&#39;: h_m_eff_l, &#39;right&#39;: h_m_eff_r}}</span>
+<span class="sd">            where &#39;left&#39; and &#39;right&#39; indicate the reciprocal</span>
+<span class="sd">            directions to the left and right of the extremum in the</span>
+<span class="sd">            band structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">H_BAR</span> <span class="o">=</span> <span class="mf">6.582119514e-16</span>  <span class="c1"># eV*s</span>
+    <span class="n">M_0</span> <span class="o">=</span> <span class="mf">9.10938356e-31</span>  <span class="c1"># kg</span>
+    <span class="n">N_KPTS</span> <span class="o">=</span> <span class="mi">6</span>  <span class="c1"># Number of k-points included in the parabola.</span>
+
+    <span class="n">spin_up</span> <span class="o">=</span> <span class="n">Spin</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">band_structure</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">()</span>
+
+    <span class="c1"># Locations of CBM and VBM in band_structure.bands</span>
+    <span class="n">cbm_band_index</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">get_cbm</span><span class="p">()[</span><span class="s1">&#39;band_index&#39;</span><span class="p">][</span><span class="n">spin_up</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">cbm_kpoint_index</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">get_cbm</span><span class="p">()[</span><span class="s1">&#39;kpoint_index&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">vbm_band_index</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">get_vbm</span><span class="p">()[</span><span class="s1">&#39;band_index&#39;</span><span class="p">][</span><span class="n">spin_up</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">vbm_kpoint_index</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">get_vbm</span><span class="p">()[</span><span class="s1">&#39;kpoint_index&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">k</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;electron&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="p">[]},</span>
+         <span class="s1">&#39;hole&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="p">[]}}</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;electron&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="p">[]},</span>
+         <span class="s1">&#39;hole&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="p">[]}}</span>
+
+    <span class="n">e_ref_coords</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">cbm_kpoint_index</span><span class="p">]</span><span class="o">.</span><span class="n">_ccoords</span>
+    <span class="n">h_ref_coords</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">vbm_kpoint_index</span><span class="p">]</span><span class="o">.</span><span class="n">_ccoords</span>
+
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">N_KPTS</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">e_coords</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">cbm_kpoint_index</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">_ccoords</span>
+        <span class="n">h_coords</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">vbm_kpoint_index</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">_ccoords</span>
+
+        <span class="n">k</span><span class="p">[</span><span class="s1">&#39;electron&#39;</span><span class="p">][</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">((</span><span class="n">e_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">e_ref_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+             <span class="p">(</span><span class="n">e_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">e_ref_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+             <span class="p">(</span><span class="n">e_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">e_ref_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+            <span class="p">)</span>
+        <span class="n">k</span><span class="p">[</span><span class="s1">&#39;hole&#39;</span><span class="p">][</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">((</span><span class="n">h_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">h_ref_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+             <span class="p">(</span><span class="n">h_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h_ref_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+             <span class="p">(</span><span class="n">h_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">h_ref_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+            <span class="p">)</span>
+
+        <span class="n">e_energy</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span>
+            <span class="n">spin_up</span><span class="p">][</span><span class="n">cbm_band_index</span><span class="p">][</span><span class="n">cbm_kpoint_index</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span>
+        <span class="n">h_energy</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span>
+            <span class="n">spin_up</span><span class="p">][</span><span class="n">vbm_band_index</span><span class="p">][</span><span class="n">vbm_kpoint_index</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span>
+
+        <span class="n">E</span><span class="p">[</span><span class="s1">&#39;electron&#39;</span><span class="p">][</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e_energy</span><span class="p">)</span>
+        <span class="n">E</span><span class="p">[</span><span class="s1">&#39;hole&#39;</span><span class="p">][</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h_energy</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">N_KPTS</span><span class="p">):</span>
+        <span class="n">e_coords</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">cbm_kpoint_index</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">_ccoords</span>
+        <span class="n">h_coords</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">vbm_kpoint_index</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">_ccoords</span>
+
+        <span class="n">k</span><span class="p">[</span><span class="s1">&#39;electron&#39;</span><span class="p">][</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">((</span><span class="n">e_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">e_ref_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+             <span class="p">(</span><span class="n">e_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">e_ref_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+             <span class="p">(</span><span class="n">e_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">e_ref_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+            <span class="p">)</span>
+        <span class="n">k</span><span class="p">[</span><span class="s1">&#39;hole&#39;</span><span class="p">][</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">((</span><span class="n">h_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">h_ref_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+             <span class="p">(</span><span class="n">h_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h_ref_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
+             <span class="p">(</span><span class="n">h_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">h_ref_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+            <span class="p">)</span>
+
+        <span class="n">e_energy</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span>
+            <span class="n">spin_up</span><span class="p">][</span><span class="n">cbm_band_index</span><span class="p">][</span><span class="n">cbm_kpoint_index</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span>
+        <span class="n">h_energy</span> <span class="o">=</span> <span class="n">band_structure</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span>
+            <span class="n">spin_up</span><span class="p">][</span><span class="n">vbm_band_index</span><span class="p">][</span><span class="n">vbm_kpoint_index</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span>
+
+        <span class="n">E</span><span class="p">[</span><span class="s1">&#39;electron&#39;</span><span class="p">][</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e_energy</span><span class="p">)</span>
+        <span class="n">E</span><span class="p">[</span><span class="s1">&#39;hole&#39;</span><span class="p">][</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h_energy</span><span class="p">)</span>
+
+    <span class="c1"># 2nd order fits</span>
+    <span class="n">e_l_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;electron&#39;</span><span class="p">][</span><span class="s1">&#39;left&#39;</span><span class="p">],</span> <span class="n">E</span><span class="p">[</span><span class="s1">&#39;electron&#39;</span><span class="p">][</span><span class="s1">&#39;left&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">e_r_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;electron&#39;</span><span class="p">][</span><span class="s1">&#39;right&#39;</span><span class="p">],</span> <span class="n">E</span><span class="p">[</span><span class="s1">&#39;electron&#39;</span><span class="p">][</span><span class="s1">&#39;right&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">h_l_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;hole&#39;</span><span class="p">][</span><span class="s1">&#39;left&#39;</span><span class="p">],</span> <span class="n">E</span><span class="p">[</span><span class="s1">&#39;hole&#39;</span><span class="p">][</span><span class="s1">&#39;left&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">h_r_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;hole&#39;</span><span class="p">][</span><span class="s1">&#39;right&#39;</span><span class="p">],</span> <span class="n">E</span><span class="p">[</span><span class="s1">&#39;hole&#39;</span><span class="p">][</span><span class="s1">&#39;right&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># Curvatures</span>
+    <span class="n">e_l_curvature</span> <span class="o">=</span> <span class="n">e_l_fit</span><span class="o">.</span><span class="n">deriv</span><span class="p">()</span><span class="o">.</span><span class="n">deriv</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">e_r_curvature</span> <span class="o">=</span> <span class="n">e_r_fit</span><span class="o">.</span><span class="n">deriv</span><span class="p">()</span><span class="o">.</span><span class="n">deriv</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">h_l_curvature</span> <span class="o">=</span> <span class="n">h_l_fit</span><span class="o">.</span><span class="n">deriv</span><span class="p">()</span><span class="o">.</span><span class="n">deriv</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">h_r_curvature</span> <span class="o">=</span> <span class="n">h_r_fit</span><span class="o">.</span><span class="n">deriv</span><span class="p">()</span><span class="o">.</span><span class="n">deriv</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Unit conversion</span>
+    <span class="n">e_m_eff_l</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="p">((</span><span class="n">H_BAR</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">e_l_curvature</span><span class="p">)</span> <span class="o">/</span> <span class="n">M_0</span>
+    <span class="n">e_m_eff_r</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="p">((</span><span class="n">H_BAR</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">e_r_curvature</span><span class="p">)</span> <span class="o">/</span> <span class="n">M_0</span>
+    <span class="n">h_m_eff_l</span> <span class="o">=</span> <span class="o">-</span><span class="mi">10</span> <span class="o">*</span> <span class="p">((</span><span class="n">H_BAR</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">h_l_curvature</span><span class="p">)</span> <span class="o">/</span> <span class="n">M_0</span>
+    <span class="n">h_m_eff_r</span> <span class="o">=</span> <span class="o">-</span><span class="mi">10</span> <span class="o">*</span> <span class="p">((</span><span class="n">H_BAR</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">h_r_curvature</span><span class="p">)</span> <span class="o">/</span> <span class="n">M_0</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;electron&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="n">e_m_eff_l</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="n">e_m_eff_r</span><span class="p">},</span>
+            <span class="s1">&#39;hole&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="n">h_m_eff_l</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="n">h_m_eff_r</span><span class="p">}}</span></div>
+
+
+<div class="viewcode-block" id="plot_density_of_states"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.plot_density_of_states">[docs]</a><span class="k">def</span> <span class="nf">plot_density_of_states</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plots the density of states from the DOSCAR in the cwd. Plots</span>
+<span class="sd">    spin up in red, down in green, and the sum in black. Efermi = 0.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        xlim (tuple): minimum and maximum energies for the plot&#39;s</span>
+<span class="sd">            x-axis.</span>
+<span class="sd">        ylim (tuple): minimum and maximum for the plot&#39;s</span>
+<span class="sd">            y-axis.</span>
+<span class="sd">        fmt (str): matplotlib format style. Check the matplotlib</span>
+<span class="sd">            docs for options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">efermi</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">efermi</span>
+    <span class="n">dos_lines</span> <span class="o">=</span> <span class="nb">open</span> <span class="p">(</span><span class="s1">&#39;DOSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">up</span><span class="p">,</span> <span class="n">down</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">nedos</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;INCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s1">&#39;NEDOS&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">dos_lines</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">6</span><span class="o">+</span><span class="n">nedos</span><span class="p">]:</span>
+            <span class="n">split_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">efermi</span><span class="p">)</span>
+            <span class="n">up</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">down</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">up</span><span class="p">,</span> <span class="n">down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">up</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">down</span><span class="p">)</span>
+    <span class="nb">sum</span> <span class="o">=</span> <span class="n">up</span> <span class="o">+</span> <span class="n">down</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{E\/(eV)}$&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{Density\/of\/States$&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()])</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">up</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span> <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">down</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">sum</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;density_of_states.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ax</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="get_fermi_velocities"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.get_fermi_velocities">[docs]</a><span class="k">def</span> <span class="nf">get_fermi_velocities</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the fermi velocity of each band that crosses the fermi</span>
+<span class="sd">    level, according to v_F = dE/(h_bar*dk).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        fermi_velocities (list). The absolute values of the</span>
+<span class="sd">            adjusted slopes of each band, in Angstroms/s.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vr</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span>
+    <span class="c1"># eigenvalues = vr.eigenvalues</span>
+    <span class="n">bs</span> <span class="o">=</span> <span class="n">vr</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">()</span>
+    <span class="n">bands</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">bands</span>
+    <span class="n">kpoints</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">kpoints</span>
+    <span class="n">efermi</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">efermi</span>
+    <span class="n">h_bar</span> <span class="o">=</span> <span class="mf">6.582e-16</span>  <span class="c1"># eV*s</span>
+
+    <span class="n">fermi_bands</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">bands</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bands</span><span class="p">[</span><span class="n">spin</span><span class="p">])):</span>
+            <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">bands</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">efermi</span> <span class="o">&gt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">bands</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">]):</span>
+                <span class="n">fermi_bands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bands</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="n">fermi_velocities</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">band</span> <span class="ow">in</span> <span class="n">fermi_bands</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">band</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">efermi</span> <span class="o">&lt;</span> <span class="n">band</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">efermi</span> <span class="o">&gt;</span> <span class="n">band</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">dk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">kpoints</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                              <span class="o">-</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+                             <span class="o">+</span> <span class="p">(</span><span class="n">kpoints</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                                <span class="o">-</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">v_f</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">((</span><span class="n">band</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">band</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">h_bar</span> <span class="o">*</span> <span class="n">dk</span><span class="p">))</span>
+                <span class="n">fermi_velocities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v_f</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fermi_velocities</span>  <span class="c1"># Values are in Angst./s</span></div>
+
+
+<div class="viewcode-block" id="find_dirac_nodes"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.find_dirac_nodes">[docs]</a><span class="k">def</span> <span class="nf">find_dirac_nodes</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Look for band crossings near (within `tol` eV) the Fermi level.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        boolean. Whether or not a band crossing occurs at or near</span>
+<span class="sd">            the fermi level.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span>
+    <span class="n">dirac</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">()</span><span class="o">.</span><span class="n">get_band_gap</span><span class="p">()[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+        <span class="n">efermi</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">efermi</span>
+        <span class="n">bsp</span> <span class="o">=</span> <span class="n">BSPlotter</span><span class="p">(</span><span class="n">vasprun</span><span class="o">.</span><span class="n">get_band_structure</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">,</span> <span class="n">line_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                   <span class="n">efermi</span><span class="o">=</span><span class="n">efermi</span><span class="p">))</span>
+        <span class="n">bands</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">bsp</span><span class="o">.</span><span class="n">bs_plot_data</span><span class="p">(</span><span class="n">zero_to_efermi</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">])):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bsp</span><span class="o">.</span><span class="n">_nb_bands</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">],</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+                     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]))]</span>
+                <span class="n">band</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span>
+                <span class="n">bands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">band</span><span class="p">)</span>
+
+        <span class="n">considered</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bands</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bands</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span> <span class="ow">and</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">considered</span><span class="p">:</span>
+                    <span class="n">considered</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bands</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])):</span>
+                        <span class="k">if</span> <span class="p">((</span><span class="o">-</span><span class="mf">0.1</span> <span class="o">&lt;</span> <span class="n">bands</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">)</span> <span class="ow">and</span>
+                                <span class="p">(</span><span class="o">-</span><span class="mf">0.1</span> <span class="o">&lt;</span> <span class="n">bands</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">bands</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">)):</span>
+                            <span class="n">dirac</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">dirac</span></div>
+
+
+<div class="viewcode-block" id="plot_spin_texture"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.electronic_structure.html#mpinterfaces.twod_materials.electronic_structure.analysis.plot_spin_texture">[docs]</a><span class="k">def</span> <span class="nf">plot_spin_texture</span><span class="p">(</span><span class="n">inner_index</span><span class="p">,</span> <span class="n">outer_index</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create six plots- one for the spin texture in x, y, and z in</span>
+<span class="sd">    each of two bands: an inner band and an outer band. For</span>
+<span class="sd">    Rashba spin-splitting, these two bands should be the two that</span>
+<span class="sd">    have split.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        inner_index (int): indices of the two spin-split bands.</span>
+<span class="sd">        outer_index (int): indices of the two spin-split bands.</span>
+<span class="sd">        center (tuple): coordinates of the center of the splitting</span>
+<span class="sd">            (where the bands cross). Defaults to Gamma.</span>
+<span class="sd">        fmt: matplotlib format style. Check the matplotlib</span>
+<span class="sd">            docs for options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">procar_lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;PROCAR&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">procar_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">n_kpts</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="n">n_bands</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span>
+    <span class="n">n_ions</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">11</span><span class="p">])</span>
+
+    <span class="c1"># These numbers, along with almost everything else in this</span>
+    <span class="c1"># function, are magical. Don&#39;t touch them.</span>
+    <span class="n">band_step</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_ions</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">4</span>
+    <span class="n">k_step</span> <span class="o">=</span> <span class="n">n_bands</span> <span class="o">*</span> <span class="n">band_step</span> <span class="o">+</span> <span class="mi">3</span>
+
+    <span class="n">kpoints</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">spin_textures</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;inner&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="p">[]},</span>
+                     <span class="s1">&#39;outer&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="p">[]}}</span>
+
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_kpts</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]:</span>
+            <span class="n">spin_textures</span><span class="p">[</span><span class="s1">&#39;inner&#39;</span><span class="p">][</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">spin_textures</span><span class="p">[</span><span class="s1">&#39;outer&#39;</span><span class="p">][</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">procar_lines</span><span class="p">):</span>
+        <span class="n">kpoints</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">procar_lines</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">18</span><span class="p">:</span><span class="mi">29</span><span class="p">])</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="nb">float</span><span class="p">(</span><span class="n">procar_lines</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">29</span><span class="p">:</span><span class="mi">40</span><span class="p">])</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">spin_textures</span><span class="p">[</span><span class="s1">&#39;inner&#39;</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">procar_lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="p">(</span><span class="n">n_ions</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">inner_index</span><span class="o">*</span><span class="n">band_step</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">spin_textures</span><span class="p">[</span><span class="s1">&#39;inner&#39;</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">procar_lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="p">(</span><span class="n">n_ions</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="n">inner_index</span><span class="o">*</span><span class="n">band_step</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">spin_textures</span><span class="p">[</span><span class="s1">&#39;inner&#39;</span><span class="p">][</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">procar_lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="p">(</span><span class="n">n_ions</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span><span class="o">+</span><span class="n">inner_index</span><span class="o">*</span><span class="n">band_step</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">spin_textures</span><span class="p">[</span><span class="s1">&#39;outer&#39;</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">procar_lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="p">(</span><span class="n">n_ions</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">outer_index</span><span class="o">*</span><span class="n">band_step</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">spin_textures</span><span class="p">[</span><span class="s1">&#39;outer&#39;</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">procar_lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="p">(</span><span class="n">n_ions</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="n">outer_index</span><span class="o">*</span><span class="n">band_step</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">spin_textures</span><span class="p">[</span><span class="s1">&#39;outer&#39;</span><span class="p">][</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">procar_lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="p">(</span><span class="n">n_ions</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span><span class="o">+</span><span class="n">outer_index</span><span class="o">*</span><span class="n">band_step</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="n">k_step</span>
+        <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">spin_textures</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">spin_textures</span><span class="p">[</span><span class="n">branch</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;plotting </span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">fmt</span><span class="p">))</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;polar&#39;</span><span class="p">)</span>
+
+            <span class="n">raw</span> <span class="o">=</span> <span class="p">[</span><span class="n">spin_textures</span><span class="p">[</span><span class="n">branch</span><span class="p">][</span><span class="n">vector</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kpoints</span><span class="p">))]</span>
+            <span class="n">minimum</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+            <span class="n">maximum</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">-</span> <span class="n">minimum</span>
+
+            <span class="n">r_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">kpt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">kpt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">kpt</span> <span class="ow">in</span> <span class="n">kpoints</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kpoints</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span>
+                <span class="k">elif</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">theta</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span>
+                <span class="k">elif</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">kpoints</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">kpoints</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">kpoints</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">w</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">w</span> <span class="o">=</span> <span class="n">r_max</span><span class="o">*</span><span class="mf">0.07</span><span class="o">/</span><span class="n">r</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">r</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">r_max</span><span class="o">*</span><span class="mf">0.07</span><span class="p">,</span>
+                        <span class="n">color</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span><span class="p">(</span>
+                            <span class="p">(</span><span class="n">spin_textures</span><span class="p">[</span><span class="n">branch</span><span class="p">][</span><span class="n">vector</span><span class="p">][</span><span class="n">l</span><span class="p">]</span><span class="o">-</span><span class="n">minimum</span><span class="p">)</span><span class="o">/</span><span class="n">maximum</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_rmax</span><span class="p">(</span><span class="n">r_max</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">fmt</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../../mpinterfaces.html">mpinterfaces</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

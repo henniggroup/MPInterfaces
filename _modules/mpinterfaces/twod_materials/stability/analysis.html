@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.twod_materials.stability.analysis &#8212; mpinterfaces  documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mpinterfaces.twod_materials.stability.analysis</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span>
+<span class="kn">from</span> <span class="nn">pymatgen.phasediagram.analyzer</span> <span class="k">import</span> <span class="n">PDAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.phasediagram.maker</span> <span class="k">import</span> <span class="n">PhaseDiagram</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces.twod_materials.utils.utils</span> <span class="k">import</span> <span class="n">is_converged</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.twod_materials</span> <span class="k">import</span> <span class="n">MPR</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ashtonmv@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
+
+
+<div class="viewcode-block" id="get_competing_phases"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.stability.html#mpinterfaces.twod_materials.stability.analysis.get_competing_phases">[docs]</a><span class="k">def</span> <span class="nf">get_competing_phases</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collect the species to which the material might decompose to.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of phases as tuples formatted as</span>
+<span class="sd">        [(formula_1, Materials_Project_ID_1),</span>
+<span class="sd">        (formula_2, Materials_Project_ID_2), ...]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">composition</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">composition</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">final_energy</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># The function can work without a vasprun.xml</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="n">MPR</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">([</span><span class="n">elt</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">composition</span><span class="p">])</span>
+    <span class="n">my_entry</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>
+    <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">my_entry</span><span class="p">)</span>
+
+    <span class="n">pda</span> <span class="o">=</span> <span class="n">PDAnalyzer</span><span class="p">(</span><span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">entries</span><span class="p">))</span>
+    <span class="n">decomp</span> <span class="o">=</span> <span class="n">pda</span><span class="o">.</span><span class="n">get_decomp_and_e_above_hull</span><span class="p">(</span><span class="n">my_entry</span><span class="p">,</span> <span class="n">allow_negative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">competing_phases</span> <span class="o">=</span> <span class="p">[(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">decomp</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="n">competing_phases</span></div>
+
+
+<div class="viewcode-block" id="get_hull_distance"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.stability.html#mpinterfaces.twod_materials.stability.analysis.get_hull_distance">[docs]</a><span class="k">def</span> <span class="nf">get_hull_distance</span><span class="p">(</span><span class="n">competing_phase_directory</span><span class="o">=</span><span class="s1">&#39;../competing_phases&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the material&#39;s distance to the thermodynamic hull,</span>
+<span class="sd">    based on species in the Materials Project database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        competing_phase_directory (str): absolute or relative path</span>
+<span class="sd">            to the location where your competing phases have been</span>
+<span class="sd">            relaxed. The default expectation is that they are stored</span>
+<span class="sd">            in a directory named &#39;competing_phases&#39; at the same level</span>
+<span class="sd">            as your material&#39;s relaxation directory.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        float: distance (eV/atom) between the material and the</span>
+<span class="sd">            hull.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">finished_competitors</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">original_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="c1"># Determine which competing phases have been relaxed in the current</span>
+    <span class="c1"># framework and store them in a dictionary ({formula: entry}).</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">competing_phase_directory</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">competing_phase_directory</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">comp_dir</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">dir</span> <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+                         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_converged</span><span class="p">(</span><span class="nb">dir</span><span class="p">)]:</span>
+            <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/vasprun.xml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp_dir</span><span class="p">))</span>
+            <span class="n">composition</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">composition</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">final_energy</span>
+            <span class="n">finished_competitors</span><span class="p">[</span><span class="n">comp_dir</span><span class="p">]</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">original_directory</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Competing phase directory does not exist.&#39;</span><span class="p">)</span>
+
+    <span class="n">composition</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">composition</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">final_energy</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;This directory does not have a converged vasprun.xml&#39;</span><span class="p">)</span>
+    <span class="n">my_entry</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="n">composition</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>  <span class="c1"># 2D material</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="n">MPR</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">([</span><span class="n">elt</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">composition</span><span class="p">])</span>
+
+    <span class="c1"># If the energies of competing phases have been calculated in</span>
+    <span class="c1"># the current framework, put them in the phase diagram instead</span>
+    <span class="c1"># of the MP energies.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)):</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
+        <span class="k">if</span> <span class="n">formula</span> <span class="ow">in</span> <span class="n">finished_competitors</span><span class="p">:</span>
+            <span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">finished_competitors</span><span class="p">[</span><span class="n">formula</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">my_entry</span><span class="p">)</span>  <span class="c1"># 2D material</span>
+
+    <span class="n">pda</span> <span class="o">=</span> <span class="n">PDAnalyzer</span><span class="p">(</span><span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">entries</span><span class="p">))</span>
+    <span class="n">decomp</span> <span class="o">=</span> <span class="n">pda</span><span class="o">.</span><span class="n">get_decomp_and_e_above_hull</span><span class="p">(</span><span class="n">my_entry</span><span class="p">,</span> <span class="n">allow_negative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">decomp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="plot_hull_distances"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.stability.html#mpinterfaces.twod_materials.stability.analysis.plot_hull_distances">[docs]</a><span class="k">def</span> <span class="nf">plot_hull_distances</span><span class="p">(</span><span class="n">hull_distances</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a bar graph of the formation energies of several 2D materials.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        hull_distances (dict): follow the format:</span>
+<span class="sd">            {reduced_formula: hull_distance (in eV/atom)}</span>
+<span class="sd">        fmt (str): matplotlib format style. Check the matplotlib</span>
+<span class="sd">            docs for options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">hsize</span> <span class="o">=</span> <span class="mi">12</span> <span class="o">+</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">hull_distances</span><span class="p">)</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">hsize</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">700</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hull_distances</span><span class="p">))</span>
+
+    <span class="n">x_ticklabels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">compound</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hull_distances</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">)):</span>
+
+        <span class="n">proper_formula</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">compound</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">proper_formula</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">proper_formula</span> <span class="o">+=</span> <span class="n">char</span>
+
+        <span class="n">x_ticklabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">proper_formula</span><span class="p">)</span>
+        <span class="n">hull_distance</span> <span class="o">=</span> <span class="n">hull_distances</span><span class="p">[</span><span class="n">compound</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">1000</span>
+
+        <span class="c1"># Good chance of stability</span>
+        <span class="k">if</span> <span class="n">hull_distance</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="n">color_code</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+        <span class="c1"># Decent chance of stability</span>
+        <span class="k">elif</span> <span class="n">hull_distance</span> <span class="o">&lt;</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="n">color_code</span> <span class="o">=</span> <span class="mf">0.71</span>
+
+        <span class="c1"># Poor chance of stability</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">color_code</span> <span class="o">=</span> <span class="mf">0.92</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">i</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">hull_distance</span><span class="p">,</span>
+                                   <span class="n">width</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                   <span class="n">facecolor</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">(</span><span class="n">color_code</span><span class="p">)))</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">hull_distances</span><span class="p">))])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">x_ticklabels</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_yticks</span><span class="p">(),</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{E_F\/(meV/atom)}$&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;stability_plot.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">),</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../../mpinterfaces.html">mpinterfaces</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

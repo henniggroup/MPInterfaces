@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.twod_materials.stability package &#8212; mpinterfaces  documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mpinterfaces.twod_materials.stability.tests package" href="mpinterfaces.twod_materials.stability.tests.html" />
+    <link rel="prev" title="mpinterfaces.twod_materials.pourbaix.tests package" href="mpinterfaces.twod_materials.pourbaix.tests.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="mpinterfaces-twod-materials-stability-package">
+<h1>mpinterfaces.twod_materials.stability package<a class="headerlink" href="#mpinterfaces-twod-materials-stability-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.twod_materials.stability.tests.html">mpinterfaces.twod_materials.stability.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.twod_materials.stability.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.twod_materials.stability.tests.html#module-mpinterfaces.twod_materials.stability.tests.test_stability">mpinterfaces.twod_materials.stability.tests.test_stability module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.twod_materials.stability.tests.html#module-mpinterfaces.twod_materials.stability.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-mpinterfaces.twod_materials.stability.analysis">
+<span id="mpinterfaces-twod-materials-stability-analysis-module"></span><h2>mpinterfaces.twod_materials.stability.analysis module<a class="headerlink" href="#module-mpinterfaces.twod_materials.stability.analysis" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.stability.analysis.get_competing_phases">
+<code class="descclassname">mpinterfaces.twod_materials.stability.analysis.</code><code class="descname">get_competing_phases</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/stability/analysis.html#get_competing_phases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.stability.analysis.get_competing_phases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect the species to which the material might decompose to.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>A list of phases as tuples formatted as
+[(formula_1, Materials_Project_ID_1),
+(formula_2, Materials_Project_ID_2), ...]</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.stability.analysis.get_hull_distance">
+<code class="descclassname">mpinterfaces.twod_materials.stability.analysis.</code><code class="descname">get_hull_distance</code><span class="sig-paren">(</span><em>competing_phase_directory='../competing_phases'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/stability/analysis.html#get_hull_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.stability.analysis.get_hull_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the material&#8217;s distance to the thermodynamic hull,
+based on species in the Materials Project database.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>competing_phase_directory (str): absolute or relative path</dt>
+<dd>to the location where your competing phases have been
+relaxed. The default expectation is that they are stored
+in a directory named &#8216;competing_phases&#8217; at the same level
+as your material&#8217;s relaxation directory.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>float: distance (eV/atom) between the material and the</dt>
+<dd>hull.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.stability.analysis.plot_hull_distances">
+<code class="descclassname">mpinterfaces.twod_materials.stability.analysis.</code><code class="descname">plot_hull_distances</code><span class="sig-paren">(</span><em>hull_distances</em>, <em>fmt='pdf'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/stability/analysis.html#plot_hull_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.stability.analysis.plot_hull_distances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a bar graph of the formation energies of several 2D materials.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>hull_distances (dict): follow the format:</dt>
+<dd>{reduced_formula: hull_distance (in eV/atom)}</dd>
+<dt>fmt (str): matplotlib format style. Check the matplotlib</dt>
+<dd>docs for options.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.twod_materials.stability.startup">
+<span id="mpinterfaces-twod-materials-stability-startup-module"></span><h2>mpinterfaces.twod_materials.stability.startup module<a class="headerlink" href="#module-mpinterfaces.twod_materials.stability.startup" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="mpinterfaces.twod_materials.stability.startup.relax">
+<code class="descclassname">mpinterfaces.twod_materials.stability.startup.</code><code class="descname">relax</code><span class="sig-paren">(</span><em>dim=2</em>, <em>submit=True</em>, <em>force_overwrite=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/twod_materials/stability/startup.html#relax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.twod_materials.stability.startup.relax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes input files and (optionally) submits a self-consistent
+relaxation. Should be run before pretty much anything else, in
+order to get the right energy and structure of the material.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">dim (int): 2 for relaxing a 2D material, 3 for a 3D material.
+submit (bool): Whether or not to submit the job.
+force_overwrite (bool): Whether or not to overwrite files</p>
+<blockquote class="last">
+<div>if an already converged vasprun.xml exists in the
+directory.</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mpinterfaces.twod_materials.stability">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mpinterfaces.twod_materials.stability" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">mpinterfaces.twod_materials.stability package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-mpinterfaces.twod_materials.stability.analysis">mpinterfaces.twod_materials.stability.analysis module</a></li>
+<li><a class="reference internal" href="#module-mpinterfaces.twod_materials.stability.startup">mpinterfaces.twod_materials.stability.startup module</a></li>
+<li><a class="reference internal" href="#module-mpinterfaces.twod_materials.stability">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="mpinterfaces.html">mpinterfaces package</a><ul>
+  <li><a href="mpinterfaces.twod_materials.html">mpinterfaces.twod_materials package</a><ul>
+      <li>Previous: <a href="mpinterfaces.twod_materials.pourbaix.tests.html" title="previous chapter">mpinterfaces.twod_materials.pourbaix.tests package</a></li>
+      <li>Next: <a href="mpinterfaces.twod_materials.stability.tests.html" title="next chapter">mpinterfaces.twod_materials.stability.tests package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/mpinterfaces.twod_materials.stability.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/mpinterfaces.twod_materials.stability.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

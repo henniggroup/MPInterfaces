@@ -1,259 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>mpinterfaces.data_processor &mdash; mpinterfaces 1.1.2alpha documentation</title>
-  
-
-  
-  
-
-  
-
-  
-  
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-
-  
-
-  
-  
-    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="../../index.html"/>
-        <link rel="up" title="mpinterfaces" href="../mpinterfaces.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
-</head>
-
-<body class="wy-body-for-nav" role="document">
-
-  <div class="wy-grid-for-nav">
-
+    <title>mpinterfaces.data_processor &#8212; mpinterfaces  documentation</title>
     
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-        
-          <a href="../../index.html" class="icon icon-home"> mpinterfaces
-        
+  </head>
+  <body role="document">
+  
 
-        
-        </a>
-
-        
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-
-        
-      </div>
-
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
-          
-          
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#prepping">Prepping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#get-the-latest-version">Get the latest version</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#documentation">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#usage">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#contributing">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#authors">Authors</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../mpinterfaces.html">mpinterfaces package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html#capabilities">Capabilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#interface-creation">Interface Creation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#offline-vasp-project-management">Offline vasp project management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#workflow-submission-and-launching">Workflow submission and launching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#workflow-query-examples">Workflow query examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#query-for-individual-fireworks">Query for individual Fireworks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#connecting-to-our-local-database">Connecting to our local Database</a></li>
-</ul>
-</li>
-</ul>
-
-          
-        
-      </div>
-      &nbsp;
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../../index.html">mpinterfaces</a>
-      </nav>
-
-
-      
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href="../../index.html">Docs</a> &raquo;</li>
-      
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      
-          <li><a href="../mpinterfaces.html">mpinterfaces</a> &raquo;</li>
-      
-    <li>mpinterfaces.data_processor</li>
-      <li class="wy-breadcrumbs-aside">
-        
-          
-        
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document">
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
             
   <h1>Source code for mpinterfaces.data_processor</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Henniggroup.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> \
+    <span class="n">absolute_import</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">process vasprun.xml file by walking through the enitre directory tree</span>
 <span class="sd">in the parent directory</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MontyEncoder</span><span class="p">,</span> <span class="n">MontyDecoder</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="kn">import</span> <span class="n">Vasprun</span>
-<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> <span class="n">ComputedEntry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.apps.borg.hive</span> <span class="kn">import</span> <span class="n">VaspToComputedEntryDrone</span>
-<span class="kn">from</span> <span class="nn">pymatgen.apps.borg.hive</span> <span class="kn">import</span> <span class="n">SimpleVaspToComputedEntryDrone</span><span class="p">,</span> \
-     <span class="n">_get_transformation_history</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedEntry</span><span class="p">,</span> \
+    <span class="n">ComputedStructureEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.apps.borg.hive</span> <span class="k">import</span> <span class="n">VaspToComputedEntryDrone</span>
+<span class="kn">from</span> <span class="nn">pymatgen.apps.borg.hive</span> <span class="k">import</span> <span class="n">_get_transformation_history</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-<span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%(levelname)s</span><span class="s">:</span><span class="si">%(name)s</span><span class="s">:</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
-<span class="n">sh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
-<span class="n">sh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.default_logger</span> <span class="k">import</span> <span class="n">get_default_logger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_default_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="MPINTComputedEntry"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTComputedEntry">[docs]</a><span class="k">class</span> <span class="nc">MPINTComputedEntry</span><span class="p">(</span><span class="n">ComputedEntry</span><span class="p">):</span>        
+<div class="viewcode-block" id="MPINTComputedEntry"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTComputedEntry">[docs]</a><span class="k">class</span> <span class="nc">MPINTComputedEntry</span><span class="p">(</span><span class="n">ComputedEntry</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        </span>
+
 <span class="sd">    extend ComputedEntry to include structure as well as kpoints</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                  <span class="n">parameters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">ComputedEntry</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span>
+                 <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ComputedEntry</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span>
                                <span class="n">correction</span><span class="o">=</span><span class="n">correction</span><span class="p">,</span>
                                <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
                                <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="n">entry_id</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="n">kpoints</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">incar</span> <span class="o">=</span> <span class="n">incar</span>
-        <span class="c">#self.data = {&quot;style&quot;: self.kpoints.style,</span>
-        <span class="c">#&#39;kpoints&#39;: self.kpoints.kpts, &#39;incar&#39;:self.incar.as_dict()}</span>
-        
+        <span class="c1"># self.data = {&quot;style&quot;: self.kpoints.style,</span>
+        <span class="c1"># &#39;kpoints&#39;: self.kpoints.kpts, &#39;incar&#39;:self.incar.as_dict()}</span>
+
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;MPINTComputedEntry {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span><span class="p">),</span>
-                  <span class="s">&quot;Energy = {:.4f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uncorrected_energy</span><span class="p">),</span>
-                  <span class="s">&quot;Correction = {:.4f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">correction</span><span class="p">),</span> <span class="s">&quot;Parameters:&quot;</span><span class="p">]</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MPINTComputedEntry </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span><span class="p">),</span>
+                  <span class="s2">&quot;Energy = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uncorrected_energy</span><span class="p">),</span>
+                  <span class="s2">&quot;Correction = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">correction</span><span class="p">),</span> <span class="s2">&quot;Parameters:&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;{} = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Data:&quot;</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Data:&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;{} = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
-        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__repr__</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="MPINTComputedEntry.as_dict"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTComputedEntry.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ComputedEntry</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;kpoints&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;incar&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>                
-        <span class="k">return</span> <span class="n">d</span>
-</div>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MPINTComputedEntry.from_dict"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTComputedEntry.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;structure&quot;</span><span class="p">],</span>
-                                       <span class="n">d</span><span class="p">[</span><span class="s">&quot;kpoints&quot;</span><span class="p">],</span>
-                                       <span class="n">d</span><span class="p">[</span><span class="s">&quot;incar&quot;</span><span class="p">]),</span>
-                   <span class="n">d</span><span class="p">[</span><span class="s">&quot;energy&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;correction&quot;</span><span class="p">],</span>
-                   <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;parameters&quot;</span><span class="p">,</span> <span class="p">{})),</span>
-                   <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;data&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)),</span>
-                   <span class="n">entry_id</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;entry_id&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;incar&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">d</span></div>
 
-</div></div>
-<div class="viewcode-block" id="MPINTVasprun"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTVasprun">[docs]</a><span class="k">class</span> <span class="nc">MPINTVasprun</span><span class="p">(</span><span class="n">Vasprun</span><span class="p">):</span>        
-    <span class="sd">&quot;&quot;&quot;        </span>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MPINTComputedEntry.from_dict"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTComputedEntry.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">],</span>
+                                       <span class="n">d</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">],</span>
+                                       <span class="n">d</span><span class="p">[</span><span class="s2">&quot;incar&quot;</span><span class="p">]),</span>
+                   <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;correction&quot;</span><span class="p">],</span>
+                   <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+                   <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+                   <span class="n">entry_id</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;entry_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="MPINTVasprun"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTVasprun">[docs]</a><span class="k">class</span> <span class="nc">MPINTVasprun</span><span class="p">(</span><span class="n">Vasprun</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extend Vasprun to use custom ComputedEntry: MPINTComputedEntry</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">ionic_step_skip</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">ionic_step_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dos</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-                 <span class="n">parse_eigen</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                 <span class="n">parse_potcar_file</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        
-        <span class="n">Vasprun</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">ionic_step_skip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">ionic_step_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">parse_eigen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">parse_potcar_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="n">Vasprun</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
                          <span class="n">ionic_step_skip</span><span class="o">=</span><span class="n">ionic_step_skip</span><span class="p">,</span>
-                         <span class="n">ionic_step_offset</span><span class="o">=</span><span class="n">ionic_step_offset</span><span class="p">,</span> 
-                         <span class="n">parse_dos</span><span class="o">=</span><span class="n">parse_dos</span><span class="p">,</span> <span class="n">parse_eigen</span><span class="o">=</span><span class="n">parse_eigen</span><span class="p">,</span> 
+                         <span class="n">ionic_step_offset</span><span class="o">=</span><span class="n">ionic_step_offset</span><span class="p">,</span>
+                         <span class="n">parse_dos</span><span class="o">=</span><span class="n">parse_dos</span><span class="p">,</span> <span class="n">parse_eigen</span><span class="o">=</span><span class="n">parse_eigen</span><span class="p">,</span>
                          <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="n">parse_projected_eigen</span><span class="p">,</span>
                          <span class="n">parse_potcar_file</span><span class="o">=</span><span class="n">parse_potcar_file</span><span class="p">)</span>
-            
-<div class="viewcode-block" id="MPINTVasprun.get_computed_entry"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTVasprun.get_computed_entry">[docs]</a>    <span class="k">def</span> <span class="nf">get_computed_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inc_structure</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
-                           <span class="n">inc_incar_n_kpoints</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                           <span class="n">parameters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MPINTVasprun.get_computed_entry"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTVasprun.get_computed_entry">[docs]</a>    <span class="k">def</span> <span class="nf">get_computed_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inc_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">inc_incar_n_kpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a ComputedEntry from the vasprun.</span>
 
@@ -262,33 +153,32 @@
 <span class="sd">                ComputedStructureEntries to be returned instead of</span>
 <span class="sd">                ComputedEntries.</span>
 <span class="sd">            inc_incar_n_kpoints (bool): along with inc_structure set</span>
-<span class="sd">                to True if you want MPINTComputedEntries to be </span>
+<span class="sd">                to True if you want MPINTComputedEntries to be</span>
 <span class="sd">                returned</span>
-<span class="sd">            parameters (list): Input parameters to include. </span>
-<span class="sd">                It has to be one of the properties supported by the </span>
-<span class="sd">                Vasprun object. If parameters == None, a default set </span>
-<span class="sd">                of parameters that are necessary for typical </span>
+<span class="sd">            parameters (list): Input parameters to include.</span>
+<span class="sd">                It has to be one of the properties supported by the</span>
+<span class="sd">                Vasprun object. If parameters == None, a default set</span>
+<span class="sd">                of parameters that are necessary for typical</span>
 <span class="sd">                post-processing will be set.</span>
-<span class="sd">            data (list): Output data to include. Has to be one of the </span>
+<span class="sd">            data (list): Output data to include. Has to be one of the</span>
 <span class="sd">                properties supported by the Vasprun object.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            ComputedStructureEntry/ComputedEntry</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">param_names</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;is_hubbard&quot;</span><span class="p">,</span> <span class="s">&quot;hubbards&quot;</span><span class="p">,</span> <span class="s">&quot;potcar_symbols&quot;</span><span class="p">,</span>
-                       <span class="s">&quot;run_type&quot;</span><span class="p">}</span>
+        <span class="n">param_names</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;is_hubbard&quot;</span><span class="p">,</span> <span class="s2">&quot;hubbards&quot;</span><span class="p">,</span> <span class="s2">&quot;potcar_symbols&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;run_type&quot;</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
             <span class="n">param_names</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">param_names</span><span class="p">}</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">data</span><span class="p">}</span> <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="p">{}</span>
-
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">data</span><span class="p">}</span> <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
 
         <span class="k">if</span> <span class="n">inc_structure</span> <span class="ow">and</span> <span class="n">inc_incar_n_kpoints</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">MPINTComputedEntry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">,</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="p">,</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span><span class="p">,</span>
                                       <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-        
+
         <span class="k">elif</span> <span class="n">inc_structure</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ComputedStructureEntry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">,</span>
                                           <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span><span class="p">,</span>
@@ -297,129 +187,115 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span>
                                  <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
-                                 <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+                                 <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div></div>
 
-        </div></div>
-<div class="viewcode-block" id="MPINTVaspDrone"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTVaspDrone">[docs]</a><span class="k">class</span> <span class="nc">MPINTVaspDrone</span><span class="p">(</span><span class="n">VaspToComputedEntryDrone</span><span class="p">):</span>        
+
+<div class="viewcode-block" id="MPINTVaspDrone"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTVaspDrone">[docs]</a><span class="k">class</span> <span class="nc">MPINTVaspDrone</span><span class="p">(</span><span class="n">VaspToComputedEntryDrone</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    extend VaspToComputedEntryDrone to use the custom </span>
-<span class="sd">    Vasprun: MPINTVasprun    </span>
+<span class="sd">    extend VaspToComputedEntryDrone to use the custom</span>
+<span class="sd">    Vasprun: MPINTVasprun</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inc_structure</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  <span class="n">inc_incar_n_kpoints</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                 <span class="n">parameters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">VaspToComputedEntryDrone</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inc_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inc_incar_n_kpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">VaspToComputedEntryDrone</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                                           <span class="n">inc_structure</span><span class="o">=</span><span class="n">inc_structure</span><span class="p">,</span>
-                                           <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
-                                           <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+                                          <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                                          <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span> <span class="o">=</span> <span class="n">inc_structure</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_inc_incar_n_kpoints</span> <span class="o">=</span> <span class="n">inc_incar_n_kpoints</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inc_incar_n_kpoints</span> <span class="o">=</span> <span class="n">inc_incar_n_kpoints</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
 
 <div class="viewcode-block" id="MPINTVaspDrone.assimilate"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTVaspDrone.assimilate">[docs]</a>    <span class="k">def</span> <span class="nf">assimilate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s">&quot;relax1&quot;</span> <span class="ow">in</span> <span class="n">files</span> <span class="ow">and</span> <span class="s">&quot;relax2&quot;</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-            <span class="n">filepath</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;relax2&quot;</span><span class="p">,</span>
-                                              <span class="s">&quot;vasprun.xml*&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;relax1&quot;</span> <span class="ow">in</span> <span class="n">files</span> <span class="ow">and</span> <span class="s2">&quot;relax2&quot;</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;relax2&quot;</span><span class="p">,</span>
+                                              <span class="s2">&quot;vasprun.xml*&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">vasprun_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;vasprun.xml*&quot;</span><span class="p">))</span>
-            <span class="n">filepath</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">vasprun_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;vasprun.xml*&quot;</span><span class="p">))</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vasprun_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">filepath</span> <span class="o">=</span> <span class="n">vasprun_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">vasprun_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">vasprun_files</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;vasprun.xml&quot;</span><span class="p">,</span>
-                                                   <span class="s">&quot;vasprun.xml.gz&quot;</span><span class="p">,</span>
-                                                   <span class="s">&quot;vasprun.xml.bz2&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vasprun.xml&quot;</span><span class="p">,</span>
+                                                   <span class="s2">&quot;vasprun.xml.gz&quot;</span><span class="p">,</span>
+                                                   <span class="s2">&quot;vasprun.xml.bz2&quot;</span><span class="p">]:</span>
                         <span class="n">filepath</span> <span class="o">=</span> <span class="n">fname</span>
                         <span class="k">break</span>
-                    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&quot;relax2&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;relax2&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
                         <span class="n">filepath</span> <span class="o">=</span> <span class="n">fname</span>
                         <span class="k">break</span>
                     <span class="n">filepath</span> <span class="o">=</span> <span class="n">fname</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">vasprun</span> <span class="o">=</span> <span class="n">MPINTVasprun</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;vasprun read error in {}: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">ex</span><span class="p">))</span>
-            <span class="k">return</span> <span class="bp">None</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;vasprun read error in </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">ex</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="n">entry</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">get_computed_entry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span><span class="p">,</span>
-                                            <span class="bp">self</span><span class="o">.</span><span class="n">_inc_incar_n_kpoints</span><span class="p">,</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">_inc_incar_n_kpoints</span><span class="p">,</span>
                                            <span class="n">parameters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">,</span>
                                            <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
-        <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s">&quot;history&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_get_transformation_history</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">entry</span>
-</div>
+        <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;history&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_get_transformation_history</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">entry</span></div>
+
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot; MPINTVaspDrone&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot; MPINTVaspDrone&quot;</span>
 
 <div class="viewcode-block" id="MPINTVaspDrone.as_dict"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTVaspDrone.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;init_args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;inc_structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span><span class="p">,</span>
-                              <span class="s">&quot;inc_incar_n_kpoints&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_incar_n_kpoints</span><span class="p">,</span>
-                              <span class="s">&quot;parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">,</span>
-                              <span class="s">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">},</span>
-                <span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span>
-                <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
-                <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">}</span>
-</div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;init_args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;inc_structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span><span class="p">,</span>
+                              <span class="s2">&quot;inc_incar_n_kpoints&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_incar_n_kpoints</span><span class="p">,</span>
+                              <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">,</span>
+                              <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">},</span>
+                <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span></div>
+
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MPINTVaspDrone.from_dict"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTVaspDrone.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;init_args&quot;</span><span class="p">])</span></div></div>
+<div class="viewcode-block" id="MPINTVaspDrone.from_dict"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.data_processor.MPINTVaspDrone.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;init_args&quot;</span><span class="p">])</span></div></div>
 </pre></div>
 
           </div>
-          <footer>
-  
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>
-        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
-    </p>
-  </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-
-</footer>
-
         </div>
       </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../mpinterfaces.html">mpinterfaces</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
 
-    </section>
+    
 
-  </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'1.1.2alpha',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
-      });
-  </script>
-   
-
-</body>
+    
+  </body>
 </html>

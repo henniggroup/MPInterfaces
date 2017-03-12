@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.twod_materials.intercalation.startup &#8212; mpinterfaces  documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mpinterfaces.twod_materials.intercalation.startup</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.point_defects</span> <span class="k">import</span> <span class="n">Interstitial</span><span class="p">,</span> \
+    <span class="n">ValenceIonicRadiusEvaluator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ashtonmv@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">zeo</span>
+    <span class="n">zeo_found</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">zeo_found</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="nd">@requires</span><span class="p">(</span><span class="n">zeo_found</span><span class="p">,</span> <span class="s1">&#39;get_voronoi_nodes requires Zeo++ cython extension to be &#39;</span>
+          <span class="s1">&#39;installed. Please contact developers of Zeo++ to obtain it.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="inject_ions"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.intercalation.html#mpinterfaces.twod_materials.intercalation.startup.inject_ions">[docs]</a><span class="k">def</span> <span class="nf">inject_ions</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">atomic_fraction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds ions to a percentage of interstitial sites into a structure</span>
+<span class="sd">    that results in an at% less than or equal to the specified</span>
+<span class="sd">    atomic_fraction. Starts by filling interstitial sites with the</span>
+<span class="sd">    largest voronoi radius, and then works downward.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure (Structure): Pymatgen Structure object to</span>
+<span class="sd">            intercalate into.</span>
+<span class="sd">        ion (str): name of atom to intercalate, e.g. &#39;Li&#39;, or &#39;Mg&#39;.</span>
+<span class="sd">        atomic_fraction (int): This fraction of the final intercalated</span>
+<span class="sd">            structure will be intercalated atoms. Must be &lt; 1.0.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        structure. Includes intercalated atoms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">specie</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span>
+
+    <span class="c1"># If the structure isn&#39;t big enough to accomodate such a small</span>
+    <span class="c1"># atomic fraction, multiply it in the x direction.</span>
+    <span class="n">n_ions</span> <span class="o">=</span> <span class="mf">1.</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">n_ions</span> <span class="o">/</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span> <span class="o">&lt;=</span> <span class="n">atomic_fraction</span><span class="p">:</span>
+        <span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">evaluator</span> <span class="o">=</span> <span class="n">ValenceIonicRadiusEvaluator</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+    <span class="n">interstitial</span> <span class="o">=</span> <span class="n">Interstitial</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="n">evaluator</span><span class="o">.</span><span class="n">radii</span><span class="p">,</span>
+                                <span class="n">valences</span><span class="o">=</span><span class="n">evaluator</span><span class="o">.</span><span class="n">valences</span><span class="p">)</span>
+
+    <span class="n">interstitial_sites</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">_fcoords</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;voronoi_radius&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">interstitial</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">]</span>
+
+    <span class="c1"># Sort the interstitial sites by their voronoi radii.</span>
+    <span class="n">interstitial_sites</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">interstitial_sites</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">n_ions</span> <span class="o">/</span> <span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">atomic_fraction</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">specie</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">interstitial_sites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                             <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">n_ions</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">evaluator</span> <span class="o">=</span> <span class="n">ValenceIonicRadiusEvaluator</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+            <span class="n">interstitial</span> <span class="o">=</span> <span class="n">Interstitial</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="n">evaluator</span><span class="o">.</span><span class="n">radii</span><span class="p">,</span>
+                                        <span class="n">valences</span><span class="o">=</span><span class="n">evaluator</span><span class="o">.</span><span class="n">valences</span><span class="p">)</span>
+
+            <span class="n">interstitial_sites</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">_fcoords</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;voronoi_radius&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">interstitial</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">]</span>
+
+            <span class="c1"># Sort the interstitial sites by their voronoi radii.</span>
+            <span class="n">interstitial_sites</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">interstitial_sites</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The atomic_fraction specified exceeds the &#39;</span>
+                             <span class="s1">&#39;number of available interstitial sites in this &#39;</span>
+                             <span class="s1">&#39;structure. Please choose a smaller &#39;</span>
+                             <span class="s1">&#39;atomic_fraction.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">structure</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../../mpinterfaces.html">mpinterfaces</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

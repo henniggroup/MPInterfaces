@@ -1,163 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>mpinterfaces.database &mdash; mpinterfaces 1.1.2alpha documentation</title>
-  
-
-  
-  
-
-  
-
-  
-  
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-
-  
-
-  
-  
-    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="../../index.html"/>
-        <link rel="up" title="mpinterfaces" href="../mpinterfaces.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
-</head>
-
-<body class="wy-body-for-nav" role="document">
-
-  <div class="wy-grid-for-nav">
-
+    <title>mpinterfaces.database &#8212; mpinterfaces  documentation</title>
     
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-        
-          <a href="../../index.html" class="icon icon-home"> mpinterfaces
-        
+  </head>
+  <body role="document">
+  
 
-        
-        </a>
-
-        
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-
-        
-      </div>
-
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
-          
-          
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#prepping">Prepping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#get-the-latest-version">Get the latest version</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#documentation">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#usage">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#contributing">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#authors">Authors</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../mpinterfaces.html">mpinterfaces package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html#capabilities">Capabilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#interface-creation">Interface Creation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#offline-vasp-project-management">Offline vasp project management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#workflow-submission-and-launching">Workflow submission and launching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#workflow-query-examples">Workflow query examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#query-for-individual-fireworks">Query for individual Fireworks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#connecting-to-our-local-database">Connecting to our local Database</a></li>
-</ul>
-</li>
-</ul>
-
-          
-        
-      </div>
-      &nbsp;
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../../index.html">mpinterfaces</a>
-      </nav>
-
-
-      
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href="../../index.html">Docs</a> &raquo;</li>
-      
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      
-          <li><a href="../mpinterfaces.html">mpinterfaces</a> &raquo;</li>
-      
-    <li>mpinterfaces.database</li>
-      <li class="wy-breadcrumbs-aside">
-        
-          
-        
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document">
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
             
   <h1>Source code for mpinterfaces.database</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Henniggroup.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> \
+    <span class="n">absolute_import</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Put data into mongo database</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">range</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -167,153 +63,154 @@
 <span class="kn">import</span> <span class="nn">string</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> \
-    <span class="n">Outcar</span><span class="p">,</span> <span class="n">Oszicar</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="kn">import</span> <span class="n">BVAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
 
-<span class="kn">from</span> <span class="nn">matgendb.creator</span> <span class="kn">import</span> <span class="n">VaspToDbTaskDrone</span>
-<span class="kn">from</span> <span class="nn">matgendb.creator</span> <span class="kn">import</span> <span class="n">logger</span> <span class="k">as</span> <span class="n">mgdb_logger</span>
+<span class="kn">from</span> <span class="nn">matgendb.creator</span> <span class="k">import</span> <span class="n">VaspToDbTaskDrone</span>
+<span class="kn">from</span> <span class="nn">matgendb.creator</span> <span class="k">import</span> <span class="n">logger</span> <span class="k">as</span> <span class="n">mgdb_logger</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-<span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%(levelname)s</span><span class="s">:</span><span class="si">%(name)s</span><span class="s">:</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
+<span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%(levelname)s</span><span class="s1">:</span><span class="si">%(name)s</span><span class="s1">:</span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="n">sh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
 <span class="n">sh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
 <span class="n">mgdb_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="MPINTVaspToDbTaskDrone"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.database.MPINTVaspToDbTaskDrone">[docs]</a><span class="k">class</span> <span class="nc">MPINTVaspToDbTaskDrone</span><span class="p">(</span><span class="n">VaspToDbTaskDrone</span><span class="p">):</span>  
+<div class="viewcode-block" id="MPINTVaspToDbTaskDrone"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.database.MPINTVaspToDbTaskDrone">[docs]</a><span class="k">class</span> <span class="nc">MPINTVaspToDbTaskDrone</span><span class="p">(</span><span class="n">VaspToDbTaskDrone</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    subclassing VaspToDbTaskDrone</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">27017</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s">&quot;vasp&quot;</span><span class="p">,</span>
-                 <span class="n">user</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s">&quot;nanoparticles&quot;</span><span class="p">,</span>
-                 <span class="n">parse_dos</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">compress_dos</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                 <span class="n">simulate_mode</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                 <span class="n">additional_fields</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">update_duplicates</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-                 <span class="n">mapi_key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">use_full_uri</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">runs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">VaspToDbTaskDrone</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> 
-                                   <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> 
-                                   <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> 
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">27017</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s2">&quot;vasp&quot;</span><span class="p">,</span>
+                 <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="s2">&quot;nanoparticles&quot;</span><span class="p">,</span>
+                 <span class="n">parse_dos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compress_dos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">simulate_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">additional_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">update_duplicates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">mapi_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_full_uri</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">runs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">VaspToDbTaskDrone</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+                                   <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                                   <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
                                    <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span>
-                                   <span class="n">parse_dos</span><span class="o">=</span><span class="n">parse_dos</span><span class="p">,</span> 
+                                   <span class="n">parse_dos</span><span class="o">=</span><span class="n">parse_dos</span><span class="p">,</span>
                                    <span class="n">compress_dos</span><span class="o">=</span><span class="n">compress_dos</span><span class="p">,</span>
-                                   <span class="n">simulate_mode</span><span class="o">=</span><span class="n">simulate_mode</span><span class="p">,</span> 
+                                   <span class="n">simulate_mode</span><span class="o">=</span><span class="n">simulate_mode</span><span class="p">,</span>
                                    <span class="n">additional_fields</span><span class="o">=</span><span class="n">additional_fields</span><span class="p">,</span>
                                    <span class="n">update_duplicates</span><span class="o">=</span><span class="n">update_duplicates</span><span class="p">,</span>
-                                   <span class="n">mapi_key</span><span class="o">=</span><span class="n">mapi_key</span><span class="p">,</span> 
+                                   <span class="n">mapi_key</span><span class="o">=</span><span class="n">mapi_key</span><span class="p">,</span>
                                    <span class="n">use_full_uri</span><span class="o">=</span><span class="n">use_full_uri</span><span class="p">,</span>
                                    <span class="n">runs</span><span class="o">=</span><span class="n">runs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MPINTVaspToDbTaskDrone.generate_doc"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.database.MPINTVaspToDbTaskDrone.generate_doc">[docs]</a>    <span class="k">def</span> <span class="nf">generate_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dir_name</span><span class="p">,</span> <span class="n">vasprun_files</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Overridden</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span>
-                <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_fields</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;dir_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fullpath</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;schema_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VaspToDbTaskDrone</span><span class="o">.</span><span class="n">__version__</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;calculations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">process_vasprun</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">taskname</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">taskname</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">vasprun_files</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
-                <span class="n">d1</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;calculations&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">d2</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;calculations&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="c">#Now map some useful info to the root level.</span>
-                <span class="k">for</span> <span class="n">root_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;completed_at&quot;</span><span class="p">,</span> <span class="s">&quot;nsites&quot;</span><span class="p">,</span>
-                                 <span class="s">&quot;unit_cell_formula&quot;</span><span class="p">,</span>
-                                 <span class="s">&quot;reduced_cell_formula&quot;</span><span class="p">,</span>
-                                 <span class="s">&quot;pretty_formula&quot;</span><span class="p">,</span>
-                                 <span class="s">&quot;elements&quot;</span><span class="p">,</span> <span class="s">&quot;nelements&quot;</span><span class="p">,</span> <span class="s">&quot;cif&quot;</span><span class="p">,</span>
-                                 <span class="s">&quot;density&quot;</span><span class="p">,</span>
-                                 <span class="s">&quot;is_hubbard&quot;</span><span class="p">,</span> <span class="s">&quot;hubbards&quot;</span><span class="p">,</span> <span class="s">&quot;run_type&quot;</span><span class="p">]:</span>
-                    <span class="n">d</span><span class="p">[</span><span class="n">root_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">d2</span><span class="p">[</span><span class="n">root_key</span><span class="p">]</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;chemsys&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">d2</span><span class="p">[</span><span class="s">&quot;elements&quot;</span><span class="p">]))</span>
-                <span class="c">#store any overrides to the exchange correlation functional</span>
-                <span class="n">xc</span> <span class="o">=</span> <span class="n">d2</span><span class="p">[</span><span class="s">&quot;input&quot;</span><span class="p">][</span><span class="s">&quot;incar&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;GGA&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">xc</span><span class="p">:</span>
-                    <span class="n">xc</span> <span class="o">=</span> <span class="n">xc</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;crystal&quot;</span><span class="p">:</span> <span class="n">d1</span><span class="p">[</span><span class="s">&quot;input&quot;</span><span class="p">][</span><span class="s">&quot;crystal&quot;</span><span class="p">],</span>
-                              <span class="s">&quot;is_lasph&quot;</span><span class="p">:</span> <span class="n">d2</span><span class="p">[</span><span class="s">&quot;input&quot;</span><span class="p">][</span><span class="s">&quot;incar&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;LASPH&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
-                              <span class="s">&quot;potcar_spec&quot;</span><span class="p">:</span> <span class="n">d1</span><span class="p">[</span><span class="s">&quot;input&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;potcar_spec&quot;</span><span class="p">),</span>
-                              <span class="s">&quot;xc_override&quot;</span><span class="p">:</span> <span class="n">xc</span><span class="p">}</span>
-                <span class="n">vals</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d2</span><span class="p">[</span><span class="s">&quot;reduced_cell_formula&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;anonymous_formula&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">))}</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s">&quot;crystal&quot;</span><span class="p">:</span> <span class="n">d2</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;crystal&quot;</span><span class="p">],</span>
-                    <span class="s">&quot;final_energy&quot;</span><span class="p">:</span> <span class="n">d2</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;final_energy&quot;</span><span class="p">],</span>
-                    <span class="s">&quot;final_energy_per_atom&quot;</span><span class="p">:</span> <span class="n">d2</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;final_energy_per_atom&quot;</span><span class="p">]}</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;vasp&quot;</span>
-                <span class="n">p</span> <span class="o">=</span> <span class="n">d2</span><span class="p">[</span><span class="s">&quot;input&quot;</span><span class="p">][</span><span class="s">&quot;potcar_type&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;_&quot;</span><span class="p">)</span>
-                <span class="n">pot_type</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">functional</span> <span class="o">=</span> <span class="s">&quot;lda&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_type</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;pseudo_potential&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;functional&quot;</span><span class="p">:</span> <span class="n">functional</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
-                                         <span class="s">&quot;pot_type&quot;</span><span class="p">:</span> <span class="n">pot_type</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
-                                         <span class="s">&quot;labels&quot;</span><span class="p">:</span> <span class="n">d2</span><span class="p">[</span><span class="s">&quot;input&quot;</span><span class="p">][</span><span class="s">&quot;potcar&quot;</span><span class="p">]}</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;calculations&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="n">vasprun_files</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;relax1&quot;</span><span class="p">:</span>
-                    <span class="n">d</span><span class="p">[</span><span class="s">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;successful&quot;</span> <span class="k">if</span> <span class="n">d2</span><span class="p">[</span><span class="s">&quot;has_vasp_completed&quot;</span><span class="p">]</span> \
-                        <span class="k">else</span> <span class="s">&quot;unsuccessful&quot;</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">d</span><span class="p">[</span><span class="s">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;stopped&quot;</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;analysis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis_and_error_checks</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-                <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;crystal&quot;</span><span class="p">]),</span><span class="mf">0.1</span><span class="p">)</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;spacegroup&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;symbol&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_spacegroup_symbol</span><span class="p">(),</span>
-                                   <span class="s">&quot;number&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_spacegroup_number</span><span class="p">(),</span>
-                                   <span class="s">&quot;point_group&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_point_group</span><span class="p">(),</span>
-                                   <span class="s">&quot;source&quot;</span><span class="p">:</span> <span class="s">&quot;spglib&quot;</span><span class="p">,</span>
-                                   <span class="s">&quot;crystal_system&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_crystal_system</span><span class="p">(),</span>
-                                   <span class="s">&quot;hall&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_hall</span><span class="p">()}</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;last_updated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
-                <span class="k">return</span> <span class="n">d</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="kn">import</span> <span class="nn">traceback</span>
-                <span class="k">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Error in &quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span> <span class="o">+</span>
-                             <span class="s">&quot;.</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
-                <span class="k">return</span> <span class="bp">None</span>
-</div>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overridden</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_fields</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;dir_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fullpath</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;schema_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VaspToDbTaskDrone</span><span class="o">.</span><span class="n">__version__</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;calculations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process_vasprun</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">taskname</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">taskname</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">vasprun_files</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="n">d1</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;calculations&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d2</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;calculations&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># Now map some useful info to the root level.</span>
+            <span class="k">for</span> <span class="n">root_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;completed_at&quot;</span><span class="p">,</span> <span class="s2">&quot;nsites&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;unit_cell_formula&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;reduced_cell_formula&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;pretty_formula&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;elements&quot;</span><span class="p">,</span> <span class="s2">&quot;nelements&quot;</span><span class="p">,</span> <span class="s2">&quot;cif&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;density&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;is_hubbard&quot;</span><span class="p">,</span> <span class="s2">&quot;hubbards&quot;</span><span class="p">,</span> <span class="s2">&quot;run_type&quot;</span><span class="p">]:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">root_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">d2</span><span class="p">[</span><span class="n">root_key</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;chemsys&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">d2</span><span class="p">[</span><span class="s2">&quot;elements&quot;</span><span class="p">]))</span>
+            <span class="c1"># store any overrides to the exchange correlation functional</span>
+            <span class="n">xc</span> <span class="o">=</span> <span class="n">d2</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="s2">&quot;incar&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">xc</span><span class="p">:</span>
+                <span class="n">xc</span> <span class="o">=</span> <span class="n">xc</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;crystal&quot;</span><span class="p">:</span> <span class="n">d1</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="s2">&quot;crystal&quot;</span><span class="p">],</span>
+                          <span class="s2">&quot;is_lasph&quot;</span><span class="p">:</span> <span class="n">d2</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="s2">&quot;incar&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LASPH&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                          <span class="s2">&quot;potcar_spec&quot;</span><span class="p">:</span> <span class="n">d1</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;potcar_spec&quot;</span><span class="p">),</span>
+                          <span class="s2">&quot;xc_override&quot;</span><span class="p">:</span> <span class="n">xc</span><span class="p">}</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d2</span><span class="p">[</span><span class="s2">&quot;reduced_cell_formula&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;anonymous_formula&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                                      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">))}</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;crystal&quot;</span><span class="p">:</span> <span class="n">d2</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;crystal&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;final_energy&quot;</span><span class="p">:</span> <span class="n">d2</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;final_energy&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;final_energy_per_atom&quot;</span><span class="p">:</span> <span class="n">d2</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;final_energy_per_atom&quot;</span><span class="p">]}</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;vasp&quot;</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">d2</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="s2">&quot;potcar_type&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="n">pot_type</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">functional</span> <span class="o">=</span> <span class="s2">&quot;lda&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pot_type</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;pseudo_potential&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;functional&quot;</span><span class="p">:</span> <span class="n">functional</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                                     <span class="s2">&quot;pot_type&quot;</span><span class="p">:</span> <span class="n">pot_type</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                                     <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="n">d2</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="s2">&quot;potcar&quot;</span><span class="p">]}</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;calculations&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span> <span class="ow">or</span> \
+                    <span class="nb">list</span><span class="p">(</span><span class="n">vasprun_files</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;relax1&quot;</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;successful&quot;</span> <span class="k">if</span> <span class="n">d2</span><span class="p">[</span><span class="s2">&quot;has_vasp_completed&quot;</span><span class="p">]</span> \
+                    <span class="k">else</span> <span class="s2">&quot;unsuccessful&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;stopped&quot;</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;analysis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">analysis_and_error_checks</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span>
+                <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;crystal&quot;</span><span class="p">]),</span> <span class="mf">0.1</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;spacegroup&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_spacegroup_symbol</span><span class="p">(),</span>
+                               <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_spacegroup_number</span><span class="p">(),</span>
+                               <span class="s2">&quot;point_group&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_point_group</span><span class="p">(),</span>
+                               <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;spglib&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;crystal_system&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_crystal_system</span><span class="p">(),</span>
+                               <span class="s2">&quot;hall&quot;</span><span class="p">:</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_hall</span><span class="p">()}</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;last_updated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">d</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">traceback</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error in &quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span> <span class="o">+</span>
+                         <span class="s2">&quot;.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
 <div class="viewcode-block" id="MPINTVaspToDbTaskDrone.post_process"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.database.MPINTVaspToDbTaskDrone.post_process">[docs]</a>    <span class="k">def</span> <span class="nf">post_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dir_name</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        customization:</span>
 <span class="sd">            adds system.json to the dictionary</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Post-processing dir:{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dir_name</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Post-processing dir:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dir_name</span><span class="p">))</span>
         <span class="n">fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fullpath</span><span class="p">,</span> <span class="s">&quot;system.json&quot;</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fullpath</span><span class="p">,</span> <span class="s2">&quot;system.json&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">system</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;hkl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;hkl&quot;</span><span class="p">)</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;ligand&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ligand&quot;</span><span class="p">)</span>
-        <span class="c"># from pyamtgen-db</span>
-        <span class="c"># Parse OUTCAR for additional information and run </span>
-        <span class="c">#stats that are generally not in vasprun.xml.</span>
+                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;hkl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hkl&quot;</span><span class="p">)</span>
+                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;ligand&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ligand&quot;</span><span class="p">)</span>
+        <span class="c1"># from pyamtgen-db</span>
+        <span class="c1"># Parse OUTCAR for additional information and run</span>
+        <span class="c1"># stats that are generally not in vasprun.xml.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">run_stats</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">overall_run_stats</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;Total CPU time used (sec)&quot;</span><span class="p">,</span> <span class="s">&quot;User time (sec)&quot;</span><span class="p">,</span>
-                        <span class="s">&quot;System time (sec)&quot;</span><span class="p">,</span> <span class="s">&quot;Elapsed time (sec)&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Total CPU time used (sec)&quot;</span><span class="p">,</span> <span class="s2">&quot;User time (sec)&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;System time (sec)&quot;</span><span class="p">,</span> <span class="s2">&quot;Elapsed time (sec)&quot;</span><span class="p">]:</span>
                 <span class="n">overall_run_stats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
                                               <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">run_stats</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
-            <span class="n">run_stats</span><span class="p">[</span><span class="s">&quot;overall&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">overall_run_stats</span>
+            <span class="n">run_stats</span><span class="p">[</span><span class="s2">&quot;overall&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">overall_run_stats</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Bad run stats for {}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fullpath</span><span class="p">))</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;run_stats&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">run_stats</span>
-        <span class="c">#Convert to full uri path.</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Bad run stats for </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fullpath</span><span class="p">))</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;run_stats&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">run_stats</span>
+        <span class="c1"># Convert to full uri path.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_full_uri</span><span class="p">:</span>
-            <span class="n">d</span><span class="p">[</span><span class="s">&quot;dir_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_uri</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Post-processed &quot;</span> <span class="o">+</span> <span class="n">fullpath</span><span class="p">)</span>                
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;dir_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_uri</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Post-processed &quot;</span> <span class="o">+</span> <span class="n">fullpath</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="get_uri"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.database.get_uri">[docs]</a><span class="k">def</span> <span class="nf">get_uri</span><span class="p">(</span><span class="n">dir_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Customized version of the original pymatgen-db version. </span>
+<span class="sd">    Customized version of the original pymatgen-db version.</span>
 <span class="sd">    Customization required because same job folder on hipergator</span>
 <span class="sd">    gets different uri for different login nodes .</span>
 
@@ -327,125 +224,112 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fullpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostbyaddr</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostbyaddr</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
-    <span class="k">return</span> <span class="s">&quot;{}:{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hostname</span><span class="p">,</span> <span class="n">fullpath</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hostname</span><span class="p">,</span> <span class="n">fullpath</span><span class="p">)</span></div>
 
-<span class="c">#remove coordination number</span></div>
+
+<span class="c1"># remove coordination number</span>
 <div class="viewcode-block" id="analysis_and_error_checks"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.database.analysis_and_error_checks">[docs]</a><span class="k">def</span> <span class="nf">analysis_and_error_checks</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">max_force_threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                               <span class="n">volume_change_threshold</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
-
-    <span class="n">initial_vol</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;input&quot;</span><span class="p">][</span><span class="s">&quot;crystal&quot;</span><span class="p">][</span><span class="s">&quot;lattice&quot;</span><span class="p">][</span><span class="s">&quot;volume&quot;</span><span class="p">]</span>
-    <span class="n">final_vol</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;crystal&quot;</span><span class="p">][</span><span class="s">&quot;lattice&quot;</span><span class="p">][</span><span class="s">&quot;volume&quot;</span><span class="p">]</span>
+    <span class="n">initial_vol</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="s2">&quot;crystal&quot;</span><span class="p">][</span><span class="s2">&quot;lattice&quot;</span><span class="p">][</span><span class="s2">&quot;volume&quot;</span><span class="p">]</span>
+    <span class="n">final_vol</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;crystal&quot;</span><span class="p">][</span><span class="s2">&quot;lattice&quot;</span><span class="p">][</span><span class="s2">&quot;volume&quot;</span><span class="p">]</span>
     <span class="n">delta_vol</span> <span class="o">=</span> <span class="n">final_vol</span> <span class="o">-</span> <span class="n">initial_vol</span>
     <span class="n">percent_delta_vol</span> <span class="o">=</span> <span class="n">delta_vol</span> <span class="o">/</span> <span class="n">initial_vol</span>
-    <span class="c">#coord_num = get_coordination_numbers(d)</span>
-    <span class="n">calc</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;calculations&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">gap</span> <span class="o">=</span> <span class="n">calc</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;bandgap&quot;</span><span class="p">]</span>
-    <span class="n">cbm</span> <span class="o">=</span> <span class="n">calc</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;cbm&quot;</span><span class="p">]</span>
-    <span class="n">vbm</span> <span class="o">=</span> <span class="n">calc</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;vbm&quot;</span><span class="p">]</span>
-    <span class="n">is_direct</span> <span class="o">=</span> <span class="n">calc</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;is_gap_direct&quot;</span><span class="p">]</span>
+    <span class="c1"># coord_num = get_coordination_numbers(d)</span>
+    <span class="n">calc</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;calculations&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">gap</span> <span class="o">=</span> <span class="n">calc</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;bandgap&quot;</span><span class="p">]</span>
+    <span class="n">cbm</span> <span class="o">=</span> <span class="n">calc</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;cbm&quot;</span><span class="p">]</span>
+    <span class="n">vbm</span> <span class="o">=</span> <span class="n">calc</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;vbm&quot;</span><span class="p">]</span>
+    <span class="n">is_direct</span> <span class="o">=</span> <span class="n">calc</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;is_gap_direct&quot;</span><span class="p">]</span>
 
     <span class="n">warning_msgs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">error_msgs</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">percent_delta_vol</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">volume_change_threshold</span><span class="p">:</span>
-        <span class="n">warning_msgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Volume change &gt; {}%&quot;</span>
+        <span class="n">warning_msgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Volume change &gt; </span><span class="si">{}</span><span class="s2">%&quot;</span>
                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">volume_change_threshold</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
 
-    <span class="n">bv_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;crystal&quot;</span><span class="p">])</span>
+    <span class="n">bv_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;crystal&quot;</span><span class="p">])</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">bva</span> <span class="o">=</span> <span class="n">BVAnalyzer</span><span class="p">()</span>
         <span class="n">bv_struct</span> <span class="o">=</span> <span class="n">bva</span><span class="o">.</span><span class="n">get_oxi_state_decorated_structure</span><span class="p">(</span><span class="n">bv_struct</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Valence cannot be determined due to {e}.&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Valence cannot be determined due to </span><span class="si">{e}</span><span class="s2">.&quot;</span>
                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">=</span><span class="n">e</span><span class="p">))</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;BVAnalyzer error {e}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;BVAnalyzer error </span><span class="si">{e}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)))</span>
 
-    <span class="n">max_force</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;state&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;successful&quot;</span> <span class="ow">and</span> \
-            <span class="n">d</span><span class="p">[</span><span class="s">&quot;calculations&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">&quot;input&quot;</span><span class="p">][</span><span class="s">&quot;parameters&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;NSW&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c"># handle the max force and max force error</span>
+    <span class="n">max_force</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;successful&quot;</span> <span class="ow">and</span> \
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;calculations&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NSW&quot;</span><span class="p">,</span>
+                                                        <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># handle the max force and max force error</span>
         <span class="n">max_force</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;calculations&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;output&quot;</span><span class="p">]</span>
-                        <span class="p">[</span><span class="s">&quot;ionic_steps&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;forces&quot;</span><span class="p">]])</span>
+                         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;calculations&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;output&quot;</span><span class="p">]</span>
+                         <span class="p">[</span><span class="s2">&quot;ionic_steps&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;forces&quot;</span><span class="p">]])</span>
 
         <span class="k">if</span> <span class="n">max_force</span> <span class="o">&gt;</span> <span class="n">max_force_threshold</span><span class="p">:</span>
-            <span class="n">error_msgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Final max force exceeds {} eV&quot;</span>
+            <span class="n">error_msgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Final max force exceeds </span><span class="si">{}</span><span class="s2"> eV&quot;</span>
                               <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_force_threshold</span><span class="p">))</span>
-            <span class="n">d</span><span class="p">[</span><span class="s">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;error&quot;</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
 
-        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">][</span><span class="s">&quot;crystal&quot;</span><span class="p">])</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;crystal&quot;</span><span class="p">])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
-            <span class="n">error_msgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Bad structure (atoms are too close!)&quot;</span><span class="p">)</span>
-            <span class="n">d</span><span class="p">[</span><span class="s">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;error&quot;</span>
+            <span class="n">error_msgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Bad structure (atoms are too close!)&quot;</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
 
-    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;delta_volume&quot;</span><span class="p">:</span> <span class="n">delta_vol</span><span class="p">,</span>
-            <span class="s">&quot;max_force&quot;</span><span class="p">:</span> <span class="n">max_force</span><span class="p">,</span>
-            <span class="s">&quot;percent_delta_volume&quot;</span><span class="p">:</span> <span class="n">percent_delta_vol</span><span class="p">,</span>
-            <span class="s">&quot;warnings&quot;</span><span class="p">:</span> <span class="n">warning_msgs</span><span class="p">,</span>
-            <span class="s">&quot;errors&quot;</span><span class="p">:</span> <span class="n">error_msgs</span><span class="p">,</span>
-            <span class="s">&quot;bandgap&quot;</span><span class="p">:</span> <span class="n">gap</span><span class="p">,</span> <span class="s">&quot;cbm&quot;</span><span class="p">:</span> <span class="n">cbm</span><span class="p">,</span> <span class="s">&quot;vbm&quot;</span><span class="p">:</span> <span class="n">vbm</span><span class="p">,</span>
-            <span class="s">&quot;is_gap_direct&quot;</span><span class="p">:</span> <span class="n">is_direct</span><span class="p">,</span>
-            <span class="s">&quot;bv_structure&quot;</span><span class="p">:</span> <span class="n">bv_struct</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()}</span></div>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;delta_volume&quot;</span><span class="p">:</span> <span class="n">delta_vol</span><span class="p">,</span>
+            <span class="s2">&quot;max_force&quot;</span><span class="p">:</span> <span class="n">max_force</span><span class="p">,</span>
+            <span class="s2">&quot;percent_delta_volume&quot;</span><span class="p">:</span> <span class="n">percent_delta_vol</span><span class="p">,</span>
+            <span class="s2">&quot;warnings&quot;</span><span class="p">:</span> <span class="n">warning_msgs</span><span class="p">,</span>
+            <span class="s2">&quot;errors&quot;</span><span class="p">:</span> <span class="n">error_msgs</span><span class="p">,</span>
+            <span class="s2">&quot;bandgap&quot;</span><span class="p">:</span> <span class="n">gap</span><span class="p">,</span> <span class="s2">&quot;cbm&quot;</span><span class="p">:</span> <span class="n">cbm</span><span class="p">,</span> <span class="s2">&quot;vbm&quot;</span><span class="p">:</span> <span class="n">vbm</span><span class="p">,</span>
+            <span class="s2">&quot;is_gap_direct&quot;</span><span class="p">:</span> <span class="n">is_direct</span><span class="p">,</span>
+            <span class="s2">&quot;bv_structure&quot;</span><span class="p">:</span> <span class="n">bv_struct</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()}</span></div>
 </pre></div>
 
           </div>
-          <footer>
-  
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>
-        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
-    </p>
-  </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-
-</footer>
-
         </div>
       </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../mpinterfaces.html">mpinterfaces</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
 
-    </section>
+    
 
-  </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'1.1.2alpha',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
-      });
-  </script>
-   
-
-</body>
+    
+  </body>
 </html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.twod_materials.stability.startup &#8212; mpinterfaces  documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mpinterfaces.twod_materials.stability.startup</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">Incar</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces</span> <span class="k">import</span> <span class="n">VASP_TWOD_BIN</span><span class="p">,</span> <span class="n">VDW_KERNEL</span><span class="p">,</span> <span class="n">QUEUE_SYSTEM</span>
+<span class="kn">import</span> <span class="nn">mpinterfaces.twod_materials.utils.utils</span> <span class="k">as</span> <span class="nn">utl</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ashtonmv@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
+
+<span class="n">INCAR_DICT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;@class&#39;</span><span class="p">:</span> <span class="s1">&#39;Incar&#39;</span><span class="p">,</span> <span class="s1">&#39;@module&#39;</span><span class="p">:</span> <span class="s1">&#39;pymatgen.io.vasp.inputs&#39;</span><span class="p">,</span> <span class="s1">&#39;AGGAC&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="s1">&#39;EDIFF&#39;</span><span class="p">:</span> <span class="mf">1e-04</span><span class="p">,</span> <span class="s1">&#39;GGA&#39;</span><span class="p">:</span> <span class="s1">&#39;Bo&#39;</span><span class="p">,</span> <span class="s1">&#39;IBRION&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;ISIF&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;ISMEAR&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;LAECHG&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;LCHARG&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;LREAL&#39;</span><span class="p">:</span> <span class="s1">&#39;Auto&#39;</span><span class="p">,</span> <span class="s1">&#39;LUSE_VDW&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;NPAR&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;NSW&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s1">&#39;PARAM1&#39;</span><span class="p">:</span> <span class="mf">0.1833333333</span><span class="p">,</span> <span class="s1">&#39;PARAM2&#39;</span><span class="p">:</span> <span class="mf">0.22</span><span class="p">,</span>
+    <span class="s1">&#39;PREC&#39;</span><span class="p">:</span> <span class="s1">&#39;Accurate&#39;</span><span class="p">,</span> <span class="s1">&#39;ENCUT&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s1">&#39;SIGMA&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;LVTOT&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;LVHAR&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;ALGO&#39;</span><span class="p">:</span> <span class="s1">&#39;Fast&#39;</span><span class="p">,</span> <span class="s1">&#39;ISPIN&#39;</span><span class="p">:</span> <span class="mi">2</span>
+    <span class="p">}</span>
+
+
+<div class="viewcode-block" id="relax"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.stability.html#mpinterfaces.twod_materials.stability.startup.relax">[docs]</a><span class="k">def</span> <span class="nf">relax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Writes input files and (optionally) submits a self-consistent</span>
+<span class="sd">    relaxation. Should be run before pretty much anything else, in</span>
+<span class="sd">    order to get the right energy and structure of the material.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dim (int): 2 for relaxing a 2D material, 3 for a 3D material.</span>
+<span class="sd">        submit (bool): Whether or not to submit the job.</span>
+<span class="sd">        force_overwrite (bool): Whether or not to overwrite files</span>
+<span class="sd">            if an already converged vasprun.xml exists in the</span>
+<span class="sd">            directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">force_overwrite</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utl</span><span class="o">.</span><span class="n">is_converged</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()):</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># vdw_kernel.bindat file required for VDW calculations.</span>
+        <span class="k">if</span> <span class="n">VDW_KERNEL</span> <span class="o">!=</span> <span class="s1">&#39;/path/to/vdw_kernel.bindat&#39;</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp </span><span class="si">{}</span><span class="s1"> .&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">VDW_KERNEL</span><span class="p">))</span>
+        <span class="c1"># KPOINTS</span>
+        <span class="n">Kpoints</span><span class="o">.</span><span class="n">automatic_density</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">),</span>
+                                  <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">)</span>
+
+        <span class="c1"># INCAR</span>
+        <span class="n">INCAR_DICT</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;MAGMOM&#39;</span><span class="p">:</span> <span class="n">utl</span><span class="o">.</span><span class="n">get_magmom_string</span><span class="p">()})</span>
+        <span class="n">Incar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">INCAR_DICT</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;INCAR&#39;</span><span class="p">)</span>
+        <span class="c1"># POTCAR</span>
+        <span class="n">utl</span><span class="o">.</span><span class="n">write_potcar</span><span class="p">()</span>
+
+        <span class="c1"># Special tasks only performed for 2D materials.</span>
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># Ensure 20A interlayer vacuum</span>
+            <span class="n">utl</span><span class="o">.</span><span class="n">add_vacuum</span><span class="p">(</span><span class="mi">20</span> <span class="o">-</span> <span class="n">utl</span><span class="o">.</span><span class="n">get_spacing</span><span class="p">(),</span> <span class="mf">0.9</span><span class="p">)</span>
+            <span class="c1"># Remove all z k-points.</span>
+            <span class="n">kpts_lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">kpts</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">kpts_lines</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
+                    <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kpts_lines</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span>
+                           <span class="o">+</span> <span class="n">kpts_lines</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; 1&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Submission script</span>
+        <span class="k">if</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span>
+            <span class="n">utl</span><span class="o">.</span><span class="n">write_pbs_runjob</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="s1">&#39;800mb&#39;</span><span class="p">,</span> <span class="s1">&#39;6:00:00&#39;</span><span class="p">,</span>
+                <span class="n">VASP_TWOD_BIN</span><span class="p">)</span>
+            <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;qsub runjob&#39;</span>
+
+        <span class="k">elif</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
+            <span class="n">utl</span><span class="o">.</span><span class="n">write_slurm_runjob</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="s1">&#39;800mb&#39;</span><span class="p">,</span> <span class="s1">&#39;6:00:00&#39;</span><span class="p">,</span>
+                <span class="n">VASP_TWOD_BIN</span><span class="p">)</span>
+            <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;sbatch runjob&#39;</span>
+
+        <span class="k">if</span> <span class="n">submit</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">submission_command</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../../mpinterfaces.html">mpinterfaces</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

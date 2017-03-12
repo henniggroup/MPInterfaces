@@ -1,0 +1,752 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.twod_materials.utils.utils &#8212; mpinterfaces  documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mpinterfaces.twod_materials.utils.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces</span> <span class="k">import</span> <span class="n">twod_materials</span><span class="p">,</span> <span class="n">VASP_PSP</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ashtonmv@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
+
+
+<div class="viewcode-block" id="is_converged"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.is_converged">[docs]</a><span class="k">def</span> <span class="nf">is_converged</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a relaxation has converged.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        directory (str): path to directory to check.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        boolean. Whether or not the job is converged.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/vasprun.xml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="get_status"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.get_status">[docs]</a><span class="k">def</span> <span class="nf">get_status</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the state of job in a directory. Designed for use on</span>
+<span class="sd">    Slurm systems.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        directory (str): *absolute* path to the directory to check.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        string version of SLURM job status.</span>
+<span class="sd">            &#39;None&#39; = No running job in this directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;squeue -o &#39;</span><span class="si">%.18i</span><span class="s2"> %.9P %.16j </span><span class="si">%.8u</span><span class="s2"> %.8T %.10M %.9l %.6D %R %Z&#39;&quot;</span>
+              <span class="s2">&quot;&gt;&gt; all_jobs.txt&quot;</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;all_jobs.txt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">job_state</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+            <span class="n">job_state</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span>
+            <span class="k">break</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;rm all_jobs.txt&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">job_state</span></div>
+
+
+<div class="viewcode-block" id="get_magmom_string"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.get_magmom_string">[docs]</a><span class="k">def</span> <span class="nf">get_magmom_string</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Based on a POSCAR, returns the string required for the MAGMOM</span>
+<span class="sd">    setting in the INCAR. Initializes transition metals with 6.0</span>
+<span class="sd">    bohr magneton and all others with 0.5.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        string. e.g. &#39;1*6.0 3*0.5&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">poscar_lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">elements</span> <span class="o">=</span> <span class="n">poscar_lines</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">amounts</span> <span class="o">=</span> <span class="n">poscar_lines</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">Element</span><span class="p">(</span><span class="n">elements</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">is_transition_metal</span><span class="p">:</span>
+            <span class="n">magmoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">*6.0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">amounts</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">magmoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">*0.5&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">amounts</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">magmoms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_spacing"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.get_spacing">[docs]</a><span class="k">def</span> <span class="nf">get_spacing</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="n">cut</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the interlayer spacing for a 2D material.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): &#39;CONTCAR&#39; or &#39;POSCAR&#39;, whichever file to</span>
+<span class="sd">            check.</span>
+<span class="sd">        cut (float): a fractional z-coordinate that must be within</span>
+<span class="sd">            the vacuum region.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float. Spacing in Angstroms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">c_axis</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">lattice_parameter</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">split_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">8</span><span class="o">+</span><span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span><span class="p">]]</span>
+    <span class="n">z_coords</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">split_coords</span><span class="p">:</span>
+        <span class="n">z_coord</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">z_coord</span> <span class="o">&gt;</span> <span class="n">cut</span><span class="p">:</span>
+            <span class="n">z_coord</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="n">z_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z_coord</span><span class="p">)</span>
+    <span class="n">max_height</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">z_height</span> <span class="k">for</span> <span class="n">z_height</span> <span class="ow">in</span> <span class="n">z_coords</span><span class="p">])</span>
+    <span class="n">min_height</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">z_height</span> <span class="k">for</span> <span class="n">z_height</span> <span class="ow">in</span> <span class="n">z_coords</span><span class="p">])</span>
+    <span class="n">spacing</span> <span class="o">=</span> <span class="p">((</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">min_height</span><span class="p">)</span> <span class="o">-</span> <span class="n">max_height</span><span class="p">)</span> <span class="o">*</span> \
+              <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">c_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">lattice_parameter</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">spacing</span></div>
+
+
+<div class="viewcode-block" id="get_rotation_matrix"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.get_rotation_matrix">[docs]</a><span class="k">def</span> <span class="nf">get_rotation_matrix</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the rotation matrix associated with counterclockwise rotation</span>
+<span class="sd">    about the given axis by theta radians.</span>
+<span class="sd">    Credit: http://stackoverflow.com/users/190597/unutbu</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        axis (list): rotation axis of the form [x, y, z]</span>
+<span class="sd">        theta (float): rotational angle in radians</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        array. Rotation matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">axis</span><span class="p">))</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+    <span class="n">axis</span> <span class="o">*=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">axis</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="n">aa</span><span class="p">,</span> <span class="n">bb</span><span class="p">,</span> <span class="n">cc</span><span class="p">,</span> <span class="n">dd</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="o">*</span><span class="n">d</span>
+    <span class="n">bc</span><span class="p">,</span> <span class="n">ad</span><span class="p">,</span> <span class="n">ac</span><span class="p">,</span> <span class="n">ab</span><span class="p">,</span> <span class="n">bd</span><span class="p">,</span> <span class="n">cd</span> <span class="o">=</span> <span class="n">b</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">a</span><span class="o">*</span><span class="n">d</span><span class="p">,</span> <span class="n">a</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">a</span><span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="o">*</span><span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="o">*</span><span class="n">d</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">aa</span><span class="o">+</span><span class="n">bb</span><span class="o">-</span><span class="n">cc</span><span class="o">-</span><span class="n">dd</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bc</span><span class="o">+</span><span class="n">ad</span><span class="p">),</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bd</span><span class="o">-</span><span class="n">ac</span><span class="p">)],</span>
+                     <span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bc</span><span class="o">-</span><span class="n">ad</span><span class="p">),</span> <span class="n">aa</span><span class="o">+</span><span class="n">cc</span><span class="o">-</span><span class="n">bb</span><span class="o">-</span><span class="n">dd</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">cd</span><span class="o">+</span><span class="n">ab</span><span class="p">)],</span>
+                     <span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">bd</span><span class="o">+</span><span class="n">ac</span><span class="p">),</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">cd</span><span class="o">-</span><span class="n">ab</span><span class="p">),</span> <span class="n">aa</span><span class="o">+</span><span class="n">dd</span><span class="o">-</span><span class="n">bb</span><span class="o">-</span><span class="n">cc</span><span class="p">]])</span></div>
+
+
+<div class="viewcode-block" id="align_c_axis_along_001"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.align_c_axis_along_001">[docs]</a><span class="k">def</span> <span class="nf">align_c_axis_along_001</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a structure with a c-axis not along [001],</span>
+<span class="sd">    returns the same structure rotated so that the c-axis is along</span>
+<span class="sd">    the [001] direction. This is useful for vasp compiled with no</span>
+<span class="sd">    z-axis relaxation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure (Structure): Pymatgen Structure object to rotate.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        structure. Rotated to align c-axis along [001].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">z</span><span class="p">))))</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">get_rotation_matrix</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+        <span class="n">rotation</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">rotation_matrix</span><span class="o">=</span><span class="n">R</span><span class="p">)</span>
+        <span class="n">structure</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">structure</span></div>
+
+
+<div class="viewcode-block" id="get_structure_type"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.get_structure_type">[docs]</a><span class="k">def</span> <span class="nf">get_structure_type</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">write_poscar_from_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a topology-scaling algorithm used to describe the</span>
+<span class="sd">    periodicity of bonded clusters in a bulk structure.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure (structure): Pymatgen structure object to classify.</span>
+<span class="sd">        write_poscar_from_cluster (bool): Set to True to write a</span>
+<span class="sd">            POSCAR from the sites in the cluster.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        string. &#39;molecular&#39; (0D), &#39;chain&#39;, &#39;layered&#39;, &#39;heterogeneous&#39;</span>
+<span class="sd">            (intercalated 3D), or &#39;conventional&#39; (3D)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># The conventional standard structure is much easier to work</span>
+    <span class="c1"># with.</span>
+
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">get_conventional_standard_structure</span><span class="p">()</span>
+
+    <span class="c1"># Noble gases don&#39;t have well-defined bonding radii.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span>
+                <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;He&#39;</span><span class="p">,</span> <span class="s1">&#39;Ne&#39;</span><span class="p">,</span> <span class="s1">&#39;Ar&#39;</span><span class="p">,</span> <span class="s1">&#39;Kr&#39;</span><span class="p">,</span> <span class="s1">&#39;Xe&#39;</span><span class="p">]])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;noble gas&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">45</span><span class="p">:</span>
+            <span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Create a dict of sites as keys and lists of their</span>
+        <span class="c1"># bonded neighbors as values.</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span>
+        <span class="n">bonds</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">:</span>
+            <span class="n">bonds</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">)):</span>
+            <span class="n">site_1</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">site_2</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">site_1</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site_2</span><span class="p">)</span> <span class="o">&lt;</span>
+                            <span class="nb">float</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">site_1</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span><span class="o">.</span><span class="n">atomic_radius</span>
+                                      <span class="o">+</span> <span class="n">Element</span><span class="p">(</span><span class="n">site_2</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span><span class="o">.</span><span class="n">atomic_radius</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">):</span>
+                    <span class="n">bonds</span><span class="p">[</span><span class="n">site_1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site_2</span><span class="p">)</span>
+                    <span class="n">bonds</span><span class="p">[</span><span class="n">site_2</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site_1</span><span class="p">)</span>
+
+        <span class="c1"># Assimilate all bonded atoms in a cluster; terminate</span>
+        <span class="c1"># when it stops growing.</span>
+        <span class="n">cluster_terminated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">cluster_terminated</span><span class="p">:</span>
+            <span class="n">original_cluster_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]:</span>
+                <span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="p">[</span>
+                    <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="o">==</span> <span class="n">original_cluster_size</span><span class="p">:</span>
+                <span class="n">cluster_terminated</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">original_cluster</span> <span class="o">=</span> <span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># i.e. the cluster is a single atom.</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;molecular&#39;</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">):</span> <span class="c1"># i.e. all atoms are bonded.</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;conventional&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If the cluster&#39;s composition is not equal to the</span>
+            <span class="c1"># structure&#39;s overall composition, it is a heterogeneous</span>
+            <span class="c1"># compound.</span>
+            <span class="n">cluster_composition_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]:</span>
+                <span class="k">if</span> <span class="n">Element</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span> <span class="ow">in</span> <span class="n">cluster_composition_dict</span><span class="p">:</span>
+                    <span class="n">cluster_composition_dict</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cluster_composition_dict</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">uniform</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_composition_dict</span><span class="p">):</span>
+                <span class="nb">cmp</span> <span class="o">=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">cluster_composition_dict</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">cmp</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">!=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">:</span>
+                    <span class="n">uniform</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">uniform</span><span class="p">:</span>
+                <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;heterogeneous&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Make a 2x2x2 supercell and recalculate the</span>
+                <span class="c1"># cluster&#39;s new size. If the new cluster size is</span>
+                <span class="c1"># the same as the old size, it is a non-periodic</span>
+                <span class="c1"># molecule. If it is 2x as big, it&#39;s a 1D chain.</span>
+                <span class="c1"># If it&#39;s 4x as big, it is a layered material.</span>
+                <span class="n">old_cluster_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                <span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">sites</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span>
+                <span class="n">bonds</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">:</span>
+                    <span class="n">bonds</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">)):</span>
+                    <span class="n">site_1</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">site_2</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]:</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">site_1</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">site_2</span><span class="p">)</span> <span class="o">&lt;</span>
+                                <span class="nb">float</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">site_1</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span><span class="o">.</span><span class="n">atomic_radius</span>
+                                <span class="o">+</span> <span class="n">Element</span><span class="p">(</span><span class="n">site_2</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span><span class="o">.</span><span class="n">atomic_radius</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">):</span>
+                            <span class="n">bonds</span><span class="p">[</span><span class="n">site_1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site_2</span><span class="p">)</span>
+                            <span class="n">bonds</span><span class="p">[</span><span class="n">site_2</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site_1</span><span class="p">)</span>
+
+                <span class="n">cluster_terminated</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">cluster_terminated</span><span class="p">:</span>
+                    <span class="n">original_cluster_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]:</span>
+                        <span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="p">[</span>
+                            <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">[</span><span class="n">site</span><span class="p">]</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="o">==</span> <span class="n">original_cluster_size</span><span class="p">:</span>
+                        <span class="n">cluster_terminated</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="o">!=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">old_cluster_size</span><span class="p">:</span>
+                    <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;molecular&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;layered&#39;</span>
+
+    <span class="k">if</span> <span class="n">write_poscar_from_cluster</span><span class="p">:</span>
+        <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">original_cluster</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">type</span></div>
+
+
+<div class="viewcode-block" id="add_vacuum"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.add_vacuum">[docs]</a><span class="k">def</span> <span class="nf">add_vacuum</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">cut</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds vacuum to a POSCAR.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        delta (float): vacuum thickness in Angstroms</span>
+<span class="sd">        cut (delta): fractional height above which atoms will</span>
+<span class="sd">            need to be fixed. Defaults to 0.9.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Fix the POSCAR to put bottom atoms (even if they are above the</span>
+    <span class="c1"># current vacuum layer) at 0.0.</span>
+
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+    <span class="n">n_sites</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
+    <span class="n">poscar_lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">poscar</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">poscar_lines</span><span class="p">[:</span><span class="mi">8</span><span class="p">]:</span>
+            <span class="n">poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">poscar_lines</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">8</span><span class="o">+</span><span class="n">n_sites</span><span class="p">]:</span>
+            <span class="n">split_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">cut</span><span class="p">:</span>
+                <span class="n">new_line</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">split_line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">split_line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">split_line</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_line</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split_line</span><span class="p">)</span>
+            <span class="n">poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">new_line</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">min_z</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">_fcoords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">cut</span><span class="p">:</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">_fcoords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">_fcoords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">height</span> <span class="o">&lt;</span> <span class="n">min_z</span><span class="p">:</span>
+            <span class="n">min_z</span> <span class="o">=</span> <span class="n">height</span>
+
+    <span class="n">translation</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span>
+        <span class="n">translation_vec</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">min_z</span><span class="p">))</span>
+    <span class="n">structure</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">translation</span><span class="p">,</span> <span class="n">fractional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">poscar</span><span class="p">:</span>
+        <span class="n">poscar_lines</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">atom_lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="o">+</span><span class="n">n_sites</span><span class="p">):</span>
+        <span class="n">atom_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poscar_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="n">atom_line_2s</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">atom_line</span> <span class="ow">in</span> <span class="n">atom_lines</span><span class="p">:</span>
+        <span class="n">atom_line_2s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">atom_line</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="c1"># fixable = False</span>
+    <span class="n">addables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">atom_line_2</span> <span class="ow">in</span> <span class="n">atom_line_2s</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">atom_line_2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">cut</span> <span class="ow">or</span>\
+                <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">atom_line_2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">atom_line_2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">cut</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">atom_line_2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">atom_line_2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">cut</span><span class="p">:</span>
+                <span class="n">atom_line_2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">atom_line_2</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.0</span>
+            <span class="n">addables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom_line_2</span><span class="p">)</span>
+            <span class="n">fixable</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># if fixable:</span>
+    <span class="c1">#     add_factor = 1.0 - min(addables)</span>
+    <span class="c1">#  else:</span>
+    <span class="n">add_factor</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">new_atom_lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">atom_line</span> <span class="ow">in</span> <span class="n">atom_lines</span><span class="p">:</span>
+        <span class="n">new_atom_line_2</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">atom_line</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="n">add_factor</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">new_atom_line_2</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="n">new_atom_line_2</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">new_atom_line_2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">new_atom_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">atom_line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">atom_line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                <span class="n">new_atom_line_2</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">poscar</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">poscar_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">]:</span>
+            <span class="n">poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">new_atom_line</span> <span class="ow">in</span> <span class="n">new_atom_lines</span><span class="p">:</span>
+            <span class="n">poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_atom_line</span><span class="p">))</span>
+
+    <span class="c1"># Open files and read in values from POSCAR</span>
+    <span class="n">old_poscar</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">new_poscar</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;new_POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">oldlines</span> <span class="o">=</span> <span class="n">old_poscar</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">oldlines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">lattice_constant</span> <span class="o">=</span> <span class="n">oldlines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">a_lat_par</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">oldlines</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+    <span class="n">b_lat_par</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">oldlines</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+    <span class="n">c_lat_par</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">))</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">oldlines</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+    <span class="n">elements</span> <span class="o">=</span> <span class="n">oldlines</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">stoichiometry</span> <span class="o">=</span> <span class="n">oldlines</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">coordinate_type</span> <span class="o">=</span> <span class="n">oldlines</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="c1"># Elongate c-vector by delta</span>
+
+    <span class="n">save</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">c_lat_par</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">c_length</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">c_lat_par</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">lattice_constant</span><span class="p">)</span>
+    <span class="n">c_length_plus_delta</span> <span class="o">=</span> <span class="n">c_length</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+    <span class="n">c_lat_par</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_length_plus_delta</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">lattice_constant</span><span class="p">)</span>
+    <span class="n">scalar</span> <span class="o">=</span> <span class="n">c_lat_par</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">save</span>
+
+    <span class="c1"># Create list of atom coordinates and adjust their z-coordinate on</span>
+    <span class="c1"># the fly</span>
+
+    <span class="n">atoms</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="o">+</span><span class="n">n_sites</span><span class="p">):</span>
+        <span class="n">atom</span> <span class="o">=</span> <span class="n">oldlines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">atom</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">atom</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="n">scalar</span>
+        <span class="n">atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+
+    <span class="c1"># Write updated values to new_POSCAR, copy it to old_POSCAR, then</span>
+    <span class="c1"># close files and delete new_POSCAR</span>
+
+    <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lattice_constant</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">a_lat_par</span><span class="p">:</span>
+        <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+    <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">b_lat_par</span><span class="p">:</span>
+        <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+    <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">c_lat_par</span><span class="p">:</span>
+        <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+    <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+        <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+    <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">stoichiometry</span><span class="p">:</span>
+        <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+    <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coordinate_type</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
+        <span class="n">new_poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+    <span class="n">new_poscar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+
+    <span class="n">new_lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;new_POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">poscar</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">new_lines</span><span class="p">:</span>
+            <span class="n">poscar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="n">old_poscar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;new_POSCAR&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_potcar"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.write_potcar">[docs]</a><span class="k">def</span> <span class="nf">write_potcar</span><span class="p">(</span><span class="n">pot_path</span><span class="o">=</span><span class="n">VASP_PSP</span><span class="p">,</span> <span class="n">types</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Writes a POTCAR file based on a list of types.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pot_path (str): can be changed to override default location</span>
+<span class="sd">            of POTCAR files.</span>
+<span class="sd">        types (list): list of same length as number of elements</span>
+<span class="sd">            containing specifications for the kind of potential</span>
+<span class="sd">            desired for each element, e.g. [&#39;Na_pv&#39;, &#39;O_s&#39;]. If</span>
+<span class="sd">            left as &#39;None&#39;, uses the defaults in the</span>
+<span class="sd">            &#39;potcar_symbols.yaml&#39; file in the package root.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">pot_path</span> <span class="o">==</span> <span class="s1">&#39;/path/to/POTCAR/files&#39;</span><span class="p">:</span>
+        <span class="c1"># This means the config.yaml file has not been set up.</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">poscar</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">poscar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">ROOT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">twod_materials</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="n">potcar_symbols</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ROOT_PATH</span><span class="p">,</span> <span class="s1">&#39;potcar_symbols.yaml&#39;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">types</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+            <span class="n">sorted_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">potcar_symbols</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sorted_types</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">elt</span><span class="p">:</span>
+                        <span class="n">sorted_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+        <span class="n">potentials</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">elements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="c1"># Create paths, open files, and write files to</span>
+        <span class="c1"># POTCAR for each potential.</span>
+        <span class="k">for</span> <span class="n">potential</span> <span class="ow">in</span> <span class="n">sorted_types</span><span class="p">:</span>
+            <span class="n">potentials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">/POTCAR&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pot_path</span><span class="p">,</span> <span class="n">potential</span><span class="p">))</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;POTCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">potential</span> <span class="ow">in</span> <span class="n">potentials</span><span class="p">:</span>
+            <span class="n">infile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">potential</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">infile</span><span class="p">:</span>
+                <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">infile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">outfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="write_circle_mesh_kpoints"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.write_circle_mesh_kpoints">[docs]</a><span class="k">def</span> <span class="nf">write_circle_mesh_kpoints</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a circular mesh of k-points centered around a specific</span>
+<span class="sd">    k-point and write it to the KPOINTS file. Non-circular meshes</span>
+<span class="sd">    are not supported, but shouldn&#39;t be too hard to code. All</span>
+<span class="sd">    k-point weights are 1.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        center (list): x, y, and z coordinates of mesh center.</span>
+<span class="sd">            Defaults to Gamma.</span>
+<span class="sd">        radius (float): Size of the mesh in inverse Angstroms.</span>
+<span class="sd">        resolution (int): Number of mesh divisions along the</span>
+<span class="sd">            radius in the 3 primary directions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">kpoints</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">/</span> <span class="n">resolution</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">resolution</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">resolution</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">j</span><span class="o">**</span><span class="mi">2</span> <span class="o">&lt;=</span> <span class="n">resolution</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">kpoints</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">step</span><span class="o">*</span><span class="n">i</span><span class="p">),</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">step</span><span class="o">*</span><span class="n">j</span><span class="p">),</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">])</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">kpts</span><span class="p">:</span>
+        <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;KPOINTS</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="s1">direct</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kpoints</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">kpt</span> <span class="ow">in</span> <span class="n">kpoints</span><span class="p">:</span>
+            <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kpt</span><span class="p">))</span>
+            <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_markovian_path"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.get_markovian_path">[docs]</a><span class="k">def</span> <span class="nf">get_markovian_path</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the shortest path connecting an array of 2D</span>
+<span class="sd">    points.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        points (list): list/array of points of the format</span>
+<span class="sd">            [[x_1, y_1, z_1], [x_2, y_2, z_2], ...]</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: A sorted list of the points in order on the markovian path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">it</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="n">points</span><span class="p">)]</span>
+    <span class="n">path_distances</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">dist</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">:])))</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+    <span class="n">min_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">path_distances</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">paths</span><span class="p">[</span><span class="n">min_index</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="remove_z_kpoints"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.remove_z_kpoints">[docs]</a><span class="k">def</span> <span class="nf">remove_z_kpoints</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Strips all linemode k-points from the KPOINTS file that include a</span>
+<span class="sd">    z-component, since these are not relevant for 2D materials.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">kpoint_lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">twod_kpoints</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">kpoint_lines</span><span class="p">):</span>
+        <span class="n">kpt_1</span> <span class="o">=</span> <span class="n">kpoint_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">kpt_2</span> <span class="o">=</span> <span class="n">kpoint_lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">kpt_1</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">kpt_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                       <span class="nb">float</span><span class="p">(</span><span class="n">kpt_1</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">twod_kpoints</span><span class="p">:</span>
+            <span class="n">twod_kpoints</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">kpt_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kpt_1</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+            <span class="n">labels</span><span class="p">[</span><span class="n">kpt_1</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">kpt_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kpt_1</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                       <span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">twod_kpoints</span><span class="p">:</span>
+            <span class="n">twod_kpoints</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+            <span class="n">labels</span><span class="p">[</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">3</span>
+
+    <span class="n">kpath</span> <span class="o">=</span> <span class="n">get_markovian_path</span><span class="p">(</span><span class="n">twod_kpoints</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">kpts</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">kpoint_lines</span><span class="p">[:</span><span class="mi">4</span><span class="p">]:</span>
+            <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kpath</span><span class="p">)):</span>
+            <span class="n">label_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">==</span> <span class="n">kpath</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">kpath</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">kpt_2</span> <span class="o">=</span> <span class="n">kpath</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">label_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">==</span> <span class="n">kpath</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kpt_2</span> <span class="o">=</span> <span class="n">kpath</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">label_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">==</span> <span class="n">kpath</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">kpath</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">kpath</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;0.0 !&#39;</span><span class="p">,</span>
+                                <span class="n">label_1</span><span class="p">]))</span>
+            <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;0.0 !&#39;</span><span class="p">,</span>
+                                <span class="n">label_2</span><span class="p">]))</span>
+            <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_pbs_runjob"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.write_pbs_runjob">[docs]</a><span class="k">def</span> <span class="nf">write_pbs_runjob</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">,</span> <span class="n">nprocessors</span><span class="p">,</span> <span class="n">pmem</span><span class="p">,</span> <span class="n">walltime</span><span class="p">,</span> <span class="n">binary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    writes a runjob based on a name, nnodes, nprocessors, walltime,</span>
+<span class="sd">    and binary. Designed for runjobs on the Hennig group_list on</span>
+<span class="sd">    HiperGator 1 (PBS).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): job name.</span>
+<span class="sd">        nnodes (int): number of requested nodes.</span>
+<span class="sd">        nprocessors (int): number of requested processors.</span>
+<span class="sd">        pmem (str): requested memory including units, e.g. &#39;1600mb&#39;.</span>
+<span class="sd">        walltime (str): requested wall time, hh:mm:ss e.g. &#39;2:00:00&#39;.</span>
+<span class="sd">        binary (str): absolute path to binary to run.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">runjob</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;runjob&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#!/bin/sh</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#PBS -N </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#PBS -o test.out</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#PBS -e test.err</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#PBS -r n</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#PBS -l walltime=</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">walltime</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#PBS -l nodes=</span><span class="si">{}</span><span class="s1">:ppn=</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nnodes</span><span class="p">,</span> <span class="n">nprocessors</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#PBS -l pmem=</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pmem</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#PBS -W group_list=hennig</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;cd $PBS_O_WORKDIR</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;mpirun </span><span class="si">{}</span><span class="s1"> &gt; job.log</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">binary</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;echo </span><span class="se">\&#39;</span><span class="s1">Done.</span><span class="se">\&#39;\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="write_slurm_runjob"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.utils.html#mpinterfaces.twod_materials.utils.utils.write_slurm_runjob">[docs]</a><span class="k">def</span> <span class="nf">write_slurm_runjob</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">,</span> <span class="n">pmem</span><span class="p">,</span> <span class="n">walltime</span><span class="p">,</span> <span class="n">binary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    writes a runjob based on a name, nnodes, nprocessors, walltime, and</span>
+<span class="sd">    binary. Designed for runjobs on the Hennig group_list on HiperGator</span>
+<span class="sd">    2 (SLURM).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): job name.</span>
+<span class="sd">        ntasks (int): total number of requested processors.</span>
+<span class="sd">        pmem (str): requested memory including units, e.g. &#39;1600mb&#39;.</span>
+<span class="sd">        walltime (str): requested wall time, hh:mm:ss e.g. &#39;2:00:00&#39;.</span>
+<span class="sd">        binary (str): absolute path to binary to run.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">nnodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ntasks</span><span class="p">)</span> <span class="o">/</span> <span class="mf">32.0</span><span class="p">))</span>
+
+    <span class="n">runjob</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;runjob&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#!/bin/bash</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#SBATCH --job-name=</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#SBATCH -o out_%j.log</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#SBATCH -e err_%j.log</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#SBATCH --qos=hennig-b</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#SBATCH --nodes=</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nnodes</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#SBATCH --ntasks=</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ntasks</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#SBATCH --mem-per-cpu=</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pmem</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#SBATCH -t </span><span class="si">{}</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">walltime</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;cd $SLURM_SUBMIT_DIR</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;module load intel/2016.0.109</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;module load openmpi/1.10.1</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;module load vasp/5.4.1</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;mpirun </span><span class="si">{}</span><span class="s1"> &gt; job.log</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">binary</span><span class="p">))</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;echo </span><span class="se">\&#39;</span><span class="s1">Done.</span><span class="se">\&#39;\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">runjob</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../../mpinterfaces.html">mpinterfaces</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

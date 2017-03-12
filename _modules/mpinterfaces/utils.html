@@ -1,233 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>mpinterfaces.utils &mdash; mpinterfaces 1.1.2alpha documentation</title>
-  
-
-  
-  
-
-  
-
-  
-  
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-
-  
-
-  
-  
-    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-    <link rel="top" title="mpinterfaces 1.1.2alpha documentation" href="../../index.html"/>
-        <link rel="up" title="mpinterfaces" href="../mpinterfaces.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
-</head>
-
-<body class="wy-body-for-nav" role="document">
-
-  <div class="wy-grid-for-nav">
-
+    <title>mpinterfaces.utils &#8212; mpinterfaces  documentation</title>
     
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-        
-          <a href="../../index.html" class="icon icon-home"> mpinterfaces
-        
+  </head>
+  <body role="document">
+  
 
-        
-        </a>
-
-        
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-
-        
-      </div>
-
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
-          
-          
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#prepping">Prepping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../readme.html#get-the-latest-version">Get the latest version</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#documentation">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#usage">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#contributing">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#authors">Authors</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../mpinterfaces.html">mpinterfaces package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html#capabilities">Capabilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#interface-creation">Interface Creation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#offline-vasp-project-management">Offline vasp project management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#high-throughput-vasp-workflows-with-fireworks">High throughput VASP workflows with FireWorks</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#workflow-submission-and-launching">Workflow submission and launching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#workflow-query-examples">Workflow query examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#query-for-individual-fireworks">Query for individual Fireworks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../usage.html#connecting-to-our-local-database">Connecting to our local Database</a></li>
-</ul>
-</li>
-</ul>
-
-          
-        
-      </div>
-      &nbsp;
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../../index.html">mpinterfaces</a>
-      </nav>
-
-
-      
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href="../../index.html">Docs</a> &raquo;</li>
-      
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      
-          <li><a href="../mpinterfaces.html">mpinterfaces</a> &raquo;</li>
-      
-    <li>mpinterfaces.utils</li>
-      <li class="wy-breadcrumbs-aside">
-        
-          
-        
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document">
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
             
   <h1>Source code for mpinterfaces.utils</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Henniggroup.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> \
+    <span class="n">absolute_import</span>
+
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Utility functions</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">zip</span>
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
+<span class="kn">import</span> <span class="nn">linecache</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">socket</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">subprocess</span> <span class="kn">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyEncoder</span><span class="p">,</span> <span class="n">MontyDecoder</span>
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span><span class="p">,</span> <span class="n">dumpfn</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="kn">import</span> <span class="n">Slab</span><span class="p">,</span> <span class="n">SlabGenerator</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.ase</span> <span class="kn">import</span> <span class="n">AseAtomsAdaptor</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="kn">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="kn">import</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyEncoder</span><span class="p">,</span> <span class="n">MontyDecoder</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span><span class="p">,</span> <span class="n">dumpfn</span>
 
-<span class="kn">from</span> <span class="nn">custodian.custodian</span> <span class="kn">import</span> <span class="n">Custodian</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">Slab</span><span class="p">,</span> <span class="n">SlabGenerator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.ase</span> <span class="k">import</span> <span class="n">AseAtomsAdaptor</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Poscar</span>
 
-<span class="kn">from</span> <span class="nn">fireworks.user_objects.queue_adapters.common_adapter</span> <span class="kn">import</span> <span class="n">CommonAdapter</span>
+<span class="kn">from</span> <span class="nn">custodian.custodian</span> <span class="k">import</span> <span class="n">Custodian</span>
 
-<span class="kn">from</span> <span class="nn">ase.lattice.surface</span> <span class="kn">import</span> <span class="n">surface</span>
+<span class="kn">from</span> <span class="nn">fireworks.user_objects.queue_adapters.common_adapter</span> <span class="k">import</span> <span class="n">CommonAdapter</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-<span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%(levelname)s</span><span class="s">:</span><span class="si">%(name)s</span><span class="s">:</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
-<span class="n">sh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
-<span class="n">sh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ase.lattice.surface</span> <span class="k">import</span> <span class="n">surface</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces.default_logger</span> <span class="k">import</span> <span class="n">get_default_logger</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces</span> <span class="k">import</span> <span class="n">VASP_STD_BIN</span><span class="p">,</span> <span class="n">QUEUE_SYSTEM</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew, Joshua J. Gabriel&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Joshua J. Gabriel&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;joshgabriel92@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_default_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="get_ase_slab"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_ase_slab">[docs]</a><span class="k">def</span> <span class="nf">get_ase_slab</span><span class="p">(</span><span class="n">pmg_struct</span><span class="p">,</span> <span class="n">hkl</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">min_thick</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_vac</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<div class="viewcode-block" id="get_ase_slab"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_ase_slab">[docs]</a><span class="k">def</span> <span class="nf">get_ase_slab</span><span class="p">(</span><span class="n">pmg_struct</span><span class="p">,</span> <span class="n">hkl</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">min_thick</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_vac</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    takes in the intial structure as pymatgen Structure object</span>
 <span class="sd">    uses ase to generate the slab</span>
 <span class="sd">    returns pymatgen Slab object</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
-<span class="sd">	pmg_struct: pymatgen structure object</span>
-<span class="sd">	hkl: hkl index of surface of slab to be created</span>
-<span class="sd">	min_thick: minimum thickness of slab in Angstroms</span>
-<span class="sd">	min_vac: minimum vacuum spacing </span>
+<span class="sd">        pmg_struct: pymatgen structure object</span>
+<span class="sd">        hkl: hkl index of surface of slab to be created</span>
+<span class="sd">        min_thick: minimum thickness of slab in Angstroms</span>
+<span class="sd">        min_vac: minimum vacuum spacing</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ase_atoms</span> <span class="o">=</span> <span class="n">AseAtomsAdaptor</span><span class="p">()</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">(</span><span class="n">pmg_struct</span><span class="p">)</span>
     <span class="n">pmg_slab_gen</span> <span class="o">=</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="n">pmg_struct</span><span class="p">,</span> <span class="n">hkl</span><span class="p">,</span> <span class="n">min_thick</span><span class="p">,</span> <span class="n">min_vac</span><span class="p">)</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">pmg_slab_gen</span><span class="o">.</span><span class="n">_proj_height</span>
     <span class="n">nlayers</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">pmg_slab_gen</span><span class="o">.</span><span class="n">min_slab_size</span> <span class="o">/</span> <span class="n">h</span><span class="p">))</span>
     <span class="n">ase_slab</span> <span class="o">=</span> <span class="n">surface</span><span class="p">(</span><span class="n">ase_atoms</span><span class="p">,</span> <span class="n">hkl</span><span class="p">,</span> <span class="n">nlayers</span><span class="p">)</span>
-    <span class="n">ase_slab</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">vacuum</span><span class="o">=</span><span class="n">min_vac</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ase_slab</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">vacuum</span><span class="o">=</span><span class="n">min_vac</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">pmg_slab_structure</span> <span class="o">=</span> <span class="n">AseAtomsAdaptor</span><span class="p">()</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="n">ase_slab</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Slab</span><span class="p">(</span><span class="n">lattice</span><span class="o">=</span><span class="n">pmg_slab_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
                 <span class="n">species</span><span class="o">=</span><span class="n">pmg_slab_structure</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
                 <span class="n">coords</span><span class="o">=</span><span class="n">pmg_slab_structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
                 <span class="n">site_properties</span><span class="o">=</span><span class="n">pmg_slab_structure</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span>
                 <span class="n">miller_index</span><span class="o">=</span><span class="n">hkl</span><span class="p">,</span> <span class="n">oriented_unit_cell</span><span class="o">=</span><span class="n">pmg_slab_structure</span><span class="p">,</span>
-                <span class="n">shift</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+                <span class="n">shift</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="slab_from_file"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.slab_from_file">[docs]</a><span class="k">def</span> <span class="nf">slab_from_file</span><span class="p">(</span><span class="n">hkl</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    reads in structure from the file and returns slab object.</span>
 <span class="sd">    useful for reading in 2d/substrate structures from file.</span>
 <span class="sd">    Args:</span>
 <span class="sd">         hkl: miller index of the slab in the input file.</span>
-<span class="sd">         filename: structure file in any format </span>
+<span class="sd">         filename: structure file in any format</span>
 <span class="sd">                   supported by pymatgen</span>
 <span class="sd">    Returns:</span>
 <span class="sd">         Slab object</span>
@@ -237,19 +140,19 @@
                 <span class="n">slab_input</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
                 <span class="n">slab_input</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
                 <span class="n">hkl</span><span class="p">,</span>
-                <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">slab_input</span><span class="p">,</span><span class="n">to_unit_cell</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+                <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">slab_input</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
                 <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                 <span class="n">scale_factor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">),</span>
-                <span class="n">site_properties</span><span class="o">=</span><span class="n">slab_input</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span>
+                <span class="n">site_properties</span><span class="o">=</span><span class="n">slab_input</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span></div>
 
-</div>
-<div class="viewcode-block" id="add_vacuum_padding"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.add_vacuum_padding">[docs]</a><span class="k">def</span> <span class="nf">add_vacuum_padding</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">vacuum</span><span class="p">,</span> <span class="n">hkl</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]):</span>
+
+<div class="viewcode-block" id="add_vacuum_padding"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.add_vacuum_padding">[docs]</a><span class="k">def</span> <span class="nf">add_vacuum_padding</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">vacuum</span><span class="p">,</span> <span class="n">hkl</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    add vacuum spacing to the given structure</span>
 <span class="sd">    Args:</span>
-<span class="sd">        slab: sructure/slab object to be padded </span>
-<span class="sd">        vacuum: in angstroms</span>
-<span class="sd">        hkl: miller index</span>
+<span class="sd">        slab (Structure/Slab): sructure/slab object to be padded</span>
+<span class="sd">        vacuum (float): in angstroms</span>
+<span class="sd">        hkl (tuple/list): miller index</span>
 <span class="sd">    Returns:</span>
 <span class="sd">         Structure object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -260,17 +163,17 @@
     <span class="n">zmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
     <span class="n">zmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
     <span class="n">thickness</span> <span class="o">=</span> <span class="n">zmax</span> <span class="o">-</span> <span class="n">zmin</span>
-    <span class="n">new_c</span> <span class="o">=</span> <span class="n">c</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">thickness</span><span class="o">+</span><span class="n">vacuum</span><span class="p">)</span>
-    <span class="n">new_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">new_c</span><span class="p">]))</span>
+    <span class="n">new_c</span> <span class="o">=</span> <span class="n">c</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">thickness</span> <span class="o">+</span> <span class="n">vacuum</span><span class="p">)</span>
+    <span class="n">new_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">new_c</span><span class="p">]))</span>
     <span class="n">new_sites</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">slab</span><span class="p">:</span>
         <span class="n">new_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
                                       <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
                                       <span class="n">new_lattice</span><span class="p">,</span>
                                       <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">,</span>
-                                      <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+                                      <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
     <span class="n">new_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span>
-    <span class="c">#center the slab</span>
+    <span class="c1"># center the slab</span>
     <span class="n">avg_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">([</span><span class="n">fcoord</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">fcoord</span> <span class="ow">in</span> <span class="n">new_struct</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">])</span>
     <span class="n">new_struct</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_struct</span><span class="p">))),</span>
                                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">-</span> <span class="n">avg_z</span><span class="p">])</span>
@@ -278,70 +181,191 @@
                 <span class="n">new_struct</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
                 <span class="n">new_struct</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
                 <span class="n">hkl</span><span class="p">,</span>
-                <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_struct</span><span class="p">,</span><span class="n">to_unit_cell</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+                <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_struct</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
                 <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                 <span class="n">scale_factor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">),</span>
-                <span class="n">site_properties</span><span class="o">=</span><span class="n">new_struct</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span>
+                <span class="n">site_properties</span><span class="o">=</span><span class="n">new_struct</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span></div>
 
-</div>
-<div class="viewcode-block" id="get_run_cmmnd"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_run_cmmnd">[docs]</a><span class="k">def</span> <span class="nf">get_run_cmmnd</span><span class="p">(</span><span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">walltime</span><span class="o">=</span><span class="s">&#39;24:00:00&#39;</span><span class="p">,</span>
-                  <span class="n">job_bin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mem</span><span class="o">=</span><span class="s">&#39;1000&#39;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_magmom_string"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_magmom_string">[docs]</a><span class="k">def</span> <span class="nf">get_magmom_string</span><span class="p">(</span><span class="n">poscar</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Based on a POSCAR, returns the string required for the MAGMOM</span>
+<span class="sd">    setting in the INCAR. Initializes transition metals with 6.0</span>
+<span class="sd">    bohr magneton and all others with 0.5.</span>
+<span class="sd">    TEST: integration of twod_materials function with mpinterfaces</span>
+<span class="sd">    calibrate.py</span>
+<span class="sd">    Consider moving to mpinterfaces.utils</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        poscar (Poscar): Poscar object</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        string with INCAR setting for MAGMOM according to twod_materials</span>
+<span class="sd">        database calculations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sites_dict</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s1">&#39;structure&#39;</span><span class="p">][</span><span class="s1">&#39;sites&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sites_dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">Element</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">is_transition_metal</span><span class="p">:</span>
+            <span class="n">magmoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">6.0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">magmoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">magmoms</span></div>
+
+
+<div class="viewcode-block" id="get_magmom_mae"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_magmom_mae">[docs]</a><span class="k">def</span> <span class="nf">get_magmom_mae</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">mag_init</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    mae</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mae_magmom</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">sites_dict</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s1">&#39;structure&#39;</span><span class="p">][</span><span class="s1">&#39;sites&#39;</span><span class="p">]</span>
+
+    <span class="c1"># initialize a magnetic moment on the transition metal</span>
+    <span class="c1"># in vector form on the x-direction</span>
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sites_dict</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">Element</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">is_transition_metal</span><span class="p">:</span>
+            <span class="n">mae_magmom</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">mag_init</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mae_magmom</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">mae_magmom</span><span class="p">,</span> <span class="p">[])</span></div>
+
+
+<div class="viewcode-block" id="get_magmom_afm"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_magmom_afm">[docs]</a><span class="k">def</span> <span class="nf">get_magmom_afm</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns the magmom string which is an N length list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">afm_magmom</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">orig_structure_name</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">comment</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">database</span> <span class="o">==</span> <span class="s1">&#39;twod&#39;</span><span class="p">:</span>
+            <span class="c1"># no need for more vacuum spacing</span>
+            <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># for bulk structure</span>
+            <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">sites_dict</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s1">&#39;structure&#39;</span><span class="p">][</span><span class="s1">&#39;sites&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sites_dict</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">Element</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">is_transition_metal</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">afm_magmom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">6.0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">afm_magmom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mf">6.0</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">afm_magmom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">afm_magmom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">afm_magmom</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span>
+                              <span class="n">comment</span><span class="o">=</span><span class="n">orig_structure_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_run_cmmnd"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_run_cmmnd">[docs]</a><span class="k">def</span> <span class="nf">get_run_cmmnd</span><span class="p">(</span><span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">walltime</span><span class="o">=</span><span class="s1">&#39;24:00:00&#39;</span><span class="p">,</span> <span class="n">job_bin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">job_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    depends on the supercomputing faciltiy being used.</span>
+<span class="sd">    set a sample submit script in the fireworks directory which is</span>
+<span class="sd">    installed in your virtual environment as for example:</span>
+<span class="sd">    /my_venv/lib/python2.7/site-packages/FireWorks-1.2.5-py2.7.egg/</span>
+<span class="sd">    fireworks/user_objects/queue_adapters/</span>
+<span class="sd">    the keys to the dictionary d are the defaults on ufhpc&#39;s</span>
+<span class="sd">    hipergator2 supercomputing facility</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">job_cmd</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">job_cmd</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="n">QUEUE_SYSTEM</span>
     <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
-    <span class="c">#hipergator</span>
-    <span class="k">if</span> <span class="s">&#39;ufhpc&#39;</span> <span class="ow">in</span> <span class="n">hostname</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">job_bin</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">job_bin</span><span class="o">=</span><span class="s">&#39;/home/km468/Software/VASP/vasp.5.3.5/vasp&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">job_bin</span> <span class="o">=</span> <span class="n">job_bin</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span><span class="s">&#39;PBS&#39;</span><span class="p">,</span>
-             <span class="s">&#39;params&#39;</span><span class="p">:</span>
-                 <span class="p">{</span>
-                <span class="s">&#39;nnodes&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">),</span>
-                <span class="s">&#39;ppnode&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nprocs</span><span class="o">/</span><span class="n">nnodes</span><span class="p">)),</span>
-                <span class="s">&#39;walltime&#39;</span><span class="p">:</span> <span class="n">walltime</span><span class="p">,</span>
-                <span class="s">&#39;job_name&#39;</span><span class="p">:</span> <span class="s">&#39;vasp_job&#39;</span><span class="p">,</span>
-                <span class="s">&#39;email&#39;</span><span class="p">:</span> <span class="s">&#39;mpinterfaces@gmail.com&#39;</span><span class="p">,</span>
-                <span class="s">&#39;notification_options&#39;</span><span class="p">:</span> <span class="s">&#39;ae&#39;</span><span class="p">,</span>
-                <span class="s">&#39;pre_rocket&#39;</span><span class="p">:</span> <span class="s">&#39;#PBS -l pmem=&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;mb&#39;</span><span class="p">,</span>
-                <span class="s">&#39;rocket_launch&#39;</span><span class="p">:</span> <span class="s">&#39;mpirun &#39;</span><span class="o">+</span><span class="n">job_bin</span>
-                <span class="p">}</span>
-             <span class="p">}</span>
-    <span class="c">#stampede</span>
-    <span class="k">elif</span> <span class="s">&#39;stampede&#39;</span> <span class="ow">in</span> <span class="n">hostname</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">job_bin</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">job_bin</span><span class="o">=</span><span class="s">&#39;/home1/01682/km468/Software/VASP/vasp.5.3.5/vasp&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">job_bin</span> <span class="o">=</span> <span class="n">job_bin</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span><span class="s">&#39;SLURM&#39;</span><span class="p">,</span>
-             <span class="s">&#39;params&#39;</span><span class="p">:</span>
-                 <span class="p">{</span>
-                <span class="s">&#39;nodes&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">),</span>
-                <span class="s">&#39;ntasks&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">nprocs</span><span class="p">),</span>
-                <span class="s">&#39;walltime&#39;</span><span class="p">:</span> <span class="n">walltime</span><span class="p">,</span>
-                <span class="s">&#39;queue&#39;</span><span class="p">:</span><span class="s">&#39;normal&#39;</span><span class="p">,</span>
-                <span class="s">&#39;account&#39;</span><span class="p">:</span><span class="s">&#39;TG-DMR050028N&#39;</span><span class="p">,</span>
-                <span class="s">&#39;job_name&#39;</span><span class="p">:</span> <span class="s">&#39;vasp_job&#39;</span><span class="p">,</span>
-                <span class="s">&#39;rocket_launch&#39;</span><span class="p">:</span> <span class="s">&#39;ibrun &#39;</span><span class="o">+</span><span class="n">job_bin</span>
-                <span class="p">}</span>
-             <span class="p">}</span>
-    <span class="c"># running henniggroup machines</span>
-    <span class="k">elif</span> <span class="n">hostname</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;hydrogen&#39;</span><span class="p">,</span> <span class="s">&#39;helium&#39;</span><span class="p">,</span>
-                      <span class="s">&#39;lithium&#39;</span><span class="p">,</span> <span class="s">&#39;beryllium&#39;</span><span class="p">,</span>
-                      <span class="s">&#39;carbon&#39;</span><span class="p">]:</span>
-        <span class="n">job_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nohup&#39;</span><span class="p">,</span> <span class="s">&#39;/opt/openmpi_intel/bin/mpirun&#39;</span><span class="p">,</span>
-                   <span class="s">&#39;-n&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">nprocs</span><span class="p">),</span>
-                   <span class="n">job_bin</span><span class="p">]</span>
-    <span class="c"># test</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">job_cmd</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ls&#39;</span><span class="p">,</span> <span class="s">&#39;-lt&#39;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">CommonAdapter</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">d</span><span class="p">[</span><span class="s">&#39;params&#39;</span><span class="p">]),</span> <span class="n">job_cmd</span><span class="p">)</span> 
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">job_cmd</span><span class="p">)</span>
 
-</div>
+    <span class="c1"># FIXME: Using hostnames to determine behavior is terrible practice, as is</span>
+    <span class="c1"># hard-coding file directories.</span>
+    <span class="c1"># old hipergator which can be generalized into a pbs qdapter for fireworks</span>
+
+    <span class="c1">#    if &#39;ufhpc_pbs&#39; in hostname:</span>
+    <span class="c1">#        if job_bin is None:</span>
+    <span class="c1">#            job_bin = &#39;/home/km468/Software/VASP/vasp.5.3.5/vasp&#39;</span>
+    <span class="c1">#        else:</span>
+    <span class="c1">#            job_bin = job_bin</span>
+    <span class="c1">#        d = {&#39;type&#39;: &#39;PBS&#39;,</span>
+    <span class="c1">#             &#39;params&#39;:</span>
+    <span class="c1">#                 {</span>
+    <span class="c1">#                     &#39;nnodes&#39;: str(nnodes),</span>
+    <span class="c1">#                     &#39;ppnode&#39;: str(int(nprocs / nnodes)),</span>
+    <span class="c1">#                     &#39;walltime&#39;: walltime,</span>
+    <span class="c1">#                     &#39;job_name&#39;: &#39;vasp_job&#39;,</span>
+    <span class="c1">#                     &#39;email&#39;: &#39;mpinterfaces@gmail.com&#39;,</span>
+    <span class="c1">#                     &#39;notification_options&#39;: &#39;ae&#39;,</span>
+    <span class="c1">#                     &#39;pre_rocket&#39;: &#39;#PBS -l pmem=&#39; + str(mem) + &#39;mb&#39;,</span>
+    <span class="c1">#                     &#39;rocket_launch&#39;: &#39;mpirun &#39; + job_bin</span>
+
+    <span class="c1"># hipergator: currently hipergator2</span>
+    <span class="k">if</span> <span class="s1">&#39;slurm&#39;</span> <span class="ow">in</span> <span class="n">queue</span><span class="p">:</span>
+    <span class="c1">#if &#39;ufhpc&#39; in hostname:</span>
+        <span class="k">if</span> <span class="n">job_bin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">job_bin</span> <span class="o">=</span> <span class="n">VASP_STD_BIN</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">job_bin</span> <span class="o">=</span> <span class="n">job_bin</span>
+    <span class="c1"># FIXME: think of way to generalize this to a SLURM queue, some specs</span>
+    <span class="c1"># here are ufhpc dependent and depend on the submission script settings</span>
+    <span class="c1"># for the binary</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;SLURM&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;params&#39;</span><span class="p">:</span>
+                 <span class="p">{</span>
+                     <span class="s1">&#39;nodes&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">),</span>
+                     <span class="s1">&#39;ntasks&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ntasks</span><span class="p">)),</span>
+                     <span class="s1">&#39;walltime&#39;</span><span class="p">:</span> <span class="n">walltime</span><span class="p">,</span>
+                     <span class="s1">&#39;job_name&#39;</span><span class="p">:</span> <span class="n">job_name</span><span class="p">,</span>
+                     <span class="s1">&#39;email&#39;</span><span class="p">:</span> <span class="s1">&#39;mpinterfaces@gmail.com&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;notification_options&#39;</span><span class="p">:</span> <span class="s1">&#39;ae&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;pre_rocket&#39;</span><span class="p">:</span> <span class="s1">&#39;module load intel/2016.0.109 openmpi&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;rocket_launch&#39;</span><span class="p">:</span> <span class="s1">&#39;mpiexec &#39;</span> <span class="o">+</span> <span class="n">job_bin</span>
+
+                 <span class="p">}</span>
+             <span class="p">}</span>
+    <span class="c1"># stampede</span>
+    <span class="k">elif</span> <span class="s1">&#39;stampede&#39;</span> <span class="ow">in</span> <span class="n">hostname</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">job_bin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">job_bin</span> <span class="o">=</span> <span class="s1">&#39;/home1/01682/km468/Software/VASP/vasp.5.3.5/vasp&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">job_bin</span> <span class="o">=</span> <span class="n">job_bin</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;SLURM&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;params&#39;</span><span class="p">:</span>
+                 <span class="p">{</span>
+                     <span class="s1">&#39;nodes&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">),</span>
+                     <span class="s1">&#39;ntasks&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ntasks</span><span class="p">),</span>
+                     <span class="s1">&#39;walltime&#39;</span><span class="p">:</span> <span class="n">walltime</span><span class="p">,</span>
+                     <span class="s1">&#39;queue&#39;</span><span class="p">:</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;account&#39;</span><span class="p">:</span> <span class="s1">&#39;TG-DMR050028N&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;job_name&#39;</span><span class="p">:</span> <span class="s1">&#39;vasp_job&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;rocket_launch&#39;</span><span class="p">:</span> <span class="s1">&#39;ibrun &#39;</span> <span class="o">+</span> <span class="n">job_bin</span>
+                 <span class="p">}</span>
+             <span class="p">}</span>
+    <span class="c1"># running henniggroup machines</span>
+    <span class="k">elif</span> <span class="n">hostname</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;hydrogen&#39;</span><span class="p">,</span> <span class="s1">&#39;helium&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;lithium&#39;</span><span class="p">,</span> <span class="s1">&#39;beryllium&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;carbon&#39;</span><span class="p">]:</span>
+        <span class="n">job_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nohup&#39;</span><span class="p">,</span> <span class="s1">&#39;/opt/openmpi_intel/bin/mpirun&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ntasks</span><span class="p">),</span>
+                   <span class="n">job_bin</span><span class="p">]</span>
+    <span class="c1"># test</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">job_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ls&#39;</span><span class="p">,</span> <span class="s1">&#39;-lt&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">CommonAdapter</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]),</span> <span class="n">job_cmd</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">job_cmd</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="get_job_state"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_job_state">[docs]</a><span class="k">def</span> <span class="nf">get_job_state</span><span class="p">(</span><span class="n">job</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Args:</span>
@@ -351,83 +375,90 @@
 <span class="sd">           the job state and the job output file name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
-    <span class="n">state</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">ofname</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="c">#hipergator,pbs</span>
-    <span class="k">if</span> <span class="s">&#39;ufhpc&#39;</span> <span class="ow">in</span> <span class="n">hostname</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&#39;qstat&#39;</span><span class="p">,</span> <span class="s">&#39;-i&#39;</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">])</span>
-            <span class="n">state</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Job {} not in the que&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">))</span>
-            <span class="n">state</span> <span class="o">=</span> <span class="s">&quot;00&quot;</span> 
-        <span class="n">ofname</span> <span class="o">=</span> <span class="s">&quot;FW_job.out&quot;</span>
-    <span class="c">#stampede, slurm</span>
-    <span class="k">elif</span> <span class="s">&#39;stampede&#39;</span> <span class="ow">in</span> <span class="n">hostname</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&#39;squeue&#39;</span><span class="p">,</span> <span class="s">&#39;--job&#39;</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">])</span>
-            <span class="n">state</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Job {} not in the que.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">))</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago&#39;</span><span class="p">)</span>
-            <span class="n">state</span> <span class="o">=</span> <span class="s">&quot;00&quot;</span>             
-        <span class="n">ofname</span> <span class="o">=</span> <span class="s">&quot;vasp_job-&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;.out&quot;</span>
-    <span class="c">#no batch system</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">state</span> <span class="o">=</span> <span class="s">&#39;XX&#39;</span>        
-    <span class="k">return</span> <span class="n">state</span><span class="p">,</span> <span class="n">ofname</span>
+    <span class="n">ofname</span> <span class="o">=</span> <span class="kc">None</span>
 
-</div>
-<div class="viewcode-block" id="update_checkpoint"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.update_checkpoint">[docs]</a><span class="k">def</span> <span class="nf">update_checkpoint</span><span class="p">(</span><span class="n">job_ids</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">jfile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c1"># hipergator,pbs</span>
+    <span class="k">if</span> <span class="s1">&#39;ufhpc&#39;</span> <span class="ow">in</span> <span class="n">hostname</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s1">&#39;qstat&#39;</span><span class="p">,</span> <span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">])</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Job </span><span class="si">{}</span><span class="s1"> not in the que&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">))</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span>
+        <span class="n">ofname</span> <span class="o">=</span> <span class="s2">&quot;FW_job.out&quot;</span>
+
+    <span class="c1"># stampede, slurm</span>
+    <span class="k">elif</span> <span class="s1">&#39;stampede&#39;</span> <span class="ow">in</span> <span class="n">hostname</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s1">&#39;squeue&#39;</span><span class="p">,</span> <span class="s1">&#39;--job&#39;</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">])</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Job </span><span class="si">{}</span><span class="s1"> not in the que.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s1">&#39;This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago&#39;</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span>
+        <span class="n">ofname</span> <span class="o">=</span> <span class="s2">&quot;vasp_job-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.out&quot;</span>
+
+    <span class="c1"># no batch system</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="s1">&#39;XX&#39;</span>
+    <span class="k">return</span> <span class="n">state</span><span class="p">,</span> <span class="n">ofname</span></div>
+
+
+<div class="viewcode-block" id="update_checkpoint"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.update_checkpoint">[docs]</a><span class="k">def</span> <span class="nf">update_checkpoint</span><span class="p">(</span><span class="n">job_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    rerun the jobs with job ids in the job_ids list. The jobs are</span>
-<span class="sd">    read from the json checkpoint file, jfile. </span>
-<span class="sd">    If no job_ids are given then the checkpoint file will </span>
+<span class="sd">    read from the json checkpoint file, jfile.</span>
+<span class="sd">    If no job_ids are given then the checkpoint file will</span>
 <span class="sd">    be updated with corresponding final energy</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        job_ids: list of job ids</span>
+<span class="sd">        job_ids: list of job ids to update or q resolve</span>
 <span class="sd">        jfile: check point file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cal_log</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">jfile</span><span class="p">,</span> <span class="n">cls</span><span class="o">=</span><span class="n">MontyDecoder</span><span class="p">)</span>
+    <span class="n">cal_log</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">jfile</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyDecoder</span><span class="p">)</span>
     <span class="n">cal_log_new</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">all_jobs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">run_jobs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">handlers</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">final_energy</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">incar</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">kpoints</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">qadater</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">final_energy</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">incar</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">kpoints</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">qadapter</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># if updating the specs of the job</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;incar&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;incar&#39;</span><span class="p">:</span>
             <span class="n">incar</span> <span class="o">=</span> <span class="n">v</span>
-        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;kpoints&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;kpoints&#39;</span><span class="p">:</span>
             <span class="n">kpoints</span> <span class="o">=</span> <span class="n">v</span>
-        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;que&#39;</span><span class="p">:</span>
-            <span class="n">qadapter</span> <span class="o">=</span> <span class="n">v</span>  
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;que&#39;</span><span class="p">:</span>
+            <span class="n">qadapter</span> <span class="o">=</span> <span class="n">v</span>
     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">cal_log</span><span class="p">:</span>
-        <span class="n">job</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s">&quot;job&quot;</span><span class="p">]</span> 
-        <span class="n">job</span><span class="o">.</span><span class="n">job_id</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s">&#39;job_id&#39;</span><span class="p">]</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s2">&quot;job&quot;</span><span class="p">]</span>
+        <span class="n">job</span><span class="o">.</span><span class="n">job_id</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;job_id&#39;</span><span class="p">]</span>
         <span class="n">all_jobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">job_ids</span> <span class="ow">and</span> <span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="s">&#39;job_id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">job_ids</span> <span class="ow">or</span> <span class="n">job</span><span class="o">.</span><span class="n">job_dir</span> <span class="ow">in</span> <span class="n">job_ids</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;setting job {0} in {1} to rerun&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="s">&#39;job_id&#39;</span><span class="p">],</span> <span class="n">job</span><span class="o">.</span><span class="n">job_dir</span><span class="p">))</span>
-            <span class="n">contcar_file</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">job_dir</span><span class="o">+</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">+</span><span class="s">&#39;CONTCAR&#39;</span>
-            <span class="n">poscar_file</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">job_dir</span><span class="o">+</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">+</span><span class="s">&#39;POSCAR&#39;</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">contcar_file</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">contcar_file</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;setting poscar file from {}&#39;</span>
+        <span class="k">if</span> <span class="n">job_ids</span> <span class="ow">and</span> <span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="s1">&#39;job_id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">job_ids</span> <span class="ow">or</span> <span class="n">job</span><span class="o">.</span><span class="n">job_dir</span> <span class="ow">in</span> <span class="n">job_ids</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;setting job </span><span class="si">{0}</span><span class="s1"> in </span><span class="si">{1}</span><span class="s1"> to rerun&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="s1">&#39;job_id&#39;</span><span class="p">],</span>
+                                                                 <span class="n">job</span><span class="o">.</span><span class="n">job_dir</span><span class="p">))</span>
+            <span class="n">contcar_file</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s1">&#39;CONTCAR&#39;</span>
+            <span class="n">poscar_file</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">job_dir</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="s1">&#39;POSCAR&#39;</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">contcar_file</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span>
+                    <span class="nb">open</span><span class="p">(</span><span class="n">contcar_file</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;setting poscar file from </span><span class="si">{}</span><span class="s1">&#39;</span>
                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">contcar_file</span><span class="p">))</span>
                 <span class="n">job</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">contcar_file</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;setting poscar file from {}&#39;</span>
-                                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">poscar_file</span><span class="p">))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;setting poscar file from </span><span class="si">{}</span><span class="s1">&#39;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">poscar_file</span><span class="p">))</span>
                 <span class="n">job</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">poscar_file</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">incar</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;incar overridden&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;incar overridden&#39;</span><span class="p">)</span>
                 <span class="n">job</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">incar</span> <span class="o">=</span> <span class="n">incar</span>
             <span class="k">if</span> <span class="n">kpoints</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;kpoints overridden&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;kpoints overridden&#39;</span><span class="p">)</span>
                 <span class="n">job</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="n">kpoints</span>
             <span class="k">if</span> <span class="n">qadapter</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;qadapter overridden&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;qadapter overridden&#39;</span><span class="p">)</span>
                 <span class="n">job</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">qadapter</span> <span class="o">=</span> <span class="n">qadapter</span>
             <span class="n">run_jobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">run_jobs</span><span class="p">:</span>
@@ -435,92 +466,112 @@
         <span class="n">c</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">all_jobs</span><span class="p">:</span>
         <span class="n">final_energy</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">get_final_energy</span><span class="p">()</span>
-        <span class="n">cal_log_new</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s">&quot;job&quot;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> 
-                            <span class="s">&#39;job_id&#39;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span> 
-                            <span class="s">&quot;corrections&quot;</span><span class="p">:</span> <span class="p">[],</span> 
-                            <span class="s">&#39;final_energy&#39;</span><span class="p">:</span> <span class="n">final_energy</span><span class="p">})</span>
-    <span class="n">dumpfn</span><span class="p">(</span><span class="n">cal_log_new</span><span class="p">,</span> <span class="n">jfile</span><span class="p">,</span> <span class="n">cls</span><span class="o">=</span><span class="n">MontyEncoder</span><span class="p">,</span>
-           <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">cal_log_new</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;job&quot;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                            <span class="s1">&#39;job_id&#39;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span>
+                            <span class="s2">&quot;corrections&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                            <span class="s1">&#39;final_energy&#39;</span><span class="p">:</span> <span class="n">final_energy</span><span class="p">})</span>
+    <span class="n">dumpfn</span><span class="p">(</span><span class="n">cal_log_new</span><span class="p">,</span> <span class="n">jfile</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyEncoder</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
-    </div>
-<div class="viewcode-block" id="jobs_from_file"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.jobs_from_file">[docs]</a><span class="k">def</span> <span class="nf">jobs_from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;calibrate.json&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        read in json file of format caibrate.json(the default logfile</span>
-<span class="sd">        created when jobs are run through calibrate) and return the</span>
-<span class="sd">        list of job objects.</span>
-<span class="sd">        Args:</span>
-<span class="sd">            filename: checkpoint file name</span>
-<span class="sd">        Returns:</span>
-<span class="sd">               list of all jobs</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">caljobs</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">cls</span><span class="o">=</span><span class="n">MontyDecoder</span><span class="p">)</span>
-        <span class="n">all_jobs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">caljobs</span><span class="p">:</span>
-            <span class="n">job</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s">&quot;job&quot;</span><span class="p">]</span>
-            <span class="n">job</span><span class="o">.</span><span class="n">job_id</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s">&#39;job_id&#39;</span><span class="p">]</span>
-            <span class="n">job</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s">&#39;final_energy&#39;</span><span class="p">]</span>
-            <span class="n">all_jobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">all_jobs</span>
 
-    </div>
-<div class="viewcode-block" id="launch_daemon"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.launch_daemon">[docs]</a><span class="k">def</span> <span class="nf">launch_daemon</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">handlers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ld_logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        run all the &#39;steps&#39; in daemon mode</span>
-<span class="sd">        checks job status every &#39;interval&#39; seconds</span>
-<span class="sd">        also runs all the error handlers</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">ld_logger</span><span class="p">:</span>
-            <span class="k">global</span> <span class="n">logger</span>
-            <span class="n">logger</span> <span class="o">=</span> <span class="n">ld_logger</span>
-        <span class="n">chkpt_files_prev</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
-            <span class="n">chkpt_files</span> <span class="o">=</span> <span class="n">step</span><span class="p">(</span><span class="n">checkpoint_files</span><span class="o">=</span><span class="n">chkpt_files_prev</span><span class="p">)</span>
-            <span class="n">chkpt_files_prev</span> <span class="o">=</span> <span class="n">chkpt_files</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">chkpt_files</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">None</span>
-            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-                <span class="n">done</span> <span class="o">=</span> <span class="p">[]</span>            
-                <span class="k">for</span> <span class="n">cf</span> <span class="ow">in</span> <span class="n">chkpt_files</span><span class="p">:</span>
-                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>                
-                    <span class="n">update_checkpoint</span><span class="p">(</span><span class="n">jfile</span><span class="o">=</span><span class="n">cf</span><span class="p">)</span>
-                    <span class="n">all_jobs</span> <span class="o">=</span> <span class="n">jobs_from_file</span><span class="p">(</span><span class="n">cf</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">all_jobs</span><span class="p">:</span>
-                        <span class="n">state</span><span class="p">,</span> <span class="n">ofname</span> <span class="o">=</span> <span class="n">get_job_state</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">final_energy</span><span class="p">:</span>
-                            <span class="n">done</span> <span class="o">=</span> <span class="n">done</span> <span class="o">+</span> <span class="p">[</span><span class="bp">True</span><span class="p">]</span>
-                        <span class="k">elif</span> <span class="n">state</span> <span class="o">==</span> <span class="s">&#39;R&#39;</span><span class="p">:</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;job {} running&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">job_id</span><span class="p">))</span>
-                            <span class="n">done</span> <span class="o">=</span> <span class="n">done</span> <span class="o">+</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span>
-                        <span class="k">elif</span> <span class="n">state</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;CF&#39;</span><span class="p">,</span> <span class="s">&#39;F&#39;</span><span class="p">,</span> <span class="s">&#39;00&#39;</span><span class="p">]:</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Job {0} in {1} cancelled or failed. State = {2}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span><span class="n">state</span><span class="p">))</span>
-                            <span class="n">done</span> <span class="o">=</span> <span class="n">done</span> <span class="o">+</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span>
-                            <span class="k">if</span> <span class="n">handlers</span><span class="p">:</span>
-                                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Investigating ... &#39;</span><span class="p">)</span>
-                                <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">job_dir</span><span class="p">)</span>
-                                <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
-                                    <span class="k">if</span> <span class="n">ofname</span><span class="p">:</span>
+<div class="viewcode-block" id="jobs_from_file"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.jobs_from_file">[docs]</a><span class="k">def</span> <span class="nf">jobs_from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;calibrate.json&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    read in json file of format caibrate.json(the default logfile</span>
+<span class="sd">    created when jobs are run through calibrate) and return the</span>
+<span class="sd">    list of job objects.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename: checkpoint file name</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">           list of all jobs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">caljobs</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyDecoder</span><span class="p">)</span>
+    <span class="n">all_jobs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">caljobs</span><span class="p">:</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s2">&quot;job&quot;</span><span class="p">]</span>
+        <span class="n">job</span><span class="o">.</span><span class="n">job_id</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;job_id&#39;</span><span class="p">]</span>
+        <span class="n">job</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;final_energy&#39;</span><span class="p">]</span>
+        <span class="n">all_jobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">all_jobs</span></div>
+
+
+<div class="viewcode-block" id="launch_daemon"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.launch_daemon">[docs]</a><span class="k">def</span> <span class="nf">launch_daemon</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">handlers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ld_logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    run all the &#39;steps&#39; in daemon mode</span>
+<span class="sd">    checks job status every &#39;interval&#39; seconds</span>
+<span class="sd">    also runs all the error handlers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ld_logger</span><span class="p">:</span>
+        <span class="k">global</span> <span class="n">logger</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">ld_logger</span>
+    <span class="n">chkpt_files_prev</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+        <span class="n">chkpt_files</span> <span class="o">=</span> <span class="n">step</span><span class="p">(</span><span class="n">checkpoint_files</span><span class="o">=</span><span class="n">chkpt_files_prev</span><span class="p">)</span>
+        <span class="n">chkpt_files_prev</span> <span class="o">=</span> <span class="n">chkpt_files</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">chkpt_files</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">done</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">reruns</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">cf</span> <span class="ow">in</span> <span class="n">chkpt_files</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="n">update_checkpoint</span><span class="p">(</span><span class="n">job_ids</span><span class="o">=</span><span class="n">reruns</span><span class="p">,</span> <span class="n">jfile</span><span class="o">=</span><span class="n">cf</span><span class="p">)</span>
+                <span class="n">all_jobs</span> <span class="o">=</span> <span class="n">jobs_from_file</span><span class="p">(</span><span class="n">cf</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">all_jobs</span><span class="p">:</span>
+                    <span class="n">state</span><span class="p">,</span> <span class="n">ofname</span> <span class="o">=</span> <span class="n">get_job_state</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">final_energy</span><span class="p">:</span>
+                        <span class="n">done</span> <span class="o">=</span> <span class="n">done</span> <span class="o">+</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="n">state</span> <span class="o">==</span> <span class="s1">&#39;R&#39;</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;job </span><span class="si">{}</span><span class="s1"> running&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">job_id</span><span class="p">))</span>
+                        <span class="n">done</span> <span class="o">=</span> <span class="n">done</span> <span class="o">+</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="n">state</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;CF&#39;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;00&#39;</span><span class="p">]:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="s1">&#39;Job </span><span class="si">{0}</span><span class="s1"> in </span><span class="si">{1}</span><span class="s1"> cancelled or failed. State = </span><span class="si">{2}</span><span class="s1">&#39;</span><span class="o">.</span>
+                            <span class="nb">format</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">job_dir</span><span class="p">,</span> <span class="n">state</span><span class="p">))</span>
+                        <span class="n">done</span> <span class="o">=</span> <span class="n">done</span> <span class="o">+</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">handlers</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Investigating ... &#39;</span><span class="p">)</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">job_dir</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">ofname</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ofname</span><span class="p">):</span>
+                                    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
                                         <span class="n">h</span><span class="o">.</span><span class="n">output_filename</span> <span class="o">=</span> <span class="n">ofname</span>
                                         <span class="k">if</span> <span class="n">h</span><span class="o">.</span><span class="n">check</span><span class="p">():</span>
-                                            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Detected vasp errors {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">errors</span><span class="p">))</span>
-                                <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">parent_job_dir</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Job {0} pending. State = {1}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span><span class="n">state</span><span class="p">))</span>
-                            <span class="n">done</span> <span class="o">=</span> <span class="n">done</span> <span class="o">+</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span>
-                <span class="c"># test:</span>
-                <span class="c">#done = [True, True]                            </span>
-                <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">done</span><span class="p">):</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;all jobs in {} done. Proceeding to the next one&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">func_name</span><span class="p">))</span>                                    
-                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-                    <span class="k">break</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;all jobs in {0} NOT done. Next update in {1} seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">func_name</span><span class="p">,</span><span class="n">interval</span><span class="p">))</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
-        
-        </div>
-<div class="viewcode-block" id="get_convergence_data"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_convergence_data">[docs]</a><span class="k">def</span> <span class="nf">get_convergence_data</span><span class="p">(</span><span class="n">jfile</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;ENCUT&#39;</span><span class="p">,</span><span class="s">&#39;KPOINTS&#39;</span><span class="p">]):</span>
+                                            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                                                <span class="s1">&#39;Detected vasp errors </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                                    <span class="n">h</span><span class="o">.</span><span class="n">errors</span><span class="p">))</span>
+                                            <span class="c1"># TODO: correct the error and mark the job for rerun</span>
+                                            <span class="c1"># all error handling must done using proper errorhandlers</span>
+                                            <span class="c1"># h.correct()</span>
+                                            <span class="c1"># reruns.append(j.job_id)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                                        <span class="s1">&#39;stdout redirect file not generated, job </span><span class="si">{}</span><span class="s1"> will be rerun&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                            <span class="n">j</span><span class="o">.</span><span class="n">job_id</span><span class="p">))</span>
+                                    <span class="n">reruns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">job_id</span><span class="p">)</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">parent_job_dir</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="s1">&#39;Job </span><span class="si">{0}</span><span class="s1"> pending. State = </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span>
+                                                                  <span class="n">state</span><span class="p">))</span>
+                        <span class="n">done</span> <span class="o">=</span> <span class="n">done</span> <span class="o">+</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">done</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">&#39;all jobs in </span><span class="si">{}</span><span class="s1"> done. Proceeding to the next one&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">step</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s1">&#39;all jobs in </span><span class="si">{0}</span><span class="s1"> NOT done. Next update in </span><span class="si">{1}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">step</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">interval</span><span class="p">))</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_convergence_data"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_convergence_data">[docs]</a><span class="k">def</span> <span class="nf">get_convergence_data</span><span class="p">(</span><span class="n">jfile</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;ENCUT&#39;</span><span class="p">,</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    returns data dict in the following format</span>
 <span class="sd">    {&#39;Al&#39;:</span>
-<span class="sd">          {&#39;ENCUT&#39;: [ [500,1.232], [600,0.8798] ], </span>
+<span class="sd">          {&#39;ENCUT&#39;: [ [500,1.232], [600,0.8798] ],</span>
 <span class="sd">            &#39;KPOINTS&#39;:[ [], [] ]</span>
 <span class="sd">          },</span>
 <span class="sd">     &#39;W&#39;: ...</span>
@@ -532,132 +583,255 @@
     <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">cutoff_jobs</span><span class="p">:</span>
         <span class="n">jdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">parent_job_dir</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">job_dir</span><span class="p">)</span>
-        <span class="n">poscar_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">jdir</span><span class="p">,</span> <span class="s">&#39;POSCAR&#39;</span><span class="p">)</span>
+        <span class="n">poscar_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">jdir</span><span class="p">,</span> <span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
         <span class="n">struct_m</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">poscar_file</span><span class="p">)</span>
-        <span class="n">species</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">tos</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">tos</span> <span class="ow">in</span> <span class="n">struct_m</span><span class="o">.</span><span class="n">types_of_specie</span><span class="p">])</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">tos</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">tos</span> <span class="ow">in</span> <span class="n">struct_m</span><span class="o">.</span><span class="n">types_of_specie</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
-                    <span class="n">data</span><span class="p">[</span><span class="n">species</span><span class="p">][</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span> <span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">incar</span><span class="p">[</span><span class="n">p</span><span class="p">],</span>
-                                               <span class="n">j</span><span class="o">.</span><span class="n">final_energy</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">struct_m</span><span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
-                <span class="k">elif</span> <span class="n">p</span> <span class="o">==</span> <span class="s">&#39;KPOINTS&#39;</span><span class="p">:</span>
-                    <span class="n">data</span><span class="p">[</span><span class="n">species</span><span class="p">][</span><span class="s">&#39;KPOINTS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span> <span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">,</span>
-                                                       <span class="n">j</span><span class="o">.</span><span class="n">final_energy</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">struct_m</span><span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">species</span><span class="p">][</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">incar</span><span class="p">[</span><span class="n">p</span><span class="p">],</span>
+                                             <span class="n">j</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct_m</span><span class="p">)])</span>
+                <span class="k">elif</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">species</span><span class="p">][</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">,</span>
+                                                     <span class="n">j</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+                                                         <span class="n">struct_m</span><span class="p">)])</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;dont know how to parse the parameter {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="s1">&#39;dont know how to parse the parameter </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">data</span><span class="p">[</span><span class="n">species</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">species</span><span class="p">][</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">species</span><span class="p">][</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">return</span> <span class="n">data</span>    
+    <span class="k">return</span> <span class="n">data</span></div>
 
-</div>
-<div class="viewcode-block" id="get_opt_params"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_opt_params">[docs]</a><span class="k">def</span> <span class="nf">get_opt_params</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="s">&#39;ENCUT&#39;</span><span class="p">,</span> <span class="n">ev_per_atom</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_opt_params"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_opt_params">[docs]</a><span class="k">def</span> <span class="nf">get_opt_params</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="s1">&#39;ENCUT&#39;</span><span class="p">,</span> <span class="n">ev_per_atom</span><span class="o">=</span><span class="mf">0.001</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    return optimum parameter</span>
 <span class="sd">    default: 1 meV/atom</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">sorted_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">species</span><span class="p">][</span><span class="n">param</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">sorted_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">species</span><span class="p">][</span><span class="n">param</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">sorted_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sorted_list</span><span class="p">)</span>
-    <span class="n">consecutive_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sorted_array</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ev_per_atom</span><span class="p">)</span>
+    <span class="n">consecutive_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+        <span class="n">sorted_array</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ev_per_atom</span><span class="p">)</span>
     <span class="n">min_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">consecutive_diff</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">sorted_list</span><span class="p">[</span><span class="n">min_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-    
-</div>
+    <span class="k">return</span> <span class="n">sorted_list</span><span class="p">[</span><span class="n">min_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<span class="c1"># PLEASE DONT CHANGE THINGS WITHOUT UPDATING SCRIPTS/MODULES THAT DEPEND</span>
+<span class="c1"># ON IT</span>
+<span class="c1"># get_convergence_data and get_opt_params moved to *_custom</span>
+<div class="viewcode-block" id="get_convergence_data_custom"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_convergence_data_custom">[docs]</a><span class="k">def</span> <span class="nf">get_convergence_data_custom</span><span class="p">(</span><span class="n">jfile</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;ENCUT&#39;</span><span class="p">,</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns data dict in the following format</span>
+<span class="sd">    {&#39;Al&#39;:</span>
+<span class="sd">          {&#39;ENCUT&#39;: [ [500,1.232], [600,0.8798] ],</span>
+<span class="sd">            &#39;KPOINTS&#39;:[ [], [] ]</span>
+<span class="sd">          },</span>
+<span class="sd">     &#39;W&#39;: ...</span>
+<span class="sd">    }</span>
+
+<span class="sd">    Note: processes only INCAR parmaters and KPOINTS</span>
+<span class="sd">    Sufficient tagging of the data assumed from species,Poscar</span>
+<span class="sd">    comment line and potcar functional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cutoff_jobs</span> <span class="o">=</span> <span class="n">jobs_from_file</span><span class="p">(</span><span class="n">jfile</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">cutoff_jobs</span><span class="p">:</span>
+        <span class="n">jdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">parent_job_dir</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">job_dir</span><span class="p">)</span>
+        <span class="n">poscar_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">jdir</span><span class="p">,</span> <span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+        <span class="n">struct_m</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">poscar_file</span><span class="p">)</span>
+
+        <span class="n">species</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">tos</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">tos</span> <span class="ow">in</span> <span class="n">struct_m</span><span class="o">.</span><span class="n">types_of_specie</span><span class="p">])</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">species</span><span class="p">,</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">poscar_file</span><span class="p">)</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
+                        <span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">potcar</span><span class="o">.</span><span class="n">functional</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">incar</span><span class="p">[</span><span class="n">p</span><span class="p">],</span>
+                                         <span class="n">j</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct_m</span><span class="p">),</span>
+                                         <span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">potcar</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">poscar</span><span class="p">])</span>
+                    <span class="c1">#                print(j.vis.potcar.functional,j.vis.poscar)</span>
+                <span class="k">elif</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;KPOINTS&#39;</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">,</span>
+                                                 <span class="n">j</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+                                                     <span class="n">struct_m</span><span class="p">),</span> <span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">potcar</span><span class="p">,</span>
+                                                 <span class="n">j</span><span class="o">.</span><span class="n">vis</span><span class="o">.</span><span class="n">poscar</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="s1">&#39;dont know how to parse the parameter </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="get_opt_params_custom"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_opt_params_custom">[docs]</a><span class="k">def</span> <span class="nf">get_opt_params_custom</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="s1">&#39;ENCUT&#39;</span><span class="p">,</span> <span class="n">ev_per_atom</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        data:  dictionary of convergence data</span>
+<span class="sd">        tag:   key to dictionary of convergence dara</span>
+<span class="sd">        param: parameter to be optimized</span>
+<span class="sd">        ev_per_atom: minimizing criterion in eV per unit</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">        [list] optimum parameter set consisting of tag, potcar object,</span>
+<span class="sd">        poscar object, list of convergence data energies sorted according to</span>
+<span class="sd">        param</span>
+
+<span class="sd">    default criterion: 1 meV/atom</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sorted_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="n">param</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c1"># sorted array data</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sorted_list</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># print(sorted_array[:-1,1], sorted_array[1:,1], ev_per_atom)</span>
+    <span class="n">consecutive_diff</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">-</span> <span class="n">ev_per_atom</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span>
+                        <span class="nb">zip</span><span class="p">(</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+    <span class="c1"># print(&quot;Consecutive_diff&quot;,consecutive_diff)</span>
+    <span class="n">min_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">consecutive_diff</span><span class="p">)</span>
+    <span class="c1"># return the tag,potcar object, poscar object, incar setting and</span>
+    <span class="c1"># convergence data for plotting that is optimum</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">tag</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="n">param</span><span class="p">][</span><span class="n">min_index</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="n">param</span><span class="p">][</span><span class="n">min_index</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span> <span class="n">sorted_list</span><span class="p">[</span><span class="n">min_index</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">]</span></div>
+
+
 <div class="viewcode-block" id="partition_jobs"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.partition_jobs">[docs]</a><span class="k">def</span> <span class="nf">partition_jobs</span><span class="p">(</span><span class="n">turn_knobs</span><span class="p">,</span> <span class="n">max_jobs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    divide turn_knobs into smaller turn_knobs so that each one of</span>
 <span class="sd">    them has smaller max_jobs jobs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">params_len</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">turn_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
-    <span class="n">n_total_jobs</span> <span class="o">=</span>  <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span><span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="p">,</span> <span class="n">params_len</span><span class="p">)</span>
-    <span class="n">partition_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_total_jobs</span><span class="o">/</span><span class="n">max_jobs</span><span class="p">)</span>
+    <span class="n">params_len</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">turn_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+    <span class="n">n_total_jobs</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span> <span class="n">params_len</span><span class="p">)</span>
+    <span class="n">partition_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_total_jobs</span> <span class="o">/</span> <span class="n">max_jobs</span><span class="p">)</span>
     <span class="n">max_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">params_len</span><span class="p">)</span>
     <span class="n">max_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">params_len</span><span class="p">)</span>
-    <span class="n">max_key</span> <span class="o">=</span> <span class="n">turn_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">()[</span><span class="n">max_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">partition</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">max_len</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">max_len</span><span class="o">/</span><span class="n">partition_size</span><span class="p">)))</span>
-    <span class="n">partition_1</span> <span class="o">=</span> <span class="n">partition</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">+</span><span class="p">[</span><span class="n">max_len</span><span class="p">]</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;{0} list of length {1} will be partitioned into {2} chunks&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_key</span><span class="p">,</span><span class="n">max_len</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">partition</span><span class="p">)))</span>
+    <span class="n">max_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">turn_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">())[</span><span class="n">max_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">partition</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_len</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_len</span> <span class="o">/</span> <span class="n">partition_size</span><span class="p">)))</span>
+    <span class="n">partition_1</span> <span class="o">=</span> <span class="n">partition</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="p">[</span><span class="n">max_len</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1"> list of length </span><span class="si">{1}</span><span class="s1"> will be partitioned into </span><span class="si">{2}</span><span class="s1"> chunks&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">max_key</span><span class="p">,</span> <span class="n">max_len</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">partition</span><span class="p">)))</span>
     <span class="n">turn_knobs_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">name_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">partition</span><span class="p">,</span><span class="n">partition_1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">partition</span><span class="p">,</span> <span class="n">partition_1</span><span class="p">):</span>
         <span class="n">ordered_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">turn_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">turn_knobs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="n">max_key</span><span class="p">:</span>
-                <span class="n">tk_item</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">tk_item</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">tk_item</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">tk_item</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
             <span class="n">ordered_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tk_item</span><span class="p">)</span>
         <span class="n">turn_knobs_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">(</span><span class="n">ordered_list</span><span class="p">))</span>
-        <span class="n">name_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)]))</span>
-    <span class="k">return</span> <span class="n">turn_knobs_list</span><span class="p">,</span> <span class="n">name_list</span>
+        <span class="n">name_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)]))</span>
+    <span class="k">return</span> <span class="n">turn_knobs_list</span><span class="p">,</span> <span class="n">name_list</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_logger"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_logger">[docs]</a><span class="k">def</span> <span class="nf">get_logger</span><span class="p">(</span><span class="n">log_file_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    writes out logging file.</span>
+<span class="sd">    Very useful project logging, recommended for use</span>
+<span class="sd">    to monitor the start and completion of steps in the workflow</span>
+<span class="sd">    Arg:</span>
+<span class="sd">        log_file_name: name of the log file, log_file_name.log</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">loggr</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">log_file_name</span><span class="p">)</span>
     <span class="n">loggr</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-    <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s">:</span><span class="si">%(levelname)s</span><span class="s">:</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
-    <span class="n">fh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file_name</span><span class="o">+</span><span class="s">&#39;.log&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+    <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1">:</span><span class="si">%(levelname)s</span><span class="s1">:</span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">fh</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file_name</span> <span class="o">+</span> <span class="s1">&#39;.log&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
     <span class="n">fh</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
     <span class="n">loggr</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">loggr</span></div>
+
+
+<div class="viewcode-block" id="set_sd_flags"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.set_sd_flags">[docs]</a><span class="k">def</span> <span class="nf">set_sd_flags</span><span class="p">(</span><span class="n">poscar_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">poscar_output</span><span class="o">=</span><span class="s1">&#39;POSCAR2&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    set the relaxation flags for top and bottom layers of interface.</span>
+<span class="sd">    The upper and lower bounds of the z coordinate are determined</span>
+<span class="sd">    based on the slab.</span>
+<span class="sd">    Args:</span>
+<span class="sd">         poscar_input: input poscar file name</span>
+<span class="sd">         n_layers: number of layers to be relaxed</span>
+<span class="sd">         top: whether n_layers from top are be relaxed</span>
+<span class="sd">         bottom: whether n_layers from bottom are be relaxed</span>
+<span class="sd">         poscar_output: output poscar file name</span>
+<span class="sd">    Returns:</span>
+<span class="sd">         None</span>
+<span class="sd">         writes the modified poscar file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">poscar1</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">poscar_input</span><span class="p">)</span>
+    <span class="n">sd_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">poscar1</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+    <span class="n">z_coords</span> <span class="o">=</span> <span class="n">poscar1</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">z_lower_bound</span><span class="p">,</span> <span class="n">z_upper_bound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">bottom</span><span class="p">:</span>
+        <span class="n">z_lower_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">z_coords</span><span class="p">)[</span><span class="n">n_layers</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">sd_flags</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">z_coords</span> <span class="o">&lt;=</span> <span class="n">z_lower_bound</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">top</span><span class="p">:</span>
+        <span class="n">z_upper_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">z_coords</span><span class="p">)[</span><span class="o">-</span><span class="n">n_layers</span><span class="p">]</span>
+        <span class="n">sd_flags</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">z_coords</span> <span class="o">&gt;=</span> <span class="n">z_upper_bound</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">poscar2</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">poscar1</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">selective_dynamics</span><span class="o">=</span><span class="n">sd_flags</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="n">poscar2</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">poscar_output</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_exception"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.print_exception">[docs]</a><span class="k">def</span> <span class="nf">print_exception</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Error exception catching function for debugging</span>
+<span class="sd">    can be a very useful tool for a developer</span>
+<span class="sd">    move to utils and activate when debug mode is on</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_obj</span><span class="p">,</span> <span class="n">tb</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">tb_frame</span>
+    <span class="n">lineno</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">tb_lineno</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_filename</span>
+    <span class="n">linecache</span><span class="o">.</span><span class="n">checkcache</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">linecache</span><span class="o">.</span><span class="n">getline</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">f_globals</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;EXCEPTION IN (</span><span class="si">{}</span><span class="s1">, LINE </span><span class="si">{}</span><span class="s1"> &quot;</span><span class="si">{}</span><span class="s1">&quot;): </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span>
+                                                       <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">exc_obj</span><span class="p">))</span></div>
 </pre></div>
 
           </div>
-          <footer>
-  
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>
-        &copy; Copyright 2015, Kiran Mathew, Joshua Gabriel, Arunima Singh, Richard G. Hennig.
-    </p>
-  </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-
-</footer>
-
         </div>
       </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../mpinterfaces.html">mpinterfaces</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
 
-    </section>
+    
 
-  </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'1.1.2alpha',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
-      });
-  </script>
-   
-
-</body>
+    
+  </body>
 </html>

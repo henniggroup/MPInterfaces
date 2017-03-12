@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mpinterfaces.twod_materials.magnetism.startup &#8212; mpinterfaces  documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mpinterfaces.twod_materials.magnetism.startup</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces</span> <span class="k">import</span> <span class="n">QUEUE_SYSTEM</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.twod_materials.utils.utils</span> <span class="k">import</span> <span class="n">get_magmom_string</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.twod_materials.stability</span> <span class="k">import</span> <span class="n">INCAR_DICT</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ashtonmv@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
+
+
+<div class="viewcode-block" id="run_major_axis_anisotropy_calculations"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.magnetism.html#mpinterfaces.twod_materials.magnetism.startup.run_major_axis_anisotropy_calculations">[docs]</a><span class="k">def</span> <span class="nf">run_major_axis_anisotropy_calculations</span><span class="p">(</span><span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform static calculations with the magnetic axis along</span>
+<span class="sd">    100, 010, and 001.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        submit (bool): Whether or not to submit the job.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">&#39;MAE&#39;</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;MAE&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;MAE&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;100&#39;</span><span class="p">,</span> <span class="s1">&#39;010&#39;</span><span class="p">,</span> <span class="s1">&#39;001&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp ../CONTCAR POSCAR&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp ../POTCAR .&#39;</span><span class="p">)</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">d</span><span class="p">]</span>
+        <span class="c1"># Small positive number, see vasp manual</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;001&#39;</span><span class="p">,</span> <span class="s1">&#39;010&#39;</span><span class="p">]:</span>
+            <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.00000001</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.00000001</span>
+
+        <span class="n">saxis</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+        <span class="n">incar_dict</span> <span class="o">=</span> <span class="n">INCAR_DICT</span>
+        <span class="n">incar_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;EDIFF&#39;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span>
+                           <span class="s1">&#39;GGA_COMPAT&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                           <span class="s1">&#39;ISMEAR&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span>
+                           <span class="s1">&#39;LORBIT&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+                           <span class="s1">&#39;LSORBIT&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                           <span class="s1">&#39;LWAVE&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                           <span class="s1">&#39;LCHARG&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                           <span class="s1">&#39;LAECHG&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                           <span class="s1">&#39;MAGMOM&#39;</span><span class="p">:</span> <span class="n">get_magmom_string</span><span class="p">(),</span>
+                           <span class="s1">&#39;SAXIS&#39;</span><span class="p">:</span> <span class="n">saxis</span><span class="p">})</span>
+        <span class="n">Incar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">incar_dict</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;INCAR&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span>
+            <span class="n">utl</span><span class="o">.</span><span class="n">write_pbs_runjob</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="s1">&#39;800mb&#39;</span><span class="p">,</span> <span class="s1">&#39;6:00:00&#39;</span><span class="p">,</span>
+                <span class="n">VASP_TWOD_BIN</span><span class="p">)</span>
+            <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;qsub runjob&#39;</span>
+
+        <span class="k">elif</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
+            <span class="n">utl</span><span class="o">.</span><span class="n">write_slurm_runjob</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="s1">&#39;800mb&#39;</span><span class="p">,</span> <span class="s1">&#39;6:00:00&#39;</span><span class="p">,</span>
+                <span class="n">VASP_TWOD_BIN</span><span class="p">)</span>
+            <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;sbatch runjob&#39;</span>
+
+        <span class="k">if</span> <span class="n">submit</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">submission_command</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_xy_anisotropy_calculations"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.magnetism.html#mpinterfaces.twod_materials.magnetism.startup.run_xy_anisotropy_calculations">[docs]</a><span class="k">def</span> <span class="nf">run_xy_anisotropy_calculations</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform static calculations with the magnetic axis along</span>
+<span class="sd">    several directions between 100 and 010.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        resolution (int): step size between axes. The total</span>
+<span class="sd">            number of calculations will be 90 / `resolution`.</span>
+<span class="sd">        submit (bool): Whether or not to submit the job.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="run_xz_anisotropy_calculations"><a class="viewcode-back" href="../../../../mpinterfaces.twod_materials.magnetism.html#mpinterfaces.twod_materials.magnetism.startup.run_xz_anisotropy_calculations">[docs]</a><span class="k">def</span> <span class="nf">run_xz_anisotropy_calculations</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform static calculations with the magnetic axis along</span>
+<span class="sd">    several directions between 100 and 001.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        resolution (int): step size between axes. The total</span>
+<span class="sd">            number of calculations will be 90 / `resolution`.</span>
+<span class="sd">        submit (bool): Whether or not to submit the job.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  <li><a href="../../../mpinterfaces.html">mpinterfaces</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

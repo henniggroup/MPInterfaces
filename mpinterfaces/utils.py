@@ -12,6 +12,7 @@ Utility functions
 
 from six.moves import range, zip
 
+import itertools as it
 from functools import reduce
 import linecache
 import sys
@@ -33,6 +34,10 @@ from pymatgen import Structure, Lattice, Element
 from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.core.composition import Composition
+from pymatgen.core.operations import SymmOp
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from custodian.custodian import Custodian
 
@@ -41,7 +46,7 @@ from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 from ase.lattice.surface import surface
 
 from mpinterfaces.default_logger import get_default_logger
-from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM
+from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM, VASP_PSP, PACKAGE_PATH
 
 __author__ = "Kiran Mathew, Joshua J. Gabriel"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -143,30 +148,29 @@ def add_vacuum_padding(slab, vacuum, hkl=(0, 0, 1)):
                 site_properties=new_struct.site_properties)
 
 
-def get_magmom_string(poscar):
+def get_magmom_string(structure):
     """
     Based on a POSCAR, returns the string required for the MAGMOM
     setting in the INCAR. Initializes transition metals with 6.0
     bohr magneton and all others with 0.5.
-    TEST: integration of twod_materials function with mpinterfaces
+    TEST: integration of mat2D function with mpinterfaces
     calibrate.py
     Consider moving to mpinterfaces.utils
 
     Args:
-        poscar (Poscar): Poscar object
+        structure (Structure): Pymatgen Structure object
 
     Returns:
-        string with INCAR setting for MAGMOM according to twod_materials
+        string with INCAR setting for MAGMOM according to mat2D
         database calculations
     """
     magmoms = []
-    sites_dict = poscar.as_dict()['structure']['sites']
-    for s in sites_dict:
-        if Element(s['label']).is_transition_metal:
-            magmoms.append(6.0)
+    for elt in structure.composition:
+        if elt.is_transition_metal:
+            magmoms.append('{}*6.0'.format(structure.composition[elt]))
         else:
-            magmoms.append(0.5)
-    return magmoms
+            magmoms.append('{}*0.5'.format(structure.composition[elt]))
+    return ' '.join(magmoms)
 
 
 def get_magmom_mae(poscar, mag_init):
@@ -746,3 +750,482 @@ def print_exception():
     line = linecache.getline(filename, lineno, f.f_globals)
     print('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno,
                                                        line.strip(), exc_obj))
+
+
+def is_converged(directory):
+    """
+    Check if a relaxation has converged.
+
+    Args:
+        directory (str): path to directory to check.
+
+    Returns:
+        boolean. Whether or not the job is converged.
+    """
+
+    try:
+        return Vasprun('{}/vasprun.xml'.format(directory)).converged
+    except:
+        return False
+
+
+def get_spacing(structure, cut=0.9):
+    """
+    Returns the interlayer spacing for a 2D material or slab.
+
+    Args:
+        structure (Structure): Structure to check spacing for.
+        cut (float): a fractional z-coordinate that must be within
+            the vacuum region.
+
+    Returns:
+        float. Spacing in Angstroms.
+    """
+
+    structure = align_c_axis_along_001(structure)
+    structure = center_slab(structure, cut)
+    max_height = max([s.coords[2] for s in structure.sites])
+    min_height = min([s.coords[2] for s in structure.sites])
+    return structure.lattice.c - (max_height - min_height)
+
+
+def center_slab(structure, cut=0.9):
+    """
+    Centers the atoms in a slab structure around 0.5
+    fractional height.
+
+    Args:
+        structure (Structure): Structure to center
+        cut (float): Fractional height somewhere outside of the
+            slab, for defining its top and bottom.
+    Returns:
+        Centered Structure object.
+    """
+
+    center = np.average([s._fcoords[2] for s in structure.sites])
+    translation = (0, 0, 0.5 - center)
+    structure.translate_sites(range(len(structure.sites)), translation)
+    return structure
+
+
+def ensure_vacuum(structure, vacuum, cut=0.9):
+    """
+    Adds padding to a slab or 2D material until the desired amount
+    of vacuum is reached.
+
+    Args:
+        structure (Structure): Structure to add vacuum to
+        vacuum (float): Final desired vacuum thickness in Angstroms
+        cut (delta): fractional height somewhere outside the slab,
+            to help define its top and bottom
+    Returns:
+        Structure object with vacuum added.
+    """
+
+    # Fix the POSCAR to make it easiest to work with.
+    structure = align_c_axis_along_001(structure)
+    structure = center_slab(structure, cut)
+    spacing = get_spacing(structure, cut)
+    coords = [s.coords for s in structure.sites]
+    species = [s.specie for s in structure.sites]
+    lattice = [[l[0], l[1], l[2]] for l in structure.lattice.matrix]
+    lattice[2][2] += vacuum - spacing
+    structure = Structure(lattice, species, coords, coords_are_cartesian=True)
+    return center_slab(structure, cut)
+
+
+def get_rotation_matrix(axis, theta):
+    """
+    Find the rotation matrix associated with counterclockwise rotation
+    about the given axis by theta radians.
+    Credit: http://stackoverflow.com/users/190597/unutbu
+
+    Args:
+        axis (list): rotation axis of the form [x, y, z]
+        theta (float): rotational angle in radians
+
+    Returns:
+        array. Rotation matrix.
+    """
+
+    axis = np.array(list(axis))
+    axis = axis / np.linalg.norm(axis)
+    axis *= -np.sin(theta/2.0)
+    a = np.cos(theta/2.0)
+    b, c, d = tuple(axis.tolist())
+    aa, bb, cc, dd = a*a, b*b, c*c, d*d
+    bc, ad, ac, ab, bd, cd = b*c, a*d, a*c, a*b, b*d, c*d
+    return np.array([[aa+bb-cc-dd, 2*(bc+ad), 2*(bd-ac)],
+                     [2*(bc-ad), aa+cc-bb-dd, 2*(cd+ab)],
+                     [2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc]])
+
+
+def align_c_axis_along_001(structure):
+    """
+    Given a structure with a c-axis not along [001],
+    returns the same structure rotated so that the c-axis is along
+    the [001] direction. This is useful for adding vacuum, and
+    in general for using vasp compiled with no z-axis relaxation.
+
+    Args:
+        structure (Structure): Pymatgen Structure object to rotate.
+
+    Returns:
+        structure. Rotated to align c-axis along [001].
+    """
+
+    c = structure.lattice._matrix[2]
+    z = [0, 0, 1]
+    axis = np.cross(c, z)
+    if not(axis[0] == 0 and axis[1] == 0):
+        theta = (np.arccos(np.dot(c, z) / (np.linalg.norm(c) * np.linalg.norm(z))))
+        R = get_rotation_matrix(axis, theta)
+        rotation = SymmOp.from_rotation_and_translation(rotation_matrix=R)
+        structure.apply_operation(rotation)
+    return structure
+
+
+def get_structure_type(structure, write_poscar_from_cluster=False):
+    """
+    This is a topology-scaling algorithm used to describe the
+    periodicity of bonded clusters in a bulk structure.
+
+    Args:
+        structure (structure): Pymatgen structure object to classify.
+        write_poscar_from_cluster (bool): Set to True to write a
+            POSCAR from the sites in the cluster.
+
+    Returns:
+        string. 'molecular' (0D), 'chain', 'layered', 'heterogeneous'
+            (intercalated 3D), or 'conventional' (3D)
+    """
+
+    # The conventional standard structure is much easier to work
+    # with.
+
+    structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
+
+    # Noble gases don't have well-defined bonding radii.
+    if not len([e for e in structure.composition
+                if e.symbol in ['He', 'Ne', 'Ar', 'Kr', 'Xe']]) == 0:
+        type = 'noble gas'
+    else:
+        if len(structure.sites) < 45:
+            structure.make_supercell(2)
+
+        # Create a dict of sites as keys and lists of their
+        # bonded neighbors as values.
+        sites = structure.sites
+        bonds = {}
+        for site in sites:
+            bonds[site] = []
+
+        for i in range(len(sites)):
+            site_1 = sites[i]
+            for site_2 in sites[i+1:]:
+                if (site_1.distance(site_2) <
+                            float(Element(site_1.specie).atomic_radius
+                                      + Element(site_2.specie).atomic_radius) * 1.1):
+                    bonds[site_1].append(site_2)
+                    bonds[site_2].append(site_1)
+
+        # Assimilate all bonded atoms in a cluster; terminate
+        # when it stops growing.
+        cluster_terminated = False
+        while not cluster_terminated:
+            original_cluster_size = len(bonds[sites[0]])
+            for site in bonds[sites[0]]:
+                bonds[sites[0]] += [
+                    s for s in bonds[site] if s not in bonds[sites[0]]]
+            if len(bonds[sites[0]]) == original_cluster_size:
+                cluster_terminated = True
+
+        original_cluster = bonds[sites[0]]
+
+        if len(bonds[sites[0]]) == 0:  # i.e. the cluster is a single atom.
+            type = 'molecular'
+        elif len(bonds[sites[0]]) == len(sites): # i.e. all atoms are bonded.
+            type = 'conventional'
+        else:
+            # If the cluster's composition is not equal to the
+            # structure's overall composition, it is a heterogeneous
+            # compound.
+            cluster_composition_dict = {}
+            for site in bonds[sites[0]]:
+                if Element(site.specie) in cluster_composition_dict:
+                    cluster_composition_dict[Element(site.specie)] += 1
+                else:
+                    cluster_composition_dict[Element(site.specie)] = 1
+            uniform = True
+            if len(cluster_composition_dict):
+                cmp = Composition.from_dict(cluster_composition_dict)
+                if cmp.reduced_formula != structure.composition.reduced_formula:
+                    uniform = False
+            if not uniform:
+                type = 'heterogeneous'
+            else:
+                # Make a 2x2x2 supercell and recalculate the
+                # cluster's new size. If the new cluster size is
+                # the same as the old size, it is a non-periodic
+                # molecule. If it is 2x as big, it's a 1D chain.
+                # If it's 4x as big, it is a layered material.
+                old_cluster_size = len(bonds[sites[0]])
+                structure.make_supercell(2)
+                sites = structure.sites
+                bonds = {}
+                for site in sites:
+                    bonds[site] = []
+
+                for i in range(len(sites)):
+                    site_1 = sites[i]
+                    for site_2 in sites[i+1:]:
+                        if (site_1.distance(site_2) <
+                                float(Element(site_1.specie).atomic_radius
+                                + Element(site_2.specie).atomic_radius) * 1.1):
+                            bonds[site_1].append(site_2)
+                            bonds[site_2].append(site_1)
+
+                cluster_terminated = False
+                while not cluster_terminated:
+                    original_cluster_size = len(bonds[sites[0]])
+                    for site in bonds[sites[0]]:
+                        bonds[sites[0]] += [
+                            s for s in bonds[site] if s not in bonds[sites[0]]]
+                    if len(bonds[sites[0]]) == original_cluster_size:
+                        cluster_terminated = True
+
+                if len(bonds[sites[0]]) != 4 * old_cluster_size:
+                    type = 'molecular'
+                else:
+                    type = 'layered'
+
+    if write_poscar_from_cluster:
+        Structure.from_sites(original_cluster).to('POSCAR', 'POSCAR')
+
+    return type
+
+
+def write_potcar(pot_path=VASP_PSP, types='None'):
+    """
+    Writes a POTCAR file based on a list of types.
+
+    Args:
+        pot_path (str): can be changed to override default location
+            of POTCAR files.
+        types (list): list of same length as number of elements
+            containing specifications for the kind of potential
+            desired for each element, e.g. ['Na_pv', 'O_s']. If
+            left as 'None', uses the defaults in the
+            'potcar_symbols.yaml' file in the package root.
+    """
+
+    if pot_path == '/path/to/POTCAR/files':
+        # This means the config.yaml file has not been set up.
+        pass
+    else:
+        poscar = open('POSCAR', 'r')
+        lines = poscar.readlines()
+        elements = lines[5].split()
+        poscar.close()
+
+        potcar_symbols = loadfn(
+            os.path.join(PACKAGE_PATH, '2D', 'potcar_symbols.yaml')
+        )
+
+        if types == 'None':
+            sorted_types = [potcar_symbols[elt] for elt in elements]
+        else:
+            sorted_types = []
+            for elt in elements:
+                for t in types:
+                    if t.split('_')[0] == elt:
+                        sorted_types.append(t)
+
+        potentials = []
+        for i in range(len(elements)):
+            if types[i] == '':
+                pass
+            else:
+                elements[i] += '_{}'.format(types[i])
+
+        # Create paths, open files, and write files to
+        # POTCAR for each potential.
+        for potential in sorted_types:
+            potentials.append('{}/{}/POTCAR'.format(pot_path, potential))
+        outfile = open('POTCAR', 'w')
+        for potential in potentials:
+            infile = open(potential)
+            for line in infile:
+                outfile.write(line)
+            infile.close()
+        outfile.close()
+
+
+def write_circle_mesh_kpoints(center=[0, 0, 0], radius=0.1, resolution=20):
+    """
+    Create a circular mesh of k-points centered around a specific
+    k-point and write it to the KPOINTS file. Non-circular meshes
+    are not supported, but would be easy to code. All
+    k-point weights are set to 1.
+
+    Args:
+        center (list): x, y, and z coordinates of mesh center.
+            Defaults to Gamma.
+        radius (float): Size of the mesh in inverse Angstroms.
+        resolution (int): Number of mesh divisions along the
+            radius in the 3 primary directions.
+    """
+
+    kpoints = []
+    step = radius / resolution
+
+    for i in range(-resolution, resolution):
+        for j in range(-resolution, resolution):
+            if i**2 + j**2 <= resolution**2:
+                kpoints.append([str(center[0]+step*i),
+                                str(center[1]+step*j), '0', '1'])
+    with open('KPOINTS', 'w') as kpts:
+        kpts.write('KPOINTS\n{}\ndirect\n'.format(len(kpoints)))
+        for kpt in kpoints:
+            kpts.write(' '.join(kpt))
+            kpts.write('\n')
+
+
+def get_markovian_path(points):
+    """
+    Calculates the shortest path connecting an array of 2D
+    points. Useful for sorting linemode k-points.
+
+    Args:
+        points (list): list/array of points of the format
+            [[x_1, y_1, z_1], [x_2, y_2, z_2], ...]
+
+    Returns:
+        list: A sorted list of the points in order on the markovian path.
+    """
+
+    def dist(x, y):
+        return math.hypot(y[0] - x[0], y[1] - x[1])
+
+    paths = [p for p in it.permutations(points)]
+    path_distances = [
+        sum(map(lambda x: dist(x[0], x[1]), zip(p[:-1], p[1:])))
+        for p in paths]
+    min_index = np.argmin(path_distances)
+
+    return paths[min_index]
+
+
+def remove_z_kpoints():
+    """
+    Strips all linemode k-points from the KPOINTS file that include a
+    z-component, since these are not relevant for 2D materials and
+    slabs.
+    """
+
+    kpoint_lines = open('KPOINTS').readlines()
+
+    twod_kpoints = []
+    labels = {}
+    i = 4
+
+    while i < len(kpoint_lines):
+        kpt_1 = kpoint_lines[i].split()
+        kpt_2 = kpoint_lines[i+1].split()
+        if float(kpt_1[2]) == 0.0 and [float(kpt_1[0]),
+                                       float(kpt_1[1])] not in twod_kpoints:
+            twod_kpoints.append([float(kpt_1[0]), float(kpt_1[1])])
+            labels[kpt_1[4]] = [float(kpt_1[0]), float(kpt_1[1])]
+
+        if float(kpt_2[2]) == 0.0 and [float(kpt_2[0]),
+                                       float(kpt_2[1])] not in twod_kpoints:
+            twod_kpoints.append([float(kpt_2[0]), float(kpt_2[1])])
+            labels[kpt_2[4]] = [float(kpt_2[0]), float(kpt_2[1])]
+        i += 3
+
+    kpath = get_markovian_path(twod_kpoints)
+
+    with open('KPOINTS', 'w') as kpts:
+        for line in kpoint_lines[:4]:
+            kpts.write(line)
+
+        for i in range(len(kpath)):
+            label_1 = [l for l in labels if labels[l] == kpath[i]][0]
+            if i == len(kpath) - 1:
+                kpt_2 = kpath[0]
+                label_2 = [l for l in labels if labels[l] == kpath[0]][0]
+            else:
+                kpt_2 = kpath[i+1]
+                label_2 = [l for l in labels if labels[l] == kpath[i+1]][0]
+
+            kpts.write(' '.join([str(kpath[i][0]), str(kpath[i][1]), '0.0 !',
+                                label_1]))
+            kpts.write('\n')
+            kpts.write(' '.join([str(kpt_2[0]), str(kpt_2[1]), '0.0 !',
+                                label_2]))
+            kpts.write('\n\n')
+
+
+def write_pbs_runjob(name, nnodes, nprocessors, pmem, walltime, binary):
+    """
+    writes a runjob based on a name, nnodes, nprocessors, walltime,
+    and binary. Designed for runjobs on the Hennig group_list on
+    HiperGator 1 (PBS).
+
+    Args:
+        name (str): job name.
+        nnodes (int): number of requested nodes.
+        nprocessors (int): number of requested processors.
+        pmem (str): requested memory including units, e.g. '1600mb'.
+        walltime (str): requested wall time, hh:mm:ss e.g. '2:00:00'.
+        binary (str): absolute path to binary to run.
+    """
+    runjob = open('runjob', 'w')
+    runjob.write('#!/bin/sh\n')
+    runjob.write('#PBS -N {}\n'.format(name))
+    runjob.write('#PBS -o test.out\n')
+    runjob.write('#PBS -e test.err\n')
+    runjob.write('#PBS -r n\n')
+    runjob.write('#PBS -l walltime={}\n'.format(walltime))
+    runjob.write('#PBS -l nodes={}:ppn={}\n'.format(nnodes, nprocessors))
+    runjob.write('#PBS -l pmem={}\n'.format(pmem))
+    runjob.write('#PBS -W group_list=hennig\n\n')
+    runjob.write('cd $PBS_O_WORKDIR\n\n')
+    runjob.write('mpirun {} > job.log\n\n'.format(binary))
+    runjob.write('echo \'Done.\'\n')
+    runjob.close()
+
+
+def write_slurm_runjob(name, ntasks, pmem, walltime, binary):
+    """
+    writes a runjob based on a name, nnodes, nprocessors, walltime, and
+    binary. Designed for runjobs on the Hennig group_list on HiperGator
+    2 (SLURM).
+
+    Args:
+        name (str): job name.
+        ntasks (int): total number of requested processors.
+        pmem (str): requested memory including units, e.g. '1600mb'.
+        walltime (str): requested wall time, hh:mm:ss e.g. '2:00:00'.
+        binary (str): absolute path to binary to run.
+    """
+
+    nnodes = int(np.ceil(float(ntasks) / 32.0))
+
+    runjob = open('runjob', 'w')
+    runjob.write('#!/bin/bash\n')
+    runjob.write('#SBATCH --job-name={}\n'.format(name))
+    runjob.write('#SBATCH -o out_%j.log\n')
+    runjob.write('#SBATCH -e err_%j.log\n')
+    runjob.write('#SBATCH --qos=hennig-b\n')
+    runjob.write('#SBATCH --nodes={}\n'.format(nnodes))
+    runjob.write('#SBATCH --ntasks={}\n'.format(ntasks))
+    runjob.write('#SBATCH --mem-per-cpu={}\n'.format(pmem))
+    runjob.write('#SBATCH -t {}\n\n'.format(walltime))
+    runjob.write('cd $SLURM_SUBMIT_DIR\n\n')
+    runjob.write('module load intel/2016.0.109\n')
+    runjob.write('module load openmpi/1.10.1\n')
+    runjob.write('module load vasp/5.4.1\n\n')
+    runjob.write('mpirun {} > job.log\n\n'.format(binary))
+    runjob.write('echo \'Done.\'\n')
+    runjob.close()

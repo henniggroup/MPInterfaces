@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>mpinterfaces.mat2d package &mdash; mpinterfaces beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="mpinterfaces beta documentation" href="index.html"/>
+        <link rel="up" title="mpinterfaces package" href="mpinterfaces.html"/>
+        <link rel="next" title="mpinterfaces.mat2d.electronic_structure package" href="mpinterfaces.mat2d.electronic_structure.html"/>
+        <link rel="prev" title="mpinterfaces package" href="mpinterfaces.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> mpinterfaces
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.7.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#documentation">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#cite">Cite</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#license">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#contributing">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html#authors">Authors</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#capabilities">Capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="mpinterfaces.html">mpinterfaces package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="mpinterfaces.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">mpinterfaces.mat2d package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mpinterfaces.mat2d">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mpinterfaces.tests.html">mpinterfaces.tests package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.calibrate">mpinterfaces.calibrate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.data_processor">mpinterfaces.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.database">mpinterfaces.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.default_logger">mpinterfaces.default_logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#mpinterfaces-lammps-module">mpinterfaces.lammps module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.rest">mpinterfaces.rest module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.transformations">mpinterfaces.transformations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces.utils">mpinterfaces.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.html#module-mpinterfaces">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">mpinterfaces</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="mpinterfaces.html">mpinterfaces package</a> &raquo;</li>
+        
+      <li>mpinterfaces.mat2d package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/mpinterfaces.mat2d.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="mpinterfaces-mat2d-package">
+<h1>mpinterfaces.mat2d package<a class="headerlink" href="#mpinterfaces-mat2d-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.mat2d.electronic_structure.html">mpinterfaces.mat2d.electronic_structure package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.electronic_structure.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mpinterfaces.mat2d.electronic_structure.tests.html">mpinterfaces.mat2d.electronic_structure.tests package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.electronic_structure.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.electronic_structure.tests.html#module-mpinterfaces.mat2d.electronic_structure.tests.test_electronic_structure">mpinterfaces.mat2d.electronic_structure.tests.test_electronic_structure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.electronic_structure.tests.html#module-mpinterfaces.mat2d.electronic_structure.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.electronic_structure.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.electronic_structure.html#module-mpinterfaces.mat2d.electronic_structure.analysis">mpinterfaces.mat2d.electronic_structure.analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.electronic_structure.html#module-mpinterfaces.mat2d.electronic_structure.startup">mpinterfaces.mat2d.electronic_structure.startup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.electronic_structure.html#module-mpinterfaces.mat2d.electronic_structure">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.mat2d.friction.html">mpinterfaces.mat2d.friction package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.friction.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mpinterfaces.mat2d.friction.tests.html">mpinterfaces.mat2d.friction.tests package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.friction.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.friction.tests.html#module-mpinterfaces.mat2d.friction.tests.test_friction">mpinterfaces.mat2d.friction.tests.test_friction module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.friction.tests.html#module-mpinterfaces.mat2d.friction.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.friction.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.friction.html#module-mpinterfaces.mat2d.friction.analysis">mpinterfaces.mat2d.friction.analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.friction.html#module-mpinterfaces.mat2d.friction.startup">mpinterfaces.mat2d.friction.startup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.friction.html#module-mpinterfaces.mat2d.friction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.mat2d.intercalation.html">mpinterfaces.mat2d.intercalation package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.intercalation.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mpinterfaces.mat2d.intercalation.tests.html">mpinterfaces.mat2d.intercalation.tests package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.intercalation.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.intercalation.tests.html#module-mpinterfaces.mat2d.intercalation.tests.test_intercalation">mpinterfaces.mat2d.intercalation.tests.test_intercalation module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.intercalation.tests.html#module-mpinterfaces.mat2d.intercalation.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.intercalation.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.intercalation.html#module-mpinterfaces.mat2d.intercalation.analysis">mpinterfaces.mat2d.intercalation.analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.intercalation.html#module-mpinterfaces.mat2d.intercalation.startup">mpinterfaces.mat2d.intercalation.startup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.intercalation.html#module-mpinterfaces.mat2d.intercalation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.mat2d.magnetism.html">mpinterfaces.mat2d.magnetism package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.magnetism.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.magnetism.html#module-mpinterfaces.mat2d.magnetism.analysis">mpinterfaces.mat2d.magnetism.analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.magnetism.html#module-mpinterfaces.mat2d.magnetism.startup">mpinterfaces.mat2d.magnetism.startup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.magnetism.html#module-mpinterfaces.mat2d.magnetism">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.mat2d.pourbaix.html">mpinterfaces.mat2d.pourbaix package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.pourbaix.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mpinterfaces.mat2d.pourbaix.tests.html">mpinterfaces.mat2d.pourbaix.tests package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.pourbaix.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.pourbaix.tests.html#module-mpinterfaces.mat2d.pourbaix.tests.test_pourbaix">mpinterfaces.mat2d.pourbaix.tests.test_pourbaix module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.pourbaix.tests.html#module-mpinterfaces.mat2d.pourbaix.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.pourbaix.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.pourbaix.html#module-mpinterfaces.mat2d.pourbaix.analysis">mpinterfaces.mat2d.pourbaix.analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.pourbaix.html#module-mpinterfaces.mat2d.pourbaix.startup">mpinterfaces.mat2d.pourbaix.startup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.pourbaix.html#module-mpinterfaces.mat2d.pourbaix">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mpinterfaces.mat2d.stability.html">mpinterfaces.mat2d.stability package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.stability.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mpinterfaces.mat2d.stability.tests.html">mpinterfaces.mat2d.stability.tests package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.stability.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.stability.tests.html#module-mpinterfaces.mat2d.stability.tests.test_stability">mpinterfaces.mat2d.stability.tests.test_stability module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mpinterfaces.mat2d.stability.tests.html#module-mpinterfaces.mat2d.stability.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.stability.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.stability.html#module-mpinterfaces.mat2d.stability.analysis">mpinterfaces.mat2d.stability.analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.stability.html#module-mpinterfaces.mat2d.stability.startup">mpinterfaces.mat2d.stability.startup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpinterfaces.mat2d.stability.html#module-mpinterfaces.mat2d.stability">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-mpinterfaces.mat2d">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mpinterfaces.mat2d" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mpinterfaces.mat2d.electronic_structure.html" class="btn btn-neutral float-right" title="mpinterfaces.mat2d.electronic_structure package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mpinterfaces.html" class="btn btn-neutral" title="mpinterfaces package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2017, Kiran Mathew, Joshua J. Gabriel, Michael Ashton, Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'beta',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

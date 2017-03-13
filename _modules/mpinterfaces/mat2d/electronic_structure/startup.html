@@ -197,7 +197,7 @@
 <span class="c1"># TODO: document functions args and returns properly</span>
 
 
-<div class="viewcode-block" id="get_markovian_path"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.get_markovian_path">[docs]</a><span class="k">def</span> <span class="nf">get_markovian_path</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+<div class="viewcode-block" id="get_markovian_path"><a class="viewcode-back" href="../../../../mpinterfaces.mat2d.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.get_markovian_path">[docs]</a><span class="k">def</span> <span class="nf">get_markovian_path</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">     Calculates the shortest path connecting an array of 2D</span>
 <span class="sd">     points. Returns the points in order on that path.</span>
@@ -214,7 +214,7 @@
     <span class="k">return</span> <span class="n">paths</span><span class="p">[</span><span class="n">min_index</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="remove_z_kpoints_linemode"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.remove_z_kpoints_linemode">[docs]</a><span class="k">def</span> <span class="nf">remove_z_kpoints_linemode</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="remove_z_kpoints_linemode"><a class="viewcode-back" href="../../../../mpinterfaces.mat2d.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.remove_z_kpoints_linemode">[docs]</a><span class="k">def</span> <span class="nf">remove_z_kpoints_linemode</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Strips all k-points linemode KPOINTS that include a</span>
 <span class="sd">    z-component, since these are not relevant for 2D materials.</span>
@@ -265,7 +265,7 @@
              <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="run_pbe_calculation"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.run_pbe_calculation">[docs]</a><span class="k">def</span> <span class="nf">run_pbe_calculation</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="run_pbe_calculation"><a class="viewcode-back" href="../../../../mpinterfaces.mat2d.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.run_pbe_calculation">[docs]</a><span class="k">def</span> <span class="nf">run_pbe_calculation</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Setup and submit a normal PBE calculation for band structure along</span>
 <span class="sd">    high symmetry k-paths.</span>
@@ -317,7 +317,7 @@
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="run_hse_prep_calculation"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.run_hse_prep_calculation">[docs]</a><span class="k">def</span> <span class="nf">run_hse_prep_calculation</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="run_hse_prep_calculation"><a class="viewcode-back" href="../../../../mpinterfaces.mat2d.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.run_hse_prep_calculation">[docs]</a><span class="k">def</span> <span class="nf">run_hse_prep_calculation</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Submits a quick static calculation to calculate the IBZKPT</span>
 <span class="sd">    file using a smaller number of k-points (200/atom instead of</span>
@@ -370,7 +370,7 @@
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="run_hse_calculation"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.run_hse_calculation">[docs]</a><span class="k">def</span> <span class="nf">run_hse_calculation</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="run_hse_calculation"><a class="viewcode-back" href="../../../../mpinterfaces.mat2d.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.run_hse_calculation">[docs]</a><span class="k">def</span> <span class="nf">run_hse_calculation</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="n">destroy_prep_directory</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Setup/submit an HSE06 calculation to get an accurate band structure.</span>
@@ -472,7 +472,7 @@
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_2D_hse_kpoints"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.get_2D_hse_kpoints">[docs]</a><span class="k">def</span> <span class="nf">get_2D_hse_kpoints</span><span class="p">(</span><span class="n">struct_for_path</span><span class="p">,</span> <span class="n">ibzkpth</span><span class="p">):</span>
+<div class="viewcode-block" id="get_2D_hse_kpoints"><a class="viewcode-back" href="../../../../mpinterfaces.mat2d.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.get_2D_hse_kpoints">[docs]</a><span class="k">def</span> <span class="nf">get_2D_hse_kpoints</span><span class="p">(</span><span class="n">struct_for_path</span><span class="p">,</span> <span class="n">ibzkpth</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Args:</span>
 <span class="sd">        struct_for_path: Structure from which linemode k-points will be generated.</span>
@@ -541,7 +541,7 @@
     <span class="k">return</span> <span class="n">Kpoints_hse_file</span></div>
 
 
-<div class="viewcode-block" id="get_2D_incar_hse_prep"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.get_2D_incar_hse_prep">[docs]</a><span class="k">def</span> <span class="nf">get_2D_incar_hse_prep</span><span class="p">(</span><span class="n">incar_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="get_2D_incar_hse_prep"><a class="viewcode-back" href="../../../../mpinterfaces.mat2d.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.get_2D_incar_hse_prep">[docs]</a><span class="k">def</span> <span class="nf">get_2D_incar_hse_prep</span><span class="p">(</span><span class="n">incar_dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    linker for prep calculation</span>
 
@@ -561,7 +561,7 @@
     <span class="k">return</span> <span class="n">incar_dict</span></div>
 
 
-<div class="viewcode-block" id="get_2D_incar_hse"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.get_2D_incar_hse">[docs]</a><span class="k">def</span> <span class="nf">get_2D_incar_hse</span><span class="p">(</span><span class="n">incar_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="get_2D_incar_hse"><a class="viewcode-back" href="../../../../mpinterfaces.mat2d.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.get_2D_incar_hse">[docs]</a><span class="k">def</span> <span class="nf">get_2D_incar_hse</span><span class="p">(</span><span class="n">incar_dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    linker function to complete the HSE input deck to MPInterfaces</span>
 

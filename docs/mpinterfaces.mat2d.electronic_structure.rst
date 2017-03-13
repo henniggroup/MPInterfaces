@@ -1,5 +1,5 @@
 mpinterfaces.mat2d.electronic_structure package
-========================================================
+===============================================
 
 Subpackages
 -----------
@@ -12,7 +12,7 @@ Submodules
 ----------
 
 mpinterfaces.mat2d.electronic_structure.analysis module
-----------------------------------------------------------------
+-------------------------------------------------------
 
 .. automodule:: mpinterfaces.mat2d.electronic_structure.analysis
     :members:
@@ -20,7 +20,7 @@ mpinterfaces.mat2d.electronic_structure.analysis module
     :show-inheritance:
 
 mpinterfaces.mat2d.electronic_structure.startup module
----------------------------------------------------------------
+------------------------------------------------------
 
 .. automodule:: mpinterfaces.mat2d.electronic_structure.startup
     :members:

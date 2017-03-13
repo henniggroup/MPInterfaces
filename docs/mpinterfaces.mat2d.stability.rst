@@ -1,5 +1,5 @@
 mpinterfaces.mat2d.stability package
-=============================================
+====================================
 
 Subpackages
 -----------
@@ -12,7 +12,7 @@ Submodules
 ----------
 
 mpinterfaces.mat2d.stability.analysis module
------------------------------------------------------
+--------------------------------------------
 
 .. automodule:: mpinterfaces.mat2d.stability.analysis
     :members:
@@ -20,7 +20,7 @@ mpinterfaces.mat2d.stability.analysis module
     :show-inheritance:
 
 mpinterfaces.mat2d.stability.startup module
-----------------------------------------------------
+-------------------------------------------
 
 .. automodule:: mpinterfaces.mat2d.stability.startup
     :members:

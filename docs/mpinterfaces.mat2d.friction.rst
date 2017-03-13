@@ -1,5 +1,5 @@
 mpinterfaces.mat2d.friction package
-============================================
+===================================
 
 Subpackages
 -----------
@@ -12,7 +12,7 @@ Submodules
 ----------
 
 mpinterfaces.mat2d.friction.analysis module
-----------------------------------------------------
+-------------------------------------------
 
 .. automodule:: mpinterfaces.mat2d.friction.analysis
     :members:
@@ -20,7 +20,7 @@ mpinterfaces.mat2d.friction.analysis module
     :show-inheritance:
 
 mpinterfaces.mat2d.friction.startup module
----------------------------------------------------
+------------------------------------------
 
 .. automodule:: mpinterfaces.mat2d.friction.startup
     :members:

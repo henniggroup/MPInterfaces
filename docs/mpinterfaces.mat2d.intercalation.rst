@@ -1,5 +1,5 @@
 mpinterfaces.mat2d.intercalation package
-=================================================
+========================================
 
 Subpackages
 -----------
@@ -12,7 +12,7 @@ Submodules
 ----------
 
 mpinterfaces.mat2d.intercalation.analysis module
----------------------------------------------------------
+------------------------------------------------
 
 .. automodule:: mpinterfaces.mat2d.intercalation.analysis
     :members:
@@ -20,7 +20,7 @@ mpinterfaces.mat2d.intercalation.analysis module
     :show-inheritance:
 
 mpinterfaces.mat2d.intercalation.startup module
---------------------------------------------------------
+-----------------------------------------------
 
 .. automodule:: mpinterfaces.mat2d.intercalation.startup
     :members:

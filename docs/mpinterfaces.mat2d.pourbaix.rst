@@ -1,5 +1,5 @@
 mpinterfaces.mat2d.pourbaix package
-============================================
+===================================
 
 Subpackages
 -----------
@@ -12,7 +12,7 @@ Submodules
 ----------
 
 mpinterfaces.mat2d.pourbaix.analysis module
-----------------------------------------------------
+-------------------------------------------
 
 .. automodule:: mpinterfaces.mat2d.pourbaix.analysis
     :members:
@@ -20,7 +20,7 @@ mpinterfaces.mat2d.pourbaix.analysis module
     :show-inheritance:
 
 mpinterfaces.mat2d.pourbaix.startup module
----------------------------------------------------
+------------------------------------------
 
 .. automodule:: mpinterfaces.mat2d.pourbaix.startup
     :members:

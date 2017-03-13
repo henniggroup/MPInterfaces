@@ -44,6 +44,14 @@ mpinterfaces.tests.test_rest module
     :undoc-members:
     :show-inheritance:
 
+mpinterfaces.tests.test_utils module
+------------------------------------
+
+.. automodule:: mpinterfaces.tests.test_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

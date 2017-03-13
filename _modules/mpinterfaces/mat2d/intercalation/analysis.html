@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>mpinterfaces.mat2d.intercalation.analysis &mdash; mpinterfaces beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../../search.html"/>
+    <link rel="top" title="mpinterfaces beta documentation" href="../../../../index.html"/>
+        <link rel="up" title="mpinterfaces" href="../../../mpinterfaces.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> mpinterfaces
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.7.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#documentation">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#cite">Cite</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#license">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#contributing">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#authors">Authors</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html#capabilities">Capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mpinterfaces.html">mpinterfaces package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">mpinterfaces</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../../mpinterfaces.html">mpinterfaces</a> &raquo;</li>
+        
+      <li>mpinterfaces.mat2d.intercalation.analysis</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for mpinterfaces.mat2d.intercalation.analysis</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">ConvexHull</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces.utils</span> <span class="k">import</span> <span class="n">is_converged</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ashtonmv@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
+
+
+<div class="viewcode-block" id="plot_ion_hull_and_voltages"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.intercalation.html#mpinterfaces.mat2d.intercalation.analysis.plot_ion_hull_and_voltages">[docs]</a><span class="k">def</span> <span class="nf">plot_ion_hull_and_voltages</span><span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pdf&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plots the phase diagram between the pure material and pure ion,</span>
+<span class="sd">    Connecting the points on the convex hull of the phase diagram.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ion (str): name of atom that was intercalated, e.g. &#39;Li&#39;.</span>
+<span class="sd">        fmt (str): matplotlib format style. Check the matplotlib</span>
+<span class="sd">            docs for options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Calculated with the relax() function in</span>
+    <span class="c1"># mat2d.stability.startup. If you are using other input</span>
+    <span class="c1"># parameters, you need to recalculate these values!</span>
+    <span class="n">ion_ev_fu</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Li&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.7540797</span><span class="p">,</span> <span class="s1">&#39;Mg&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.31976062</span><span class="p">,</span> <span class="s1">&#39;Al&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">3.19134607</span><span class="p">}</span>
+
+    <span class="n">energy</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">final_energy</span>
+    <span class="n">composition</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">composition</span>
+
+    <span class="c1"># Get the formula (with single-digit integers preceded by a &#39;_&#39;).</span>
+    <span class="n">twod_material</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
+    <span class="n">twod_formula</span> <span class="o">=</span> <span class="nb">str</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">twod_material</span><span class="p">)):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">twod_material</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">twod_formula</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">twod_material</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">twod_formula</span> <span class="o">+=</span> <span class="n">twod_material</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="n">twod_ev_fu</span> <span class="o">=</span> <span class="n">energy</span> <span class="o">/</span> <span class="n">composition</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">twod_ev_fu</span><span class="p">)]</span>  <span class="c1"># (at% ion, n_ions, E_F, abs_energy)</span>
+    <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dir</span> <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="nb">dir</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_converged</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">final_energy</span>
+            <span class="n">composition</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">composition</span>
+            <span class="n">ion_fraction</span> <span class="o">=</span> <span class="n">composition</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="n">ion</span><span class="p">)</span>
+
+            <span class="n">no_ion_comp_dict</span> <span class="o">=</span> <span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+            <span class="n">no_ion_comp_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">ion</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+            <span class="n">no_ion_comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">no_ion_comp_dict</span><span class="p">)</span>
+
+            <span class="n">n_twod_fu</span> <span class="o">=</span> <span class="n">no_ion_comp</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">n_ions</span> <span class="o">=</span> <span class="n">composition</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">/</span> <span class="n">n_twod_fu</span>
+
+            <span class="n">E_F</span> <span class="o">=</span> <span class="p">((</span><span class="n">energy</span> <span class="o">-</span> <span class="n">composition</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">*</span> <span class="n">ion_ev_fu</span><span class="p">[</span><span class="n">ion</span><span class="p">]</span> <span class="o">-</span>
+                    <span class="n">twod_ev_fu</span> <span class="o">*</span> <span class="n">n_twod_fu</span><span class="p">)</span><span class="o">/</span> <span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">)</span>
+
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ion_fraction</span><span class="p">,</span> <span class="n">n_ions</span><span class="p">,</span> <span class="n">E_F</span><span class="p">,</span> <span class="n">energy</span> <span class="o">/</span> <span class="n">n_twod_fu</span><span class="p">))</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ion_ev_fu</span><span class="p">[</span><span class="n">ion</span><span class="p">]))</span>  <span class="c1"># Pure ion</span>
+
+    <span class="n">sorted_data</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+    <span class="c1"># Determine which compositions are on the convex hull.</span>
+    <span class="n">energy_profile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sorted_data</span>
+                               <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">hull</span> <span class="o">=</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">energy_profile</span><span class="p">)</span>
+    <span class="n">convex_ion_fractions</span> <span class="o">=</span> <span class="p">[</span><span class="n">energy_profile</span><span class="p">[</span><span class="n">vertex</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">hull</span><span class="o">.</span><span class="n">vertices</span><span class="p">]</span>
+    <span class="n">convex_formation_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">energy_profile</span><span class="p">[</span><span class="n">vertex</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">hull</span><span class="o">.</span><span class="n">vertices</span><span class="p">]</span>
+
+    <span class="n">convex_ion_fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">convex_ion_fractions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">convex_formation_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">convex_formation_energies</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">concave_ion_fractions</span> <span class="o">=</span> <span class="p">[</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">sorted_data</span>
+                             <span class="k">if</span> <span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">convex_ion_fractions</span><span class="p">]</span>
+    <span class="n">concave_formation_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">sorted_data</span>
+                                  <span class="k">if</span> <span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">convex_ion_fractions</span><span class="p">]</span>
+
+    <span class="n">voltage_profile</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorted_data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sorted_data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">convex_ion_fractions</span><span class="p">:</span>
+            <span class="n">voltage</span> <span class="o">=</span> <span class="o">-</span><span class="p">(((</span><span class="n">sorted_data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">3</span><span class="p">])</span><span class="o">-</span>
+                         <span class="p">(</span><span class="n">sorted_data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">ion_ev_fu</span><span class="p">[</span><span class="n">ion</span><span class="p">])</span>
+                        <span class="o">/</span> <span class="p">(</span><span class="n">sorted_data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sorted_data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">voltage_profile</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sorted_data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">voltage</span><span class="p">))</span>
+            <span class="n">voltage_profile</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sorted_data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">voltage</span><span class="p">))</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">i</span>
+
+    <span class="n">voltage_profile</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">voltage_profile</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">voltage_profile</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">voltage_profile_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">tup</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">voltage_profile</span><span class="p">]</span>
+    <span class="n">voltage_profile_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">voltage_profile</span><span class="p">]</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">convex_ion_fractions</span><span class="p">,</span> <span class="n">convex_formation_energies</span><span class="p">,</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+            <span class="n">markersize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">markeredgecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">concave_ion_fractions</span><span class="p">,</span> <span class="n">concave_formation_energies</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">markeredgecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+
+    <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">voltage_profile_x</span><span class="p">,</span> <span class="n">voltage_profile_y</span><span class="p">,</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">twod_formula</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\mathrm{</span><span class="si">%s</span><span class="s1">}$&#39;</span> <span class="o">%</span> <span class="n">ion</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+            <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticks</span><span class="p">(),</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_yticks</span><span class="p">(),</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">ax2</span><span class="o">.</span><span class="n">get_yticks</span><span class="p">(),</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;at% </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ion</span><span class="p">),</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{E_F\/(eV/atom)}$&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
+
+    <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ion</span> <span class="o">==</span> <span class="s1">&#39;Li&#39;</span><span class="p">:</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{Potential\/vs.\/Li/Li^+\/(V)}$&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ion</span> <span class="o">==</span> <span class="s1">&#39;Mg&#39;</span><span class="p">:</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{Potential\/vs.\/Mg/Mg^{2+}\/(V)}$&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ion</span> <span class="o">==</span> <span class="s1">&#39;Al&#39;</span><span class="p">:</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{Potential\/vs.\/Al/Al^{3+}\/(V)}$&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_hull.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">fmt</span><span class="p">),</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2017, Kiran Mathew, Joshua J. Gabriel, Michael Ashton, Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'beta',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

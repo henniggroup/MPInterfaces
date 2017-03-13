@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>mpinterfaces.mat2d.pourbaix.startup &mdash; mpinterfaces beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../../search.html"/>
+    <link rel="top" title="mpinterfaces beta documentation" href="../../../../index.html"/>
+        <link rel="up" title="mpinterfaces" href="../../../mpinterfaces.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> mpinterfaces
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.7.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#documentation">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#cite">Cite</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#license">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#contributing">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html#authors">Authors</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html#capabilities">Capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html#example-of-fireworks-database-queries">Example of FireWorks Database Queries</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mpinterfaces.html">mpinterfaces package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">mpinterfaces</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../../mpinterfaces.html">mpinterfaces</a> &raquo;</li>
+        
+      <li>mpinterfaces.mat2d.pourbaix.startup</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for mpinterfaces.mat2d.pourbaix.startup</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span>
+
+<span class="kn">from</span> <span class="nn">mpinterfaces</span> <span class="k">import</span> <span class="n">MPR</span>
+<span class="kn">import</span> <span class="nn">mpinterfaces.utils</span> <span class="k">as</span> <span class="nn">utl</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces.mat2d.stability</span> <span class="k">import</span> <span class="n">relax</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Michael Ashton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;ashtonmv@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
+
+<span class="n">PACKAGE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+<span class="n">REFERENCE_MPIDS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s1">&#39;reference_mpids.yaml&#39;</span><span class="p">))</span>
+<span class="n">EXPERIMENTAL_OXIDE_DATA</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span>
+                                              <span class="s1">&#39;experimental_oxide_data.yaml&#39;</span><span class="p">))</span>
+<span class="n">GAS_CORRECTIONS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s1">&#39;gas_corrections.yaml&#39;</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="get_experimental_formation_energies"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.pourbaix.html#mpinterfaces.mat2d.pourbaix.startup.get_experimental_formation_energies">[docs]</a><span class="k">def</span> <span class="nf">get_experimental_formation_energies</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read in the raw enthalpy and entropy energy data from</span>
+<span class="sd">    Kubaschewski in experimental_oxide_data.yaml</span>
+<span class="sd">    and interpret it into actual formation energies. This extra</span>
+<span class="sd">    step is written out mostly just to make the methodology clear</span>
+<span class="sd">    and reproducible.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">EXPERIMENTAL_OXIDE_DATA</span>
+    <span class="n">oxygen_entropy</span> <span class="o">=</span> <span class="mf">38.48</span>  <span class="c1"># Entropy in atomic O, in cal/mol.degree</span>
+    <span class="n">formation_energies</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">compound</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">composition</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">compound</span><span class="p">)</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">composition</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">symbol</span> <span class="o">!=</span> <span class="s1">&#39;O&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">delta_H</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">compound</span><span class="p">][</span><span class="s1">&#39;delta_H&#39;</span><span class="p">]</span>
+        <span class="n">delta_S</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">compound</span><span class="p">][</span><span class="s1">&#39;S_cmpd&#39;</span><span class="p">]</span>
+                   <span class="o">-</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">compound</span><span class="p">][</span><span class="s1">&#39;S_elt&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">composition</span><span class="p">[</span><span class="n">element</span><span class="p">]</span>
+                      <span class="o">+</span> <span class="n">oxygen_entropy</span><span class="o">*</span><span class="n">composition</span><span class="p">[</span><span class="s1">&#39;O&#39;</span><span class="p">]))</span> <span class="o">*</span> <span class="mi">298</span> <span class="o">/</span> <span class="mi">1000</span>
+        <span class="c1"># Convert kcal/mole to eV/formula unit</span>
+        <span class="n">formation_energies</span><span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">delta_H</span> <span class="o">-</span> <span class="n">delta_S</span><span class="p">)</span> <span class="o">/</span> <span class="mf">22.06035</span>
+
+    <span class="k">return</span> <span class="n">formation_energies</span></div>
+
+
+<div class="viewcode-block" id="relax_references"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.pourbaix.html#mpinterfaces.mat2d.pourbaix.startup.relax_references">[docs]</a><span class="k">def</span> <span class="nf">relax_references</span><span class="p">(</span><span class="n">potcar_types</span><span class="p">,</span> <span class="n">incar_dict</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set up calculation directories to calibrate</span>
+<span class="sd">    the ion corrections to match a specified framework of INCAR</span>
+<span class="sd">    parameters and potcar hashes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        potcar_types (list): list of all elements to calibrate,</span>
+<span class="sd">            containing specifications for the kind of potential</span>
+<span class="sd">            desired for each element, e.g. [&#39;Na_pv&#39;, &#39;O&#39;]. If</span>
+<span class="sd">            oxygen is not explicitly included in the list, &#39;O&#39;</span>
+<span class="sd">            is used.</span>
+
+<span class="sd">        incar_dict (dict): a dictionary of input parameters</span>
+<span class="sd">            and their values, e.g. {&#39;ISMEAR&#39;: -5, &#39;NSW&#39;: 10}</span>
+
+<span class="sd">        submit (bool): whether or not to submit each job</span>
+<span class="sd">            after preparing it.</span>
+
+<span class="sd">        force_overwrite (bool): Whether or not to overwrite files</span>
+<span class="sd">            if an already converged vasprun.xml exists in the</span>
+<span class="sd">            directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">potcar_types</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>
+            <span class="n">oxygen_potcar</span> <span class="o">=</span> <span class="n">element</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">oxygen_potcar</span> <span class="o">=</span> <span class="s1">&#39;O&#39;</span>
+        <span class="n">potcar_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">potcar_types</span><span class="p">:</span>
+        <span class="n">elt</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># First, set up a relaxation for the pure element.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">elt</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">elt</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">elt</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">MPR</span><span class="o">.</span><span class="n">get_structure_by_material_id</span><span class="p">(</span><span class="n">REFERENCE_MPIDS</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="s1">&#39;element&#39;</span><span class="p">])</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+        <span class="n">relax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">incar_dict</span><span class="o">=</span><span class="n">incar_dict</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="n">submit</span><span class="p">,</span>
+              <span class="n">force_overwrite</span><span class="o">=</span><span class="n">force_overwrite</span><span class="p">)</span>
+        <span class="n">utl</span><span class="o">.</span><span class="n">write_potcar</span><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="p">[</span><span class="n">element</span><span class="p">])</span>
+
+        <span class="c1"># Then set up a relaxation for its reference oxide.</span>
+        <span class="k">if</span> <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;Cl&#39;</span><span class="p">,</span> <span class="s1">&#39;Br&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">&#39;oxide&#39;</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;oxide&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;oxide&#39;</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">MPR</span><span class="o">.</span><span class="n">get_structure_by_material_id</span><span class="p">(</span><span class="n">REFERENCE_MPIDS</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="s1">&#39;oxide&#39;</span><span class="p">])</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+            <span class="n">relax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">incar_dict</span><span class="o">=</span><span class="n">incar_dict</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="n">submit</span><span class="p">,</span>
+                  <span class="n">force_overwrite</span><span class="o">=</span><span class="n">force_overwrite</span><span class="p">)</span>
+            <span class="n">utl</span><span class="o">.</span><span class="n">write_potcar</span><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="p">[</span><span class="n">element</span><span class="p">,</span> <span class="n">oxygen_potcar</span><span class="p">])</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_corrections"><a class="viewcode-back" href="../../../../mpinterfaces.mat2D.pourbaix.html#mpinterfaces.mat2d.pourbaix.startup.get_corrections">[docs]</a><span class="k">def</span> <span class="nf">get_corrections</span><span class="p">(</span><span class="n">write_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates and collects the corrections to be added for</span>
+<span class="sd">    each reference element directory in the current working</span>
+<span class="sd">    directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        write_yaml (bool): whether or not to write the</span>
+<span class="sd">            corrections to ion_corrections.yaml and the mu0</span>
+<span class="sd">            values to end_members.yaml.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: elements as keys and their corrections as values,</span>
+<span class="sd">            in eV per atom, e.g. {&#39;Mo&#39;: 0.135, &#39;S&#39;: -0.664}.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">experimental_formation_energies</span> <span class="o">=</span> <span class="n">get_experimental_formation_energies</span><span class="p">()</span>
+    <span class="n">mu0</span><span class="p">,</span> <span class="n">corrections</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+    <span class="n">special_cases</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;Cl&#39;</span><span class="p">,</span> <span class="s1">&#39;Br&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">]</span>
+
+    <span class="n">elts</span> <span class="o">=</span> <span class="p">[</span><span class="n">elt</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">elt</span><span class="p">)</span> <span class="ow">and</span> <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">special_cases</span><span class="p">]</span>
+    <span class="n">special_elts</span> <span class="o">=</span> <span class="p">[</span><span class="n">elt</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">elt</span><span class="p">)</span> <span class="ow">and</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">special_cases</span><span class="p">]</span>
+
+    <span class="c1"># Add entropic correction for special elements (S * 298K)</span>
+    <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">special_elts</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">elt</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span>
+            <span class="n">composition</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">composition</span>
+            <span class="n">formula_and_factor</span> <span class="o">=</span> <span class="n">composition</span><span class="o">.</span><span class="n">get_integer_formula_and_factor</span><span class="p">()</span>
+            <span class="n">n_formula_units</span> <span class="o">=</span> <span class="n">composition</span><span class="o">.</span><span class="n">get_integer_formula_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;2&#39;</span> <span class="ow">in</span> <span class="n">formula_and_factor</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">n_formula_units</span> <span class="o">*=</span> <span class="mi">2</span>
+
+            <span class="n">mu0</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">vasprun</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">/</span> <span class="n">n_formula_units</span>
+                              <span class="o">+</span> <span class="n">GAS_CORRECTIONS</span><span class="p">[</span><span class="s1">&#39;entropy&#39;</span><span class="p">][</span><span class="n">elt</span><span class="p">],</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">mu0</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Element not finished&#39;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Oxide correction based on L. Wang, T. Maxisch, and G. Ceder,</span>
+    <span class="c1"># Phys. Rev. B 73, 195107 (2006). This correction is to get</span>
+    <span class="c1"># solid oxide formation energies right.</span>
+    <span class="c1">#mu0[&#39;O&#39;] += GAS_CORRECTIONS[&#39;oxide&#39;]</span>
+
+    <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">elts</span><span class="p">:</span>
+        <span class="n">EF_exp</span> <span class="o">=</span> <span class="n">experimental_formation_energies</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">elt</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span>
+            <span class="n">composition</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">composition</span>
+            <span class="n">mu0</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">vasprun</span><span class="o">.</span><span class="n">final_energy</span><span class="o">/</span><span class="n">composition</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">elt</span><span class="p">)],</span> <span class="mi">3</span><span class="p">)</span>
+
+            <span class="c1"># Nitrogen needs an entropic gas phase correction too.</span>
+            <span class="k">if</span> <span class="n">elt</span> <span class="o">==</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span>
+                <span class="n">mu0</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">-=</span> <span class="n">GAS_CORRECTIONS</span><span class="p">[</span><span class="s1">&#39;entropy&#39;</span><span class="p">][</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
+            <span class="n">corrections</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Element not finished&#39;</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;oxide&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="s1">&#39;vasprun.xml&#39;</span><span class="p">)</span>
+            <span class="n">composition</span> <span class="o">=</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">composition</span>
+            <span class="n">n_formula_units</span> <span class="o">=</span> <span class="n">composition</span><span class="o">.</span><span class="n">get_integer_formula_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">EF_dft</span> <span class="o">=</span> <span class="p">(</span><span class="n">vasprun</span><span class="o">.</span><span class="n">final_energy</span>
+                      <span class="o">-</span> <span class="n">mu0</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span><span class="o">*</span><span class="n">composition</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">elt</span><span class="p">)]</span>
+                      <span class="o">-</span> <span class="n">mu0</span><span class="p">[</span><span class="s1">&#39;O&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">composition</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">)])</span> <span class="o">/</span> <span class="n">n_formula_units</span>
+
+            <span class="n">corrections</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">EF_dft</span> <span class="o">-</span> <span class="n">EF_exp</span><span class="p">)</span>
+                                     <span class="o">/</span> <span class="p">(</span><span class="n">composition</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">elt</span><span class="p">)]</span><span class="o">/</span><span class="n">n_formula_units</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="c1"># The relaxation didn&#39;t finish.</span>
+            <span class="k">if</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">corrections</span><span class="p">:</span>
+                <span class="n">corrections</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">+=</span> <span class="s1">&#39; and oxide not finished&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">corrections</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Oxide not finished&#39;</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../../&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">write_yaml</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;ion_corrections.yaml&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">yam</span><span class="p">:</span>
+            <span class="n">yam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Difference in formation energy between</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">yam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# DFT framework and experimental data</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">yam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# from Materials Thermochemistry</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">yam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# (Kubaschewski, Alcock)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">yam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# All values are given in eV per atom.</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">yam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">corrections</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;chemical_potentials.yaml&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">yam</span><span class="p">:</span>
+            <span class="n">yam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# chemical potentials of elemental phases to calculate&#39;</span><span class="p">)</span>
+            <span class="n">yam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">yam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# formation energies of all compounds. In eV/atom.</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">yam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">mu0</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">corrections</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014-2017, Kiran Mathew, Joshua J. Gabriel, Michael Ashton, Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, Richard G. Hennig.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'beta',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

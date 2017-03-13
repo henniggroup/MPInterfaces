@@ -1,4 +1,4 @@
-mpinterfaces.twod_materials.stability package
+mpinterfaces.mat2D.stability package
 =============================================
 
 Subpackages
@@ -6,23 +6,23 @@ Subpackages
 
 .. toctree::
 
-    mpinterfaces.twod_materials.stability.tests
+    mpinterfaces.mat2D.stability.tests
 
 Submodules
 ----------
 
-mpinterfaces.twod_materials.stability.analysis module
+mpinterfaces.mat2D.stability.analysis module
 -----------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.stability.analysis
+.. automodule:: mpinterfaces.mat2D.stability.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.twod_materials.stability.startup module
+mpinterfaces.mat2D.stability.startup module
 ----------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.stability.startup
+.. automodule:: mpinterfaces.mat2D.stability.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,7 +31,7 @@ mpinterfaces.twod_materials.stability.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.twod_materials.stability
+.. automodule:: mpinterfaces.mat2D.stability
     :members:
     :undoc-members:
     :show-inheritance:

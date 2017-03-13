@@ -107,47 +107,6 @@ def slab_from_file(hkl, filename):
                 site_properties=slab_input.site_properties)
 
 
-def add_vacuum_padding(slab, vacuum, hkl=(0, 0, 1)):
-    """
-    add vacuum spacing to the given structure
-    Args:
-        slab (Structure/Slab): sructure/slab object to be padded
-        vacuum (float): in angstroms
-        hkl (tuple/list): miller index
-    Returns:
-         Structure object
-    """
-    min_z = np.min([fcoord[2] for fcoord in slab.frac_coords])
-    slab.translate_sites(list(range(len(slab))), [0, 0, -min_z])
-    a, b, c = slab.lattice.matrix
-    z = [coord[2] for coord in slab.cart_coords]
-    zmax = np.max(z)
-    zmin = np.min(z)
-    thickness = zmax - zmin
-    new_c = c / np.linalg.norm(c) * (thickness + vacuum)
-    new_lattice = Lattice(np.array([a, b, new_c]))
-    new_sites = []
-    for site in slab:
-        new_sites.append(PeriodicSite(site.species_and_occu,
-                                      site.coords,
-                                      new_lattice,
-                                      properties=site.properties,
-                                      coords_are_cartesian=True))
-    new_struct = Structure.from_sites(new_sites)
-    # center the slab
-    avg_z = np.average([fcoord[2] for fcoord in new_struct.frac_coords])
-    new_struct.translate_sites(list(range(len(new_struct))),
-                               [0, 0, 0.5 - avg_z])
-    return Slab(new_struct.lattice,
-                new_struct.species_and_occu,
-                new_struct.frac_coords,
-                hkl,
-                Structure.from_sites(new_struct, to_unit_cell=True),
-                shift=0,
-                scale_factor=np.eye(3, dtype=np.int),
-                site_properties=new_struct.site_properties)
-
-
 def get_magmom_string(structure):
     """
     Based on a POSCAR, returns the string required for the MAGMOM
@@ -784,7 +743,7 @@ def get_spacing(structure):
         float. Spacing in Angstroms.
     """
 
-    structure = align_c_axis_along_001(structure)
+    structure = align_axis(structure)
     structure = center_slab(structure)
     max_height = max([s.coords[2] for s in structure.sites])
     min_height = min([s.coords[2] for s in structure.sites])
@@ -818,7 +777,7 @@ def add_vacuum(structure, vacuum):
     Returns:
         Structure object with vacuum added.
     """
-    structure = align_c_axis_along_001(structure)
+    structure = align_axis(structure)
     coords = [s.coords for s in structure.sites]
     species = [s.specie for s in structure.sites]
     lattice = structure.lattice.matrix
@@ -839,7 +798,7 @@ def ensure_vacuum(structure, vacuum):
         Structure object with vacuum added.
     """
 
-    structure = align_c_axis_along_001(structure)
+    structure = align_axis(structure)
     spacing = get_spacing(structure)
     structure = add_vacuum(structure, vacuum - spacing)
     return center_slab(structure)
@@ -871,26 +830,33 @@ def get_rotation_matrix(axis, theta):
                      [2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc]])
 
 
-def align_c_axis_along_001(structure):
+def align_axis(structure, axis='c', direction=(0, 0, 1)):
     """
-    Given a structure with a c-axis not along [001],
-    returns the same structure rotated so that the c-axis is along
+    Rotates a structure so that the specified axis is along
     the [001] direction. This is useful for adding vacuum, and
     in general for using vasp compiled with no z-axis relaxation.
 
     Args:
         structure (Structure): Pymatgen Structure object to rotate.
-
+        axis: Axis to be rotated. Can be 'a', 'b', 'c', or a 1x3 vector.
+        direction (vector): Final axis to be rotated to.
     Returns:
-        structure. Rotated to align c-axis along [001].
+        structure. Rotated to align axis along direction.
     """
 
-    c = structure.lattice._matrix[2]
-    z = [0, 0, 1]
-    axis = np.cross(c, z)
-    if not(axis[0] == 0 and axis[1] == 0):
-        theta = (np.arccos(np.dot(c, z) / (np.linalg.norm(c) * np.linalg.norm(z))))
-        R = get_rotation_matrix(axis, theta)
+    if axis == 'a':
+        axis = structure.lattice._matrix[0]
+    elif axis == 'b':
+        axis = structure.lattice._matrix[1]
+    elif axis == 'c':
+        axis = structure.lattice._matrix[2]
+    proj_axis = np.cross(axis, direction)
+    if not(proj_axis[0] == 0 and proj_axis[1] == 0):
+        theta = (
+            np.arccos(np.dot(axis, direction)
+            / (np.linalg.norm(axis) * np.linalg.norm(direction)))
+        )
+        R = get_rotation_matrix(proj_axis, theta)
         rotation = SymmOp.from_rotation_and_translation(rotation_matrix=R)
         structure.apply_operation(rotation)
     return structure

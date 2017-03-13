@@ -1,13 +1,13 @@
-mpinterfaces.twod_materials.intercalation.tests package
+mpinterfaces.mat2D.intercalation.tests package
 =======================================================
 
 Submodules
 ----------
 
-mpinterfaces.twod_materials.intercalation.tests.test_intercalation module
+mpinterfaces.mat2D.intercalation.tests.test_intercalation module
 -------------------------------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.intercalation.tests.test_intercalation
+.. automodule:: mpinterfaces.mat2D.intercalation.tests.test_intercalation
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ mpinterfaces.twod_materials.intercalation.tests.test_intercalation module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.twod_materials.intercalation.tests
+.. automodule:: mpinterfaces.mat2D.intercalation.tests
     :members:
     :undoc-members:
     :show-inheritance:

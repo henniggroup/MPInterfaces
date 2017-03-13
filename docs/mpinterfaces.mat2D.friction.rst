@@ -1,4 +1,4 @@
-mpinterfaces.twod_materials.friction package
+mpinterfaces.mat2D.friction package
 ============================================
 
 Subpackages
@@ -6,23 +6,23 @@ Subpackages
 
 .. toctree::
 
-    mpinterfaces.twod_materials.friction.tests
+    mpinterfaces.mat2D.friction.tests
 
 Submodules
 ----------
 
-mpinterfaces.twod_materials.friction.analysis module
+mpinterfaces.mat2D.friction.analysis module
 ----------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.friction.analysis
+.. automodule:: mpinterfaces.mat2D.friction.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.twod_materials.friction.startup module
+mpinterfaces.mat2D.friction.startup module
 ---------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.friction.startup
+.. automodule:: mpinterfaces.mat2D.friction.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,7 +31,7 @@ mpinterfaces.twod_materials.friction.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.twod_materials.friction
+.. automodule:: mpinterfaces.mat2D.friction
     :members:
     :undoc-members:
     :show-inheritance:

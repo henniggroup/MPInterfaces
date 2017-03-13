@@ -1,4 +1,4 @@
-mpinterfaces.twod_materials.pourbaix package
+mpinterfaces.mat2D.pourbaix package
 ============================================
 
 Subpackages
@@ -6,23 +6,23 @@ Subpackages
 
 .. toctree::
 
-    mpinterfaces.twod_materials.pourbaix.tests
+    mpinterfaces.mat2D.pourbaix.tests
 
 Submodules
 ----------
 
-mpinterfaces.twod_materials.pourbaix.analysis module
+mpinterfaces.mat2D.pourbaix.analysis module
 ----------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.pourbaix.analysis
+.. automodule:: mpinterfaces.mat2D.pourbaix.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.twod_materials.pourbaix.startup module
+mpinterfaces.mat2D.pourbaix.startup module
 ---------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.pourbaix.startup
+.. automodule:: mpinterfaces.mat2D.pourbaix.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,7 +31,7 @@ mpinterfaces.twod_materials.pourbaix.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.twod_materials.pourbaix
+.. automodule:: mpinterfaces.mat2D.pourbaix
     :members:
     :undoc-members:
     :show-inheritance:

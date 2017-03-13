@@ -1,13 +1,13 @@
-mpinterfaces.twod_materials.pourbaix.tests package
+mpinterfaces.mat2D.pourbaix.tests package
 ==================================================
 
 Submodules
 ----------
 
-mpinterfaces.twod_materials.pourbaix.tests.test_pourbaix module
+mpinterfaces.mat2D.pourbaix.tests.test_pourbaix module
 ---------------------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.pourbaix.tests.test_pourbaix
+.. automodule:: mpinterfaces.mat2D.pourbaix.tests.test_pourbaix
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ mpinterfaces.twod_materials.pourbaix.tests.test_pourbaix module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.twod_materials.pourbaix.tests
+.. automodule:: mpinterfaces.mat2D.pourbaix.tests
     :members:
     :undoc-members:
     :show-inheritance:

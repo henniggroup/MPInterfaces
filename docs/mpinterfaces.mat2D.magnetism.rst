@@ -1,21 +1,21 @@
-mpinterfaces.twod_materials.magnetism package
+mpinterfaces.mat2D.magnetism package
 =============================================
 
 Submodules
 ----------
 
-mpinterfaces.twod_materials.magnetism.analysis module
+mpinterfaces.mat2D.magnetism.analysis module
 -----------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.magnetism.analysis
+.. automodule:: mpinterfaces.mat2D.magnetism.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.twod_materials.magnetism.startup module
+mpinterfaces.mat2D.magnetism.startup module
 ----------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.magnetism.startup
+.. automodule:: mpinterfaces.mat2D.magnetism.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,7 +24,7 @@ mpinterfaces.twod_materials.magnetism.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.twod_materials.magnetism
+.. automodule:: mpinterfaces.mat2D.magnetism
     :members:
     :undoc-members:
     :show-inheritance:

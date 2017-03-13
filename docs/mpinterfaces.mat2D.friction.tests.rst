@@ -1,13 +1,13 @@
-mpinterfaces.twod_materials.friction.tests package
+mpinterfaces.mat2D.friction.tests package
 ==================================================
 
 Submodules
 ----------
 
-mpinterfaces.twod_materials.friction.tests.test_friction module
+mpinterfaces.mat2D.friction.tests.test_friction module
 ---------------------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.friction.tests.test_friction
+.. automodule:: mpinterfaces.mat2D.friction.tests.test_friction
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ mpinterfaces.twod_materials.friction.tests.test_friction module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.twod_materials.friction.tests
+.. automodule:: mpinterfaces.mat2D.friction.tests
     :members:
     :undoc-members:
     :show-inheritance:

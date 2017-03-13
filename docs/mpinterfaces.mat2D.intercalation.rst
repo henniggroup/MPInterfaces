@@ -1,4 +1,4 @@
-mpinterfaces.twod_materials.intercalation package
+mpinterfaces.mat2D.intercalation package
 =================================================
 
 Subpackages
@@ -6,23 +6,23 @@ Subpackages
 
 .. toctree::
 
-    mpinterfaces.twod_materials.intercalation.tests
+    mpinterfaces.mat2D.intercalation.tests
 
 Submodules
 ----------
 
-mpinterfaces.twod_materials.intercalation.analysis module
+mpinterfaces.mat2D.intercalation.analysis module
 ---------------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.intercalation.analysis
+.. automodule:: mpinterfaces.mat2D.intercalation.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.twod_materials.intercalation.startup module
+mpinterfaces.mat2D.intercalation.startup module
 --------------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.intercalation.startup
+.. automodule:: mpinterfaces.mat2D.intercalation.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,7 +31,7 @@ mpinterfaces.twod_materials.intercalation.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.twod_materials.intercalation
+.. automodule:: mpinterfaces.mat2D.intercalation
     :members:
     :undoc-members:
     :show-inheritance:

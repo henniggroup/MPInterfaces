@@ -29,10 +29,11 @@ class UtilsTest(unittest.TestCase):
         self.assertFalse(false_control)
 
     def test_ensure_vacuum_for_SiP(self):
+        # Compound test for add_vacuum and get_spacing.
         os.chdir(ROOT)
         structure = Structure.from_file('POSCAR_SiP')
         structure = ensure_vacuum(structure, vacuum=15)
-        self.assertEqual(15.0, get_spacing(structure))
+        self.assertAlmostEqual(get_spacing(structure), 15.0)
 
     def test_get_magmom_string_for_FeCl2(self):
         os.chdir(ROOT)
@@ -50,7 +51,7 @@ class UtilsTest(unittest.TestCase):
     def test_align_c_axis_for_non_aligned_structure(self):
         os.chdir(ROOT)
         structure = Structure.from_file('POSCAR_SF6')
-        structure = align_c_axis_along_001(structure)
+        structure = align_axis(structure, 'c', (0, 0, 1))
         control_axis = [9.04099732e-13, -2.42627092e-13, 8.3829076073038635]
         for i in range(3):
             self.assertAlmostEqual(structure.lattice.matrix[2][i],
@@ -60,7 +61,7 @@ class UtilsTest(unittest.TestCase):
         os.chdir(ROOT)
         control_axis = [0, 0, 23.4186286267]
         structure = Structure.from_file('BiTeCl/POSCAR')
-        structure = align_c_axis_along_001(structure)
+        structure = align_axis(structure, 'c', (0, 0, 1))
         for i in range(3):
             self.assertTrue(abs(
                 structure.lattice.matrix[2][i] - control_axis[i]

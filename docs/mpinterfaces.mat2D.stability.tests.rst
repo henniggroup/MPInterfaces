@@ -1,13 +1,13 @@
-mpinterfaces.twod_materials.stability.tests package
+mpinterfaces.mat2D.stability.tests package
 ===================================================
 
 Submodules
 ----------
 
-mpinterfaces.twod_materials.stability.tests.test_stability module
+mpinterfaces.mat2D.stability.tests.test_stability module
 -----------------------------------------------------------------
 
-.. automodule:: mpinterfaces.twod_materials.stability.tests.test_stability
+.. automodule:: mpinterfaces.mat2D.stability.tests.test_stability
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ mpinterfaces.twod_materials.stability.tests.test_stability module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.twod_materials.stability.tests
+.. automodule:: mpinterfaces.mat2D.stability.tests
     :members:
     :undoc-members:
     :show-inheritance:

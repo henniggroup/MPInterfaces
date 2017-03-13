@@ -3,6 +3,8 @@ import unittest
 
 from mpinterfaces import MP_API
 from mpinterfaces.mat2d.stability import *
+from mpinterfaces.mat2d.stability.analysis import get_competing_phases, \
+    get_hull_distance
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

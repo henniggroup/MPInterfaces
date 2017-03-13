@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
 
     mpinterfaces.tests
-    mpinterfaces.twod_materials
+    mpinterfaces.mat2d
 
 Submodules
 ----------

@@ -1,1 +1,0 @@
-from mpinterfaces.twod_materials.intercalation.startup import inject_ions

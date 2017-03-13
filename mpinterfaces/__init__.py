@@ -28,11 +28,13 @@ except:
     warnings.warn('mpint_config.yaml file not configured.')
 
 # set environ variables for MAPI_KEY and VASP_PSP_DIR
-os.environ['VASP_PSP_DIR'] = MPINT_CONFIG.get('potentials', '')
+if MPINT_CONFIG.get('potentials', ''):
+    os.environ['VASP_PSP_DIR'] = MPINT_CONFIG.get('potentials', '')
 MP_API = MPINT_CONFIG.get('mp_api', '')
-os.environ['MAPI_KEY'] = MP_API
-MPR = MPRester(os.environ['MAPI_KEY'])
+if MP_API:
+    os.environ['MAPI_KEY'] = MP_API
 
+MPR = MPRester(MP_API)
 USERNAME = MPINT_CONFIG.get('username', None)
 VASP_STD_BIN = MPINT_CONFIG.get('normal_binary', None)
 VASP_TWOD_BIN = MPINT_CONFIG.get('twod_binary', None)
@@ -41,12 +43,7 @@ VASP_PSP = MPINT_CONFIG.get('potentials', None)
 QUEUE_SYSTEM = MPINT_CONFIG.get('queue_system', None)
 
 if not QUEUE_SYSTEM:
-    if '/ufrc/' in os.getcwd():
-        QUEUE_SYSTEM = 'slurm'
-    elif '/scratch/' in os.getcwd():
-        QUEUE_SYSTEM = 'pbs'
-    else:
-        QUEUE_SYSTEM = 'N/A'
+    QUEUE_SYSTEM = 'slurm'
 
 
 def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):

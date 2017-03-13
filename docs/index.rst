@@ -3,20 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to mpinterfaces's documentation!
-========================================
+MPInterfaces
+==============
 
 .. toctree::
    :maxdepth: 2
 
    readme
-
-   
-.. toctree::
-   :maxdepth: 4
-   :caption: Contents:
-
-   mpinterfaces
 
 Usage
 ======
@@ -30,6 +23,14 @@ Examples
 =========
 
 See the examples folder
+
+API Docs
+==========
+
+.. toctree::
+   :maxdepth: 4
+
+   mpinterfaces
 
 Indices and tables
 ==================

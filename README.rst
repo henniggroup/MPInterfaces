@@ -20,6 +20,9 @@ as well as their open source tools_ and a little bit of ase_.
 
 .. _ase: https://wiki.fysik.dtu.dk/ase/
 
+.. image:: https://github.com/henniggroup/MPInterfaces/blob/master/docs/mpinterfaces-logo.png
+   :width: 75 %
+   :align: center
 
 Installation
 ==============

@@ -1,21 +1,21 @@
-mpinterfaces.mat2D.magnetism package
+mpinterfaces.mat2d.magnetism package
 =============================================
 
 Submodules
 ----------
 
-mpinterfaces.mat2D.magnetism.analysis module
+mpinterfaces.mat2d.magnetism.analysis module
 -----------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.magnetism.analysis
+.. automodule:: mpinterfaces.mat2d.magnetism.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.mat2D.magnetism.startup module
+mpinterfaces.mat2d.magnetism.startup module
 ----------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.magnetism.startup
+.. automodule:: mpinterfaces.mat2d.magnetism.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,7 +24,7 @@ mpinterfaces.mat2D.magnetism.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.mat2D.magnetism
+.. automodule:: mpinterfaces.mat2d.magnetism
     :members:
     :undoc-members:
     :show-inheritance:

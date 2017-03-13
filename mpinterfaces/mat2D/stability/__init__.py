@@ -1,1 +1,1 @@
-from mpinterfaces.mat2D.stability.startup import relax, INCAR_DICT
+from mpinterfaces.mat2d.stability.startup import relax, INCAR_DICT

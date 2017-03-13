@@ -52,7 +52,7 @@ from mpinterfaces.instrument import MPINTVaspInputSet, MPINTVaspJob
 from mpinterfaces.interface import Interface, Ligand
 from mpinterfaces.utils import get_ase_slab, get_magmom_string, get_magmom_afm, \
     get_magmom_mae, print_exception
-from mpinterfaces.mat2D.electronic_structure import get_2D_hse_kpoints,\
+from mpinterfaces.mat2d.electronic_structure import get_2D_hse_kpoints,\
     get_2D_incar_hse_prep, get_2D_incar_hse
 from mpinterfaces.default_logger import get_default_logger
 

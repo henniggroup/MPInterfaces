@@ -1,4 +1,4 @@
-mpinterfaces.mat2D.pourbaix package
+mpinterfaces.mat2d.pourbaix package
 ============================================
 
 Subpackages
@@ -6,23 +6,23 @@ Subpackages
 
 .. toctree::
 
-    mpinterfaces.mat2D.pourbaix.tests
+    mpinterfaces.mat2d.pourbaix.tests
 
 Submodules
 ----------
 
-mpinterfaces.mat2D.pourbaix.analysis module
+mpinterfaces.mat2d.pourbaix.analysis module
 ----------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.pourbaix.analysis
+.. automodule:: mpinterfaces.mat2d.pourbaix.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.mat2D.pourbaix.startup module
+mpinterfaces.mat2d.pourbaix.startup module
 ---------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.pourbaix.startup
+.. automodule:: mpinterfaces.mat2d.pourbaix.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,7 +31,7 @@ mpinterfaces.mat2D.pourbaix.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.mat2D.pourbaix
+.. automodule:: mpinterfaces.mat2d.pourbaix
     :members:
     :undoc-members:
     :show-inheritance:

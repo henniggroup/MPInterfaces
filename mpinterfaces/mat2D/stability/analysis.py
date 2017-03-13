@@ -14,7 +14,7 @@ from pymatgen.phasediagram.analyzer import PDAnalyzer
 from pymatgen.phasediagram.maker import PhaseDiagram
 
 from mpinterfaces.utils import is_converged
-from mpinterfaces.mat2D import MPR
+from mpinterfaces.mat2d import MPR
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

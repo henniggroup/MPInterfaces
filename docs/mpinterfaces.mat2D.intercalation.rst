@@ -1,4 +1,4 @@
-mpinterfaces.mat2D.intercalation package
+mpinterfaces.mat2d.intercalation package
 =================================================
 
 Subpackages
@@ -6,23 +6,23 @@ Subpackages
 
 .. toctree::
 
-    mpinterfaces.mat2D.intercalation.tests
+    mpinterfaces.mat2d.intercalation.tests
 
 Submodules
 ----------
 
-mpinterfaces.mat2D.intercalation.analysis module
+mpinterfaces.mat2d.intercalation.analysis module
 ---------------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.intercalation.analysis
+.. automodule:: mpinterfaces.mat2d.intercalation.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.mat2D.intercalation.startup module
+mpinterfaces.mat2d.intercalation.startup module
 --------------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.intercalation.startup
+.. automodule:: mpinterfaces.mat2d.intercalation.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,7 +31,7 @@ mpinterfaces.mat2D.intercalation.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.mat2D.intercalation
+.. automodule:: mpinterfaces.mat2d.intercalation
     :members:
     :undoc-members:
     :show-inheritance:

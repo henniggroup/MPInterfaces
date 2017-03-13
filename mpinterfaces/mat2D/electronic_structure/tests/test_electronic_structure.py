@@ -2,8 +2,8 @@ import os
 import unittest
 
 from mpinterfaces import MPINT_CONFIG
-from mpinterfaces.mat2D.electronic_structure import *
-from mpinterfaces.mat2D.electronic_structure.analysis import get_band_edges, \
+from mpinterfaces.mat2d.electronic_structure import *
+from mpinterfaces.mat2d.electronic_structure.analysis import get_band_edges, \
     get_fermi_velocities, plot_band_alignments, plot_band_structure, \
     plot_color_projected_bands, plot_orb_projected_bands, plot_local_potential, \
     plot_elt_projected_bands

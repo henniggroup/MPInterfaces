@@ -1,4 +1,4 @@
-mpinterfaces.mat2D.friction package
+mpinterfaces.mat2d.friction package
 ============================================
 
 Subpackages
@@ -6,23 +6,23 @@ Subpackages
 
 .. toctree::
 
-    mpinterfaces.mat2D.friction.tests
+    mpinterfaces.mat2d.friction.tests
 
 Submodules
 ----------
 
-mpinterfaces.mat2D.friction.analysis module
+mpinterfaces.mat2d.friction.analysis module
 ----------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.friction.analysis
+.. automodule:: mpinterfaces.mat2d.friction.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.mat2D.friction.startup module
+mpinterfaces.mat2d.friction.startup module
 ---------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.friction.startup
+.. automodule:: mpinterfaces.mat2d.friction.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,7 +31,7 @@ mpinterfaces.mat2D.friction.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.mat2D.friction
+.. automodule:: mpinterfaces.mat2d.friction
     :members:
     :undoc-members:
     :show-inheritance:

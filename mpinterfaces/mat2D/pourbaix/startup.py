@@ -11,7 +11,7 @@ from pymatgen.io.vasp.outputs import Vasprun
 
 from mpinterfaces import MPR
 import mpinterfaces.utils as utl
-from mpinterfaces.mat2D.stability import relax
+from mpinterfaces.mat2d.stability import relax
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

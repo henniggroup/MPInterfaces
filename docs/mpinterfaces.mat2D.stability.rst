@@ -1,4 +1,4 @@
-mpinterfaces.mat2D.stability package
+mpinterfaces.mat2d.stability package
 =============================================
 
 Subpackages
@@ -6,23 +6,23 @@ Subpackages
 
 .. toctree::
 
-    mpinterfaces.mat2D.stability.tests
+    mpinterfaces.mat2d.stability.tests
 
 Submodules
 ----------
 
-mpinterfaces.mat2D.stability.analysis module
+mpinterfaces.mat2d.stability.analysis module
 -----------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.stability.analysis
+.. automodule:: mpinterfaces.mat2d.stability.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.mat2D.stability.startup module
+mpinterfaces.mat2d.stability.startup module
 ----------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.stability.startup
+.. automodule:: mpinterfaces.mat2d.stability.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,7 +31,7 @@ mpinterfaces.mat2D.stability.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.mat2D.stability
+.. automodule:: mpinterfaces.mat2d.stability
     :members:
     :undoc-members:
     :show-inheritance:

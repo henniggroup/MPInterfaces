@@ -1,4 +1,4 @@
-mpinterfaces.mat2D.electronic_structure package
+mpinterfaces.mat2d.electronic_structure package
 ========================================================
 
 Subpackages
@@ -6,23 +6,23 @@ Subpackages
 
 .. toctree::
 
-    mpinterfaces.mat2D.electronic_structure.tests
+    mpinterfaces.mat2d.electronic_structure.tests
 
 Submodules
 ----------
 
-mpinterfaces.mat2D.electronic_structure.analysis module
+mpinterfaces.mat2d.electronic_structure.analysis module
 ----------------------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.electronic_structure.analysis
+.. automodule:: mpinterfaces.mat2d.electronic_structure.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-mpinterfaces.mat2D.electronic_structure.startup module
+mpinterfaces.mat2d.electronic_structure.startup module
 ---------------------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.electronic_structure.startup
+.. automodule:: mpinterfaces.mat2d.electronic_structure.startup
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,7 +31,7 @@ mpinterfaces.mat2D.electronic_structure.startup module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.mat2D.electronic_structure
+.. automodule:: mpinterfaces.mat2d.electronic_structure
     :members:
     :undoc-members:
     :show-inheritance:

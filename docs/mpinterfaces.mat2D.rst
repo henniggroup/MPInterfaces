@@ -1,4 +1,4 @@
-mpinterfaces.mat2D package
+mpinterfaces.mat2d package
 ===================================
 
 Subpackages
@@ -6,17 +6,17 @@ Subpackages
 
 .. toctree::
 
-    mpinterfaces.mat2D.electronic_structure
-    mpinterfaces.mat2D.friction
-    mpinterfaces.mat2D.intercalation
-    mpinterfaces.mat2D.magnetism
-    mpinterfaces.mat2D.pourbaix
-    mpinterfaces.mat2D.stability
+    mpinterfaces.mat2d.electronic_structure
+    mpinterfaces.mat2d.friction
+    mpinterfaces.mat2d.intercalation
+    mpinterfaces.mat2d.magnetism
+    mpinterfaces.mat2d.pourbaix
+    mpinterfaces.mat2d.stability
 
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.mat2D
+.. automodule:: mpinterfaces.mat2d
     :members:
     :undoc-members:
     :show-inheritance:

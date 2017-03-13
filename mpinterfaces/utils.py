@@ -112,7 +112,7 @@ def get_magmom_string(structure):
     Based on a POSCAR, returns the string required for the MAGMOM
     setting in the INCAR. Initializes transition metals with 6.0
     bohr magneton and all others with 0.5.
-    TEST: integration of mat2D function with mpinterfaces
+    TEST: integration of mat2d function with mpinterfaces
     calibrate.py
     Consider moving to mpinterfaces.utils
 
@@ -120,7 +120,7 @@ def get_magmom_string(structure):
         structure (Structure): Pymatgen Structure object
 
     Returns:
-        string with INCAR setting for MAGMOM according to mat2D
+        string with INCAR setting for MAGMOM according to mat2d
         database calculations
     """
     magmoms, considered = [], []
@@ -1007,7 +1007,7 @@ def write_potcar(pot_path=VASP_PSP, types='None'):
         poscar.close()
 
         potcar_symbols = loadfn(
-            os.path.join(PACKAGE_PATH, 'mat2D', 'potcar_symbols.yaml')
+            os.path.join(PACKAGE_PATH, 'mat2d', 'potcar_symbols.yaml')
         )
 
         if types == 'None':

@@ -4,8 +4,8 @@ import unittest
 from monty.serialization import loadfn
 
 from mpinterfaces import MP_API
-from mpinterfaces.mat2D.pourbaix import *
-from mpinterfaces.mat2D.stability.startup import INCAR_DICT
+from mpinterfaces.mat2d.pourbaix import *
+from mpinterfaces.mat2d.stability.startup import INCAR_DICT
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

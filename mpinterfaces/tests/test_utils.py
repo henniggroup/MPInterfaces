@@ -16,7 +16,7 @@ __date__ = "March 3, 2017"
 
 
 ROOT = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), "..", "mat2D", "stability", "tests")
+    os.path.dirname(__file__), "..", "mat2d", "stability", "tests")
 )
 
 

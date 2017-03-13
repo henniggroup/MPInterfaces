@@ -1,13 +1,13 @@
-mpinterfaces.mat2D.intercalation.tests package
+mpinterfaces.mat2d.intercalation.tests package
 =======================================================
 
 Submodules
 ----------
 
-mpinterfaces.mat2D.intercalation.tests.test_intercalation module
+mpinterfaces.mat2d.intercalation.tests.test_intercalation module
 -------------------------------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.intercalation.tests.test_intercalation
+.. automodule:: mpinterfaces.mat2d.intercalation.tests.test_intercalation
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ mpinterfaces.mat2D.intercalation.tests.test_intercalation module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.mat2D.intercalation.tests
+.. automodule:: mpinterfaces.mat2d.intercalation.tests
     :members:
     :undoc-members:
     :show-inheritance:

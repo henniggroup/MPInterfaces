@@ -1,1 +1,1 @@
-from mpinterfaces.mat2D.intercalation.startup import inject_ions
+from mpinterfaces.mat2d.intercalation.startup import inject_ions

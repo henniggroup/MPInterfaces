@@ -2,7 +2,7 @@ import os
 import unittest
 
 from mpinterfaces import MP_API
-from mpinterfaces.mat2D.stability import *
+from mpinterfaces.mat2d.stability import *
 
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"

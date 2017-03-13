@@ -37,7 +37,7 @@ def plot_ion_hull_and_voltages(ion, fmt='pdf'):
     """
 
     # Calculated with the relax() function in
-    # mat2D.stability.startup. If you are using other input
+    # mat2d.stability.startup. If you are using other input
     # parameters, you need to recalculate these values!
     ion_ev_fu = {'Li': -1.7540797, 'Mg': -1.31976062, 'Al': -3.19134607}
 

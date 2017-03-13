@@ -1,13 +1,13 @@
-mpinterfaces.mat2D.stability.tests package
+mpinterfaces.mat2d.stability.tests package
 ===================================================
 
 Submodules
 ----------
 
-mpinterfaces.mat2D.stability.tests.test_stability module
+mpinterfaces.mat2d.stability.tests.test_stability module
 -----------------------------------------------------------------
 
-.. automodule:: mpinterfaces.mat2D.stability.tests.test_stability
+.. automodule:: mpinterfaces.mat2d.stability.tests.test_stability
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ mpinterfaces.mat2D.stability.tests.test_stability module
 Module contents
 ---------------
 
-.. automodule:: mpinterfaces.mat2D.stability.tests
+.. automodule:: mpinterfaces.mat2d.stability.tests
     :members:
     :undoc-members:
     :show-inheritance:

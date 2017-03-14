@@ -192,23 +192,21 @@ def get_magmom_afm(poscar, database=None):
     return afm_magmom, Poscar(structure=poscar.structure,
                               comment=orig_structure_name)
 
-def set_q_params(walltime='2:00:00',job_bin=None, job_name=None):
-    """
-    helper function to interact with the qtemplate.yaml
-    """
-    qtemp = yaml.load(open(QUEUE_TEMPLATE))
-    qtemp.update({'walltime': walltime, 'job_bin': job_bin, 'job_name':job_name})
-    return qtemp
 
 def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00', job_bin=None,
-                  job_name=None):
+                  job_name=None, mem=None):
     """
     returns the fireworks CommonAdapter based on the queue
-    system specified by my_config.yaml and the submit
-    file template also specified in my_config.yaml
+    system specified by mpint_config.yaml and the submit
+    file template also specified in mpint_config.yaml
+    NOTE: for the job_bin, please specify the mpi command as well:
+          Eg: mpiexec /path/to/binary 
     """
     d = {}
     job_cmd = None
+    qtemp = yaml.load(open(QUEUE_TEMPLATE+os.sep+'qtemplate.yaml'))
+    qtemp.update({'nnodes': nnodes, 'ntasks':ntasks, 'walltime': walltime, \
+                  'rocket_launch': job_bin, 'job_name':job_name,'mem':mem})
     # SLURM queue
     if QUEUE_SYSTEM == 'slurm':
         if job_bin is None:
@@ -216,7 +214,7 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00', job_bin=None,
         else:
             job_bin = job_bin
         d = {'type': 'SLURM',
-             'params': set_q_params(walltime, job_bin, job_name)}
+             'params': qtemp}
     # PBS queue
     elif QUEUE_SYSTEM == 'pbs':
         if job_bin is None:
@@ -224,7 +222,7 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00', job_bin=None,
         else:
             job_bin = job_bin
         d = {'type': 'PBS',
-             'params': set_q_params(walltime,job_bin,job_name)}
+             'params': qtemp}
     else:
         job_cmd = ['ls', '-lt']
     if d:
@@ -241,11 +239,11 @@ def get_job_state(job):
     Returns:
            the job state and the job output file name
     """
-    hostname = socket.gethostname()
+    # hostname = socket.gethostname()
     ofname = None
 
     # hipergator,pbs
-    if 'ufhpc' in hostname:
+    if QUEUE_SYSTEM == 'slurm':# in hostname:
         try:
             output = sp.check_output(['qstat', '-i', job.job_id])
             state = output.rstrip('\n').split('\n')[-1].split()[-2]
@@ -255,16 +253,16 @@ def get_job_state(job):
         ofname = "FW_job.out"
 
     # stampede, slurm
-    elif 'stampede' in hostname:
-        try:
-            output = sp.check_output(['squeue', '--job', job.job_id])
-            state = output.rstrip('\n').split('\n')[-1].split()[-4]
-        except:
-            logger.info('Job {} not in the que.'.format(job.job_id))
-            logger.info(
-                'This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
-            state = "00"
-        ofname = "vasp_job-" + str(job.job_id) + ".out"
+    # else: #'stampede' in hostname:
+    #    try:
+    #        output = sp.check_output(['squeue', '--job', job.job_id])
+    #        state = output.rstrip('\n').split('\n')[-1].split()[-4]
+    #    except:
+    #        logger.info('Job {} not in the que.'.format(job.job_id))
+    #        logger.info(
+    #            'This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
+    #        state = "00"
+    #    ofname = "vasp_job-" + str(job.job_id) + ".out"
 
     # no batch system
     else:
@@ -1089,6 +1087,14 @@ def remove_z_kpoints():
                                 label_2]))
             kpts.write('\n\n')
 
+def update_submission_template(default_template, qtemplate):
+    """
+    helper function for writing a CommonAdapter template fireworks 
+    submission file based on a provided default_template which 
+    contains hpc resource allocation information and the qtemplate
+    which is a yaml of commonly modified user arguments
+    """
+    pass
 
 def write_pbs_runjob(name, nnodes, nprocessors, pmem, walltime, binary):
     """

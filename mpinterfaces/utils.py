@@ -23,6 +23,7 @@ import time
 import subprocess as sp
 import logging
 from collections import OrderedDict
+import yaml
 
 import numpy as np
 
@@ -46,7 +47,8 @@ from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 from ase.lattice.surface import surface
 
 from mpinterfaces.default_logger import get_default_logger
-from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM, VASP_PSP, PACKAGE_PATH
+from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM, QUEUE_TEMPLATE, VASP_PSP,\
+ PACKAGE_PATH
 
 __author__ = "Kiran Mathew, Joshua J. Gabriel"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -190,95 +192,39 @@ def get_magmom_afm(poscar, database=None):
     return afm_magmom, Poscar(structure=poscar.structure,
                               comment=orig_structure_name)
 
+def set_q_params(walltime='2:00:00',job_bin=None, job_name=None):
+    """
+    helper function to interact with the qtemplate.yaml
+    """
+    qtemp = yaml.load(open(QUEUE_TEMPLATE))
+    qtemp.update({'walltime': walltime, 'job_bin': job_bin, 'job_name':job_name})
+    return qtemp
 
 def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00', job_bin=None,
                   job_name=None):
     """
-    depends on the supercomputing faciltiy being used.
-    set a sample submit script in the fireworks directory which is
-    installed in your virtual environment as for example:
-    /my_venv/lib/python2.7/site-packages/FireWorks-1.2.5-py2.7.egg/
-    fireworks/user_objects/queue_adapters/
-    the keys to the dictionary d are the defaults on ufhpc's
-    hipergator2 supercomputing facility
-
+    returns the fireworks CommonAdapter based on the queue
+    system specified by my_config.yaml and the submit
+    file template also specified in my_config.yaml
     """
     d = {}
     job_cmd = None
-    queue = QUEUE_SYSTEM
-    hostname = socket.gethostname()
-
-    # FIXME: Using hostnames to determine behavior is terrible practice, as is
-    # hard-coding file directories.
-    # old hipergator which can be generalized into a pbs qdapter for fireworks
-
-    #    if 'ufhpc_pbs' in hostname:
-    #        if job_bin is None:
-    #            job_bin = '/home/km468/Software/VASP/vasp.5.3.5/vasp'
-    #        else:
-    #            job_bin = job_bin
-    #        d = {'type': 'PBS',
-    #             'params':
-    #                 {
-    #                     'nnodes': str(nnodes),
-    #                     'ppnode': str(int(nprocs / nnodes)),
-    #                     'walltime': walltime,
-    #                     'job_name': 'vasp_job',
-    #                     'email': 'mpinterfaces@gmail.com',
-    #                     'notification_options': 'ae',
-    #                     'pre_rocket': '#PBS -l pmem=' + str(mem) + 'mb',
-    #                     'rocket_launch': 'mpirun ' + job_bin
-
-    # hipergator: currently hipergator2
-    if 'slurm' in queue:
-    #if 'ufhpc' in hostname:
+    # SLURM queue
+    if QUEUE_SYSTEM == 'slurm':
         if job_bin is None:
             job_bin = VASP_STD_BIN
         else:
             job_bin = job_bin
-    # FIXME: think of way to generalize this to a SLURM queue, some specs
-    # here are ufhpc dependent and depend on the submission script settings
-    # for the binary
         d = {'type': 'SLURM',
-             'params':
-                 {
-                     'nodes': str(nnodes),
-                     'ntasks': str(int(ntasks)),
-                     'walltime': walltime,
-                     'job_name': job_name,
-                     'email': 'mpinterfaces@gmail.com',
-                     'notification_options': 'ae',
-                     'pre_rocket': 'module load intel/2016.0.109 openmpi',
-                     'rocket_launch': 'mpiexec ' + job_bin
-
-                 }
-             }
-    # stampede
-    elif 'stampede' in hostname:
+             'params': set_q_params(walltime, job_bin, job_name)}
+    # PBS queue
+    elif QUEUE_SYSTEM == 'pbs':
         if job_bin is None:
-            job_bin = '/home1/01682/km468/Software/VASP/vasp.5.3.5/vasp'
+            job_bin = VASP_STD_BIN
         else:
             job_bin = job_bin
-        d = {'type': 'SLURM',
-             'params':
-                 {
-                     'nodes': str(nnodes),
-                     'ntasks': str(ntasks),
-                     'walltime': walltime,
-                     'queue': 'normal',
-                     'account': 'TG-DMR050028N',
-                     'job_name': 'vasp_job',
-                     'rocket_launch': 'ibrun ' + job_bin
-                 }
-             }
-    # running henniggroup machines
-    elif hostname in ['hydrogen', 'helium',
-                      'lithium', 'beryllium',
-                      'carbon']:
-        job_cmd = ['nohup', '/opt/openmpi_intel/bin/mpirun',
-                   '-n', str(ntasks),
-                   job_bin]
-    # test
+        d = {'type': 'PBS',
+             'params': set_q_params(walltime,job_bin,job_name)}
     else:
         job_cmd = ['ls', '-lt']
     if d:

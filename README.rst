@@ -130,8 +130,12 @@ Kiran Mathew
 
 Joshua Gabriel
 
+Michael Ashton
+
 Arunima Singh
 
-Michael Ashton
+Joshua T. Paul
+
+Seve G. Monahan
 
 Richard G. Hennig

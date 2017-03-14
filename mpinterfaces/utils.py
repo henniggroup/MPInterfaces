@@ -193,7 +193,7 @@ def get_magmom_afm(poscar, database=None):
                               comment=orig_structure_name)
 
 
-def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00', job_bin=None,
+def get_run_cmmnd(nnodes=1, ntasks=16, walltime='10:00:00', job_bin=None,
                   job_name=None, mem=None):
     """
     returns the fireworks CommonAdapter based on the queue
@@ -204,8 +204,10 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00', job_bin=None,
     """
     d = {}
     job_cmd = None
-    qtemp = yaml.load(open(QUEUE_TEMPLATE+os.sep+'qtemplate.yaml'))
-    qtemp.update({'nnodes': nnodes, 'ntasks':ntasks, 'walltime': walltime, \
+    qtemp_file = open(QUEUE_TEMPLATE+'qtemplate.yaml')
+    qtemp = yaml.load(qtemp_file)
+    qtemp_file.close()
+    qtemp.update({'nodes': nnodes, 'ntasks':ntasks, 'walltime': walltime, \
                   'rocket_launch': job_bin, 'job_name':job_name,'mem':mem})
     # SLURM queue
     if QUEUE_SYSTEM == 'slurm':
@@ -226,6 +228,7 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00', job_bin=None,
     else:
         job_cmd = ['ls', '-lt']
     if d:
+        #print (CommonAdapter(d['type'], **d['params']), job_cmd)
         return (CommonAdapter(d['type'], **d['params']), job_cmd)
     else:
         return (None, job_cmd)
@@ -1043,8 +1046,9 @@ def remove_z_kpoints():
     z-component, since these are not relevant for 2D materials and
     slabs.
     """
-
-    kpoint_lines = open('KPOINTS').readlines()
+    kpoint_file = open('KPOINTS')
+    kpoint_lines = kpoint_file.readlines()
+    kpoint_file.close()
 
     twod_kpoints = []
     labels = {}
@@ -1085,6 +1089,7 @@ def remove_z_kpoints():
             kpts.write(' '.join([str(kpt_2[0]), str(kpt_2[1]), '0.0 !',
                                 label_2]))
             kpts.write('\n\n')
+    kpts.close()
 
 def update_submission_template(default_template, qtemplate):
     """

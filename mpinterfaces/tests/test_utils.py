@@ -1,5 +1,6 @@
 import unittest
 import os
+from collections import defaultdict
 
 from mpinterfaces.utils import *
 
@@ -18,7 +19,6 @@ __date__ = "March 3, 2017"
 ROOT = os.path.abspath(os.path.join(
     os.path.dirname(__file__), "..", "mat2d", "stability", "tests")
 )
-
 
 class UtilsTest(unittest.TestCase):
 
@@ -91,10 +91,14 @@ class UtilsTest(unittest.TestCase):
     def test_write_circle_mesh_kpoints(self):
         os.chdir(ROOT)
         write_circle_mesh_kpoints()
-        test_lines = open('KPOINTS').readlines()
-        control_lines = open('circle_mesh_KPOINTS').readlines()
+        test_file = open('KPOINTS')
+        test_lines = test_file.readlines()
+        control_file = open('circle_mesh_KPOINTS')
+        control_lines = control_file.readlines()
         self.assertEqual(test_lines, control_lines)
         os.system('rm KPOINTS')
+        test_file.close()
+        control_file.close()
 
     def test_get_markovian_path(self):
         points = ((0, 0), (1, 1), (1, 0), (0, 1))
@@ -109,10 +113,24 @@ class UtilsTest(unittest.TestCase):
         kpath = HighSymmKpath(structure)
         Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
         remove_z_kpoints()
-        test_lines = open('KPOINTS').readlines()
-        control_lines = open('../BiTeCl_control/KPOINTS').readlines()
+        test_file = open('KPOINTS')
+        test_lines = test_file.readlines()
+        control_file = open('../BiTeCl_control/KPOINTS')
+        control_lines = control_file.readlines()
         self.assertEqual(test_lines, control_lines)
         os.system('rm KPOINTS')
+        test_file.close()
+        control_file.close()
+
+    def test_get_run_cmmnd(self):
+        os.chdir(os.path.join(ROOT, '../../../../'))
+        QUEUE_SYSTEM='slurm'
+        trial_output = get_run_cmmnd()
+        correct_output = (defaultdict(None, {'account': None, 'mem': None, \
+        'walltime': '10:00:00', 'nodes': 1, 'pre_rocket': None, 'job_name': None, \
+        'ntasks': 16, 'email': None, 'rocket_launch': None}),None)
+        self.assertEqual(trial_output, correct_output)
+
 
 
 if __name__ == '__main__':

@@ -48,7 +48,7 @@ from ase.lattice.surface import surface
 from mpinterfaces.default_logger import get_default_logger
 from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM, VASP_PSP, PACKAGE_PATH
 
-__author__ = "Kiran Mathew, Joshua J. Gabriel"
+__author__ = "Kiran Mathew, Joshua J. Gabriel, Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
 __maintainer__ = "Joshua J. Gabriel"
 __email__ = "joshgabriel92@gmail.com"

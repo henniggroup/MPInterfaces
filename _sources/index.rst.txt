@@ -6,6 +6,8 @@
 MPInterfaces
 ==============
 
+MPInterfaces is a python package that enables high throughput analysis of interfaces(two dimensional materials, hetero-structures, nanoparticles with and without ligands/solvents) using VASP, VASPsol and MP tools
+
 .. toctree::
    :maxdepth: 2
 

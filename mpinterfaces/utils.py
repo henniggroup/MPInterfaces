@@ -50,7 +50,7 @@ from mpinterfaces.default_logger import get_default_logger
 from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM, QUEUE_TEMPLATE, VASP_PSP,\
  PACKAGE_PATH
 
-__author__ = "Kiran Mathew, Joshua J. Gabriel"
+__author__ = "Kiran Mathew, Joshua J. Gabriel, Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
 __maintainer__ = "Joshua J. Gabriel"
 __email__ = "joshgabriel92@gmail.com"
@@ -200,7 +200,7 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='24:00:00', job_bin=None,
     system specified by mpint_config.yaml and the submit
     file template also specified in mpint_config.yaml
     NOTE: for the job_bin, please specify the mpi command as well:
-          Eg: mpiexec /path/to/binary 
+          Eg: mpiexec /path/to/binary
     """
     d = {}
     job_cmd = None
@@ -239,11 +239,10 @@ def get_job_state(job):
     Returns:
            the job state and the job output file name
     """
-    # hostname = socket.gethostname()
     ofname = None
 
-    # hipergator,pbs
-    if QUEUE_SYSTEM == 'slurm':# in hostname:
+    # pbs
+    if QUEUE_SYSTEM == 'pbs':# in hostname:
         try:
             output = sp.check_output(['qstat', '-i', job.job_id])
             state = output.rstrip('\n').split('\n')[-1].split()[-2]
@@ -252,17 +251,17 @@ def get_job_state(job):
             state = "00"
         ofname = "FW_job.out"
 
-    # stampede, slurm
-    # else: #'stampede' in hostname:
-    #    try:
-    #        output = sp.check_output(['squeue', '--job', job.job_id])
-    #        state = output.rstrip('\n').split('\n')[-1].split()[-4]
-    #    except:
-    #        logger.info('Job {} not in the que.'.format(job.job_id))
-    #        logger.info(
-    #            'This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
-    #        state = "00"
-    #    ofname = "vasp_job-" + str(job.job_id) + ".out"
+    # slurm
+    elif QUEUE_SYSTEM == 'slurm':
+        try:
+            output = sp.check_output(['squeue', '--job', job.job_id])
+            state = output.rstrip('\n').split('\n')[-1].split()[-4]
+        except:
+            logger.info('Job {} not in the que.'.format(job.job_id))
+            logger.info(
+                'This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
+            state = "00"
+        ofname = "vasp_job-" + str(job.job_id) + ".out"
 
     # no batch system
     else:
@@ -1089,8 +1088,8 @@ def remove_z_kpoints():
 
 def update_submission_template(default_template, qtemplate):
     """
-    helper function for writing a CommonAdapter template fireworks 
-    submission file based on a provided default_template which 
+    helper function for writing a CommonAdapter template fireworks
+    submission file based on a provided default_template which
     contains hpc resource allocation information and the qtemplate
     which is a yaml of commonly modified user arguments
     """

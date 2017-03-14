@@ -41,6 +41,7 @@ VASP_TWOD_BIN = MPINT_CONFIG.get('twod_binary', None)
 VDW_KERNEL = MPINT_CONFIG.get('vdw_kernel', None)
 VASP_PSP = MPINT_CONFIG.get('potentials', None)
 QUEUE_SYSTEM = MPINT_CONFIG.get('queue_system', None)
+QUEUE_TEMPLATE = MPINT_CONFIG.get('queue_template', None)
 
 if not QUEUE_SYSTEM:
     QUEUE_SYSTEM = 'slurm'

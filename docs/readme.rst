@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/joshgabriel/MPInterfaces.svg?branch=master
-.. image:: https://codecov.io/gh/joshgabriel/MPInterfaces/coverage.svg?branch=master
+.. image:: https://travis-ci.org/henniggroup/MPInterfaces.svg?branch=master
+.. image:: https://codecov.io/gh/henniggroup/MPInterfaces/coverage.svg?branch=master
 
 MPinterfaces is a python package that enables high throughput Density
 Functional Theory(DFT) analysis of arbitrary material interfaces(two dimensional
@@ -45,19 +45,19 @@ step 3(if the local copy was installed in the develop mode this step can be skip
 1. Clone the latest version from github
 
   - git clone https://github.com/henniggroup/MPInterfaces.git
-  
+
 2. cd MPInterfaces
-	
+
 3. python setup.py install(or develop)
 
 4. (optional) Copy the config.yaml file to mpinterfaces/config_mine.yaml
-   and update the file so that you have the following 
+   and update the file so that you have the following
    environment variables :
-   
+
    - MAPI_KEY=the_key_obtained_from_materialsproject
-     
+
    - VASP_PSP_DIR=path_to_vasp_potcar_files
-   
+
 
 Documentation
 ==============
@@ -68,7 +68,7 @@ http://henniggroup.github.io/MPInterfaces/
 
 and work is underway to improve it.
 
-      
+
 Usage
 ==========
 
@@ -127,7 +127,7 @@ Authors
 =========
 
 Kiran Mathew
-	
+
 Joshua Gabriel
 
 Arunima Singh

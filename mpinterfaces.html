@@ -119,7 +119,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.firetasks">mpinterfaces.firetasks module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.instrument">mpinterfaces.instrument module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.interface">mpinterfaces.interface module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#mpinterfaces-lammps-module">mpinterfaces.lammps module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.lammps">mpinterfaces.lammps module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.measurement">mpinterfaces.measurement module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.nanoparticle">mpinterfaces.nanoparticle module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-mpinterfaces.rest">mpinterfaces.rest module</a></li>
@@ -558,14 +558,14 @@ representation</td>
 
 <dl class="class">
 <dt id="mpinterfaces.calibrate.CalibrateBulk">
-<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateBulk</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type='A'</em>, <em>parent_job_dir='.'</em>, <em>job_dir='./Bulk'</em>, <em>qadapter=None</em>, <em>job_cmd='qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional='PBE'</em>, <em>turn_knobs={'KPOINTS': []</em>, <em>'ENCUT': []}</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateBulk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateBulk" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateBulk</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type='A'</em>, <em>parent_job_dir='.'</em>, <em>job_dir='./Bulk'</em>, <em>qadapter=None</em>, <em>job_cmd='qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional='PBE'</em>, <em>turn_knobs={'ENCUT': []</em>, <em>'KPOINTS': []}</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateBulk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateBulk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mpinterfaces.calibrate.Calibrate" title="mpinterfaces.calibrate.Calibrate"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.calibrate.Calibrate</span></code></a></p>
 <p>Calibrate parameters for Bulk calculations</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="mpinterfaces.calibrate.CalibrateInterface">
-<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateInterface</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type='A'</em>, <em>parent_job_dir='.'</em>, <em>job_dir='./Interface'</em>, <em>qadapter=None</em>, <em>job_cmd='qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional='PBE'</em>, <em>turn_knobs={'THICKNESS': []</em>, <em>'VACUUM': []}</em>, <em>from_ase=False</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateInterface" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateInterface</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type='A'</em>, <em>parent_job_dir='.'</em>, <em>job_dir='./Interface'</em>, <em>qadapter=None</em>, <em>job_cmd='qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional='PBE'</em>, <em>turn_knobs={'VACUUM': []</em>, <em>'THICKNESS': []}</em>, <em>from_ase=False</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateInterface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mpinterfaces.calibrate.CalibrateSlab" title="mpinterfaces.calibrate.CalibrateSlab"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.calibrate.CalibrateSlab</span></code></a></p>
 <p>Calibrate paramters for interface calculations</p>
 <dl class="method">
@@ -583,7 +583,7 @@ representation</td>
 
 <dl class="class">
 <dt id="mpinterfaces.calibrate.CalibrateMolecule">
-<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateMolecule</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type='A'</em>, <em>parent_job_dir='.'</em>, <em>job_dir='./Molecule'</em>, <em>qadapter=None</em>, <em>job_cmd='qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional='PBE'</em>, <em>turn_knobs={'KPOINTS': []</em>, <em>'ENCUT': []}</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateMolecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateMolecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateMolecule</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type='A'</em>, <em>parent_job_dir='.'</em>, <em>job_dir='./Molecule'</em>, <em>qadapter=None</em>, <em>job_cmd='qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional='PBE'</em>, <em>turn_knobs={'ENCUT': []</em>, <em>'KPOINTS': []}</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateMolecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateMolecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mpinterfaces.calibrate.Calibrate" title="mpinterfaces.calibrate.Calibrate"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.calibrate.Calibrate</span></code></a></p>
 <p>Calibrate paramters for Molecule calculations</p>
 <dl class="method">
@@ -595,7 +595,7 @@ representation</td>
 
 <dl class="class">
 <dt id="mpinterfaces.calibrate.CalibrateSlab">
-<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateSlab</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type='A'</em>, <em>parent_job_dir='.'</em>, <em>job_dir='./Slab'</em>, <em>qadapter=None</em>, <em>job_cmd='qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional='PBE'</em>, <em>turn_knobs={'THICKNESS': []</em>, <em>'VACUUM': []}</em>, <em>from_ase=False</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateSlab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateSlab" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">mpinterfaces.calibrate.</code><code class="descname">CalibrateSlab</code><span class="sig-paren">(</span><em>incar</em>, <em>poscar</em>, <em>potcar</em>, <em>kpoints</em>, <em>system=None</em>, <em>is_matrix=False</em>, <em>Grid_type='A'</em>, <em>parent_job_dir='.'</em>, <em>job_dir='./Slab'</em>, <em>qadapter=None</em>, <em>job_cmd='qsub'</em>, <em>wait=True</em>, <em>mappings_override=None</em>, <em>functional='PBE'</em>, <em>turn_knobs={'VACUUM': []</em>, <em>'THICKNESS': []}</em>, <em>from_ase=False</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/calibrate.html#CalibrateSlab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.calibrate.CalibrateSlab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mpinterfaces.calibrate.Calibrate" title="mpinterfaces.calibrate.Calibrate"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.calibrate.Calibrate</span></code></a></p>
 <p>Calibrate paramters for Slab calculations</p>
 <dl class="method">
@@ -1188,8 +1188,144 @@ the farthest atom for each molecule</p>
 </dd></dl>
 
 </div>
-<div class="section" id="mpinterfaces-lammps-module">
-<h2>mpinterfaces.lammps module<a class="headerlink" href="#mpinterfaces-lammps-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-mpinterfaces.lammps">
+<span id="mpinterfaces-lammps-module"></span><h2>mpinterfaces.lammps module<a class="headerlink" href="#module-mpinterfaces.lammps" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mpinterfaces.lammps.CalibrateLammps">
+<em class="property">class </em><code class="descclassname">mpinterfaces.lammps.</code><code class="descname">CalibrateLammps</code><span class="sig-paren">(</span><em>parameters</em>, <em>structure=None</em>, <em>parent_job_dir='.'</em>, <em>job_dir='./cal_lammps'</em>, <em>qadapter=None</em>, <em>job_cmd='qsub'</em>, <em>wait=True</em>, <em>is_matrix=False</em>, <em>turn_knobs=OrderedDict([('STRUCTURES'</em>, <span class="optional">[</span><span class="optional">]</span><em>)</em>, <em>('PAIR_COEFF'</em>, <span class="optional">[</span><span class="optional">]</span><em>)])</em>, <em>checkpoint_file=None</em>, <em>cal_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mpinterfaces.calibrate.Calibrate" title="mpinterfaces.calibrate.Calibrate"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.calibrate.Calibrate</span></code></a></p>
+<p>Defines LAMMPS workflow consisting of LAMMPS jobs</p>
+<dl class="method">
+<dt id="mpinterfaces.lammps.CalibrateLammps.add_job">
+<code class="descname">add_job</code><span class="sig-paren">(</span><em>name='noname'</em>, <em>job_dir='.'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps.add_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps.add_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>add lammps job given MPINTLammps object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.CalibrateLammps.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mpinterfaces.lammps.CalibrateLammps.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.CalibrateLammps.key_to_name">
+<code class="descname">key_to_name</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps.key_to_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps.key_to_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.CalibrateLammps.set_paircoeff">
+<code class="descname">set_paircoeff</code><span class="sig-paren">(</span><em>structure</em>, <em>pcoeff</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps.set_paircoeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps.set_paircoeff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.CalibrateLammps.setup_genericparam_jobs">
+<code class="descname">setup_genericparam_jobs</code><span class="sig-paren">(</span><em>key</em>, <em>vals</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps.setup_genericparam_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps.setup_genericparam_jobs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.CalibrateLammps.setup_paircoeff_jobs">
+<code class="descname">setup_paircoeff_jobs</code><span class="sig-paren">(</span><em>paircoeff_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps.setup_paircoeff_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps.setup_paircoeff_jobs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.CalibrateLammps.setup_params_jobs">
+<code class="descname">setup_params_jobs</code><span class="sig-paren">(</span><em>params_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps.setup_params_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps.setup_params_jobs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.CalibrateLammps.setup_structure_jobs">
+<code class="descname">setup_structure_jobs</code><span class="sig-paren">(</span><em>structures</em>, <em>paircoeff</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps.setup_structure_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps.setup_structure_jobs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.CalibrateLammps.val_to_name">
+<code class="descname">val_to_name</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#CalibrateLammps.val_to_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.CalibrateLammps.val_to_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.lammps.MPINTLammps">
+<em class="property">class </em><code class="descclassname">mpinterfaces.lammps.</code><code class="descname">MPINTLammps</code><span class="sig-paren">(</span><em>structure</em>, <em>parameters={}</em>, <em>label='mpintlmp'</em>, <em>specorder=None</em>, <em>always_triclinic=False</em>, <em>no_data_file=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">ase.calculators.lammpsrun.LAMMPS</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>setup LAMMPS for given structure and parameters
+extends ase.calculators.lammpsrun.LAMMPS</p>
+<dl class="method">
+<dt id="mpinterfaces.lammps.MPINTLammps.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammps.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammps.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mpinterfaces.lammps.MPINTLammps.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammps.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammps.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.MPINTLammps.write_lammps_data">
+<code class="descname">write_lammps_data</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammps.write_lammps_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammps.write_lammps_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>write lammps structure data
+from ase with custom modifications</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.MPINTLammps.write_lammps_in">
+<code class="descname">write_lammps_in</code><span class="sig-paren">(</span><em>lammps_in=None</em>, <em>lammps_trj=None</em>, <em>lammps_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammps.write_lammps_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammps.write_lammps_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>write lammps input file
+from ase with custom modifications</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.lammps.MPINTLammpsInput">
+<em class="property">class </em><code class="descclassname">mpinterfaces.lammps.</code><code class="descname">MPINTLammpsInput</code><span class="sig-paren">(</span><em>mplmp</em>, <em>qadapter=None</em>, <em>vis_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammpsInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammpsInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>create inputs(data and input file) for LAMMPS</p>
+<dl class="method">
+<dt id="mpinterfaces.lammps.MPINTLammpsInput.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammpsInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammpsInput.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mpinterfaces.lammps.MPINTLammpsInput.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammpsInput.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammpsInput.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.MPINTLammpsInput.write_input">
+<code class="descname">write_input</code><span class="sig-paren">(</span><em>job_dir</em>, <em>make_dir_if_not_present=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammpsInput.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammpsInput.write_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>write LAMMPS input set to job_dir</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mpinterfaces.lammps.MPINTLammpsJob">
+<em class="property">class </em><code class="descclassname">mpinterfaces.lammps.</code><code class="descname">MPINTLammpsJob</code><span class="sig-paren">(</span><em>job_cmd</em>, <em>name='mpintlmpjob'</em>, <em>output_file='job.out'</em>, <em>parent_job_dir='.'</em>, <em>job_dir='untitled'</em>, <em>final=True</em>, <em>gzipped=False</em>, <em>backup=False</em>, <em>vis=None</em>, <em>settings_override=None</em>, <em>wait=True</em>, <em>vjob_logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammpsJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammpsJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mpinterfaces.instrument.MPINTJob" title="mpinterfaces.instrument.MPINTJob"><code class="xref py py-class docutils literal"><span class="pre">mpinterfaces.instrument.MPINTJob</span></code></a></p>
+<p>Define LAMMPS job</p>
+<dl class="method">
+<dt id="mpinterfaces.lammps.MPINTLammpsJob.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammpsJob.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammpsJob.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mpinterfaces.lammps.MPINTLammpsJob.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammpsJob.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammpsJob.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mpinterfaces.lammps.MPINTLammpsJob.get_final_energy">
+<code class="descname">get_final_energy</code><span class="sig-paren">(</span><em>lammps_log='log.lammps'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/lammps.html#MPINTLammpsJob.get_final_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.lammps.MPINTLammpsJob.get_final_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the final total energy</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-mpinterfaces.measurement">
 <span id="mpinterfaces-measurement-module"></span><h2>mpinterfaces.measurement module<a class="headerlink" href="#module-mpinterfaces.measurement" title="Permalink to this headline">¶</a></h2>
@@ -1857,14 +1993,13 @@ Credit: <a class="reference external" href="http://stackoverflow.com/users/19059
 
 <dl class="function">
 <dt id="mpinterfaces.utils.get_run_cmmnd">
-<code class="descclassname">mpinterfaces.utils.</code><code class="descname">get_run_cmmnd</code><span class="sig-paren">(</span><em>nnodes=1</em>, <em>ntasks=16</em>, <em>walltime='24:00:00'</em>, <em>job_bin=None</em>, <em>job_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#get_run_cmmnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.get_run_cmmnd" title="Permalink to this definition">¶</a></dt>
-<dd><p>depends on the supercomputing faciltiy being used.
-set a sample submit script in the fireworks directory which is
-installed in your virtual environment as for example:
-/my_venv/lib/python2.7/site-packages/FireWorks-1.2.5-py2.7.egg/
-fireworks/user_objects/queue_adapters/
-the keys to the dictionary d are the defaults on ufhpc&#8217;s
-hipergator2 supercomputing facility</p>
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">get_run_cmmnd</code><span class="sig-paren">(</span><em>nnodes=1</em>, <em>ntasks=16</em>, <em>walltime='10:00:00'</em>, <em>job_bin=None</em>, <em>job_name=None</em>, <em>mem=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#get_run_cmmnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.get_run_cmmnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the fireworks CommonAdapter based on the queue
+system specified by mpint_config.yaml and the submit
+file template also specified in mpint_config.yaml
+NOTE: for the job_bin, please specify the mpi command as well:</p>
+<blockquote>
+<div>Eg: mpiexec /path/to/binary</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -2042,6 +2177,15 @@ be updated with corresponding final energy</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="mpinterfaces.utils.update_submission_template">
+<code class="descclassname">mpinterfaces.utils.</code><code class="descname">update_submission_template</code><span class="sig-paren">(</span><em>default_template</em>, <em>qtemplate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mpinterfaces/utils.html#update_submission_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mpinterfaces.utils.update_submission_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper function for writing a CommonAdapter template fireworks
+submission file based on a provided default_template which
+contains hpc resource allocation information and the qtemplate
+which is a yaml of commonly modified user arguments</p>
 </dd></dl>
 
 <dl class="function">

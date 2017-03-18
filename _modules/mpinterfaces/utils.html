@@ -196,6 +196,7 @@
 <span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -219,7 +220,8 @@
 <span class="kn">from</span> <span class="nn">ase.lattice.surface</span> <span class="k">import</span> <span class="n">surface</span>
 
 <span class="kn">from</span> <span class="nn">mpinterfaces.default_logger</span> <span class="k">import</span> <span class="n">get_default_logger</span>
-<span class="kn">from</span> <span class="nn">mpinterfaces</span> <span class="k">import</span> <span class="n">VASP_STD_BIN</span><span class="p">,</span> <span class="n">QUEUE_SYSTEM</span><span class="p">,</span> <span class="n">VASP_PSP</span><span class="p">,</span> <span class="n">PACKAGE_PATH</span>
+<span class="kn">from</span> <span class="nn">mpinterfaces</span> <span class="k">import</span> <span class="n">VASP_STD_BIN</span><span class="p">,</span> <span class="n">QUEUE_SYSTEM</span><span class="p">,</span> <span class="n">QUEUE_TEMPLATE</span><span class="p">,</span> <span class="n">VASP_PSP</span><span class="p">,</span>\
+ <span class="n">PACKAGE_PATH</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew, Joshua J. Gabriel, Michael Ashton&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, Henniggroup&quot;</span>
@@ -364,97 +366,42 @@
                               <span class="n">comment</span><span class="o">=</span><span class="n">orig_structure_name</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_run_cmmnd"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_run_cmmnd">[docs]</a><span class="k">def</span> <span class="nf">get_run_cmmnd</span><span class="p">(</span><span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">walltime</span><span class="o">=</span><span class="s1">&#39;24:00:00&#39;</span><span class="p">,</span> <span class="n">job_bin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">job_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="get_run_cmmnd"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.get_run_cmmnd">[docs]</a><span class="k">def</span> <span class="nf">get_run_cmmnd</span><span class="p">(</span><span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">walltime</span><span class="o">=</span><span class="s1">&#39;10:00:00&#39;</span><span class="p">,</span> <span class="n">job_bin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">job_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mem</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    depends on the supercomputing faciltiy being used.</span>
-<span class="sd">    set a sample submit script in the fireworks directory which is</span>
-<span class="sd">    installed in your virtual environment as for example:</span>
-<span class="sd">    /my_venv/lib/python2.7/site-packages/FireWorks-1.2.5-py2.7.egg/</span>
-<span class="sd">    fireworks/user_objects/queue_adapters/</span>
-<span class="sd">    the keys to the dictionary d are the defaults on ufhpc&#39;s</span>
-<span class="sd">    hipergator2 supercomputing facility</span>
-
+<span class="sd">    returns the fireworks CommonAdapter based on the queue</span>
+<span class="sd">    system specified by mpint_config.yaml and the submit</span>
+<span class="sd">    file template also specified in mpint_config.yaml</span>
+<span class="sd">    NOTE: for the job_bin, please specify the mpi command as well:</span>
+<span class="sd">          Eg: mpiexec /path/to/binary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">job_cmd</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">queue</span> <span class="o">=</span> <span class="n">QUEUE_SYSTEM</span>
-    <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
-
-    <span class="c1"># FIXME: Using hostnames to determine behavior is terrible practice, as is</span>
-    <span class="c1"># hard-coding file directories.</span>
-    <span class="c1"># old hipergator which can be generalized into a pbs qdapter for fireworks</span>
-
-    <span class="c1">#    if &#39;ufhpc_pbs&#39; in hostname:</span>
-    <span class="c1">#        if job_bin is None:</span>
-    <span class="c1">#            job_bin = &#39;/home/km468/Software/VASP/vasp.5.3.5/vasp&#39;</span>
-    <span class="c1">#        else:</span>
-    <span class="c1">#            job_bin = job_bin</span>
-    <span class="c1">#        d = {&#39;type&#39;: &#39;PBS&#39;,</span>
-    <span class="c1">#             &#39;params&#39;:</span>
-    <span class="c1">#                 {</span>
-    <span class="c1">#                     &#39;nnodes&#39;: str(nnodes),</span>
-    <span class="c1">#                     &#39;ppnode&#39;: str(int(nprocs / nnodes)),</span>
-    <span class="c1">#                     &#39;walltime&#39;: walltime,</span>
-    <span class="c1">#                     &#39;job_name&#39;: &#39;vasp_job&#39;,</span>
-    <span class="c1">#                     &#39;email&#39;: &#39;mpinterfaces@gmail.com&#39;,</span>
-    <span class="c1">#                     &#39;notification_options&#39;: &#39;ae&#39;,</span>
-    <span class="c1">#                     &#39;pre_rocket&#39;: &#39;#PBS -l pmem=&#39; + str(mem) + &#39;mb&#39;,</span>
-    <span class="c1">#                     &#39;rocket_launch&#39;: &#39;mpirun &#39; + job_bin</span>
-
-    <span class="c1"># hipergator: currently hipergator2</span>
-    <span class="k">if</span> <span class="s1">&#39;slurm&#39;</span> <span class="ow">in</span> <span class="n">queue</span><span class="p">:</span>
-    <span class="c1">#if &#39;ufhpc&#39; in hostname:</span>
+    <span class="n">qtemp_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">QUEUE_TEMPLATE</span><span class="o">+</span><span class="s1">&#39;qtemplate.yaml&#39;</span><span class="p">)</span>
+    <span class="n">qtemp</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">qtemp_file</span><span class="p">)</span>
+    <span class="n">qtemp_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">qtemp</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;nodes&#39;</span><span class="p">:</span> <span class="n">nnodes</span><span class="p">,</span> <span class="s1">&#39;ntasks&#39;</span><span class="p">:</span><span class="n">ntasks</span><span class="p">,</span> <span class="s1">&#39;walltime&#39;</span><span class="p">:</span> <span class="n">walltime</span><span class="p">,</span> \
+                  <span class="s1">&#39;rocket_launch&#39;</span><span class="p">:</span> <span class="n">job_bin</span><span class="p">,</span> <span class="s1">&#39;job_name&#39;</span><span class="p">:</span><span class="n">job_name</span><span class="p">,</span><span class="s1">&#39;mem&#39;</span><span class="p">:</span><span class="n">mem</span><span class="p">})</span>
+    <span class="c1"># SLURM queue</span>
+    <span class="k">if</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">job_bin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">job_bin</span> <span class="o">=</span> <span class="n">VASP_STD_BIN</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">job_bin</span> <span class="o">=</span> <span class="n">job_bin</span>
-    <span class="c1"># FIXME: think of way to generalize this to a SLURM queue, some specs</span>
-    <span class="c1"># here are ufhpc dependent and depend on the submission script settings</span>
-    <span class="c1"># for the binary</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;SLURM&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;params&#39;</span><span class="p">:</span>
-                 <span class="p">{</span>
-                     <span class="s1">&#39;nodes&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">),</span>
-                     <span class="s1">&#39;ntasks&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ntasks</span><span class="p">)),</span>
-                     <span class="s1">&#39;walltime&#39;</span><span class="p">:</span> <span class="n">walltime</span><span class="p">,</span>
-                     <span class="s1">&#39;job_name&#39;</span><span class="p">:</span> <span class="n">job_name</span><span class="p">,</span>
-                     <span class="s1">&#39;email&#39;</span><span class="p">:</span> <span class="s1">&#39;mpinterfaces@gmail.com&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;notification_options&#39;</span><span class="p">:</span> <span class="s1">&#39;ae&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;pre_rocket&#39;</span><span class="p">:</span> <span class="s1">&#39;module load intel/2016.0.109 openmpi&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;rocket_launch&#39;</span><span class="p">:</span> <span class="s1">&#39;mpiexec &#39;</span> <span class="o">+</span> <span class="n">job_bin</span>
-
-                 <span class="p">}</span>
-             <span class="p">}</span>
-    <span class="c1"># stampede</span>
-    <span class="k">elif</span> <span class="s1">&#39;stampede&#39;</span> <span class="ow">in</span> <span class="n">hostname</span><span class="p">:</span>
+             <span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="n">qtemp</span><span class="p">}</span>
+    <span class="c1"># PBS queue</span>
+    <span class="k">elif</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">job_bin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">job_bin</span> <span class="o">=</span> <span class="s1">&#39;/home1/01682/km468/Software/VASP/vasp.5.3.5/vasp&#39;</span>
+            <span class="n">job_bin</span> <span class="o">=</span> <span class="n">VASP_STD_BIN</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">job_bin</span> <span class="o">=</span> <span class="n">job_bin</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;SLURM&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;params&#39;</span><span class="p">:</span>
-                 <span class="p">{</span>
-                     <span class="s1">&#39;nodes&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">),</span>
-                     <span class="s1">&#39;ntasks&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ntasks</span><span class="p">),</span>
-                     <span class="s1">&#39;walltime&#39;</span><span class="p">:</span> <span class="n">walltime</span><span class="p">,</span>
-                     <span class="s1">&#39;queue&#39;</span><span class="p">:</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;account&#39;</span><span class="p">:</span> <span class="s1">&#39;TG-DMR050028N&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;job_name&#39;</span><span class="p">:</span> <span class="s1">&#39;vasp_job&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;rocket_launch&#39;</span><span class="p">:</span> <span class="s1">&#39;ibrun &#39;</span> <span class="o">+</span> <span class="n">job_bin</span>
-                 <span class="p">}</span>
-             <span class="p">}</span>
-    <span class="c1"># running henniggroup machines</span>
-    <span class="k">elif</span> <span class="n">hostname</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;hydrogen&#39;</span><span class="p">,</span> <span class="s1">&#39;helium&#39;</span><span class="p">,</span>
-                      <span class="s1">&#39;lithium&#39;</span><span class="p">,</span> <span class="s1">&#39;beryllium&#39;</span><span class="p">,</span>
-                      <span class="s1">&#39;carbon&#39;</span><span class="p">]:</span>
-        <span class="n">job_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nohup&#39;</span><span class="p">,</span> <span class="s1">&#39;/opt/openmpi_intel/bin/mpirun&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ntasks</span><span class="p">),</span>
-                   <span class="n">job_bin</span><span class="p">]</span>
-    <span class="c1"># test</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;PBS&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="n">qtemp</span><span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">job_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ls&#39;</span><span class="p">,</span> <span class="s1">&#39;-lt&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
+        <span class="c1">#print (CommonAdapter(d[&#39;type&#39;], **d[&#39;params&#39;]), job_cmd)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">CommonAdapter</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]),</span> <span class="n">job_cmd</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">job_cmd</span><span class="p">)</span></div>
@@ -468,11 +415,10 @@
 <span class="sd">    Returns:</span>
 <span class="sd">           the job state and the job output file name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
     <span class="n">ofname</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="c1"># hipergator,pbs</span>
-    <span class="k">if</span> <span class="s1">&#39;ufhpc&#39;</span> <span class="ow">in</span> <span class="n">hostname</span><span class="p">:</span>
+    <span class="c1"># pbs</span>
+    <span class="k">if</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;pbs&#39;</span><span class="p">:</span><span class="c1"># in hostname:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s1">&#39;qstat&#39;</span><span class="p">,</span> <span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">])</span>
             <span class="n">state</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
@@ -481,8 +427,8 @@
             <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span>
         <span class="n">ofname</span> <span class="o">=</span> <span class="s2">&quot;FW_job.out&quot;</span>
 
-    <span class="c1"># stampede, slurm</span>
-    <span class="k">elif</span> <span class="s1">&#39;stampede&#39;</span> <span class="ow">in</span> <span class="n">hostname</span><span class="p">:</span>
+    <span class="c1"># slurm</span>
+    <span class="k">elif</span> <span class="n">QUEUE_SYSTEM</span> <span class="o">==</span> <span class="s1">&#39;slurm&#39;</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s1">&#39;squeue&#39;</span><span class="p">,</span> <span class="s1">&#39;--job&#39;</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">])</span>
             <span class="n">state</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
@@ -1273,8 +1219,9 @@
 <span class="sd">    z-component, since these are not relevant for 2D materials and</span>
 <span class="sd">    slabs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">kpoint_lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">kpoint_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">)</span>
+    <span class="n">kpoint_lines</span> <span class="o">=</span> <span class="n">kpoint_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">kpoint_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="n">twod_kpoints</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1314,8 +1261,17 @@
             <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;0.0 !&#39;</span><span class="p">,</span>
                                 <span class="n">label_2</span><span class="p">]))</span>
-            <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+            <span class="n">kpts</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">kpts</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
+<div class="viewcode-block" id="update_submission_template"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.update_submission_template">[docs]</a><span class="k">def</span> <span class="nf">update_submission_template</span><span class="p">(</span><span class="n">default_template</span><span class="p">,</span> <span class="n">qtemplate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    helper function for writing a CommonAdapter template fireworks</span>
+<span class="sd">    submission file based on a provided default_template which</span>
+<span class="sd">    contains hpc resource allocation information and the qtemplate</span>
+<span class="sd">    which is a yaml of commonly modified user arguments</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="write_pbs_runjob"><a class="viewcode-back" href="../../mpinterfaces.html#mpinterfaces.utils.write_pbs_runjob">[docs]</a><span class="k">def</span> <span class="nf">write_pbs_runjob</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">,</span> <span class="n">nprocessors</span><span class="p">,</span> <span class="n">pmem</span><span class="p">,</span> <span class="n">walltime</span><span class="p">,</span> <span class="n">binary</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>

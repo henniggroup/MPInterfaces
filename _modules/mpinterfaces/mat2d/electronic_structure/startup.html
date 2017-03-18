@@ -177,6 +177,8 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">Incar</span>
@@ -195,7 +197,7 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 3, 2017&quot;</span>
 
 <span class="c1"># TODO: document functions args and returns properly</span>
-
+<span class="c1"># TODO: the run_* functions must be refactored to reduce code duplication</span>
 
 <div class="viewcode-block" id="get_markovian_path"><a class="viewcode-back" href="../../../../mpinterfaces.mat2d.electronic_structure.html#mpinterfaces.mat2d.electronic_structure.startup.get_markovian_path">[docs]</a><span class="k">def</span> <span class="nf">get_markovian_path</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -229,9 +231,8 @@
 
     <span class="n">twod_kpoints</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">i</span> <span class="o">=</span> <span class="mi">4</span>
 
-    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">kpoint_lines</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">kpoint_lines</span><span class="p">),</span> <span class="mi">3</span><span class="p">):</span>
          <span class="n">kpt_1</span> <span class="o">=</span> <span class="n">kpoint_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
          <span class="n">kpt_2</span> <span class="o">=</span> <span class="n">kpoint_lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
 
@@ -242,7 +243,6 @@
          <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">twod_kpoints</span><span class="p">:</span>
              <span class="n">twod_kpoints</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
              <span class="n">labels</span><span class="p">[</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kpt_2</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
-         <span class="n">i</span> <span class="o">+=</span> <span class="mi">3</span>
 
     <span class="n">kpath</span> <span class="o">=</span> <span class="n">get_markovian_path</span><span class="p">(</span><span class="n">twod_kpoints</span><span class="p">)</span>
 
@@ -284,18 +284,17 @@
                       <span class="s1">&#39;PREC&#39;</span><span class="p">:</span> <span class="s1">&#39;Accurate&#39;</span><span class="p">,</span> <span class="s1">&#39;LWAVE&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;SIGMA&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
                       <span class="s1">&#39;ENCUT&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s1">&#39;ISPIN&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
 
-    <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">&#39;pbe_bands&#39;</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;pbe_bands&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">force_overwrite</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">is_converged</span><span class="p">(</span><span class="s1">&#39;pbe_bands&#39;</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp CONTCAR pbe_bands/POSCAR&#39;</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s2">&quot;CONTCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;pbe_bands/POSCAR&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s1">&#39;POTCAR&#39;</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp POTCAR pbe_bands/&#39;</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s2">&quot;POTCAR&quot;</span><span class="p">,</span> <span class="s2">&quot;pbe_bands&quot;</span><span class="p">)</span>
         <span class="n">PBE_INCAR_DICT</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span><span class="s1">&#39;MAGMOM&#39;</span><span class="p">:</span> <span class="n">get_magmom_string</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">))}</span>
-        <span class="p">)</span>
+            <span class="p">{</span><span class="s1">&#39;MAGMOM&#39;</span><span class="p">:</span> <span class="n">get_magmom_string</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">))})</span>
         <span class="n">Incar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">PBE_INCAR_DICT</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;pbe_bands/INCAR&#39;</span><span class="p">)</span>
         <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
         <span class="n">kpath</span> <span class="o">=</span> <span class="n">HighSymmKpath</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
@@ -312,7 +311,7 @@
             <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;sbatch runjob&#39;</span>
 
         <span class="k">if</span> <span class="n">submit</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">submission_command</span><span class="p">)</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">submission_command</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
 
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span></div>
 
@@ -332,9 +331,9 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">&#39;hse_prep&#39;</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">&#39;hse_prep&#39;</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;hse_prep&#39;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp ../CONTCAR ./POSCAR&#39;</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s1">&#39;../CONTCAR&#39;</span><span class="p">,</span>  <span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s1">&#39;../POTCAR&#39;</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;cp POTCAR .&#39;</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s1">&#39;POTCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
     <span class="n">relax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">submit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">incar_dict</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;INCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
     <span class="n">incar_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;NSW&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;NELM&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;LWAVE&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;LCHARG&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -342,8 +341,7 @@
     <span class="n">Incar</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">incar_dict</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;INCAR&#39;</span><span class="p">)</span>
 
     <span class="n">Kpoints</span><span class="o">.</span><span class="n">automatic_density</span><span class="p">(</span>
-        <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">),</span> <span class="mi">200</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">)</span>
+        <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">),</span> <span class="mi">200</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">kpts_lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;KPOINTS&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
@@ -365,7 +363,7 @@
         <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;sbatch runjob&#39;</span>
 
     <span class="k">if</span> <span class="n">submit</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">submission_command</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">submission_command</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
 
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span></div>
 
@@ -467,7 +465,7 @@
             <span class="n">submission_command</span> <span class="o">=</span> <span class="s1">&#39;sbatch runjob&#39;</span>
 
         <span class="k">if</span> <span class="n">submit</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">submission_command</span><span class="p">)</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">submission_command</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
 
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">)</span></div>
 
@@ -497,8 +495,7 @@
 
     <span class="c1"># put them together</span>
     <span class="n">abs_path</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">i</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">linemode_lines</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">linemode_lines</span><span class="p">),</span> <span class="mi">3</span><span class="p">):</span>
              <span class="n">start_kpt</span> <span class="o">=</span> <span class="n">linemode_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
              <span class="n">end_kpt</span> <span class="o">=</span> <span class="n">linemode_lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
              <span class="n">increments</span> <span class="o">=</span> <span class="p">[</span>
@@ -514,7 +511,6 @@
                       <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">start_kpt</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="n">increments</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">),</span> <span class="s1">&#39;0&#39;</span><span class="p">]</span>
                      <span class="p">)</span>
              <span class="n">abs_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end_kpt</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="n">end_kpt</span><span class="p">[</span><span class="mi">4</span><span class="p">]])</span>
-             <span class="n">i</span> <span class="o">+=</span> <span class="mi">3</span>
 
     <span class="n">n_linemode_kpts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">abs_path</span><span class="p">)</span>
 

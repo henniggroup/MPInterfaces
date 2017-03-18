@@ -4,6 +4,8 @@ import itertools
 import math
 import numpy as np
 import os
+import shutil
+import subprocess
 
 from pymatgen import Structure
 from pymatgen.io.vasp.inputs import Kpoints, Incar
@@ -22,7 +24,7 @@ __status__ = "Production"
 __date__ = "March 3, 2017"
 
 # TODO: document functions args and returns properly
-
+# TODO: the run_* functions must be refactored to reduce code duplication
 
 def get_markovian_path(points):
     """
@@ -58,7 +60,7 @@ def remove_z_kpoints_linemode(output='KPOINTS'):
     labels = {}
     i = 4
 
-    while i < len(kpoint_lines):
+    for i in range(len(kpoint_lines), 3):
          kpt_1 = kpoint_lines[i].split()
          kpt_2 = kpoint_lines[i+1].split()
 
@@ -69,7 +71,6 @@ def remove_z_kpoints_linemode(output='KPOINTS'):
          if float(kpt_2[2]) == 0.0 and [float(kpt_2[0]), float(kpt_2[1])] not in twod_kpoints:
              twod_kpoints.append([float(kpt_2[0]), float(kpt_2[1])])
              labels[kpt_2[4]] = [float(kpt_2[0]), float(kpt_2[1])]
-         i += 3
 
     kpath = get_markovian_path(twod_kpoints)
 
@@ -111,18 +112,17 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
                       'PREC': 'Accurate', 'LWAVE': True, 'SIGMA': 0.1,
                       'ENCUT': 500, 'ISPIN': 2}
 
-    directory = os.getcwd().split('/')[-1]
+    directory = os.path.basename(os.getcwd())
 
     if not os.path.isdir('pbe_bands'):
         os.mkdir('pbe_bands')
 
     if force_overwrite or not is_converged('pbe_bands'):
-        os.system('cp CONTCAR pbe_bands/POSCAR')
+        shutil.copy("CONTCAR", "pbe_bands/POSCAR")
         if os.path.isfile('POTCAR'):
-            os.system('cp POTCAR pbe_bands/')
+            shutil.copy("POTCAR", "pbe_bands")
         PBE_INCAR_DICT.update(
-            {'MAGMOM': get_magmom_string(Structure.from_file('POSCAR'))}
-        )
+            {'MAGMOM': get_magmom_string(Structure.from_file('POSCAR'))})
         Incar.from_dict(PBE_INCAR_DICT).write_file('pbe_bands/INCAR')
         structure = Structure.from_file('POSCAR')
         kpath = HighSymmKpath(structure)
@@ -139,7 +139,7 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
             submission_command = 'sbatch runjob'
 
         if submit:
-            os.system(submission_command)
+            _ = subprocess.check_output(submission_command.split())
 
         os.chdir('../')
 
@@ -159,9 +159,9 @@ def run_hse_prep_calculation(dim=2, submit=True):
     if not os.path.isdir('hse_prep'):
         os.mkdir('hse_prep')
     os.chdir('hse_prep')
-    os.system('cp ../CONTCAR ./POSCAR')
+    shutil.copy('../CONTCAR',  'POSCAR')
     if os.path.isfile('../POTCAR'):
-        os.system('cp POTCAR .')
+        shutil.copy('POTCAR', '.')
     relax(dim=2, submit=False)
     incar_dict = Incar.from_file('INCAR').as_dict()
     incar_dict.update({'NSW': 0, 'NELM': 1, 'LWAVE': False, 'LCHARG': False,
@@ -169,8 +169,7 @@ def run_hse_prep_calculation(dim=2, submit=True):
     Incar.from_dict(incar_dict).write_file('INCAR')
 
     Kpoints.automatic_density(
-        Structure.from_file('POSCAR'), 200
-    ).write_file('KPOINTS')
+        Structure.from_file('POSCAR'), 200).write_file('KPOINTS')
 
     if dim == 2:
         kpts_lines = open('KPOINTS').readlines()
@@ -192,7 +191,7 @@ def run_hse_prep_calculation(dim=2, submit=True):
         submission_command = 'sbatch runjob'
 
     if submit:
-        os.system(submission_command)
+        _ = subprocess.check_output(submission_command.split())
 
     os.chdir('../')
 
@@ -294,7 +293,7 @@ def run_hse_calculation(dim=2, submit=True, force_overwrite=False,
             submission_command = 'sbatch runjob'
 
         if submit:
-            os.system(submission_command)
+            _ = subprocess.check_output(submission_command.split())
 
         os.chdir('../')
 

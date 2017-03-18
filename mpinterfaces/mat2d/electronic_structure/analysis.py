@@ -90,8 +90,9 @@ def plot_band_alignments(directories, run_type='PBE', fmt='pdf'):
     band_gaps = {}
 
     for directory in directories:
-        if is_converged('{}/{}'.format(directory, subdirectory)):
-            os.chdir('{}/{}'.format(directory, subdirectory))
+        sub_dir = os.path.join(directory, subdirectory)
+        if is_converged(sub_dir):
+            os.chdir(sub_dir)
             band_structure = Vasprun('vasprun.xml').get_band_structure()
             band_gap = band_structure.get_band_gap()
 

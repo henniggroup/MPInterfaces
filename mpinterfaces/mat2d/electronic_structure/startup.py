@@ -58,9 +58,8 @@ def remove_z_kpoints_linemode(output='KPOINTS'):
 
     twod_kpoints = []
     labels = {}
-    i = 4
 
-    for i in range(len(kpoint_lines), 3):
+    for i in range(4, len(kpoint_lines), 3):
          kpt_1 = kpoint_lines[i].split()
          kpt_2 = kpoint_lines[i+1].split()
 
@@ -323,8 +322,7 @@ def get_2D_hse_kpoints(struct_for_path, ibzkpth):
 
     # put them together
     abs_path = []
-    i = 4
-    while i < len(linemode_lines):
+    for i in range(4, len(linemode_lines), 3):
              start_kpt = linemode_lines[i].split()
              end_kpt = linemode_lines[i+1].split()
              increments = [
@@ -340,7 +338,6 @@ def get_2D_hse_kpoints(struct_for_path, ibzkpth):
                       str(float(start_kpt[2]) + increments[2] * n), '0']
                      )
              abs_path.append(end_kpt[:3] + ['0', end_kpt[4]])
-             i += 3
 
     n_linemode_kpts = len(abs_path)
 

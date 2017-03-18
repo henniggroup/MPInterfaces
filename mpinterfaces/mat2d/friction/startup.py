@@ -17,6 +17,9 @@ __status__ = "Production"
 __date__ = "March 3, 2017"
 
 
+# TODO: the run_* functions in mat2d subpackages can be merged and simplified, a lot
+# of code duplcations
+
 def run_gamma_calculations(submit=True, step_size=0.5):
     """
     Setup a 2D grid of static energy calculations to plot the Gamma

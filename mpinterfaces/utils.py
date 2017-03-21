@@ -114,9 +114,6 @@ def get_magmom_string(structure):
     Based on a POSCAR, returns the string required for the MAGMOM
     setting in the INCAR. Initializes transition metals with 6.0
     bohr magneton and all others with 0.5.
-    TEST: integration of mat2d function with mpinterfaces
-    calibrate.py
-    Consider moving to mpinterfaces.utils
 
     Args:
         structure (Structure): Pymatgen Structure object
@@ -128,10 +125,11 @@ def get_magmom_string(structure):
     magmoms, considered = [], []
     for s in structure.sites:
         if s.specie not in considered:
+            amount = int(structure.composition[s.specie])
             if s.specie.is_transition_metal:
-                magmoms.append('{}*6.0'.format(structure.composition[s.specie]))
+                magmoms.append('{}*6.0'.format(amount))
             else:
-                magmoms.append('{}*0.5'.format(structure.composition[s.specie]))
+                magmoms.append('{}*0.5'.format(amount))
             considered.append(s.specie)
     return ' '.join(magmoms)
 

@@ -39,7 +39,7 @@ class UtilsTest(unittest.TestCase):
         os.chdir(ROOT)
         structure = Structure.from_file('POSCAR_FeCl2')
         test_string = get_magmom_string(structure)
-        self.assertEqual(test_string, u'1.0*6.0 2.0*0.5')
+        self.assertEqual(test_string, u'1*6.0 2*0.5')
 
     def test_get_rotation_matrix(self):
         test_matrix = get_rotation_matrix([0, 0, 1], 2*np.pi)

@@ -42,8 +42,6 @@ def get_band_edges():
     efermi = vasprun.efermi - evac
 
     if bs.is_spin_polarized:
-        print(eigenvals[Spin.up])
-        print([e[0]-evac for e in eigenvals[Spin.up][0]])
         up_cbm = min(
             [min([e[0] for e in eigenvals[Spin.up][i] if not e[1]])
              for i in range(len(eigenvals[Spin.up]))]) - evac

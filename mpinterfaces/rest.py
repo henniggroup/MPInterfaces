@@ -116,7 +116,7 @@ class MWRester(object):
                 if hasattr(response, "content") else str(ex)
             raise MWRestError(msg)
 
-    def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
+    def get_data(self, chemsys_formula_id, prop=""):
         """
         Flexible method to get any data using the MaterialsWeb REST
         interface. Generally used by other methods for more specific queries.
@@ -126,8 +126,6 @@ class MWRester(object):
         Args:
             chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
                 or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
-            data_type (str): Type of data to return. Currently can either be
-                "vasp" or "exp".
             prop (str): Property to be obtained. Should be one of the
                 MWRester.supported_task_properties. Leave as empty string for a
                 general list of useful properties.
@@ -136,6 +134,7 @@ class MWRester(object):
         if prop:
             sub_url += "/" + prop
         return self._make_request(sub_url)
+
 
     def get_structure_by_material_id(self, material_id, final=True):
         """
@@ -151,6 +150,23 @@ class MWRester(object):
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(material_id)
         return Structure.from_str(data[0][prop], fmt="json")
+
+
+    def get_all_structures(self, final=True):
+        """
+        Download all MaterialsWeb structures as pymatgen Structure
+        objects.
+        Args:
+            final (bool): Whether to get the final structures, or the initial
+                (pre-relaxation) structures. Defaults to True.
+        Returns:
+            List of Structure objects.
+        """
+        prop = "final_structure" if final else "initial_structure"
+        data = self.get_data("all")
+        structures = [Structure.from_str(data[i][prop], fmt="json") for i in
+                      range(len(data))]
+        return structures
 
 
 class MWRestError(Exception):

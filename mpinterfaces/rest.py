@@ -116,7 +116,7 @@ class MWRester(object):
                 if hasattr(response, "content") else str(ex)
             raise MWRestError(msg)
 
-    def get_data(self, chemsys_formula_id, prop=""):
+    def get_data(self, query, prop=""):
         """
         Flexible method to get any data using the MaterialsWeb REST
         interface. Generally used by other methods for more specific queries.
@@ -124,13 +124,13 @@ class MWRester(object):
         number of pieces of data returned. The general format is as follows:
         [{"material_id": material_id, "property_name" : value}, ...]
         Args:
-            chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
+            query (str): A chemical system (e.g., Li-Fe-O),
                 or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
             prop (str): Property to be obtained. Should be one of the
                 MWRester.supported_task_properties. Leave as empty string for a
                 general list of useful properties.
         """
-        sub_url = "/materials/%s/%s" % (chemsys_formula_id, data_type)
+        sub_url = "/materials/%s" % (query)
         if prop:
             sub_url += "/" + prop
         return self._make_request(sub_url)

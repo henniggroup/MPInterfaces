@@ -50,7 +50,8 @@ step 3(if the local copy was installed in the develop mode this step can be skip
 
 3. python setup.py install(or develop)
 
-4. (optional) Copy the config.yaml file to mpinterfaces/config_mine.yaml
+4. Copy the mpint_config.yaml file from config_files/mpint_config.yaml 
+   to mpinterfaces/mpint_config.yaml
    and update the file so that you have the following
    environment variables :
 

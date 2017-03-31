@@ -62,7 +62,7 @@ class MWRester(object):
                                  "band_gap", "density", "icsd_id", "cif")
 
     def __init__(self, api_key=None,
-                 endpoint="https://www.materialsweb.org/rest"):
+                 endpoint="https://2dmaterialsweb.org/rest"):
         if api_key is not None:
             self.api_key = api_key
         else:
@@ -92,10 +92,7 @@ class MWRester(object):
             if method == "POST":
                 response = self.session.post(url, data=payload, verify=True)
             else:
-                # For now, the SSL certificate is being annoying and
-                # won't verify. Once it does, we can change this back
-                # to verify=True.
-                response = self.session.get(url, params=payload, verify=False)
+                response = self.session.get(url, params=payload, verify=True)
             if response.status_code in [200, 400]:
                 if mp_decode:
                     data = json.loads(response.text, cls=MontyDecoder)

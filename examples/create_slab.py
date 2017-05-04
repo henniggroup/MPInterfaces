@@ -7,7 +7,7 @@ from __future__ import division, print_function, unicode_literals, \
 
 """ use the interface module to create bare slab """
 
-from pymatgen.core import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 
 from mpinterfaces.interface import Interface

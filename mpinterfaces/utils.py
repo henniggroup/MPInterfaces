@@ -941,7 +941,7 @@ def write_potcar(pot_path=VASP_PSP, types='None'):
     """
 
     if pot_path == None:
-        # This probably means the config.yaml file has not
+        # This probably means the mpint_config.yaml file has not
         # been set up.
         pass
     else:

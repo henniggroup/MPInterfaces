@@ -27,13 +27,40 @@ as well as their open source tools_ and a little bit of ase_.
 Installation
 ==============
 
-Install Pymatgen
--------------
+Prepping - Setting up Virtual Environments
+-------------------------------
 
-See http://pymatgen.org/#getting-pymatgen
+We recommend setting up virtual environment
+using Miniconda which can be installed according to their instructions from https://conda.io/miniconda.html
 
-Note: for hpg2 users refer to ufhpc_readme.md in the docs and follow it for installation
+Follow the following steps to set up virtual environment using Miniconda
 
+$ conda create -n name_of_your_environment python=3.6
+
+On Windows:
+
+$ activate name_of_your_environment
+
+On Mac OS and Linux
+
+$ source activate name_of_your_environment
+
+$ conda install numpy
+
+Note for HiperGator2:
+
+As of now python/2.7.10 with gcc/5.2.0 has all the shared libraries
+required for a successful installation.
+
+Follow the following steps on HiperGator2:
+
+$ module load gcc/5.2.0 python/2.7.10
+
+Note: Use a virtualenv of version more than 15.1
+
+$ python virtualenv.X.X.X/virtualenv.py <name_of_your_environment>
+
+$ source name_of_your_environment/bin/activate
 
 Get the latest version
 -----------------------
@@ -41,6 +68,9 @@ Get the latest version
 If you already have a local copy, steps 1 and 2 of the following instructions
 can be skipped. Just do a "git pull" from the MPInterfaces folder and go to
 step 3(if the local copy was installed in the develop mode this step can be skipped too).
+
+Note: on using virtual environments on your own machine, we recommend to use Miniconda.
+On shared clusters that may have conflicts with shared libraries we recommend using virtualenv
 
 1. Clone the latest version from github
 
@@ -50,7 +80,7 @@ step 3(if the local copy was installed in the develop mode this step can be skip
 
 3. python setup.py install(or develop)
 
-4. Copy the mpint_config.yaml file from config_files/mpint_config.yaml 
+4. Copy the mpint_config.yaml file from config_files/mpint_config.yaml
    to mpinterfaces/mpint_config.yaml
    and update the file so that you have the following
    environment variables :
@@ -58,6 +88,12 @@ step 3(if the local copy was installed in the develop mode this step can be skip
    - MAPI_KEY=the_key_obtained_from_materialsproject
 
    - VASP_PSP_DIR=path_to_vasp_potcar_files
+
+
+How to Install Latest Pymatgen
+-------------
+
+See http://pymatgen.org/#getting-pymatgen
 
 
 Documentation

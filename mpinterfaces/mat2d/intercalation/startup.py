@@ -52,8 +52,12 @@ def inject_ions(structure, ion, atomic_fraction):
         structure.make_supercell([2, 1, 1])
 
     evaluator = ValenceIonicRadiusEvaluator(structure)
+
+    # We want all available interstitial sites, not just the
+    # symmetrically inequivalent ones.
     interstitial = Interstitial(structure, radii=evaluator.radii,
-                                valences=evaluator.valences)
+                                valences=evaluator.valences,
+                                symmetry_flag=False)
 
     interstitial_sites = [
         (site._fcoords, site.properties.get('voronoi_radius', None))
@@ -72,8 +76,12 @@ def inject_ions(structure, ion, atomic_fraction):
             i += 1
 
             evaluator = ValenceIonicRadiusEvaluator(structure)
+
+            # We want all available interstitial sites, not just the
+            # symmetrically inequivalent ones.
             interstitial = Interstitial(structure, radii=evaluator.radii,
-                                        valences=evaluator.valences)
+                                        valences=evaluator.valences,
+                                        symmetry_flag=False)
 
             interstitial_sites = [
                 (site._fcoords, site.properties.get('voronoi_radius', None))

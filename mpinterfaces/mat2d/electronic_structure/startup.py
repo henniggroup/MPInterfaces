@@ -53,7 +53,8 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
 
     if force_overwrite or not is_converged('pbe_bands'):
         shutil.copy("CONTCAR", "pbe_bands/POSCAR")
-        shutil.copy("POTCAR", "pbe_bands")
+        if os.path.isfile("POTCAR"):
+          shutil.copy("POTCAR", "pbe_bands")
         shutil.copy("CHGCAR", "pbe_bands")
         PBE_INCAR_DICT.update(
             {'MAGMOM': get_magmom_string(Structure.from_file('POSCAR'))})

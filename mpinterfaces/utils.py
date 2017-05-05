@@ -803,6 +803,9 @@ def align_axis(structure, axis='c', direction=(0, 0, 1)):
         R = get_rotation_matrix(proj_axis, theta)
         rotation = SymmOp.from_rotation_and_translation(rotation_matrix=R)
         structure.apply_operation(rotation)
+    if axis == 'c' and direction == (0, 0, 1):
+        structure.lattice._matrix[2][2] = abs(structure.lattice._matrix[2][2])
+
     return structure
 
 

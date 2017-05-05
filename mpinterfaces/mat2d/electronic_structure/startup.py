@@ -40,7 +40,7 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
             directory.
     """
 
-    PBE_INCAR_DICT = {'EDIFF': 1e-6, 'IBRION': 2, 'ISIF': 3,
+    PBE_INCAR_DICT = {'EDIFF': 1e-6, 'IBRION': 2, 'ICHARG': 11, 'ISIF': 3,
                       'ISMEAR': 1, 'NSW': 0, 'LVTOT': True, 'LVHAR': True,
                       'LORBIT': 1, 'LREAL': 'Auto', 'NPAR': 4,
                       'PREC': 'Accurate', 'LWAVE': True, 'SIGMA': 0.1,
@@ -53,8 +53,8 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
 
     if force_overwrite or not is_converged('pbe_bands'):
         shutil.copy("CONTCAR", "pbe_bands/POSCAR")
-        if os.path.isfile('POTCAR'):
-            shutil.copy("POTCAR", "pbe_bands")
+        shutil.copy("POTCAR", "pbe_bands")
+        shutil.copy("CHGCAR", "pbe_bands")
         PBE_INCAR_DICT.update(
             {'MAGMOM': get_magmom_string(Structure.from_file('POSCAR'))})
         Incar.from_dict(PBE_INCAR_DICT).write_file('pbe_bands/INCAR')

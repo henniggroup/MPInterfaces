@@ -2,6 +2,7 @@ from __future__ import print_function, division, unicode_literals
 
 import math
 import os
+import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar

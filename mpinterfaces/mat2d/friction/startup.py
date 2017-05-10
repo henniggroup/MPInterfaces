@@ -2,7 +2,6 @@ from __future__ import print_function, division, unicode_literals
 
 import math
 import os
-import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar
@@ -67,7 +66,8 @@ def run_gamma_calculations(submit=True, step_size=0.5):
         coords.append([site.coords[0], site.coords[1],
                        site.coords[2] + thickness + 3.5])
 
-    Structure(structure.lattice, species, coords).to('POSCAR', 'POSCAR')
+    Structure(structure.lattice, species, coords,
+              coords_are_cartesian=True).to('POSCAR', 'POSCAR')
 
     for x in range(n_divs_x):
         for y in range(n_divs_y):
@@ -125,8 +125,7 @@ def run_gamma_calculations(submit=True, step_size=0.5):
 
 
 def run_normal_force_calculations(basin_and_saddle_dirs,
-                                  spacings=np.arange(1.5, 4.25, 0.25),
-                                  submit=True):
+                                  spacings=(1.5, 4.25, 0.25), submit=True):
     """
     Set up and run static calculations of the basin directory and
     saddle directory at specified interlayer spacings to get f_N and
@@ -167,14 +166,18 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
             os.chdir('{}/{}'.format(spacing, subdirectory))
             structure = Structure.from_file('POSCAR')
             n_sites = len(structure.sites)
-            top_layer = structure.sites[int(n_sites / 2):]
-            bottom_of_top_layer = min(
-                [z_coord for z_coord in [site.coords[2] for site in top_layer]])
+            all_z_coords = [s.coords[2] for s in structure.sites]
+            top_layer = [s for s in structure.sites if s.coords[2] >
+                np.mean(all_z_coords)]
+            bottom_of_top_layer = min([site.coords[2] for site in top_layer])
 
-            remove_indices = range(int(n_sites / 2), n_sites)
-
+            remove_indices = [i for i, s in enumerate(structure.sites) if s in
+                top_layer]
             structure.remove_sites(remove_indices)
-            max_height = max([site.coords[2] for site in structure.sites])
+
+            top_of_bottom_layer = max(
+                [site.coords[2] for site in structure.sites]
+            )
 
             for site in top_layer:
                 structure.append(
@@ -182,7 +185,8 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
                     [site.coords[0],
                      site.coords[1],
                      site.coords[2] - bottom_of_top_layer
-                     + max_height + float(spacing)], coords_are_cartesian=True)
+                     + top_of_bottom_layer + float(spacing)],
+                    coords_are_cartesian=True)
 
             structure.to('POSCAR', 'POSCAR')
 

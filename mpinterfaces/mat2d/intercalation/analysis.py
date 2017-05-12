@@ -13,6 +13,7 @@ from scipy.spatial import ConvexHull
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
+from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.outputs import Vasprun
 
 from mpinterfaces.utils import is_converged
@@ -25,21 +26,28 @@ __status__ = "Production"
 __date__ = "March 3, 2017"
 
 
-def plot_ion_hull_and_voltages(ion, fmt='pdf'):
+def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
     """
     Plots the phase diagram between the pure material and pure ion,
     Connecting the points on the convex hull of the phase diagram.
 
     Args:
         ion (str): name of atom that was intercalated, e.g. 'Li'.
+        charge (float): charge donated by each ion.
         fmt (str): matplotlib format style. Check the matplotlib
             docs for options.
+
+    Returns:
+        capacity (float): Maximum capacity
     """
 
     # Calculated with the relax() function in
     # mat2d.stability.startup. If you are using other input
     # parameters, you need to recalculate these values!
-    ion_ev_fu = {'Li': -1.7540797, 'Mg': -1.31976062, 'Al': -3.19134607}
+    ion_ev_fu = {'Li': -1.156, 'Mg': 0.620, 'Al': -3.291}
+
+    if charge is None:
+        charge = Element(ion).common_oxidation_states[0]
 
     energy = Vasprun('vasprun.xml').final_energy
     composition = Structure.from_file('POSCAR').composition
@@ -97,6 +105,13 @@ def plot_ion_hull_and_voltages(ion, fmt='pdf'):
     concave_formation_energies = [pt[2] for pt in sorted_data
                                   if pt[0] not in convex_ion_fractions]
 
+    for item in data:
+        if item[0] == sorted(convex_ion_fractions)[-2]:
+            max_ions = item[1]
+            molar_mass = Composition(no_ion_comp.reduced_formula).weight
+            faraday = 26801  # In mAh/mol
+            capacity = (max_ions * charge * faraday) / molar_mass  # In mAh/g
+
     voltage_profile = []
     j = 0
     k = 0
@@ -147,3 +162,5 @@ def plot_ion_hull_and_voltages(ion, fmt='pdf'):
         ax2.set_ylabel(r'$\mathrm{Potential\/vs.\/Al/Al^{3+}\/(V)}$', size=28)
 
     plt.savefig('{}_hull.{}'.format(ion, fmt), transparent=True)
+
+    return capacity  # In mAh/g

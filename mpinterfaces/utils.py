@@ -830,8 +830,8 @@ def get_structure_type(structure, write_poscar_from_cluster=False):
     structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
 
     # Noble gases don't have well-defined bonding radii.
-    if not len([e for e in structure.composition
-                if e.symbol in ['He', 'Ne', 'Ar', 'Kr', 'Xe']]) == 0:
+    if len([e for e in structure.composition
+            if e.symbol in ['He', 'Ne', 'Ar', 'Kr', 'Xe']]) != 0:
         type = 'noble gas'
     else:
         if len(structure.sites) < 45:

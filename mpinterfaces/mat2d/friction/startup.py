@@ -96,18 +96,19 @@ def run_gamma_calculations(submit=True, step_size=0.5):
             Incar.from_dict(incar_dict).write_file('INCAR')
 
             # Shift the top layer
-            poscar_lines = open('POSCAR').readlines()
-            with open('POSCAR', 'w') as poscar:
-                for line in poscar_lines[:8 + n_sites_per_layer]:
-                    poscar.write(line)
-                for line in poscar_lines[8 + n_sites_per_layer:]:
-                    split_line = line.split()
-                    new_coords = [
-                        float(split_line[0]) + float(x)/float(n_divs_x),
-                        float(split_line[1]) + float(y)/float(n_divs_y),
-                        float(split_line[2])]
-                    poscar.write(' '.join([str(i) for i in new_coords])
-                                 + '\n')
+            structure = Structure.from_file("POSCAR")
+            all_z_coords = [s.coords[2] for s in structure.sites]
+            top_layer = [s for s in structure.sites if s.coords[2] > np.mean(all_z_coords)]
+            structure.remove_sites([i for i, s in enumerate(structure.sites) if s in top_layer])
+            for site in top_layer:
+                structure.append(
+                    site.specie,
+                    [site.coords[0]+float(x)/float(n_divs_x),
+                     site.coords[1]+float(y)/float(n_divs_y),
+                     site.coords[2]], coords_are_cartesian=True
+                )
+
+            structure.get_sorted_structure().to("POSCAR", "POSCAR")
 
             if QUEUE_SYSTEM == 'pbs':
                 utl.write_pbs_runjob(dir, 1, 8, '1000mb', '2:00:00', VASP_STD_BIN)
@@ -189,7 +190,7 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
                      + top_of_bottom_layer + float(spacing)],
                     coords_are_cartesian=True)
 
-            structure.to('POSCAR', 'POSCAR')
+            structure.get_sorted_structure().to('POSCAR', 'POSCAR')
 
             if QUEUE_SYSTEM == 'pbs':
                 utl.write_pbs_runjob('{}_{}'.format(

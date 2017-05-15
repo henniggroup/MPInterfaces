@@ -23,6 +23,71 @@ __status__ = "Production"
 __date__ = "March 3, 2017"
 
 
+def get_corrugation_factor(structure):
+    """
+    Calculate the "corrugation factor" for a 2D material.
+    The corrugation factor is defined as the sum of the
+    outer hemispheres of ionic radii of the atoms on the
+    material's top and bottom surfaces, divided by the
+    planar area of the whole unit cell's 001 plane. Top
+    and bottom corrugation factors are returned
+    separately in the final dictionary. In general,
+    a larger corrugation factor means a smoother surface.
+
+    Args:
+        structure (Structure): Pymatgen Structure object.
+
+    Returns:
+        corrugation_factors (dict): Dictionary of "top"
+            and "bottom" corrugation factors, e.g.
+            {"top": top_corrugation_factor,
+             "bottom": bottom_corrugation_factor}
+    """
+
+    sites = structure.sites
+    valences = VIRE(structure).valences
+    formatted_valences = {}
+    for e in valences:
+        temp=e[-1]
+        if "+" in e or "-" in e:
+            element = e[:-2]
+        else:
+            element = e
+        formatted_valences[Element(element)] = valences[e]
+
+    all_z_coords = [s.coords[2] for s in sites]
+    max_z = max(all_z_coords)
+    min_z = min(all_z_coords)
+
+    top_layer = [s for s in sites if abs(s.coords[2] - max_z) < 0.1]
+    bottom_layer = [s for s in sites if abs(s.coords[2] - min_z) < 0.1]
+
+    pi = np.pi
+    top_sphere_area = 0
+    bottom_sphere_area = 0
+
+    for site in top_layer:
+        if formatted_valences[site.specie] == 0:
+            r = site.specie.atomic_radius
+        else:
+            r = site.specie.ionic_radii[formatted_valences[site.specie]]
+        top_sphere_area += 2*pi*r*r
+
+    for site in bottom_layer:
+        if formatted_valences[site.specie] == 0:
+            r = site.specie.atomic_radius
+        else:
+            r = site.specie.ionic_radii[formatted_valences[site.specie]]
+        bottom_sphere_area += 2*pi*r*r
+
+    lattice = structure.lattice
+    area = np.cross(lattice._matrix[0], lattice._matrix[1])[2]
+
+    corrugation = {"top": top_sphere_area / area,
+                   "bottom": bottom_sphere_area / area}
+    return corrugation
+
+
 def plot_gamma_surface(fmt='pdf'):
     """
     Collect the energies from a grid of static energy

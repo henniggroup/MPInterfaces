@@ -52,7 +52,14 @@ def get_corrugation_factor(structure):
     for e in valences:
         temp=e[-1]
         if "+" in e or "-" in e:
-            element = e[:-2]
+            try:
+                # Some element names have a number followed
+                # by a plus or minus, e.g. "O2-"
+                int(e[-2])
+                element = e[:-2]
+            except:
+                # Others are simply a plus or minus, e.g. "Cl-"
+                element = e[:-1]
         else:
             element = e
         formatted_valences[Element(element)] = valences[e]
@@ -69,17 +76,17 @@ def get_corrugation_factor(structure):
     bottom_sphere_area = 0
 
     for site in top_layer:
-        if formatted_valences[site.specie] == 0:
-            r = site.specie.atomic_radius
-        else:
+        if formatted_valences[site.specie] in site.specie.ionic_radii:
             r = site.specie.ionic_radii[formatted_valences[site.specie]]
+        else:
+            r = site.specie.atomic_radius
         top_sphere_area += 2*pi*r*r
 
     for site in bottom_layer:
-        if formatted_valences[site.specie] == 0:
-            r = site.specie.atomic_radius
-        else:
+        if formatted_valences[site.specie] in site.specie.ionic_radii:
             r = site.specie.ionic_radii[formatted_valences[site.specie]]
+        else:
+            r = site.specie.atomic_radius
         bottom_sphere_area += 2*pi*r*r
 
     lattice = structure.lattice

@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.core.structure import Structure
+from pymatgen import Element
+from pymatgen.analysis.defects.point_defects import ValenceIonicRadiusEvaluator as VE
 
 
 __author__ = "Michael Ashton"
@@ -45,7 +47,7 @@ def get_corrugation_factor(structure):
     """
 
     sites = structure.sites
-    valences = VIRE(structure).valences
+    valences = VE(structure).valences
     formatted_valences = {}
     for e in valences:
         temp=e[-1]

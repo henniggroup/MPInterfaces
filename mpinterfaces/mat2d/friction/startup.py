@@ -127,7 +127,8 @@ def run_gamma_calculations(submit=True, step_size=0.5):
 
 
 def run_normal_force_calculations(basin_and_saddle_dirs,
-                                  spacings=(1.5, 4.25, 0.25), submit=True):
+                                  spacings=np.arange(1.5, 4.25, 0.25),
+                                  submit=True):
     """
     Set up and run static calculations of the basin directory and
     saddle directory at specified interlayer spacings to get f_N and

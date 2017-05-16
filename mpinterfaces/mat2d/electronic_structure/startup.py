@@ -40,7 +40,7 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
             directory.
     """
 
-    PBE_INCAR_DICT = {'EDIFF': 1e-6, 'IBRION': 2, 'ICHARG': 11, 'ISIF': 3,
+    PBE_INCAR_DICT = {'EDIFF': 1e-6, 'IBRION': 2, 'ICHARG': 2, 'ISIF': 3,
                       'ISMEAR': 1, 'NSW': 0, 'LVTOT': True, 'LVHAR': True,
                       'LORBIT': 1, 'LREAL': 'Auto', 'NPAR': 4,
                       'PREC': 'Accurate', 'LWAVE': True, 'SIGMA': 0.1,
@@ -53,18 +53,17 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
 
     if force_overwrite or not is_converged('pbe_bands'):
         shutil.copy("CONTCAR", "pbe_bands/POSCAR")
+        structure = Structure.from_file("pbe_bands/POSCAR")
         if os.path.isfile("POTCAR"):
           shutil.copy("POTCAR", "pbe_bands")
         shutil.copy("CHGCAR", "pbe_bands")
         PBE_INCAR_DICT.update(
-            {'MAGMOM': get_magmom_string(Structure.from_file('POSCAR'))})
+            {'MAGMOM': get_magmom_string(structure)})
         Incar.from_dict(PBE_INCAR_DICT).write_file('pbe_bands/INCAR')
-        structure = Structure.from_file('POSCAR')
-        kpath = HighSymmKpath(structure)
-        Kpoints.automatic_linemode(20, kpath).write_file('pbe_bands/KPOINTS')
+
         os.chdir('pbe_bands')
-        if dim == 2:
-            remove_z_kpoints()
+        write_band_structure_kpoints(structure)
+
         if QUEUE_SYSTEM == 'pbs':
             write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00', VASP_STD_BIN)
             submission_command = 'qsub runjob'
@@ -131,13 +130,11 @@ def run_hse_prep_calculation(dim=2, submit=True):
     os.chdir('../')
 
 
-def run_hse_calculation(dim=2, submit=True, force_overwrite=False,
-                        destroy_prep_directory=False):
+def run_hse_calculation(dim=2, submit=True, force_overwrite=False):
     """
     Setup/submit an HSE06 calculation to get an accurate band structure.
-    Requires a previous IBZKPT from a standard DFT run. See
-    http://cms.mpi.univie.ac.at/wiki/index.php/Si_bandstructure for more
-    details.
+    See http://cms.mpi.univie.ac.at/wiki/index.php/Si_bandstructure for
+    more details.
 
     Args:
         dim (int): 2 for relaxing a 2D material, 3 for a 3D material.
@@ -145,9 +142,6 @@ def run_hse_calculation(dim=2, submit=True, force_overwrite=False,
         force_overwrite (bool): Whether or not to overwrite files
             if an already converged vasprun.xml exists in the
             directory.
-        destroy_prep_directory (bool): whether or not to remove
-            (rm -r) the hse_prep directory, if it exists. This
-            can help to automatically clean up and save space.
     """
 
     HSE_INCAR_DICT = {'LHFCALC': True, 'HFSCREEN': 0.2, 'AEXX': 0.25,
@@ -162,60 +156,17 @@ def run_hse_calculation(dim=2, submit=True, force_overwrite=False,
     if force_overwrite or not is_converged('hse_bands'):
         os.chdir('hse_bands')
         os.system('cp ../CONTCAR ./POSCAR')
+        structure = Structure.from_file("POSCAR")
         if os.path.isfile('../POTCAR'):
             os.system('cp ../POTCAR .')
         HSE_INCAR_DICT.update(
-            {'MAGMOM': get_magmom_string(Structure.from_file('POSCAR'))}
+            {'MAGMOM': get_magmom_string(structure)}
         )
         Incar.from_dict(HSE_INCAR_DICT).write_file('INCAR')
 
         # Re-use the irreducible brillouin zone KPOINTS from a
         # previous standard DFT run.
-        if os.path.isdir('../hse_prep'):
-            ibz_lines = open('../hse_prep/IBZKPT').readlines()
-            if destroy_prep_directory:
-                os.system('rm -r ../hse_prep')
-        else:
-            ibz_lines = open('../IBZKPT').readlines()
-
-        n_ibz_kpts = int(ibz_lines[1].split()[0])
-        kpath = HighSymmKpath(Structure.from_file('POSCAR'))
-        Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
-        if dim == 2:
-            remove_z_kpoints()
-        linemode_lines = open('KPOINTS').readlines()
-
-        abs_path = []
-        i = 4
-        while i < len(linemode_lines):
-            start_kpt = linemode_lines[i].split()
-            end_kpt = linemode_lines[i+1].split()
-            increments = [
-                (float(end_kpt[0]) - float(start_kpt[0])) / 20,
-                (float(end_kpt[1]) - float(start_kpt[1])) / 20,
-                (float(end_kpt[2]) - float(start_kpt[2])) / 20
-            ]
-
-            abs_path.append(start_kpt[:3] + ['0', start_kpt[4]])
-            for n in range(1, 20):
-                abs_path.append(
-                    [str(float(start_kpt[0]) + increments[0] * n),
-                     str(float(start_kpt[1]) + increments[1] * n),
-                     str(float(start_kpt[2]) + increments[2] * n), '0']
-                    )
-            abs_path.append(end_kpt[:3] + ['0', end_kpt[4]])
-            i += 3
-
-        n_linemode_kpts = len(abs_path)
-
-        with open('KPOINTS', 'w') as kpts:
-            kpts.write('Automatically generated mesh\n')
-            kpts.write('{}\n'.format(n_ibz_kpts + n_linemode_kpts))
-            kpts.write('Reciprocal Lattice\n')
-            for line in ibz_lines[3:]:
-                kpts.write(line)
-            for point in abs_path:
-                kpts.write('{}\n'.format(' '.join(point)))
+        write_band_structure_kpoints(structure)
 
         if QUEUE_SYSTEM == 'pbs':
             write_pbs_runjob('{}_hsebands'.format(
@@ -231,6 +182,68 @@ def run_hse_calculation(dim=2, submit=True, force_overwrite=False,
             _ = subprocess.check_output(submission_command.split())
 
         os.chdir('../')
+
+
+def write_band_structure_kpoints(structure, n_kpts=20, dim=2,
+                                 ibzkpt_path="../"):
+    """
+    Writes a KPOINTS file for band structure calculations. Does
+    not use the typical linemode syntax for NSCF calculations,
+    but uses the IBZKPT + high-symmetry path syntax described in
+    http://cms.mpi.univie.ac.at/wiki/index.php/Si_bandstructure
+    so that SCF calculations can be performed. This is more
+    reliable than re-using the CHGCAR from a previous run, which
+    often results in "dimensions on the CHGCAR are different"
+    errors in VASP.
+
+    Args:
+        structure (Structure): structure for determining k-path
+        n_kpts (int): number of divisions along high-symmetry lines
+        dim (int): 2 for a 2D material, 3 for a 3D material.
+        ibzkpt_path (str): location of IBZKPT file. Defaults to one
+            directory up.
+    """
+
+    ibz_lines = open(os.path.join(ibzkpt_path, "IBZKPT")).readlines()
+
+    n_ibz_kpts = int(ibz_lines[1].split()[0])
+    kpath = HighSymmKpath(structure)
+    Kpoints.automatic_linemode(n_kpts, kpath).write_file('KPOINTS')
+    if dim == 2:
+        remove_z_kpoints()
+    linemode_lines = open('KPOINTS').readlines()
+
+    abs_path = []
+    i = 4
+    while i < len(linemode_lines):
+        start_kpt = linemode_lines[i].split()
+        end_kpt = linemode_lines[i+1].split()
+        increments = [
+            (float(end_kpt[0]) - float(start_kpt[0])) / 20,
+            (float(end_kpt[1]) - float(start_kpt[1])) / 20,
+            (float(end_kpt[2]) - float(start_kpt[2])) / 20
+        ]
+
+        abs_path.append(start_kpt[:3] + ['0', start_kpt[4]])
+        for n in range(1, 20):
+            abs_path.append(
+                [str(float(start_kpt[0]) + increments[0] * n),
+                 str(float(start_kpt[1]) + increments[1] * n),
+                 str(float(start_kpt[2]) + increments[2] * n), '0']
+                )
+        abs_path.append(end_kpt[:3] + ['0', end_kpt[4]])
+        i += 3
+
+    n_linemode_kpts = len(abs_path)
+
+    with open('KPOINTS', 'w') as kpts:
+        kpts.write('Automatically generated mesh\n')
+        kpts.write('{}\n'.format(n_ibz_kpts + n_linemode_kpts))
+        kpts.write('Reciprocal Lattice\n')
+        for line in ibz_lines[3:]:
+            kpts.write(line)
+        for point in abs_path:
+            kpts.write('{}\n'.format(' '.join(point)))
 
 
 def get_2D_hse_kpoints(struct_for_path, ibzkpth):

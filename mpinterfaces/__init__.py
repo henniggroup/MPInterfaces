@@ -22,7 +22,7 @@ __version__ = "1.7.0"
 PACKAGE_PATH = os.path.dirname(__file__)
 
 try:
-    MPINT_CONFIG = loadfn(os.path.join(os.path.dirname(PACKAGE_PATH),'config_files/mpint_config.yaml'))
+    MPINT_CONFIG = loadfn(os.path.join(PACKAGE_PATH, 'mpint_config.yaml'))
 except:
     MPINT_CONFIG = {}
     warnings.warn('mpint_config.yaml file not configured.')

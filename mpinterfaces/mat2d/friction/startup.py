@@ -193,7 +193,7 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
             structure.to('POSCAR', 'POSCAR')
             utl.write_potcar()
             incar_dict = Incar.from_file('INCAR').as_dict()
-            incar_dict.update({"MAGMOM": get_magmom_string(structure)})
+            incar_dict.update({"MAGMOM": utl.get_magmom_string(structure)})
             Incar.from_dict(incar_dict).write_file("INCAR")
 
             if QUEUE_SYSTEM == 'pbs':

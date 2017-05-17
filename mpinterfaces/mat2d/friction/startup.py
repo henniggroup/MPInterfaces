@@ -85,8 +85,6 @@ def run_gamma_calculations(submit=True, step_size=0.5):
             if VDW_KERNEL:
                 os.system('cp {} .'.format(VDW_KERNEL))
 
-            utl.write_potcar()
-
             # Shift the top layer
             structure = Structure.from_file("POSCAR")
             all_z_coords = [s.coords[2] for s in structure.sites]
@@ -100,13 +98,13 @@ def run_gamma_calculations(submit=True, step_size=0.5):
                      site.coords[2]], coords_are_cartesian=True
                 )
 
-            structure.get_sorted_structure().to("POSCAR", "POSCAR")
+            structure = structure.get_sorted_structure()
+            structure.to("POSCAR", "POSCAR")
+            utl.write_potcar()
             incar_dict = Incar.from_file('INCAR').as_dict()
             incar_dict.update({'NSW': 0, 'LAECHG': False, 'LCHARG': False,
                                'LWAVE': False, 'LVTOT': False,
-                               'MAGMOM': utl.get_magmom_string(
-                                    Structure.from_file('POSCAR')
-                                )})
+                               'MAGMOM': utl.get_magmom_string(structure)})
             incar_dict.pop('NPAR', None)
             Incar.from_dict(incar_dict).write_file('INCAR')
 
@@ -191,7 +189,12 @@ def run_normal_force_calculations(basin_and_saddle_dirs,
                      + top_of_bottom_layer + float(spacing)],
                     coords_are_cartesian=True)
 
-            structure.get_sorted_structure().to('POSCAR', 'POSCAR')
+            structure = structure.get_sorted_structure()
+            structure.to('POSCAR', 'POSCAR')
+            utl.write_potcar()
+            incar_dict = Incar.from_file('INCAR').as_dict()
+            incar_dict.update({"MAGMOM": get_magmom_string(structure)})
+            Incar.from_dict(incar_dict).write_file("INCAR")
 
             if QUEUE_SYSTEM == 'pbs':
                 utl.write_pbs_runjob('{}_{}'.format(

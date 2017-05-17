@@ -86,14 +86,6 @@ def run_gamma_calculations(submit=True, step_size=0.5):
                 os.system('cp {} .'.format(VDW_KERNEL))
 
             utl.write_potcar()
-            incar_dict = Incar.from_file('INCAR').as_dict()
-            incar_dict.update({'NSW': 0, 'LAECHG': False, 'LCHARG': False,
-                               'LWAVE': False, 'LVTOT': False,
-                               'MAGMOM': utl.get_magmom_string(
-                                    Structure.from_file('POSCAR')
-                                )})
-            incar_dict.pop('NPAR', None)
-            Incar.from_dict(incar_dict).write_file('INCAR')
 
             # Shift the top layer
             structure = Structure.from_file("POSCAR")
@@ -109,6 +101,14 @@ def run_gamma_calculations(submit=True, step_size=0.5):
                 )
 
             structure.get_sorted_structure().to("POSCAR", "POSCAR")
+            incar_dict = Incar.from_file('INCAR').as_dict()
+            incar_dict.update({'NSW': 0, 'LAECHG': False, 'LCHARG': False,
+                               'LWAVE': False, 'LVTOT': False,
+                               'MAGMOM': utl.get_magmom_string(
+                                    Structure.from_file('POSCAR')
+                                )})
+            incar_dict.pop('NPAR', None)
+            Incar.from_dict(incar_dict).write_file('INCAR')
 
             if QUEUE_SYSTEM == 'pbs':
                 utl.write_pbs_runjob(dir, 1, 8, '1000mb', '2:00:00', VASP_STD_BIN)

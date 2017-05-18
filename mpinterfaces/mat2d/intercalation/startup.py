@@ -71,7 +71,8 @@ def inject_ions(structure, ion, atomic_fraction):
     while n_ions / (structure.num_sites + 1) <= atomic_fraction:
         try:
             structure.append(species=specie, coords=interstitial_sites[i][0],
-                             validate_proximity=True)
+                             validate_proximity=True,
+                             properties={'velocities': [0.0, 0.0, 0.0]})
             n_ions += 1
             i += 1
 

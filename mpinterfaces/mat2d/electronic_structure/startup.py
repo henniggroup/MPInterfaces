@@ -62,7 +62,7 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
         Incar.from_dict(PBE_INCAR_DICT).write_file('pbe_bands/INCAR')
 
         os.chdir('pbe_bands')
-        write_band_structure_kpoints(structure)
+        write_band_structure_kpoints(structure, dim=dim)
 
         if QUEUE_SYSTEM == 'pbs':
             write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00', VASP_STD_BIN)
@@ -166,7 +166,7 @@ def run_hse_calculation(dim=2, submit=True, force_overwrite=False):
 
         # Re-use the irreducible brillouin zone KPOINTS from a
         # previous standard DFT run.
-        write_band_structure_kpoints(structure)
+        write_band_structure_kpoints(structure, dim=dim)
 
         if QUEUE_SYSTEM == 'pbs':
             write_pbs_runjob('{}_hsebands'.format(

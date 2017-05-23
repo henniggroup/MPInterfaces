@@ -96,22 +96,12 @@ class AnalysisTest(unittest.TestCase):
             self.assertAlmostEqual(test_x[i], control_x[i])
             self.assertAlmostEqual(test_y[i], control_y[i])
 
-    def test_plot_band_structure_creates_data(self):
+    def test_plot_band_structure_creates_file(self):
         os.chdir(ROOT)
         os.chdir('band_structure_control')
-        test_data = plot_band_structure(fmt='None')['energy'][0]['1'][0]
-        control_data = [
-            -19.441699999999997, -19.428699999999999, -19.389499999999998,
-            -19.3245, -19.233800000000002, -19.118099999999998,
-            -18.977800000000002, -18.813899999999997, -18.627499999999998,
-            -18.420200000000001, -18.1937, -17.950699999999998,
-            -17.694499999999998, -17.429600000000001, -17.161999999999999,
-            -16.899799999999999, -16.653399999999998, -16.436100000000003,
-            -16.263399999999997, -16.151400000000002, -16.112499999999997
-        ]
-
-        for i in range(len(control_data)):
-            self.assertAlmostEqual(test_data[i], control_data[i])
+        plot_band_structure()
+        self.assertTrue(os.path.isfile("band_structure.pdf"))
+        os.system("rm band_structure.pdf")
 
     def test_plot_color_projected_bands_creates_file(self):
         os.chdir(ROOT)

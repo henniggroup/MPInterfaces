@@ -5,8 +5,11 @@ import os
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
 
 import numpy as np
+
+from scipy.spatial.distance import euclidean
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun, Locpot, VolumetricData
@@ -295,9 +298,45 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
     plt.close()
 
 
-def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt='pdf'):
+### This function uses Pymatgen to plot band structures, and doesn't
+### handle KPOINTS with IBZKPT at the top very well. It also doesn't
+### work with latex in the latest matplotlib version. If those
+### things ever get fixed in Pymatgen we could go back to using
+### this function.
+# def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt='pdf'):
+#     """
+#     Plot a standard band structure with no projections.
+#
+#     Args:
+#         ylim (tuple): minimum and maximum potentials for the plot's y-axis.
+#         draw_fermi (bool): whether or not to draw a dashed line at E_F.
+#         fmt (str): matplotlib format style. Check the matplotlib docs
+#             for options.
+#     """
+#
+#     vasprun = Vasprun('vasprun.xml')
+#     efermi = vasprun.efermi
+#     bsp = BSPlotter(vasprun.get_band_structure('KPOINTS', line_mode=True,
+#                                                efermi=efermi))
+#     if fmt == "None":
+#         return bsp.bs_plot_data()
+#     else:
+#         plot = bsp.get_plot(ylim=ylim)
+#         fig = plot.gcf()
+#         ax = fig.gca()
+#         ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
+#         ax.set_yticklabels([r'$\mathrm{%s}$' % t for t in ax.get_yticklabels()])
+#         if draw_fermi:
+#             ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]], [0, 0], 'k--')
+#         plt.savefig('band_structure.{}'.format(fmt), transparent=True)
+#
+#     plt.close()
+
+
+def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt="pdf"):
     """
-    Plot a standard band structure with no projections.
+    Plot a standard band structure with no projections. Requires
+    EIGENVAL, OUTCAR and KPOINTS files in the current working directory.
 
     Args:
         ylim (tuple): minimum and maximum potentials for the plot's y-axis.
@@ -306,23 +345,87 @@ def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt='pdf'):
             for options.
     """
 
-    vasprun = Vasprun('vasprun.xml')
-    efermi = vasprun.efermi
-    bsp = BSPlotter(vasprun.get_band_structure('KPOINTS', line_mode=True,
-                                               efermi=efermi))
-    if fmt == "None":
-        return bsp.bs_plot_data()
-    else:
-        plot = bsp.get_plot(ylim=ylim)
-        fig = plot.gcf()
-        ax = fig.gca()
-        ax.set_xticklabels([r'$\mathrm{%s}$' % t for t in ax.get_xticklabels()])
-        ax.set_yticklabels([r'$\mathrm{%s}$' % t for t in ax.get_yticklabels()])
-        if draw_fermi:
-            ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]], [0, 0], 'k--')
-        plt.savefig('band_structure.{}'.format(fmt), transparent=True)
+    eigenval_lines = open("EIGENVAL").readlines()
+    kpoints_lines = open("KPOINTS").readlines()
 
-    plt.close()
+    # IBZ k-points used for SCF but not useful for plotting bands.
+    ibz_kpoints = [k for k in kpoints_lines[3:] if int(k.split()[3]) != 0]
+    # Lines containing hig-symmetry k-points (e.g. Gamma)
+    vertex_lines = [k for k in kpoints_lines[3:] if len(k.split()) == 5]
+    n_bands = int(eigenval_lines[5].split()[2])
+    with open("OUTCAR", "r") as outcar:
+        for line in outcar:
+            if "E-fermi" in line:
+                efermi = float(line.split()[2])
+    spin_polarized = False
+    if len(eigenval_lines[8].split()) == 5:
+        spin_polarized = True
+
+    bs_kpoints = []
+    vertices = []
+    bands = [[[], []] for x in range(n_bands)]
+
+    i = 7 + len(ibz_kpoints)*(n_bands+2)
+    while i < len(eigenval_lines):
+        kpt_coords = [float(x) for x in eigenval_lines[i].split()[:3]]
+        for kpt in vertex_lines:
+            ref_coords = [float(x) for x in kpt.split()[:3]]
+            if euclidean(kpt_coords, ref_coords) < 0.0001:
+                kpt_coords.append(kpt.split()[-1])
+                vertices.append(kpt_coords)
+                break
+        bs_kpoints.append(kpt_coords)
+        for j in range(n_bands):
+            i += 1
+            split_line = eigenval_lines[i].split()
+            bands[j][0].append(float(split_line[1]) - efermi)
+            if spin_polarized:
+                bands[j][1].append(float(split_line[2]) - efermi)
+        i += 2
+
+    path_lengths, kpt_distances = [], [0]
+    for i in range(1, len(vertices)):
+        path_lengths.append(euclidean(vertices[i][:3],vertices[i-1][:3]))
+    total_length = sum(path_lengths)
+
+    n_kpt_divs = len(bs_kpoints) / float(len(path_lengths))
+
+    x, j = 0, 0
+    for i in range(1, len(bs_kpoints)):
+        x += euclidean(bs_kpoints[i][:3], bs_kpoints[i-1][:3])
+        kpt_distances.append(x)
+
+    ax = plt.figure(figsize=(11, 8.5)).gca()
+    font = FontProperties()
+    font.set_size(24)
+    font.set_family("serif")
+    large_font = font.copy()
+    large_font.set_size(32)
+
+    for b in bands:
+        ax.plot(kpt_distances, b[0], 'b-')
+        if spin_polarized:
+            ax.plot(kpt_distances, b[1], 'r--')
+    if draw_fermi:
+        ax.plot([min(kpt_distances), max(kpt_distances)], [0, 0], 'k-')
+    ax.set_xlim(min(kpt_distances), max(kpt_distances))
+    ax.set_xticks([])
+
+    d = 0
+    ax.text(d, ylim[0]*1.05, r"$\mathrm{%s}$" % vertices[0][-1],
+            fontproperties=font, verticalalignment="top",
+            horizontalalignment="center")
+    for i in range(len(path_lengths)):
+        d += path_lengths[i]
+        ax.text(d, ylim[0]*1.05, r"$\mathrm{%s}$" % vertices[i+1][-1],
+                fontproperties=font, verticalalignment="top",
+                horizontalalignment="center")
+        ax.plot([d, d], [ylim[0], ylim[1]], 'k--')
+
+    ax.set_ylim(ylim)
+    ax.set_ylabel(r"$\mathrm{E - E_F (eV)}$", fontproperties=large_font)
+    ax.set_yticklabels([int(t) for t in ax.get_yticks()], fontproperties=font)
+    plt.savefig("band_structure.{}".format(fmt))
 
 
 def plot_color_projected_bands(ylim=(-5, 5), fmt='pdf'):

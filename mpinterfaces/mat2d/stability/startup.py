@@ -5,7 +5,7 @@ import os
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 
-from mpinterfaces import VASP_TWOD_BIN, VDW_KERNEL, QUEUE_SYSTEM
+from mpinterfaces import VASP_STD_BIN, VASP_TWOD_BIN, VDW_KERNEL, QUEUE_SYSTEM
 import mpinterfaces.utils as utl
 
 __author__ = "Michael Ashton"
@@ -70,14 +70,16 @@ def relax(dim=2, submit=True, force_overwrite=False):
                            + kpts_lines[3].split()[1] + ' 1')
 
         # Submission script
+        if dim == 2:
+            binary = VASP_TWOD_BIN
+        elif dim == 3:
+            binary = VASP_STD_BIN
         if QUEUE_SYSTEM == 'pbs':
-            utl.write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00',
-                VASP_TWOD_BIN)
+            utl.write_pbs_runjob(directory, 1, 16, '800mb', '6:00:00', binary)
             submission_command = 'qsub runjob'
 
         elif QUEUE_SYSTEM == 'slurm':
-            utl.write_slurm_runjob(directory, 16, '800mb', '6:00:00',
-                VASP_TWOD_BIN)
+            utl.write_slurm_runjob(directory, 16, '800mb', '6:00:00', binary)
             submission_command = 'sbatch runjob'
 
         if submit:

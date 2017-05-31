@@ -90,7 +90,7 @@ def get_corrugation_factor(structure):
         bottom_sphere_area += 2*pi*r*r
 
     lattice = structure.lattice
-    area = np.cross(lattice._matrix[0], lattice._matrix[1])[2]
+    area = abs(np.cross(lattice._matrix[0], lattice._matrix[1])[2])
 
     corrugation = {"top": top_sphere_area / area,
                    "bottom": bottom_sphere_area / area}

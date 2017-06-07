@@ -1,6 +1,12 @@
 import os
 import unittest
 
+from pymatgen import Structure
+
+from mpinterfaces.mat2d.intercalation.startup import *
+from mpinterfaces.mat2d.intercalation.analysis import *
+
+
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
 __maintainer__ = "Michael Ashton"
@@ -11,10 +17,21 @@ __date__ = "March 3, 2017"
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tests"))
 
 
-class StartupTest(unittest.TestCase):
+class AnalysisTest(unittest.TestCase):
 
-    """ This will be hard to test, since inject_ions requires Zeo++
-        to be installed...
+    def test_get_interstitial_sites(self):
+        os.chdir(ROOT)
+        os.chdir("MoS2")
+        structure = Structure.from_file("POSCAR")
+        test_interstitials = get_interstitial_sites(structure)
+        control_interstitial = ([10.8813018, 4.69326545, 40.98519157],
+                                0.86423227018576887)
+        for i in range(3):
+            self.assertAlmostEqual(test_interstitials[-1][0][i],
+                                   control_interstitial[0][i])
+
+
+class StartupTest(unittest.TestCase):
 
     def test_inject_ions(self):
         os.chdir(ROOT)
@@ -26,8 +43,6 @@ class StartupTest(unittest.TestCase):
         test_lines = open('control_intercalated_POSCAR').readlines()
         for i in range(len(control_lines)):
             self.assertEqual(control_lines[i], test_lines[i])
-    """
-    pass
 
 if __name__ == '__main__':
     unittest.main()

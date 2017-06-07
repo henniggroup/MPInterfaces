@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-from scipy.spatial import ConvexHull
+from scipy.spatial import Delaunay, ConvexHull
+from scipy.spatial.distance import euclidean
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
@@ -24,6 +25,161 @@ __maintainer__ = "Michael Ashton"
 __email__ = "ashtonmv@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
+
+
+def contains(hull, point):
+    """
+    Checks if a point is inside of a convex hull. Useful for
+    determining whether a point lies within a 3D polygon.
+
+    Args:
+        hull(ConvexHull):
+        point (array): point array of shape (3,)
+
+    Returns:
+        Boolean. True if the point is within the original
+            hull.
+    """
+    if len([c for c in point if abs(c) < 200]) == 3:
+        new_hull = ConvexHull(np.concatenate((hull.points, [point])))
+        if np.array_equal(new_hull.vertices, hull.vertices):
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+def tet_vol(points):
+    """
+    Calculate the volume of a 3D tetrahedron.
+
+    Args:
+        points (list): list of 3D points defining the
+            tetrahedron's vertices.
+    Returns:
+        volume (float)
+    """
+    a, b, c, d = points[0], points[1], points[2], points[3]
+    return abs(np.dot((a-d),np.cross((b-d),(c-d))))/6
+
+
+def pt_btwn(pt1, pt2, r):
+    """
+    Get the vector of magnitude `r` along the path from pt1 to pt2.
+
+    Args:
+        pt1, pt2 (array): points defining the direction of the
+            vector to return
+        r (float): magnitude of vector to return
+
+    Returns:
+        3D vector.
+    """
+    total_vector = np.subtract(pt2, pt1)
+    u = np.array(total_vector/np.linalg.norm(total_vector))
+    return np.add(pt1, r*u)
+
+
+def get_interstitial_sites(structure, evaluate_radii=False):
+    """
+    Use a Delaunay triangulation of all atomic sites in the crystal
+    structure to define tetrahedra of open volumes. After
+    subtracting spherical segments based on atomic radii from these
+    tetrahedra, they represent the open volumes for interstitial
+    sites in the structure.
+
+    Args:
+        structure (Structure): Pymatgen Structure object
+        evaluate_radii (Boolean): Whether to use a
+            Pymatgen ValenceIonicRadiusEvaluator to determine
+            the atomic radii (True), or to simply use each element's
+            tabulated atomic radius (False).
+
+    Returns:
+        interstitials (list): list of tuples: (coordinates, volume)
+            for each interstitial site, sorted by largest volume first.
+    """
+
+    # Preserve the original structure
+    st = structure.copy()
+
+    # Make a 3x3x3 supercell so that the center unit cell
+    # is surrounded by its images- i.e. it has no "boundaries",
+    # which can erroneously create tetrahedra of infinite volumes.
+    st.make_supercell(3)
+    m = st.lattice._matrix
+
+    # These are the vertices of only the center cell
+    cell_vertices = np.array([
+        np.add(np.add(m[0]/3., m[1]/3.), m[2]/3.),
+        np.add(np.add(m[0]/1.5, m[1]/3.), m[2]/3.),
+        np.add(np.add(m[0]/3., m[1]/1.5), m[2]/3.),
+        np.add(np.add(m[0]/1.5, m[1]/1.5), m[2]/3.),
+        np.add(np.add(m[0]/3., m[1]/3.), m[2]/1.5),
+        np.add(np.add(m[0]/1.5, m[1]/3.), m[2]/1.5),
+        np.add(np.add(m[0]/3., m[1]/1.5), m[2]/1.5),
+        np.add(np.add(m[0]/1.5, m[1]/1.5), m[2]/1.5)
+    ])
+    cell_center = np.mean(cell_vertices, axis=0)
+    max_distance_in_cell = euclidean(cell_vertices[0], cell_center)
+
+    points = [s.coords for s in st.sites]
+    if not evaluate_radii:
+        radii = [float(s.specie.atomic_radius) for s in st.sites]
+
+    # Create the initial Delaunay triangulation of all sites in the
+    # supercell.
+    delaunay = Delaunay(points)
+    all_simplices = delaunay.simplices.copy()
+
+    # Now filter those Delaunay simplices to only those with
+    # at least one vertex lying within the center unit cell.
+    simplices = []
+    for simplex in all_simplices:
+        for vertex in simplex:
+            if euclidean(cell_center, points[vertex]) <= max_distance_in_cell:
+                if contains(ConvexHull(cell_vertices), points[vertex]):
+                    simplices.append(simplex)
+                    break
+
+    # Calculate the volumes of all the relevant simplices.
+    interstitials = []
+    for simplex in simplices:
+        a = points[simplex[0]]
+        r_a = radii[simplex[0]]
+        b = points[simplex[1]]
+        r_b = radii[simplex[1]]
+        c = points[simplex[2]]
+        r_c = radii[simplex[2]]
+        d = points[simplex[3]]
+        r_d = radii[simplex[3]]
+
+        raw_volume = tet_vol([a, b, c, d])
+
+        # Subtract all the atomic radius sphere segments from
+        # the original tetrahedron's volume to get the actual
+        # "open" volume in the tetrahedron.
+        a_tet_pts = [a, pt_btwn(a,b,r_a), pt_btwn(a,c,r_a), pt_btwn(a,d,r_a)]
+        a_vol = tet_vol(a_tet_pts)
+        b_tet_pts = [b, pt_btwn(b,a,r_b), pt_btwn(b,c,r_b), pt_btwn(b,d,r_b)]
+        b_vol = tet_vol(b_tet_pts)
+        c_tet_pts = [c, pt_btwn(c,a,r_c), pt_btwn(c,b,r_c), pt_btwn(c,d,r_c)]
+        c_vol = tet_vol(c_tet_pts)
+        d_tet_pts = [d, pt_btwn(d,a,r_d), pt_btwn(d,b,r_d), pt_btwn(d,c,r_d)]
+        d_vol = tet_vol(d_tet_pts)
+        volume = raw_volume - a_vol - b_vol - c_vol - d_vol
+
+        # The center of the simplex tetrahedron is the best
+        # definition for the interstitial's location.
+        centroid = np.mean(np.array([a,b,c,d]), axis=0)
+
+        interstitials.append((centroid, volume))
+
+    interstitials.sort(key=operator.itemgetter(1))
+    interstitials.reverse()
+
+    return interstitials
 
 
 def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):

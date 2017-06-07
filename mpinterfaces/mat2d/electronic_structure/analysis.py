@@ -357,6 +357,7 @@ def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt="pdf"):
         for line in outcar:
             if "E-fermi" in line:
                 efermi = float(line.split()[2])
+                break
     spin_polarized = False
     if len(eigenval_lines[8].split()) == 5:
         spin_polarized = True

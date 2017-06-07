@@ -227,8 +227,8 @@ def get_basin_and_peak_locations():
     x_values = range(n_divs_x)
     y_values = range(n_divs_y)
 
-    abs_maximum = -10000
-    abs_minimum = 0
+    abs_maximum = -np.Infinity
+    abs_minimum = np.Infinity
     for x in x_values:
         for y in y_values:
             dir = '{}x{}'.format(x, y)

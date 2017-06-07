@@ -24,7 +24,7 @@ class AnalysisTest(unittest.TestCase):
         os.chdir("MoS2")
         structure = Structure.from_file("POSCAR")
         test_interstitial = get_interstitial_sites(structure)["tetrahedral"][0]
-        control_interstitial = ((3.29906811,-0.77121991,17.80937681), 4,
+        control_interstitial = ((2.50663857,0.54406298,17.80937683), 4,
                                 1.34201354)
         for i in range(3):
             self.assertAlmostEqual(test_interstitial[0][i],

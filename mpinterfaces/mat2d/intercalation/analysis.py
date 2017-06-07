@@ -81,13 +81,17 @@ def pt_btwn(pt1, pt2, r):
     return np.add(pt1, r*u)
 
 
-def get_interstitial_sites(structure, evaluate_radii=False):
+def get_interstitial_sites(structure, evaluate_radii=False, octahedra=True):
     """
     Use a Delaunay triangulation of all atomic sites in the crystal
-    structure to define tetrahedra of open volumes. After
-    subtracting spherical segments based on atomic radii from these
-    tetrahedra, they represent the open volumes for interstitial
-    sites in the structure.
+    structure to define tetrahedra of open volumes (interstitial
+    sites). Each interstitial site is ranked according to the maximum
+    radius of an atom that could fit in that site without overlapping
+    one of the existing neighboring atoms' radii.
+
+    The default behavior is to then combine tetrahedra which share
+    faces to form octahedra, in order to identify the largest 6-fold
+    coordinated sites as well.
 
     Args:
         structure (Structure): Pymatgen Structure object
@@ -95,14 +99,26 @@ def get_interstitial_sites(structure, evaluate_radii=False):
             Pymatgen ValenceIonicRadiusEvaluator to determine
             the atomic radii (True), or to simply use each element's
             tabulated atomic radius (False).
+        octahedra (Boolean): Whether or not to search also for
+            octahedral interstitial sites, which takes a little longer
+            since it requires combining tetrahedra.
 
     Returns:
-        interstitials (list): list of tuples: (coordinates, volume)
-            for each interstitial site, sorted by largest volume first.
+        interstitials (dict): dictionary of the form
+            {"tetrahedral": [(coordinates, max_radius), ...],
+             "octahedral": [(coordinates, max_radius), ...]}
+            storing lists of each interstitial site for both
+            coordination types, sorted by largest radius first.
     """
 
     # Preserve the original structure
     st = structure.copy()
+
+    # Small unit cells make the triangulation unreliable
+    n_sites = structure.num_sites
+    if n_sites < 4:
+        st.make_supercell(2)
+    m_0 = st.lattice._matrix
 
     # Make a 3x3x3 supercell so that the center unit cell
     # is surrounded by its images- i.e. it has no "boundaries",
@@ -143,8 +159,9 @@ def get_interstitial_sites(structure, evaluate_radii=False):
                     simplices.append(simplex)
                     break
 
-    # Calculate the volumes of all the relevant simplices.
-    interstitials = []
+    # Calculate the maximum interstitial
+    # radius for all the relevant tetrahedra.
+    tetrahedra = []
     for simplex in simplices:
         a = points[simplex[0]]
         r_a = radii[simplex[0]]
@@ -154,30 +171,104 @@ def get_interstitial_sites(structure, evaluate_radii=False):
         r_c = radii[simplex[2]]
         d = points[simplex[3]]
         r_d = radii[simplex[3]]
-
-        raw_volume = tet_vol([a, b, c, d])
-
-        # Subtract all the atomic radius sphere segments from
-        # the original tetrahedron's volume to get the actual
-        # "open" volume in the tetrahedron.
-        a_tet_pts = [a, pt_btwn(a,b,r_a), pt_btwn(a,c,r_a), pt_btwn(a,d,r_a)]
-        a_vol = tet_vol(a_tet_pts)
-        b_tet_pts = [b, pt_btwn(b,a,r_b), pt_btwn(b,c,r_b), pt_btwn(b,d,r_b)]
-        b_vol = tet_vol(b_tet_pts)
-        c_tet_pts = [c, pt_btwn(c,a,r_c), pt_btwn(c,b,r_c), pt_btwn(c,d,r_c)]
-        c_vol = tet_vol(c_tet_pts)
-        d_tet_pts = [d, pt_btwn(d,a,r_d), pt_btwn(d,b,r_d), pt_btwn(d,c,r_d)]
-        d_vol = tet_vol(d_tet_pts)
-        volume = raw_volume - a_vol - b_vol - c_vol - d_vol
-
-        # The center of the simplex tetrahedron is the best
-        # definition for the interstitial's location.
         centroid = np.mean(np.array([a,b,c,d]), axis=0)
+        rad = [r_a, r_b, r_c, r_d]
 
-        interstitials.append((centroid, volume))
+        # Add the atomic radii to the nuclei loactions to find
+        # their "true" extrema, then use these to find the
+        # "true" centroid.
+        true_a = pt_btwn(a, centroid, r_a)
+        true_b = pt_btwn(b, centroid, r_b)
+        true_c = pt_btwn(c, centroid, r_c)
+        true_d = pt_btwn(d, centroid, r_d)
+        true_centroid = np.mean(
+            np.array([true_a,true_b,true_c,true_d]), axis=0
+        )
 
-    interstitials.sort(key=operator.itemgetter(1))
-    interstitials.reverse()
+        max_radius = min(
+            [euclidean(true_centroid, pt) for pt in
+            [true_a,true_b,true_c,true_d]]
+        )
+
+        tetrahedra.append(
+            (true_centroid, [tuple(x) for x in [a, b, c, d]],
+             [r_a, r_b, r_c, r_d], 4, max_radius)
+        )
+
+    if octahedra:
+        interstitials = {"tetrahedral": [], "octahedral": []}
+        for i in range(len(tetrahedra)):
+            for j in range(i, len(tetrahedra)):
+                # If 3 vertices are shared then the tetrahedra
+                # share a face and form an octahedron.
+                shared = set(tetrahedra[i][1]) & set(tetrahedra[j][1])
+                if len(shared) == 3:
+                    # Vertices of the octahedron
+                    a = tetrahedra[i][1][0]
+                    r_a = tetrahedra[i][2][0]
+                    b = tetrahedra[i][1][1]
+                    r_b = tetrahedra[i][2][1]
+                    c = tetrahedra[i][1][2]
+                    r_c = tetrahedra[i][2][2]
+                    d = tetrahedra[i][1][3]
+                    r_d = tetrahedra[i][2][3]
+                    e, r_e = [
+                        (s, tetrahedra[j][2][k]) for k, s in
+                        enumerate(tetrahedra[j][1]) if s
+                        not in tetrahedra[i][1]
+                    ][0]
+
+                    max_radius = max(tetrahedra[i][4], tetrahedra[j][4])
+                    o_centroid = np.mean(np.array([a, b, c, d, e]), axis=0)
+                    true_a = pt_btwn(a, o_centroid, r_a)
+                    true_b = pt_btwn(b, o_centroid, r_b)
+                    true_c = pt_btwn(c, o_centroid, r_c)
+                    true_d = pt_btwn(d, o_centroid, r_d)
+                    true_e = pt_btwn(e, o_centroid, r_e)
+                    true_o_centroid = np.mean(
+                        np.array([true_a, true_b, true_c, true_d, true_e]),
+                        axis=0
+                    )
+                    r_o = min(
+                        [euclidean(true_o_centroid, pt) for pt in
+                         [true_a,true_b,true_c,true_d]]
+                    )
+
+                    # Add the octahedron and both tetrahedra to
+                    # the final list of interstitials.
+                    interstitials["octahedral"].append(
+                        (tuple(true_o_centroid), 6, r_o)
+                    )
+                    interstitials["tetrahedral"].append(
+                        (tuple(tetrahedra[i][0]), 4, tetrahedra[i][4])
+                    )
+                    interstitials["tetrahedral"].append(
+                        (tuple(tetrahedra[j][0]), 4, tetrahedra[j][4])
+                    )
+        # Remove duplicate interstitial sites.
+        interstitials["tetrahedral"] = list(set(interstitials["tetrahedral"]))
+    else:
+        interstitials = {
+            "tetrahedral": [(i[0], 4, i[4]) for i in tetrahedra]
+        }
+
+    # Since the centroid coordinates were given in the center
+    # cell of the supercell, bring them back into the original
+    # unit cell.
+    for c in interstitials:
+        for i in range(len(interstitials[c])):
+            for r in m_0:
+                if n_sites < 4:
+                    np.multiply(r, 2)
+                interstitials[c][i] = (
+                    np.subtract(np.array(interstitials[c][i][0]), r),
+                    interstitials[c][i][1], interstitials[c][i][2]
+                )
+
+    # Sort by the maximum radii
+    for c in interstitials:
+        interstitials[c].sort(key=operator.itemgetter(2))
+        interstitials[c].reverse()
 
     return interstitials
 

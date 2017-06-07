@@ -51,7 +51,7 @@ def inject_ions(structure, ion, atomic_fraction):
     # atomic fraction, multiply it in the x direction.
     n_ions = 1.
     dimensions = [2, 1, 1]
-    while not n_ions / structure.num_sites <= atomic_fraction:
+    while not n_ions / (structure.num_sites+n_ions) <= atomic_fraction:
         structure.make_supercell(dimensions)
         dimensions = [dimensions[1], dimensions[0], 1]
 
@@ -66,7 +66,7 @@ def inject_ions(structure, ion, atomic_fraction):
     # interstitial_sites = [
     #     (site._fcoords, site.properties.get('voronoi_radius', None))
     #     for site in interstitial._defect_sites]
-    interstitial_sites = get_interstitial_sites(structure)
+    interstitial_sites = get_interstitial_sites(structure)["tetrahedral"]
 
     # Sort the interstitial sites by their voronoi radii.
     #interstitial_sites.sort(key=operator.itemgetter(1))

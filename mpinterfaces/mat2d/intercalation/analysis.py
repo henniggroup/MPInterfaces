@@ -31,11 +31,9 @@ def contains(hull, point):
     """
     Checks if a point is inside of a convex hull. Useful for
     determining whether a point lies within a 3D polygon.
-
     Args:
         hull(ConvexHull):
         point (array): point array of shape (3,)
-
     Returns:
         Boolean. True if the point is within the original
             hull.
@@ -50,10 +48,19 @@ def contains(hull, point):
         return False
 
 
+def sq_dist(p1, p2):
+    """
+    Calculate the non-square-root distance between two points.
+
+    Args:
+        p1, p2: 1x3 point coordinates.
+    """
+    return (p1[0]-p2[0])**2+(p1[1]-p2[1])**2+(p1[2]-p2[2])**2
+
+
 def tet_vol(points):
     """
     Calculate the volume of a 3D tetrahedron.
-
     Args:
         points (list): list of 3D points defining the
             tetrahedron's vertices.
@@ -67,12 +74,10 @@ def tet_vol(points):
 def pt_btwn(pt1, pt2, r):
     """
     Get the vector of magnitude `r` along the path from pt1 to pt2.
-
     Args:
         pt1, pt2 (array): points defining the direction of the
             vector to return
         r (float): magnitude of vector to return
-
     Returns:
         3D vector.
     """
@@ -81,7 +86,7 @@ def pt_btwn(pt1, pt2, r):
     return np.add(pt1, r*u)
 
 
-def get_interstitial_sites(structure, evaluate_radii=False, octahedra=True):
+def get_interstitial_sites(structure, octahedra=False):
     """
     Use a Delaunay triangulation of all atomic sites in the crystal
     structure to define tetrahedra of open volumes (interstitial
@@ -89,26 +94,24 @@ def get_interstitial_sites(structure, evaluate_radii=False, octahedra=True):
     radius of an atom that could fit in that site without overlapping
     one of the existing neighboring atoms' radii.
 
-    The default behavior is to then combine tetrahedra which share
-    faces to form octahedra, in order to identify the largest 6-fold
-    coordinated sites as well.
+    The default behavior is to stop there, but by setting `octahedra`
+    to True, the tetrahedra which share faces are combined to form
+    bipyramids (hexahedra) and then octahedra, in order to
+    identify the largest 5- and 6-fold coordinated sites as well.
 
     Args:
         structure (Structure): Pymatgen Structure object
-        evaluate_radii (Boolean): Whether to use a
-            Pymatgen ValenceIonicRadiusEvaluator to determine
-            the atomic radii (True), or to simply use each element's
-            tabulated atomic radius (False).
         octahedra (Boolean): Whether or not to search also for
             octahedral interstitial sites, which takes a little longer
             since it requires combining tetrahedra.
-
     Returns:
         interstitials (dict): dictionary of the form
             {"tetrahedral": [(coordinates, max_radius), ...],
+             "hexahedral": [(coordinates, max_radius), ...],
              "octahedral": [(coordinates, max_radius), ...]}
             storing lists of each interstitial site for both
             coordination types, sorted by largest radius first.
+            Coordinates are given as cartesian.
     """
 
     # Preserve the original structure
@@ -138,11 +141,10 @@ def get_interstitial_sites(structure, evaluate_radii=False, octahedra=True):
         np.add(np.add(m[0]/1.5, m[1]/1.5), m[2]/1.5)
     ])
     cell_center = np.mean(cell_vertices, axis=0)
-    max_distance_in_cell = euclidean(cell_vertices[0], cell_center)
+    max_distance_in_cell = sq_dist(cell_vertices[0], cell_center)
 
     points = [s.coords for s in st.sites]
-    if not evaluate_radii:
-        radii = [float(s.specie.atomic_radius) for s in st.sites]
+    radii = [float(s.specie.atomic_radius) for s in st.sites]
 
     # Create the initial Delaunay triangulation of all sites in the
     # supercell.
@@ -153,14 +155,22 @@ def get_interstitial_sites(structure, evaluate_radii=False, octahedra=True):
     # at least one vertex lying within the center unit cell.
     simplices = []
     center_cell = ConvexHull(cell_vertices)
-    for simplex in all_simplices:
-        n = 0
-        for vertex in simplex:
-            if euclidean(cell_center, points[vertex]) <= max_distance_in_cell:
-                if contains(center_cell, points[vertex]):
-                    n += 1
-        if n == 4:
-            simplices.append(simplex)
+    if not octahedra:
+        for simplex in all_simplices:
+            for vertex in simplex:
+                if sq_dist(cell_center, points[vertex]) <= max_distance_in_cell:
+                    if contains(center_cell, points[vertex]):
+                        simplices.append(simplex)
+                        break
+    else:
+        for simplex in all_simplices:
+            n = 0
+            for vertex in simplex:
+                if sq_dist(cell_center, points[vertex]) <= max_distance_in_cell:
+                    if contains(center_cell, points[vertex]):
+                        n += 1
+            if n == 4:
+                simplices.append(simplex)
 
     # Calculate the maximum interstitial
     # radius for all the relevant tetrahedra.
@@ -189,8 +199,7 @@ def get_interstitial_sites(structure, evaluate_radii=False, octahedra=True):
         )
 
         max_radius = min(
-            [euclidean(true_centroid, pt) for pt in
-            [true_a,true_b,true_c,true_d]]
+            [euclidean(true_centroid, pt) for pt in points]
         )
 
         tetrahedra.append(
@@ -198,11 +207,11 @@ def get_interstitial_sites(structure, evaluate_radii=False, octahedra=True):
              [r_a, r_b, r_c, r_d], 4, max_radius)
         )
 
-
+    interstitials = {"tetrahedral": []}
     if octahedra:
         tet_pts = [i[1] for i in tetrahedra]
         tet_pts = list(set([coords for pt in tet_pts for coords in pt]))
-        interstitials = {"tetrahedral": [], "hexahedral": [], "octahedral": []}
+        interstitials.update({"hexahedral": [], "octahedral": []})
         for i in range(len(tetrahedra)):
             for j in range(i, len(tetrahedra)):
                 # If 3 vertices are shared then the tetrahedra
@@ -253,13 +262,16 @@ def get_interstitial_sites(structure, evaluate_radii=False, octahedra=True):
                     v2 = np.subtract(shared[0], shared[2])
                     tol = max([euclidean(shared[0], shared[1]),
                                euclidean(shared[0], shared[2]),
-                               euclidean(shared[1], shared[2])]) * 1.05
+                               euclidean(shared[1], shared[2])]) * 1.1
+                    tol = tol**2
                     for index, f in enumerate(tet_pts):
                         v3 = np.subtract(shared[0], f)
-                        if np.dot(v3, (np.cross(v1, v2))) == 0 and 0 < sorted(
-                                [euclidean(f, p) for p in shared])[0] < tol:
+                        distances = [sq_dist(f, p) for p in shared]
+                        distances.sort()
+                        if 0 < distances[0] < tol and 0 < distances[1] < tol and np.dot(v3, (np.cross(v1, v2))) == 0:
                             r_f = radii[index]
                             o_centroid = np.mean([a, b, c, d, e, f], axis=0)
+
                             true_f = pt_btwn(f, o_centroid, r_f)
                             true_o_centroid = np.mean(
                                 [true_a,true_b,true_c,true_d,true_e,true_f],
@@ -268,8 +280,7 @@ def get_interstitial_sites(structure, evaluate_radii=False, octahedra=True):
 
                             r_o = min(
                                 [euclidean(true_o_centroid, pt) for
-                                 pt in [true_a,true_b,true_c,true_d,
-                                        true_e,true_f]]
+                                 pt in [true_a,true_b,true_c,true_d,true_e,true_f]]
                             )
 
                             # Add the octahedron to the final
@@ -305,13 +316,11 @@ def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
     """
     Plots the phase diagram between the pure material and pure ion,
     Connecting the points on the convex hull of the phase diagram.
-
     Args:
         ion (str): name of atom that was intercalated, e.g. 'Li'.
         charge (float): charge donated by each ion.
         fmt (str): matplotlib format style. Check the matplotlib
             docs for options.
-
     Returns:
         capacity (float): Maximum capacity
     """
@@ -319,7 +328,7 @@ def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
     # Calculated with the relax() function in
     # mat2d.stability.startup. If you are using other input
     # parameters, you need to recalculate these values!
-    ion_ev_fu = {'Li': -1.156, 'Mg': 0.620, 'Al': -3.291}
+    ion_ev_fu = {'Li': -1.838, 'Mg': 0.620, 'Al': -3.291}
 
     if charge is None:
         charge = Element(ion).common_oxidation_states[0]
@@ -439,3 +448,6 @@ def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
     plt.savefig('{}_hull.{}'.format(ion, fmt), transparent=True)
 
     return capacity  # In mAh/g
+
+if __name__ == "__main__":
+    get_interstitial_sites(Structure.from_file("/Users/mashton/Downloads/POSCAR"))

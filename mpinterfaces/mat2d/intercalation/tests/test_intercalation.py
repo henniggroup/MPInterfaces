@@ -19,22 +19,27 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tests"))
 
 class AnalysisTest(unittest.TestCase):
 
-    def test_get_interstitial_sites(self):
+    def test_get_interstitial_sites_with_octahedra(self):
         os.chdir(ROOT)
-        os.chdir("MoS2")
-        structure = Structure.from_file("POSCAR")
-        test_ints = get_interstitial_sites(structure)
-        self.assertTrue(len(test_ints["tetrahedral"]) == 11)
-        self.assertTrue(len(test_ints["hexahedral"]) == 9)
-        self.assertTrue(len(test_ints["octahedral"]) == 0)
+        structure = Structure.from_file("POSCAR_Cu")
+        test_ints = get_interstitial_sites(structure, octahedra=True)
+        self.assertTrue(len(test_ints["tetrahedral"]) == 18)
+        self.assertTrue(len(test_ints["hexahedral"]) == 24)
+        self.assertTrue(len(test_ints["octahedral"]) == 5)
+
+
+    def test_get_interstitial_sites_without_octahedra(self):
+        os.chdir(ROOT)
+        structure = Structure.from_file("POSCAR_Cu")
+        test_ints = get_interstitial_sites(structure, octahedra=False)
+        self.assertTrue(len(test_ints["tetrahedral"]) == 186)
 
 
 class StartupTest(unittest.TestCase):
 
     def test_inject_ions(self):
         os.chdir(ROOT)
-        os.chdir('MoS2')
-        structure = Structure.from_file('POSCAR')
+        structure = Structure.from_file('POSCAR_MoS2')
         structure = inject_ions(structure, 'Li', 0.25)
         self.assertTrue(structure.num_sites == 4)
 

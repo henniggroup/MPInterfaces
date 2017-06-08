@@ -23,12 +23,10 @@ class AnalysisTest(unittest.TestCase):
         os.chdir(ROOT)
         os.chdir("MoS2")
         structure = Structure.from_file("POSCAR")
-        test_interstitial = get_interstitial_sites(structure)["tetrahedral"][0]
-        control_interstitial = ((2.50663857,0.54406298,17.80937683), 4,
-                                1.34201354)
-        for i in range(3):
-            self.assertAlmostEqual(test_interstitial[0][i],
-                                   control_interstitial[0][i])
+        test_ints = get_interstitial_sites(structure)
+        self.assertTrue(len(test_ints["tetrahedral"]) == 11)
+        self.assertTrue(len(test_ints["hexahedral"]) == 9)
+        self.assertTrue(len(test_ints["octahedral"]) == 0)
 
 
 class StartupTest(unittest.TestCase):
@@ -38,11 +36,7 @@ class StartupTest(unittest.TestCase):
         os.chdir('MoS2')
         structure = Structure.from_file('POSCAR')
         structure = inject_ions(structure, 'Li', 0.25)
-        structure.to(fmt='POSCAR', filename='test_intercalated_POSCAR')
-        control_lines = open('control_intercalated_POSCAR').readlines()
-        test_lines = open('test_intercalated_POSCAR').readlines()
-        for i in range(len(control_lines)):
-            self.assertEqual(control_lines[i], test_lines[i])
+        self.assertTrue(structure.num_sites == 4)
 
 if __name__ == '__main__':
     unittest.main()

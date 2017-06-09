@@ -27,27 +27,6 @@ __status__ = "Production"
 __date__ = "March 3, 2017"
 
 
-def contains(hull, point):
-    """
-    Checks if a point is inside of a convex hull. Useful for
-    determining whether a point lies within a 3D polygon.
-    Args:
-        hull(ConvexHull):
-        point (array): point array of shape (3,)
-    Returns:
-        Boolean. True if the point is within the original
-            hull.
-    """
-    if len([c for c in point if abs(c) < 200]) == 3:
-        new_hull = ConvexHull(np.concatenate((hull.points, [point])))
-        if np.array_equal(new_hull.vertices, hull.vertices):
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
 def sq_dist(p1, p2):
     """
     Calculate the non-square-root distance between two points.
@@ -56,19 +35,6 @@ def sq_dist(p1, p2):
         p1, p2: 1x3 point coordinates.
     """
     return (p1[0]-p2[0])**2+(p1[1]-p2[1])**2+(p1[2]-p2[2])**2
-
-
-def tet_vol(points):
-    """
-    Calculate the volume of a 3D tetrahedron.
-    Args:
-        points (list): list of 3D points defining the
-            tetrahedron's vertices.
-    Returns:
-        volume (float)
-    """
-    a, b, c, d = points[0], points[1], points[2], points[3]
-    return abs(np.dot((a-d),np.cross((b-d),(c-d))))/6
 
 
 def pt_btwn(pt1, pt2, r):

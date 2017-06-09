@@ -96,14 +96,15 @@ def get_interstitial_sites(structure, octahedra=False):
 
     The default behavior is to stop there, but by setting `octahedra`
     to True, the tetrahedra which share faces are combined to form
-    bipyramids (hexahedra) and then octahedra, in order to
-    identify the largest 5- and 6-fold coordinated sites as well.
+    bipyramids (hexahedra) and then points are added to these
+    bipyramids to formoctahedra, in order to identify the largest 5-
+    and 6-fold coordinated sites as well. This takes a little longer
+    since it requires combining tetrahedra.
 
     Args:
         structure (Structure): Pymatgen Structure object
         octahedra (Boolean): Whether or not to search also for
-            octahedral interstitial sites, which takes a little longer
-            since it requires combining tetrahedra.
+            octahedral interstitial sites.
     Returns:
         interstitials (dict): dictionary of the form
             {"tetrahedral": [(coordinates, max_radius), ...],
@@ -198,7 +199,6 @@ def get_interstitial_sites(structure, octahedra=False):
         d = points[simplex[3]]
         r_d = radii[simplex[3]]
         centroid = np.mean([a,b,c,d], axis=0)
-        rad = [r_a, r_b, r_c, r_d]
 
         # Add the atomic radii to the nuclei loactions to find
         # their "true" extrema, then use these to find the

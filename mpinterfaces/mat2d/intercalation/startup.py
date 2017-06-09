@@ -32,17 +32,23 @@ def inject_ions(structure, ion, atomic_fraction):
 
     Returns:
         structure. Includes intercalated atoms.
+
+    TODO:
+        Also require that if two interstitial sites are roughly the
+        same size, then fill the one furthest from other intercalated
+        ions.
     """
 
     specie = Element(ion)
 
     # If the structure isn't big enough to accomodate such a small
-    # atomic fraction, multiply it in the x direction.
+    # atomic fraction, multiply it into a supercell.
     n_ions = 1.
-    dimensions = [2, 1, 1]
     while not n_ions / (structure.num_sites+n_ions) <= atomic_fraction:
-        structure.make_supercell(dimensions)
-        dimensions = [dimensions[1], dimensions[0], 1]
+        # A supercell in all 3 dimenions is not usually necessary,
+        # but is the most reliable for finding interstitial sites.
+        # Flat or narrow supercells give a poor triangulation.
+        structure.make_supercell(2)
 
     if structure.num_sites * atomic_fraction > 3:
         print("The algorithm is working, but may take several minutes "

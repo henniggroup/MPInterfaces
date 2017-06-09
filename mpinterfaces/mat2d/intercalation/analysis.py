@@ -120,7 +120,7 @@ def get_interstitial_sites(structure, octahedra=False):
     # Small unit cells make the triangulation unreliable
     n_sites = structure.num_sites
     if n_sites < 4:
-        st.make_supercell(2)
+        st.make_supercell(3)
     m_0 = st.lattice._matrix
 
     # Make a 3x3x3 supercell so that the center unit cell
@@ -163,17 +163,24 @@ def get_interstitial_sites(structure, octahedra=False):
     # Now filter those Delaunay simplices to only those with
     # at least one vertex lying within the center unit cell.
     simplices = []
+    center_cell = ConvexHull(cell_vertices)
     if not octahedra:
         for simplex in all_simplices:
             for vertex in simplex:
-                if sq_dist(cell_center, points[vertex]) <= max_distance_in_cell and sq_dist(cell_center, points[vertex]) == min([sq_dist(points[vertex], pt) for pt in other_cell_centers]):
+                if sq_dist(cell_center, points[vertex]) <= max_distance_in_cell\
+                        and sq_dist(cell_center, points[vertex]) ==\
+                        min([sq_dist(points[vertex], pt) for pt in
+                             other_cell_centers]):
                     simplices.append(simplex)
                     break
     else:
         for simplex in all_simplices:
             n = 0
             for vertex in simplex:
-                if sq_dist(cell_center, points[vertex]) <= max_distance_in_cell and sq_dist(cell_center, points[vertex]) == min([sq_dist(points[vertex], pt) for pt in other_cell_centers]):
+                if sq_dist(cell_center, points[vertex]) <= max_distance_in_cell\
+                        and sq_dist(cell_center, points[vertex]) ==\
+                        min([sq_dist(points[vertex], pt) for pt in
+                             other_cell_centers]):
                     n += 1
             if n == 4:
                 simplices.append(simplex)
@@ -273,7 +280,8 @@ def get_interstitial_sites(structure, octahedra=False):
                         v3 = np.subtract(shared[0], f)
                         distances = [sq_dist(f, p) for p in shared]
                         distances.sort()
-                        if 0 < distances[0] < tol and 0 < distances[1] < tol and np.dot(v3, (np.cross(v1, v2))) == 0:
+                        if 0 < distances[0] < tol and 0 < distances[1] < tol\
+                                and np.dot(v3, (np.cross(v1, v2))) == 0:
                             r_f = radii[index]
                             o_centroid = np.mean([a, b, c, d, e, f], axis=0)
 
@@ -285,7 +293,8 @@ def get_interstitial_sites(structure, octahedra=False):
 
                             r_o = sqrt(min(
                                 [sq_dist(true_o_centroid, pt) for
-                                 pt in [true_a,true_b,true_c,true_d,true_e,true_f]]
+                                 pt in [true_a,true_b,true_c,true_d,true_e,
+                                        true_f]]
                             ))
 
                             # Add the octahedron to the final
@@ -303,7 +312,7 @@ def get_interstitial_sites(structure, octahedra=False):
         for i in range(len(interstitials[c])):
             for r in m_0:
                 if n_sites < 4:
-                    r = np.multiply(r, 2)
+                    r = np.multiply(r, 3)
                 interstitials[c][i] = (
                     np.subtract(np.array(interstitials[c][i][0]), r),
                     interstitials[c][i][1]

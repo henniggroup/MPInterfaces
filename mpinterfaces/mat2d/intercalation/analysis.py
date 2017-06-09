@@ -8,9 +8,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import numpy as np
+from math import sqrt
 
 from scipy.spatial import Delaunay, ConvexHull
-from scipy.spatial.distance import euclidean
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
@@ -141,6 +141,15 @@ def get_interstitial_sites(structure, octahedra=False):
         np.add(np.add(m[0]/1.5, m[1]/1.5), m[2]/1.5)
     ])
     cell_center = np.mean(cell_vertices, axis=0)
+    other_cell_centers = []
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            for k in range(-1, 2):
+                c = np.add(cell_center, np.multiply(i, m_0[0]))
+                c = np.add(c, np.multiply(j, m_0[1]))
+                c = np.add(c, np.multiply(k, m_0[2]))
+                other_cell_centers.append(c)
+
     max_distance_in_cell = sq_dist(cell_vertices[0], cell_center)
 
     points = [s.coords for s in st.sites]
@@ -154,21 +163,18 @@ def get_interstitial_sites(structure, octahedra=False):
     # Now filter those Delaunay simplices to only those with
     # at least one vertex lying within the center unit cell.
     simplices = []
-    center_cell = ConvexHull(cell_vertices)
     if not octahedra:
         for simplex in all_simplices:
             for vertex in simplex:
-                if sq_dist(cell_center, points[vertex]) <= max_distance_in_cell:
-                    if contains(center_cell, points[vertex]):
-                        simplices.append(simplex)
-                        break
+                if sq_dist(cell_center, points[vertex]) <= max_distance_in_cell and sq_dist(cell_center, points[vertex]) == min([sq_dist(points[vertex], pt) for pt in other_cell_centers]):
+                    simplices.append(simplex)
+                    break
     else:
         for simplex in all_simplices:
             n = 0
             for vertex in simplex:
-                if sq_dist(cell_center, points[vertex]) <= max_distance_in_cell:
-                    if contains(center_cell, points[vertex]):
-                        n += 1
+                if sq_dist(cell_center, points[vertex]) <= max_distance_in_cell and sq_dist(cell_center, points[vertex]) == min([sq_dist(points[vertex], pt) for pt in other_cell_centers]):
+                    n += 1
             if n == 4:
                 simplices.append(simplex)
 
@@ -198,9 +204,9 @@ def get_interstitial_sites(structure, octahedra=False):
             [true_a,true_b,true_c,true_d], axis=0
         )
 
-        max_radius = min(
-            [euclidean(true_centroid, pt) for pt in points]
-        )
+        max_radius = sqrt(min(
+            [sq_dist(true_centroid, pt) for pt in [a,b,c,d]]
+        ))
 
         tetrahedra.append(
             (true_centroid, [tuple(x) for x in [a, b, c, d]],
@@ -245,10 +251,10 @@ def get_interstitial_sites(structure, octahedra=False):
                         axis=0
                     )
 
-                    r_h = min(
-                        [euclidean(true_h_centroid, pt) for pt in
+                    r_h = sqrt(min(
+                        [sq_dist(true_h_centroid, pt) for pt in
                          [true_a, true_b, true_c, true_d, true_e]]
-                    )
+                    ))
 
                     # Add the bipyramid to the final list
                     # of interstitials.
@@ -260,10 +266,9 @@ def get_interstitial_sites(structure, octahedra=False):
                     # octahedra.
                     v1 = np.subtract(shared[0], shared[1])
                     v2 = np.subtract(shared[0], shared[2])
-                    tol = max([euclidean(shared[0], shared[1]),
-                               euclidean(shared[0], shared[2]),
-                               euclidean(shared[1], shared[2])]) * 1.1
-                    tol = tol**2
+                    tol = max([sq_dist(shared[0], shared[1]),
+                               sq_dist(shared[0], shared[2]),
+                               sq_dist(shared[1], shared[2])]) * 1.1
                     for index, f in enumerate(tet_pts):
                         v3 = np.subtract(shared[0], f)
                         distances = [sq_dist(f, p) for p in shared]
@@ -278,10 +283,10 @@ def get_interstitial_sites(structure, octahedra=False):
                                 axis=0
                             )
 
-                            r_o = min(
-                                [euclidean(true_o_centroid, pt) for
+                            r_o = sqrt(min(
+                                [sq_dist(true_o_centroid, pt) for
                                  pt in [true_a,true_b,true_c,true_d,true_e,true_f]]
-                            )
+                            ))
 
                             # Add the octahedron to the final
                             # list of interstitials.
@@ -448,6 +453,3 @@ def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
     plt.savefig('{}_hull.{}'.format(ion, fmt), transparent=True)
 
     return capacity  # In mAh/g
-
-if __name__ == "__main__":
-    get_interstitial_sites(Structure.from_file("/Users/mashton/Downloads/POSCAR"))

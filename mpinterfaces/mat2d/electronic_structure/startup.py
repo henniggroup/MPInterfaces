@@ -205,6 +205,10 @@ def write_band_structure_kpoints(structure, n_kpts=20, dim=2,
     """
 
     ibz_lines = open(os.path.join(ibzkpt_path, "IBZKPT")).readlines()
+    for i, line in enumerate(ibz_lines):
+        if "Tetrahedra" in line:
+            ibz_lines = ibz_lines[:i]
+            break
 
     n_ibz_kpts = int(ibz_lines[1].split()[0])
     kpath = HighSymmKpath(structure)

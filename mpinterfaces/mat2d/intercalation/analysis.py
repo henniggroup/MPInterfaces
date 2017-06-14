@@ -14,8 +14,10 @@ from scipy.spatial import Delaunay, ConvexHull
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from mpinterfaces.utils import is_converged
 
@@ -52,7 +54,7 @@ def pt_btwn(pt1, pt2, r):
     return np.add(pt1, r*u)
 
 
-def get_interstitial_sites(structure, octahedra=False):
+def get_interstitial_sites(structure, octahedra=False, unique=False):
     """
     Use a Delaunay triangulation of all atomic sites in the crystal
     structure to define tetrahedra of open volumes (interstitial
@@ -71,6 +73,10 @@ def get_interstitial_sites(structure, octahedra=False):
         structure (Structure): Pymatgen Structure object
         octahedra (Boolean): Whether or not to search also for
             octahedral interstitial sites.
+        unique (Boolean): Whether or not to enforce that only
+            symmetrically inequivalent sites are returned.
+            Determining the symmetry-equivalence is usually
+            by far the slowest task in the algorithm.
     Returns:
         interstitials (dict): dictionary of the form
             {"tetrahedral": [(coordinates, max_radius), ...],
@@ -169,16 +175,20 @@ def get_interstitial_sites(structure, octahedra=False):
         # Add the atomic radii to the nuclei loactions to find
         # their "true" extrema, then use these to find the
         # "true" centroid.
-        true_a = pt_btwn(a, centroid, r_a)
-        true_b = pt_btwn(b, centroid, r_b)
-        true_c = pt_btwn(c, centroid, r_c)
-        true_d = pt_btwn(d, centroid, r_d)
-        true_centroid = np.mean(
-            [true_a,true_b,true_c,true_d], axis=0
-        )
+        move = 1
+        while move > 0.01:
+            true_a = pt_btwn(a, centroid, r_a)
+            true_b = pt_btwn(b, centroid, r_b)
+            true_c = pt_btwn(c, centroid, r_c)
+            true_d = pt_btwn(d, centroid, r_d)
+            true_centroid = np.mean(
+                [true_a,true_b,true_c,true_d], axis=0
+            )
+            move = sq_dist(true_centroid, centroid)
+            centroid = true_centroid
 
         max_radius = sqrt(min(
-            [sq_dist(true_centroid, pt) for pt in [a,b,c,d]]
+            [sq_dist(true_centroid, pt) for pt in [true_a,true_b,true_c,true_d]]
         ))
 
         tetrahedra.append(
@@ -214,15 +224,19 @@ def get_interstitial_sites(structure, octahedra=False):
                     ][0]
 
                     h_centroid = np.mean([a, b, c, d, e], axis=0)
-                    true_a = pt_btwn(a, h_centroid, r_a)
-                    true_b = pt_btwn(b, h_centroid, r_b)
-                    true_c = pt_btwn(c, h_centroid, r_c)
-                    true_d = pt_btwn(d, h_centroid, r_d)
-                    true_e = pt_btwn(e, h_centroid, r_e)
-                    true_h_centroid = np.mean(
-                        [true_a, true_b, true_c, true_d, true_e],
-                        axis=0
-                    )
+                    move = 1
+                    while move > 0.01:
+                        true_a = pt_btwn(a, h_centroid, r_a)
+                        true_b = pt_btwn(b, h_centroid, r_b)
+                        true_c = pt_btwn(c, h_centroid, r_c)
+                        true_d = pt_btwn(d, h_centroid, r_d)
+                        true_e = pt_btwn(e, h_centroid, r_e)
+
+                        true_h_centroid = np.mean(
+                            [true_a,true_b,true_c,true_d,true_e], axis=0
+                        )
+                        move = sq_dist(true_h_centroid, h_centroid)
+                        h_centroid = true_h_centroid
 
                     r_h = sqrt(min(
                         [sq_dist(true_h_centroid, pt) for pt in
@@ -251,11 +265,21 @@ def get_interstitial_sites(structure, octahedra=False):
                             r_f = radii[index]
                             o_centroid = np.mean([a, b, c, d, e, f], axis=0)
 
-                            true_f = pt_btwn(f, o_centroid, r_f)
-                            true_o_centroid = np.mean(
-                                [true_a,true_b,true_c,true_d,true_e,true_f],
-                                axis=0
-                            )
+                            move = 1
+                            while move > 0.01:
+                                true_a = pt_btwn(a, o_centroid, r_a)
+                                true_b = pt_btwn(b, o_centroid, r_b)
+                                true_c = pt_btwn(c, o_centroid, r_c)
+                                true_d = pt_btwn(d, o_centroid, r_d)
+                                true_e = pt_btwn(e, o_centroid, r_e)
+                                true_f = pt_btwn(f, o_centroid, r_f)
+
+                                true_o_centroid = np.mean(
+                                    [true_a,true_b,true_c,true_d,true_e,true_f],
+                                    axis=0
+                                )
+                                move = sq_dist(true_o_centroid, o_centroid)
+                                o_centroid = true_o_centroid
 
                             r_o = sqrt(min(
                                 [sq_dist(true_o_centroid, pt) for
@@ -268,6 +292,9 @@ def get_interstitial_sites(structure, octahedra=False):
                             interstitials["octahedral"].append(
                                 (tuple(o_centroid), r_o)
                             )
+        interstitials["hexahedral"] = list(set(interstitials["hexahedral"]))
+        interstitials["octahedral"] = list(set(interstitials["octahedral"]))
+
 
     interstitials["tetrahedral"] = [(i[0], i[4]) for i in tetrahedra]
 
@@ -279,6 +306,7 @@ def get_interstitial_sites(structure, octahedra=False):
             for r in m_0:
                 if n_sites < 4:
                     r = np.multiply(r, 3)
+
                 interstitials[c][i] = (
                     np.subtract(np.array(interstitials[c][i][0]), r),
                     interstitials[c][i][1]
@@ -288,6 +316,24 @@ def get_interstitial_sites(structure, octahedra=False):
     for c in interstitials:
         interstitials[c].sort(key=operator.itemgetter(1))
         interstitials[c].reverse()
+
+    if unique:
+        sga = SpacegroupAnalyzer(structure)
+        sop = sga.get_space_group_operations()
+        for c in interstitials:
+            remove = []
+            for i in range(len(interstitials[c])):
+                l = structure.lattice
+                site_i = PeriodicSite("C", interstitials[c][i][0], l)
+                for j in range(i+1, len(interstitials[c])):
+                    if interstitials[c][i][1] == interstitials[c][j][1] and\
+                            sop.are_symmetrically_equivalent(
+                                [site_i],
+                                [PeriodicSite("C", interstitials[c][j][0], l)]
+                            ):
+                        remove.append(j)
+            interstitials[c] = [interstitials[c][x] for x in
+                                range(len(interstitials[c])) if x not in remove]
 
     return interstitials
 

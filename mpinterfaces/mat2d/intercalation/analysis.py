@@ -301,14 +301,17 @@ def get_interstitial_sites(structure, octahedra=False, unique=False):
     # Since the centroid coordinates were given in the center
     # cell of the supercell, bring them back into the original
     # unit cell.
+    if n_sites < 4:
+        f = 1./3.
+    else:
+        f = 1.
     for c in interstitials:
         for i in range(len(interstitials[c])):
             for r in m_0:
-                if n_sites < 4:
-                    r = np.multiply(r, 3)
-
                 interstitials[c][i] = (
-                    np.subtract(np.array(interstitials[c][i][0]), r),
+                    np.multiply(
+                        np.subtract(np.array(interstitials[c][i][0]), r), f
+                    ),
                     interstitials[c][i][1]
                 )
 
@@ -320,18 +323,19 @@ def get_interstitial_sites(structure, octahedra=False, unique=False):
     if unique:
         sga = SpacegroupAnalyzer(structure)
         sop = sga.get_space_group_operations()
+        l = structure.lattice
         for c in interstitials:
             remove = []
             for i in range(len(interstitials[c])):
-                l = structure.lattice
-                site_i = PeriodicSite("C", interstitials[c][i][0], l)
-                for j in range(i+1, len(interstitials[c])):
-                    if interstitials[c][i][1] == interstitials[c][j][1] and\
-                            sop.are_symmetrically_equivalent(
-                                [site_i],
-                                [PeriodicSite("C", interstitials[c][j][0], l)]
-                            ):
-                        remove.append(j)
+                if i not in remove:
+                    site_i = PeriodicSite("C", interstitials[c][i][0], l)
+                    for j in range(i+1, len(interstitials[c])):
+                        if interstitials[c][i][1] == interstitials[c][j][1] and\
+                                sop.are_symmetrically_equivalent(
+                                    [site_i],
+                                    [PeriodicSite("C",interstitials[c][j][0],l)]
+                                ):
+                            remove.append(j)
             interstitials[c] = [interstitials[c][x] for x in
                                 range(len(interstitials[c])) if x not in remove]
 

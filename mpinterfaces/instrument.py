@@ -18,7 +18,7 @@ import logging
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.sets import DictSet
 # uncomment for python2.7 pymatgen versions compatibility and more changes, refer
-# ufhpc_py27_compat branch 
+# ufhpc_py27_compat branch
 #try:
 #    from pymatgen.io.vasp.sets import DictVaspInputSet
 #except ImportError:
@@ -118,6 +118,12 @@ class MPINTVaspInputSet(DictSet):
         self.potcar_init.write_file(os.path.join(d, 'POTCAR'))
         self.poscar_init.write_file(os.path.join(d, 'POSCAR'),
                                significant_figures=10)
+
+        if self.reuse_path:
+            for reuse in self.reuse_path:
+                print ("copied over {0} ".format(reuse))
+                shutil.copy(reuse, d)
+
         if self.qadapter is not None:
             with open(os.path.join(d, self.script_name), 'w') as f:
                 queue_script = self.qadapter.get_script_str(job_dir)

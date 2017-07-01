@@ -49,17 +49,20 @@ class MPINTVaspInputSet(DictSet):
     create INCAR, POSCAR, POTCAR & KPOINTS files
     """
 
-    def __init__(self, name, incar, poscar, potcar, kpoints,
+    def __init__(self, name, incar, poscar, kpoints, potcar=None,
                  qadapter=None, script_name='submit_script',
-                 vis_logger=None, reuse_path=None, **kwargs):
+                 vis_logger=None, reuse_path=None, test=False,
+                 **kwargs):
         """
         default INCAR from config_dict
 
         """
         self.name = name
+        self.test = test
         self.incar_init = Incar.from_dict(incar.as_dict())
         self.poscar_init = Poscar.from_dict(poscar.as_dict())
-        self.potcar_init = Potcar.from_dict(potcar.as_dict())
+        if not self.test:
+            self.potcar_init = Potcar.from_dict(potcar.as_dict())
         if not isinstance(kpoints, str):
             self.kpoints_init = Kpoints.from_dict(kpoints.as_dict())
         else:
@@ -75,7 +78,8 @@ class MPINTVaspInputSet(DictSet):
         config_dict['INCAR'] = self.incar_init.as_dict()
         config_dict['POSCAR'] = self.poscar_init.as_dict()
         # caution the key and the value are not always the same
-        config_dict['POTCAR'] = self.potcar_init.as_dict()
+        if not self.test:
+            config_dict['POTCAR'] = self.potcar_init.as_dict()
         # dict(zip(self.potcar.as_dict()['symbols'],
         # self.potcar.as_dict()['symbols']))
         if not isinstance(kpoints, str):
@@ -115,7 +119,8 @@ class MPINTVaspInputSet(DictSet):
                 for line in self.kpoints_init:
                     kpts.write(line)
 
-        self.potcar_init.write_file(os.path.join(d, 'POTCAR'))
+        if not self.test:
+            self.potcar_init.write_file(os.path.join(d, 'POTCAR'))
         self.poscar_init.write_file(os.path.join(d, 'POSCAR'),
                                significant_figures=10)
 

@@ -35,7 +35,7 @@ class TestInstrument(unittest.TestCase):
         print (reuse_path)
         mvis = MPINTVaspInputSet(name,incar,poscar,potcar,kpoints,reuse_path=reuse_path,test=True)
         mvis.write_input(job_dir=TEST_STEP2)
-        self.assertEqual(os.listdir(TEST_STEP2), ['INCAR','POSCAR','KPOINTS','COPY_FILE'])
+        self.assertCountEqual(os.listdir(TEST_STEP2), ['INCAR','KPOINTS','POSCAR','COPY_FILE'])
         cleanup = [os.remove(TEST_STEP2+os.sep+f) for f in os.listdir(TEST_STEP2)]
 
 if __name__ == '__main__':

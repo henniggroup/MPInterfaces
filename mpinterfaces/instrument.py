@@ -121,7 +121,7 @@ class MPINTVaspInputSet(DictSet):
 
         if self.reuse_path:
             for reuse in self.reuse_path:
-                print ("copied over {0} ".format(reuse))
+                self.logger.info("copied over {0} ".format(reuse))
                 shutil.copy(reuse, d)
 
         if self.qadapter is not None:

@@ -29,7 +29,7 @@ except:
 
 # set environ variables for MAPI_KEY and VASP_PSP_DIR
 if MPINT_CONFIG.get('potentials', ''):
-    os.environ['VASP_PSP_DIR'] = MPINT_CONFIG.get('potentials', '')
+    os.environ['PMG_VASP_PSP_DIR'] = MPINT_CONFIG.get('potentials', '')
 MP_API = MPINT_CONFIG.get('mp_api', '')
 if MP_API:
     os.environ['MAPI_KEY'] = MP_API

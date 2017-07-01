@@ -28,13 +28,14 @@ class TestInstrument(unittest.TestCase):
         incar= Incar.from_file(TEST_STEP1+os.sep+'INCAR')
         kpoints = Kpoints.from_file(TEST_STEP1+os.sep+'KPOINTS')
         poscar = Poscar.from_file(TEST_STEP1+os.sep+'POSCAR')
-        potcar = Potcar.from_dict({'@class': 'Potcar', 'functional': 'PBE',\
-                                   'symbols': ['Al'], '@module': 'pymatgen.io.vasp.inputs'})
+        potcar = TEST_STEP1+os.sep+'DUMMY_POTSPEC'
+        #potcar = #Potcar.from_dict({'@class': 'Potcar', 'functional': 'PBE',\
+                  #                 'symbols': ['Al'], '@module': 'pymatgen.io.vasp.inputs'})
         reuse_path = [TEST_STEP1 + os.sep + 'COPY_FILE']
         print (reuse_path)
-        mvis = MPINTVaspInputSet(name,incar,poscar,potcar,kpoints,reuse_path=reuse_path)
+        mvis = MPINTVaspInputSet(name,incar,poscar,potcar,kpoints,reuse_path=reuse_path,test=True)
         mvis.write_input(job_dir=TEST_STEP2)
-        self.assertEqual(os.listdir(TEST_STEP2), ['INCAR','POSCAR','POTCAR','KPOINTS','COPY_FILE'])
+        self.assertCountEqual(os.listdir(TEST_STEP2), ['INCAR','KPOINTS','POSCAR','COPY_FILE'])
         cleanup = [os.remove(TEST_STEP2+os.sep+f) for f in os.listdir(TEST_STEP2)]
 
 if __name__ == '__main__':

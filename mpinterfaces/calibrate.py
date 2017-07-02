@@ -85,7 +85,7 @@ class Calibrate(MSONable):
                  reuse_override=None, reuse_incar=None, solvation=None,
                  turn_knobs=OrderedDict([('ENCUT', []),
                                          ('KPOINTS', [])]),
-                 checkpoint_file=None, cal_logger=None):
+                 checkpoint_file=None, finer_kpoint=None, cal_logger=None):
         """
         Calibrate constructor
 
@@ -205,6 +205,7 @@ class Calibrate(MSONable):
         self.reuse_incar = reuse_incar
         self.reuse_override = reuse_override
         self.reuse_paths = None  # list object communicated to instrument
+        self.finer_kpoint = finer_kpoint
         self.functional = functional
         self.checkpoint_file = checkpoint_file
         if cal_logger:
@@ -487,6 +488,16 @@ class Calibrate(MSONable):
                                                           ibz=HighSymmKpath(
                                                               poscar.structure))
 
+            elif self.Grid_type == 'D':
+                self.kpoints = Kpoints.automatic_density(structure=poscar.structure,kppa=kpoint)
+
+            elif self.Grid_type == 'Finer_G_Mesh':
+                # kpoint is the scaling factor and self.kpoints is the old kpoint mesh
+                self.logger.info('Setting Finer G Mesh for {0} by scale {1}'.format(kpoint, self.finer_kpoint))
+                self.kpoints = Kpoints.gamma_automatic(kpts = \
+                   [i * self.finer_kpoint for i in kpoint])
+                self.logger.info('Finished scaling operation of k-mesh')
+
         # applicable for database runs
         # future constructs or settinsg can be activated via a yaml file
         # database yaml file or better still the input deck from its speification
@@ -612,7 +623,6 @@ class Calibrate(MSONable):
                                          format(pos))
                         # check if it is KPOINTS altering job like HSE
                         if self.Grid_type == 'hse_bands_2D_prep':
-                            print ('passed grid type if')
                             # HSE prep calcualtions
                             # reset the INCAR file with a magmom only if exists
                             try:
@@ -621,7 +631,6 @@ class Calibrate(MSONable):
                             except:
                                 incar_dict = {}
                             incar_dict = get_2D_incar_hse_prep(incar_dict)
-                            print ('passed incar_dict update')
                             self.set_kpoints(poscar=poscar)
                             self.logger.info(
                                 'updated input set for HSE 2D prep calcaultion')
@@ -645,6 +654,11 @@ class Calibrate(MSONable):
                         elif self.Grid_type == 'hse_bands':
                             # general HSE bands
                             pass
+
+                        elif self.Grid_type == 'Finer_G_Mesh':
+                            self.logger.info('updating to Finer G Mesh')
+                            kpoint = Kpoints.from_file(pos+os.sep+'KPOINTS')
+                            self.set_kpoints(kpoint=kpoint.kpts[0])
 
                         else:
                             # use the same kpoints file and build from the old
@@ -728,7 +742,6 @@ class Calibrate(MSONable):
                         # check what to do if the previous calculation being reused is not
                         # actuall done .. system exit or adopt a user override
                         # with POSCAR
-                        print (print_exception())
                         self.logger.warn(
                             'Empty relaxed CONTCAR file .. Probably job not done')
                         if not self.reuse_override:

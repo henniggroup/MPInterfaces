@@ -44,7 +44,11 @@ def get_band_edges():
     eigenvals = vasprun.eigenvalues
     efermi = vasprun.efermi - evac
 
-    if bs.is_spin_polarized:
+    if bs.is_metal():
+        edges = {'up_cbm': None, 'up_vbm': None, 'dn_cbm': None, 'dn_vbm': None,
+                 'efermi': efermi}
+
+    elif bs.is_spin_polarized:
         up_cbm = min(
             [min([e[0] for e in eigenvals[Spin.up][i] if not e[1]])
              for i in range(len(eigenvals[Spin.up]))]) - evac
@@ -61,14 +65,10 @@ def get_band_edges():
                  'dn_vbm': dn_vbm, 'efermi': efermi}
 
     else:
-        if bs.is_metal:
-            edges = {'up_cbm': None, 'up_vbm': None, 'dn_cbm': None, 'dn_vbm': None,
-                     'efermi': efermi}
-        else:
-            cbm = bs.get_cbm()['energy'] - evac
-            vbm = bs.get_vbm()['energy'] - evac
-            edges = {'up_cbm': cbm, 'up_vbm': vbm, 'dn_cbm': cbm, 'dn_vbm': vbm,
-                     'efermi': efermi}
+        cbm = bs.get_cbm()['energy'] - evac
+        vbm = bs.get_vbm()['energy'] - evac
+        edges = {'up_cbm': cbm, 'up_vbm': vbm, 'dn_cbm': cbm, 'dn_vbm': vbm,
+                 'efermi': efermi}
 
     return edges
 

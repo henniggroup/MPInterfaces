@@ -308,7 +308,7 @@ def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
     # Calculated with the relax() function in
     # mat2d.stability.startup. If you are using other input
     # parameters, you need to recalculate these values!
-    ion_ev_fu = {'Li': -1.838, 'Mg': 0.620, 'Al': -3.291}
+    ion_ev_fu = {'Li': -0.925, 'Na': 0.937, 'Mg': 2.236, 'Al': -2.250}
 
     if charge is None:
         charge = Element(ion).common_oxidation_states[0]
@@ -410,7 +410,8 @@ def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
     ax.text(0.99, 0.002, r'$\mathrm{%s}$' % ion, family='serif', size=24,
             horizontalalignment='right')
 
-    ax.set_xticklabels(ax.get_xticks(), family='serif', size=20)
+    ax.set_xticklabels([int(xt)*100 for xt in ax.get_xticks()], family='serif',
+                       size=20)
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
     ax2.set_yticklabels(ax2.get_yticks(), family='serif', size=20)
 

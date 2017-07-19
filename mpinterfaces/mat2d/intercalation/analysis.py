@@ -342,6 +342,95 @@ def get_interstitial_sites(structure, octahedra=False, unique=False):
     return interstitials
 
 
+def get_coordination_polyhedra(structure, cation, anion="O"):
+
+    r_c, r_a = Element(cation).atomic_radius, Element(anion).atomic_radius
+
+    st = structure.copy()
+    if len([s for s in st.sites if s.specie.symbol == anion]) < 8:
+        st.make_supercell(2)
+    cations = [s for s in st.sites if s.specie.symbol == cation]
+    uc_tetrahedra, uc_octahedra = [], []
+    for s in cations:
+        anion_shell = [a[0] for a in st.get_neighbors(s, (r_c+r_a)*1.1)]
+        if len(anion_shell) == 4:
+            uc_tetrahedra.append(
+                [tuple([round(c, 3) for c in a.coords]) for a in anion_shell])
+        elif len(anion_shell) == 6:
+            uc_octahedra.append(
+                [tuple([round(c, 3) for c in a.coords]) for a in anion_shell])
+
+    st.make_supercell(2)
+    cations = [s for s in st.sites if s.specie.symbol == cation]
+    tetrahedra, octahedra = [], []
+    for s in cations:
+        anion_shell = [a[0] for a in st.get_neighbors(s, (r_c+r_a)*1.1)]
+        if len(anion_shell) == 4:
+            tetrahedra.append(
+                [tuple([round(c, 3) for c in a.coords]) for a in anion_shell])
+        elif len(anion_shell) == 6:
+            octahedra.append(
+                [tuple([round(c, 3) for c in a.coords]) for a in anion_shell])
+
+    t_corner, t_edge, t_face = [], [], []
+    o_corner, o_edge, o_face = [], [], []
+    if len(tetrahedra) != 0:
+        for i in range(len(tetrahedra)):
+            t1 = tetrahedra[i]
+            for j in range(i+1, len(tetrahedra)):
+                t2 = tetrahedra[j]
+                shared = list(set(t1) & set(t2))
+                if len(shared) == 1:
+                    # Corner sharing
+                    if t1 in uc_tetrahedra and t1 not in t_corner:
+                        t_corner.append(t1)
+                    if t2 in uc_tetrahedra and t2 not in t_corner:
+                        t_corner.append(t2)
+                elif len(shared) == 2:
+                    # Edge sharing
+                    if t1 in uc_tetrahedra and t1 not in t_edge:
+                        t_edge.append(t1)
+                    if t2 in uc_tetrahedra and t2 not in t_edge:
+                        t_edge.append(t2)
+                elif len(shared) == 3:
+                    # Face sharing
+                    if t1 in uc_tetrahedra and t1 not in t_face:
+                        t_face.append(t1)
+                    if t2 in uc_tetrahedra and t2 not in t_face:
+                        t_face.append(t2)
+    if len(octahedra) != 0:
+        for i in range(len(octahedra)):
+            o1 = octahedra[i]
+            for j in range(i+1, len(octahedra)):
+                o2 = octahedra[j]
+                shared = list(set(o1) & set(o2))
+                if len(shared) == 1:
+                    # Corner sharing
+                    if o1 in uc_octahedra and o1 not in o_corner:
+                        o_corner.append(o1)
+                    if o2 in uc_octahedra and o2 not in o_corner:
+                        o_corner.append(o2)
+                elif len(shared) == 2:
+                    # Edge sharing
+                    if o1 in uc_octahedra and o1 not in o_edge:
+                        o_edge.append(o1)
+                    if o2 in uc_octahedra and o2 not in o_edge:
+                        o_edge.append(o2)
+                elif len(shared) == 3:
+                    # Face sharing
+                    if o1 in uc_octahedra and o1 not in o_face:
+                        o_face.append(o1)
+                    if o2 in uc_octahedra and o2 not in o_face:
+                        o_face.append(o2)
+
+    polyhedra = {
+        "tetrahedra": {"corner": t_edge, "edge": t_corner, "face": t_face},
+        "octahedra": {"corner": o_edge, "edge": o_corner, "face": o_face}
+    }
+    return polyhedra
+
+
+
 def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
     """
     Plots the phase diagram between the pure material and pure ion,

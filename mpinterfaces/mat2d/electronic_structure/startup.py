@@ -95,7 +95,7 @@ def run_hse_prep_calculation(dim=2, submit=True):
     os.chdir('hse_prep')
     shutil.copy('../CONTCAR',  'POSCAR')
     if os.path.isfile('../POTCAR'):
-        shutil.copy('POTCAR', '.')
+        shutil.copy('../POTCAR', '.')
     relax(dim=2, submit=False)
     incar_dict = Incar.from_file('INCAR').as_dict()
     incar_dict.update({'NSW': 0, 'NELM': 1, 'LWAVE': False, 'LCHARG': False,

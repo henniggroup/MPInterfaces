@@ -385,15 +385,28 @@ def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt="pdf"):
         i += 2
 
     path_lengths, kpt_distances = [], [0]
+    discontinuity = False
     for i in range(1, len(vertices)):
-        path_lengths.append(euclidean(vertices[i][:3],vertices[i-1][:3]))
-    total_length = sum(path_lengths)
+        if discontinuity:
+            path_lengths.append(0)
+        else:
+            path_lengths.append(euclidean(vertices[i][:3],vertices[i-1][:3]))
+
+        if i < len(vertices)-1 and vertices[i][3] != vertices[i-1][3] and\
+                vertices[i][3] != vertices[i+1][3] and not discontinuity:
+            discontinuity = True
+        else:
+            discontinuity = False
 
     n_kpt_divs = len(bs_kpoints) / float(len(path_lengths))
 
     x, j = 0, 0
     for i in range(1, len(bs_kpoints)):
-        x += euclidean(bs_kpoints[i][:3], bs_kpoints[i-1][:3])
+        if len(bs_kpoints[i]) == 4 and len(bs_kpoints[i-1]) == 4 and \
+                bs_kpoints[i][3] != bs_kpoints[i-1][3]:
+            x += 0
+        else:
+            x += euclidean(bs_kpoints[i][:3], bs_kpoints[i-1][:3])
         kpt_distances.append(x)
 
     ax = plt.figure(figsize=(11, 8.5)).gca()
@@ -418,10 +431,16 @@ def plot_band_structure(ylim=(-5, 5), draw_fermi=False, fmt="pdf"):
             horizontalalignment="center")
     for i in range(len(path_lengths)):
         d += path_lengths[i]
-        ax.text(d, ylim[0]*1.05, r"$\mathrm{%s}$" % vertices[i+1][-1],
-                fontproperties=font, verticalalignment="top",
-                horizontalalignment="center")
-        ax.plot([d, d], [ylim[0], ylim[1]], 'k--')
+        if i < len(path_lengths)-1 and path_lengths[i+1] == 0 and\
+                vertices[i+1][-1] != vertices[i+2][-1]:
+            label = "{}|{}".format(vertices[i+1][-1], vertices[i+2][-1])
+        else:
+            label = vertices[i+1][-1]
+        if path_lengths[i] != 0:
+            ax.text(d, ylim[0]*1.05, r"$\mathrm{%s}$" % label,
+                    fontproperties=font, verticalalignment="top",
+                    horizontalalignment="center")
+            ax.plot([d, d], [ylim[0], ylim[1]], 'k--')
 
     ax.set_ylim(ylim)
     ax.set_ylabel(r"$\mathrm{E - E_F (eV)}$", fontproperties=large_font)

@@ -111,7 +111,7 @@ def plot_gamma_surface(fmt='pdf'):
     os.chdir('friction/lateral')
 
     static_dirs = [d.split('x') for d in os.listdir(os.getcwd())
-                   if 'x' in d and len(d) == 3]
+                   if 'x' in d and os.path.isdir(d)]
 
     n_divs_x = max([int(d[0]) for d in static_dirs])
     n_divs_y = max([int(d[1]) for d in static_dirs])
@@ -219,13 +219,13 @@ def get_basin_and_peak_locations():
     os.chdir('friction/lateral')
 
     static_dirs = [d.split('x') for d in os.listdir(os.getcwd())
-                   if 'x' in d and len(d) == 3]
+                   if 'x' in d and os.path.isdir(d)]
 
     n_divs_x = max([int(d[0]) for d in static_dirs])
     n_divs_y = max([int(d[1]) for d in static_dirs])
 
-    x_values = range(n_divs_x)
-    y_values = range(n_divs_y)
+    x_values = range(n_divs_x + 1)
+    y_values = range(n_divs_y + 1)
 
     abs_maximum = -np.Infinity
     abs_minimum = np.Infinity

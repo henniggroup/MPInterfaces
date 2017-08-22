@@ -967,11 +967,6 @@ def write_potcar(pot_path=VASP_PSP, types='None'):
                         sorted_types.append(t)
 
         potentials = []
-        for i in range(len(elements)):
-            if types[i] == '':
-                pass
-            else:
-                elements[i] += '_{}'.format(types[i])
 
         # Create paths, open files, and write files to
         # POTCAR for each potential.

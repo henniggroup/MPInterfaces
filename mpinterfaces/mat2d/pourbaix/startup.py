@@ -7,6 +7,7 @@ from monty.serialization import loadfn
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
+from pymatgen.io.vasp.inputs import Incar
 from pymatgen.io.vasp.outputs import Vasprun
 
 from mpinterfaces import MPR
@@ -96,8 +97,9 @@ def relax_references(potcar_types, incar_dict, submit=True,
         os.chdir(elt)
         s = MPR.get_structure_by_material_id(REFERENCE_MPIDS[elt]['element'])
         s.to('POSCAR', 'POSCAR')
-        relax(dim=3, incar_dict=incar_dict, submit=submit,
-              force_overwrite=force_overwrite)
+        relax(dim=3, submit=submit, force_overwrite=force_overwrite)
+        incar_dict.update({"MAGMOM": utl.get_magmom_string(s)})
+        Incar.from_dict(incar_dict).write_file("INCAR")
         utl.write_potcar(types=[element])
 
         # Then set up a relaxation for its reference oxide.
@@ -107,8 +109,9 @@ def relax_references(potcar_types, incar_dict, submit=True,
             os.chdir('oxide')
             s = MPR.get_structure_by_material_id(REFERENCE_MPIDS[elt]['oxide'])
             s.get_sorted_structure().to('POSCAR', 'POSCAR')
-            relax(dim=3, incar_dict=incar_dict, submit=submit,
-                  force_overwrite=force_overwrite)
+            relax(dim=3, submit=submit, force_overwrite=force_overwrite)
+            incar_dict.update({"MAGMOM": utl.get_magmom_string(s)})
+            Incar.from_dict(incar_dict).write_file("INCAR")
             utl.write_potcar(types=[element, oxygen_potcar])
 
             os.chdir('../')

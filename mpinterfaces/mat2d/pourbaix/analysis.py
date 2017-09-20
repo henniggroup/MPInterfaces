@@ -140,8 +140,8 @@ def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6, fmt='pdf'):
     pourbaix = PourbaixDiagram(all_entries)
 
     # Analysis features
-    # panalyzer = PourbaixAnalyzer(pourbaix)
-    # instability = panalyzer.get_e_above_hull(pbx_cmpd)
+    panalyzer = PourbaixAnalyzer(pourbaix)
+    instability = panalyzer.get_e_above_hull(pbx_cmpd)
 
     plotter = PourbaixPlotter(pourbaix)
     plot = plotter.get_pourbaix_plot(limits=[[0, 14], [-2, 2]],
@@ -183,4 +183,4 @@ def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6, fmt='pdf'):
 
     plot.close()
 
-#    return instability
+    return instability

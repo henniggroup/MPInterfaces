@@ -22,7 +22,7 @@ import socket
 import time
 import subprocess as sp
 import logging
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 import yaml
 
 import numpy as np
@@ -37,6 +37,7 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import _pt_data
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -58,6 +59,8 @@ __status__ = "Production"
 __date__ = "March 3, 2017"
 
 logger = get_default_logger(__name__)
+
+ELEMENT_RADII = {i: Element(i).atomic_radius for i in _pt_data}
 
 
 def get_ase_slab(pmg_struct, hkl=(1, 1, 1), min_thick=10, min_vac=10):
@@ -809,122 +812,129 @@ def align_axis(structure, axis='c', direction=(0, 0, 1)):
     return structure
 
 
-def get_structure_type(structure, write_poscar_from_cluster=False):
+def get_structure_type(structure, tol=0.1, seed_index=0,
+                       write_poscar_from_cluster=False):
+
     """
     This is a topology-scaling algorithm used to describe the
     periodicity of bonded clusters in a bulk structure.
-
     Args:
         structure (structure): Pymatgen structure object to classify.
+        tol (float): Additional percent of atomic radii to allow
+            for overlap, thereby defining bonds
+            (0.1 = +10%, -0.1 = -10%)
+        seed_index (int): Atom number to start the cluster.
         write_poscar_from_cluster (bool): Set to True to write a
-            POSCAR from the sites in the cluster.
-
+            POSCAR file from the sites in the cluster.
     Returns:
-        string. 'molecular' (0D), 'chain', 'layered', 'heterogeneous'
-            (intercalated 3D), or 'conventional' (3D)
+        string. "molecular" (0D), "chain" (1D), "layered" (2D), or
+            "conventional" (3D). Also includes " heterogeneous"
+            if the cluster's composition is not equal to that
+            of the overal structure.
     """
 
-    # The conventional standard structure is much easier to work
-    # with.
+    # Get conventional structure to orthogonalize the lattice as
+    # much as possible. A tolerance of 0.1 Angst. was suggested by
+    # pymatgen developers.
+    s = SpacegroupAnalyzer(structure, 0.1).get_conventional_standard_structure()
+    heterogeneous = False
 
-    structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
-
-    # Noble gases don't have well-defined bonding radii.
-    if len([e for e in structure.composition
-            if e.symbol in ['He', 'Ne', 'Ar', 'Kr', 'Xe']]) != 0:
-        type = 'noble gas'
+    noble_gases = ["He", "Ne", "Ar", "Kr", "Xe", "Rn"]
+    if len([e for e in structure.composition if e.symbol in noble_gases]) != 0:
+        type = "noble gas"
     else:
-        if len(structure.sites) < 45:
-            structure.make_supercell(2)
+        # make 2x2x2 supercell to ensure sufficient number of atoms
+        # for cluster building.
+        s.make_supercell(2)
 
-        # Create a dict of sites as keys and lists of their
-        # bonded neighbors as values.
-        sites = structure.sites
-        bonds = {}
-        for site in sites:
-            bonds[site] = []
+        # Distance matrix (rowA, columnB) shows distance between
+        # atoms A and B, taking PBCs into account.
+        distance_matrix = s.distance_matrix
 
-        for i in range(len(sites)):
-            site_1 = sites[i]
-            for site_2 in sites[i+1:]:
-                if (site_1.distance(site_2) <
-                            float(Element(site_1.specie).atomic_radius
-                                      + Element(site_2.specie).atomic_radius) * 1.1):
-                    bonds[site_1].append(site_2)
-                    bonds[site_2].append(site_1)
+        # Fill diagonal with a large number, so the code knows that
+        # each atom is not bonded to itself.
+        np.fill_diagonal(distance_matrix, 100)
 
-        # Assimilate all bonded atoms in a cluster; terminate
-        # when it stops growing.
-        cluster_terminated = False
-        while not cluster_terminated:
-            original_cluster_size = len(bonds[sites[0]])
-            for site in bonds[sites[0]]:
-                bonds[sites[0]] += [
-                    s for s in bonds[site] if s not in bonds[sites[0]]]
-            if len(bonds[sites[0]]) == original_cluster_size:
-                cluster_terminated = True
+        # Rows (`radii`) and columns (`radiiT`) of radii.
+        radii = [ELEMENT_RADII[site.species_string] for site in s.sites]
+        radiiT = np.array(radii)[np.newaxis].T
+        radii_matrix = radii + radiiT*(1+tol)
 
-        original_cluster = bonds[sites[0]]
+        # elements of temp that have value less than 0 are bonded.
+        temp = distance_matrix - radii_matrix
+        # True (1) is placed where temp < 0, and False (0) where
+        # it is not.
+        binary_matrix = (temp < 0).astype(int)
 
-        if len(bonds[sites[0]]) == 0:  # i.e. the cluster is a single atom.
-            type = 'molecular'
-        elif len(bonds[sites[0]]) == len(sites): # i.e. all atoms are bonded.
-            type = 'conventional'
-        else:
-            # If the cluster's composition is not equal to the
-            # structure's overall composition, it is a heterogeneous
-            # compound.
-            cluster_composition_dict = {}
-            for site in bonds[sites[0]]:
-                if Element(site.specie) in cluster_composition_dict:
-                    cluster_composition_dict[Element(site.specie)] += 1
-                else:
-                    cluster_composition_dict[Element(site.specie)] = 1
-            uniform = True
-            if len(cluster_composition_dict):
-                cmp = Composition.from_dict(cluster_composition_dict)
-                if cmp.reduced_formula != structure.composition.reduced_formula:
-                    uniform = False
-            if not uniform:
-                type = 'heterogeneous'
+        # list of atoms bonded to the seed atom of a cluster
+        seed = set((np.where(binary_matrix[seed_index]==1))[0])
+        cluster  = seed
+        NEW = seed
+        while True:
+            temp_set = set()
+            for n in NEW:
+                # temp_set will have all atoms, without duplicates,
+                # that are connected to all atoms in NEW.
+                temp_set.update(set(np.where(binary_matrix[n]==1)[0]))
+
+            if temp_set.issubset(cluster):
+                # if temp_set has no new atoms, the search is done.
+                break
             else:
-                # Make a 2x2x2 supercell and recalculate the
-                # cluster's new size. If the new cluster size is
-                # the same as the old size, it is a non-periodic
-                # molecule. If it is 2x as big, it's a 1D chain.
-                # If it's 4x as big, it is a layered material.
-                old_cluster_size = len(bonds[sites[0]])
-                structure.make_supercell(2)
-                sites = structure.sites
-                bonds = {}
-                for site in sites:
-                    bonds[site] = []
+                NEW = temp_set - cluster # List of newly discovered atoms
+                cluster.update(temp_set) # cluster is updated with new atoms
 
-                for i in range(len(sites)):
-                    site_1 = sites[i]
-                    for site_2 in sites[i+1:]:
-                        if (site_1.distance(site_2) <
-                                float(Element(site_1.specie).atomic_radius
-                                + Element(site_2.specie).atomic_radius) * 1.1):
-                            bonds[site_1].append(site_2)
-                            bonds[site_2].append(site_1)
+        if len(cluster) == 0:  # i.e. the cluster is a single atom.
+            type = "molecular"
 
-                cluster_terminated = False
-                while not cluster_terminated:
-                    original_cluster_size = len(bonds[sites[0]])
-                    for site in bonds[sites[0]]:
-                        bonds[sites[0]] += [
-                            s for s in bonds[site] if s not in bonds[sites[0]]]
-                    if len(bonds[sites[0]]) == original_cluster_size:
-                        cluster_terminated = True
+        elif len(cluster) == len(s.sites): # i.e. all atoms are bonded.
+            type = "conventional"
 
-                if len(bonds[sites[0]]) != 4 * old_cluster_size:
-                    type = 'molecular'
+        else:
+            cmp = Composition.from_dict(Counter([s[l].specie.name for l in
+                                        list(cluster)]))
+            if cmp.reduced_formula != s.composition.reduced_formula:
+                # i.e. the cluster does not have the same composition
+                # as the overall crystal; therefore there are other
+                # clusters of varying composition.
+                heterogeneous = True
+
+            old_cluster_size = len(cluster)
+            # Increase structure to determine whether it is
+            # layered or molecular, then perform the same kind
+            # of cluster search as before.
+            s.make_supercell(2)
+            distance_matrix = s.distance_matrix
+            np.fill_diagonal(distance_matrix,100)
+            radii = [ELEMENT_RADII[site.species_string] for site in s.sites]
+            radiiT = np.array(radii)[np.newaxis].T
+            radii_matrix = radii + radiiT*(1+tol)
+            temp = distance_matrix-radii_matrix
+            binary_matrix = (temp < 0).astype(int)
+
+            seed = set((np.where(binary_matrix[seed_index]==1))[0])
+            cluster  = seed
+            NEW = seed
+            check = True
+            while check:
+                temp_set = set()
+                for n in NEW:
+                    temp_set.update(set(np.where(binary_matrix[n]==1)[0]))
+
+                if temp_set.issubset(cluster):
+                    check = False
                 else:
-                    type = 'layered'
+                    NEW = temp_set - cluster
+                    cluster.update(temp_set)
 
+            if len(cluster) != 4 * old_cluster_size:
+                type = "molecular"
+            else:
+                type = "layered"
+    if heterogeneous:
+        type += " heterogeneous"
     if write_poscar_from_cluster:
-        Structure.from_sites(original_cluster).to('POSCAR', 'POSCAR')
+        s.from_sites(cluster).to("POSCAR", "POSCAR")
 
     return type
 
@@ -967,11 +977,6 @@ def write_potcar(pot_path=VASP_PSP, types='None'):
                         sorted_types.append(t)
 
         potentials = []
-        for i in range(len(elements)):
-            if types[i] == '':
-                pass
-            else:
-                elements[i] += '_{}'.format(types[i])
 
         # Create paths, open files, and write files to
         # POTCAR for each potential.

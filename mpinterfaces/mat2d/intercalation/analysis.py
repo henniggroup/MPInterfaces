@@ -292,7 +292,7 @@ def get_interstitial_sites(structure, octahedra=False):
     return interstitials
 
 
-def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
+def plot_ion_hull_and_voltages(ion, charge="default", fmt='pdf'):
     """
     Plots the phase diagram between the pure material and pure ion,
     Connecting the points on the convex hull of the phase diagram.
@@ -308,9 +308,9 @@ def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
     # Calculated with the relax() function in
     # mat2d.stability.startup. If you are using other input
     # parameters, you need to recalculate these values!
-    ion_ev_fu = {'Li': -0.925, 'Na': 0.937, 'Mg': 2.236, 'Al': -2.250}
+    ion_ev_fu = {'Li': -0.914, 'Na': 0.938, 'Mg': 1.119, 'Al': -2.299}
 
-    if charge is None:
+    if charge == "default":
         charge = Element(ion).common_oxidation_states[0]
 
     energy = Vasprun('vasprun.xml').final_energy
@@ -329,7 +329,7 @@ def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
     twod_ev_fu = energy / composition.get_reduced_composition_and_factor()[1]
 
     data = [(0, 0, 0, twod_ev_fu)]  # (at% ion, n_ions, E_F, abs_energy)
-    dirs = [dir for dir in os.listdir(os.getcwd()) if os.path.isdir(dir)]
+    dirs = [dir for dir in os.listdir(os.getcwd()) if os.path.isdir(dir) and ion in dir]
     for directory in dirs:
         if is_converged(directory):
             os.chdir(directory)
@@ -399,18 +399,18 @@ def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
 
     ax.plot([0, 1], [0, 0], 'k--')
     ax.plot(convex_ion_fractions, convex_formation_energies, 'b-', marker='o',
-            markersize=12, markeredgecolor='none')
+            markersize=18, markeredgecolor='none', linewidth=10)
     ax.plot(concave_ion_fractions, concave_formation_energies, 'r', marker='o',
-            linewidth=0, markersize=12, markeredgecolor='none')
+            linewidth=0, markersize=18, markeredgecolor='none')
 
     ax2 = ax.twinx()
-    ax2.plot(voltage_profile_x, voltage_profile_y, 'k-', marker='o')
+    ax2.plot(voltage_profile_x, voltage_profile_y, 'k--', marker='o', linewidth=10)
 
     ax.text(0, 0.002, r'$\mathrm{%s}$' % twod_formula, family='serif', size=24)
     ax.text(0.99, 0.002, r'$\mathrm{%s}$' % ion, family='serif', size=24,
             horizontalalignment='right')
 
-    ax.set_xticklabels([int(xt)*100 for xt in ax.get_xticks()], family='serif',
+    ax.set_xticklabels([int(xt*100) for xt in ax.get_xticks()], family='serif',
                        size=20)
     ax.set_yticklabels(ax.get_yticks(), family='serif', size=20)
     ax2.set_yticklabels(ax2.get_yticks(), family='serif', size=20)
@@ -428,4 +428,4 @@ def plot_ion_hull_and_voltages(ion, charge=None, fmt='pdf'):
 
     plt.savefig('{}_hull.{}'.format(ion, fmt), transparent=True)
 
-    return capacity  # In mAh/g
+    return (int(max_ions), capacity, voltage_profile)  # In mAh/g

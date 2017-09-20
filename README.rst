@@ -27,7 +27,7 @@ as well as their open source tools_ and a little bit of ase_.
 Installation
 ==============
 
-Prepping - Setting up Virtual Environments
+Prepping - Setting up Virtual Environments with Miniconda
 -------------------------------
 
 We recommend setting up virtual environment
@@ -37,40 +37,58 @@ Follow the following steps to set up virtual environment using Miniconda
 
 $ conda create -n name_of_your_environment python=3.6
 
-On Windows:
-
-$ activate name_of_your_environment
-
 On Mac OS and Linux
 
 $ source activate name_of_your_environment
 
-$ conda install numpy
+$ conda install numpy scipy matplotlib ipython
 
-Note for HiperGator2:
+On Windows:
 
-As of now python/2.7.10 with gcc/5.2.0 has all the shared libraries
+$ activate name_of_your_environment
+
+Note: You will need to have C++ libraries properly
+installed for the package to install correctly on Windows.
+
+For teaching and demo purposes, we recommend using Microsoft Azure notebooks, 
+an example of which is at https://notebooks.azure.com/JoshGabriel92/libraries/PourbaixCourse
+which contains two notebooks that illustrate installing pymatgen and pyhull for on the fly
+data science tutorials. We have one notebook FeOH_Example.ipynb for Pourbaix diagrams and an MPInterfacesDemo that illustrate other features of the MPInterfaces code with more to come.
+
+Note for SuperComputer Clusters with Linux OS:
+
+HiperGator2 and other linux based supercomputing clusters
+have shared modules one of which are the C++ modules under gcc.
+This needs to be loaded before any of the aforementioned 
+gcc/5.2.0 has all the shared libraries
 required for a successful installation.
 
-Follow the following steps on HiperGator2:
+Do the following on HiperGator2 before you create
+the Miniconda environment:
 
-$ module load gcc/5.2.0 python/2.7.10
+$ module purge 
+$ module load gcc/5.2.0
 
-Note: Use a virtualenv of version more than 15.1
+Get the stable release version from PyPI
+----------------------------------------
 
-$ python virtualenv.X.X.X/virtualenv.py <name_of_your_environment>
+Once you have a nicely prepped virtual environment with miniconda
+and you do not seek to do extensive code development/contributions, 
+we recommend installing from PyPI with:
 
-$ source name_of_your_environment/bin/activate
+$ pip install MPInterfaces_Latest
 
-Get the latest version
------------------------
+Get the latest bleeding edge version 
+------------------------------------
 
+If you would like to develop and contribute we recommend getting the bleeding edge 
+copy from the github repository.
+ 
 If you already have a local copy, steps 1 and 2 of the following instructions
 can be skipped. Just do a "git pull" from the MPInterfaces folder and go to
 step 3(if the local copy was installed in the develop mode this step can be skipped too).
 
 Note: on using virtual environments on your own machine, we recommend to use Miniconda.
-On shared clusters that may have conflicts with shared libraries we recommend using virtualenv
 
 1. Clone the latest version from github
 
@@ -87,11 +105,11 @@ On shared clusters that may have conflicts with shared libraries we recommend us
 
    - MAPI_KEY=the_key_obtained_from_materialsproject
 
-   - VASP_PSP_DIR=path_to_vasp_potcar_files
+   - PMG_VASP_PSP_DIR=path_to_vasp_potcar_files
 
 
 How to Install Latest Pymatgen
--------------
+------------------------------
 
 See http://pymatgen.org/#getting-pymatgen
 

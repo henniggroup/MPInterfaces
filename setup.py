@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 MPINT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 setup(
-    name="mpinterfaces",
+    name="MPInterfaces_Latest",
     version="1.7.0",
     install_requires=["pymatgen>=4.7.0", "FireWorks>=1.4.0",
                       "custodian>=1.0.1", "pymatgen-db>=0.5.1",
@@ -18,6 +18,7 @@ setup(
     author="Kiran Mathew, Joshua J. Gabriel, Michael Ashton, "
            "Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, "
            "Richard G. Hennig",
+    author_email="joshgabriel92@gmail.com, kmathew@lbl.gov, ashtonmv@gmail.com",
     maintainer="Joshua J. Gabriel, Michael Ashton",
     maintainer_email="joshgabriel92@ufl.edu, ashtonmv@gmail.com",
     description=(

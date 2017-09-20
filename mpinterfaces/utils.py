@@ -885,6 +885,7 @@ def get_structure_type(structure, tol=0.1, seed_index=0,
                 cluster.update(temp_set) # cluster is updated with new atoms
 
         if len(cluster) == 0:  # i.e. the cluster is a single atom.
+            cluster = [seed_index]  # Make sure it's not empty to write POSCAR.
             type = "molecular"
 
         elif len(cluster) == len(s.sites): # i.e. all atoms are bonded.

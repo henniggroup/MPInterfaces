@@ -868,7 +868,7 @@ def get_structure_type(structure, tol=0.1, seed_index=0,
 
         # list of atoms bonded to the seed atom of a cluster
         seed = set((np.where(binary_matrix[seed_index]==1))[0])
-        cluster  = seed
+        cluster = seed
         NEW = seed
         while True:
             temp_set = set()
@@ -913,7 +913,7 @@ def get_structure_type(structure, tol=0.1, seed_index=0,
             binary_matrix = (temp < 0).astype(int)
 
             seed = set((np.where(binary_matrix[seed_index]==1))[0])
-            cluster  = seed
+            cluster = seed
             NEW = seed
             check = True
             while check:
@@ -933,8 +933,11 @@ def get_structure_type(structure, tol=0.1, seed_index=0,
                 type = "layered"
     if heterogeneous:
         type += " heterogeneous"
+
+    cluster_sites = [s.sites[n] for n in cluster]
     if write_poscar_from_cluster:
-        s.from_sites(cluster).to("POSCAR", "POSCAR")
+        s.from_sites(cluster_sites).get_primitive_structure().to("POSCAR",
+                                                                 "POSCAR")
 
     return type
 

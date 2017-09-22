@@ -130,6 +130,8 @@ class MWRester(object):
         sub_url = "/materials/%s" % (query)
         if prop:
             sub_url += "/" + prop
+
+        print(sub_url)
         return self._make_request(sub_url)
 
 
@@ -164,6 +166,18 @@ class MWRester(object):
         structures = [Structure.from_str(data[i][prop], fmt="json") for i in
                       range(len(data))]
         return structures
+
+
+    def get_maximum_material_id(self):
+        """
+        Return the highest material ID currently in the database.
+        Useful for indexing new materials to add.
+
+        Returns:
+            material ID (str): e.g. mw-745.
+        """
+        data = self.get_data(query="all", prop="ids")
+        return data[-1]
 
 
 class MWRestError(Exception):

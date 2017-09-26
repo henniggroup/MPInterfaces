@@ -131,7 +131,6 @@ class MWRester(object):
         if prop:
             sub_url += "/" + prop
 
-        print(sub_url)
         return self._make_request(sub_url)
 
 

@@ -56,7 +56,6 @@ def run_pbe_calculation(dim=2, submit=True, force_overwrite=False):
         structure = Structure.from_file("pbe_bands/POSCAR")
         if os.path.isfile("POTCAR"):
           shutil.copy("POTCAR", "pbe_bands")
-        shutil.copy("CHGCAR", "pbe_bands")
         PBE_INCAR_DICT.update(
             {'MAGMOM': get_magmom_string(structure)})
         Incar.from_dict(PBE_INCAR_DICT).write_file('pbe_bands/INCAR')

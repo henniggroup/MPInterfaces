@@ -55,7 +55,8 @@ def contains_entry(entry_list, entry):
     for ent in entry_list:
         if (ent.entry_id == entry.entry_id or
                 (abs(entry.energy_per_atom - ent.energy_per_atom) < 1e-6 and
-                     (entry.composition.reduced_formula == ent.composition.reduced_formula))):
+                     (entry.composition.reduced_formula ==
+                      ent.composition.reduced_formula))):
             return True
 
 
@@ -137,7 +138,8 @@ def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6, fmt='pdf'):
 
     all_entries = [pbx_cmpd] + pbx_ion_entries
 
-    pourbaix = PourbaixDiagram(all_entries)
+    comp_dict = {el: 1/len(elements) for el in elements}
+    pourbaix = PourbaixDiagram(all_entries, comp_dict=comp_dict)
 
     # Analysis features
     panalyzer = PourbaixAnalyzer(pourbaix)

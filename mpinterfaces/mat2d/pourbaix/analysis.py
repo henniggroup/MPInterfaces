@@ -23,6 +23,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.io.vasp.outputs import Vasprun
 
+import seaborn as sb
+
+
 __author__ = "Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
 __maintainer__ = "Michael Ashton"
@@ -37,7 +40,6 @@ ION_FORMATION_ENERGIES = loadfn(os.path.join(PACKAGE_PATH,
                                              'ion_formation_energies.yaml'))
 CHEMICAL_POTENTIALS = loadfn(os.path.join(PACKAGE_PATH,
                                           'chemical_potentials.yaml'))
-ION_COLORS = loadfn(os.path.join(PACKAGE_PATH, 'ion_colors.yaml'))
 
 
 def contains_entry(entry_list, entry):
@@ -139,50 +141,49 @@ def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6, fmt='pdf'):
     all_entries = [pbx_cmpd] + pbx_ion_entries
 
     comp_dict = {el.symbol: 1/len(elements) for el in elements}
-    pourbaix = PourbaixDiagram(all_entries, comp_dict=comp_dict)
+    pourbaix_diagram = PourbaixDiagram(all_entries, comp_dict=comp_dict)
 
-    # Analysis features
-    panalyzer = PourbaixAnalyzer(pourbaix)
-    instability = panalyzer.get_e_above_hull(pbx_cmpd)
+    plotter = PourbaixPlotter(pourbaix_diagram)
 
-    plotter = PourbaixPlotter(pourbaix)
-    plot = plotter.get_pourbaix_plot(limits=[[0, 14], [-2, 2]],
-                                     label_domains=True)
-    fig = plot.gcf()
+    # Plotting details...
+    font = "serif"
+    fig = plt.figure(figsize=(14, 9))
     ax1 = fig.gca()
+    ax1.set_xlim([0, 14])
+    ax1.set_xticklabels([int(t) for t in ax1.get_xticks()], fontname=font,
+                        fontsize=18)
+    ax1.set_ylim(-2, 2)
+    ax1.set_yticklabels(ax1.get_yticks(), fontname=font, fontsize=18)
+    ax1.set_xlabel("pH", fontname=font, fontsize=18)
+    ax1.set_ylabel("Potential vs. SHE (V)", fontname=font, fontsize=18)
 
-    # Add coloring to highlight the stability region for the 2D
-    # material, if one exists.
+    # Outline water's stability range.
+    ax1.plot([0, 14], [0, -0.829], color="gray", linestyle="--", alpha=0.7,
+             linewidth=2)
+    ax1.plot([0, 14], [1.229, 0.401], color="gray", linestyle="--", alpha=0.7,
+             linewidth=2)
+
+
     stable_entries = plotter.pourbaix_plot_data(
         limits=[[0, 14], [-2, 2]])[0]
 
-    for entry in stable_entries:
-        if entry == pbx_cmpd:
-            col = plt.cm.Blues(0)
-        else:
-            col = plt.cm.rainbow(float(
-                ION_COLORS[entry.composition.reduced_formula]))
+    # Add coloring.
+    colors = sb.color_palette("Set2", len(stable_entries))
 
+    i = 0
+    for entry in stable_entries:
+        col = colors[i]
+        i += 1
         vertices = plotter.domain_vertices(entry)
-        patch = Polygon(vertices, closed=True, fill=True, color=col)
+        center_x = sum([v[0] for v in vertices])/len(vertices)
+        center_y = sum([v[1] for v in vertices])/len(vertices)
+        patch = Polygon(vertices, closed=True, fill=True, facecolor=col,
+                        linewidth=2, edgecolor="w")
+        ax1.text(center_x, center_y, plotter.print_name(entry),
+                 verticalalignment="center", horizontalalignment="center",
+                 fontname=font, fontsize=18)
         ax1.add_patch(patch)
 
-    fig.set_size_inches((11.5, 9))
-    plot.tight_layout(pad=1.09)
-
-    # Save plot
-    if metastability:
-        plot.suptitle('Metastable Tolerance ='
-                      ' {} meV/atom'.format(metastability),
-                      fontsize=20)
-        plot.savefig('{}_{}.{}'.format(
-            composition.reduced_formula, ion_concentration, fmt),
-            transparent=True)
-    else:
-        plot.savefig('{}_{}.{}'.format(composition.reduced_formula,
-                                       ion_concentration, fmt),
-                     transparent=True)
+    plt.savefig("pourbaix.{}".format(fmt))
 
     plot.close()
-
-    return instability

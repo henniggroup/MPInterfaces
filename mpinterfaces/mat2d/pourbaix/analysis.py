@@ -186,4 +186,4 @@ def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6, fmt='pdf'):
 
     plt.savefig("pourbaix.{}".format(fmt))
 
-    plot.close()
+    plt.close()

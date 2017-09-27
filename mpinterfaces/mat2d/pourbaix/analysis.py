@@ -140,8 +140,8 @@ def plot_pourbaix_diagram(metastability=0.0, ion_concentration=1e-6, fmt='pdf'):
 
     all_entries = [pbx_cmpd] + pbx_ion_entries
 
-    total = sum([composition[el] for el in composition if el in elements])
-    comp_dict = {el.symbol: composition[el]/total for el in composition}
+    total = sum([composition[el] for el in elements])
+    comp_dict = {el.symbol: composition[el]/total for el in elements}
     pourbaix_diagram = PourbaixDiagram(all_entries, comp_dict=comp_dict)
 
     plotter = PourbaixPlotter(pourbaix_diagram)

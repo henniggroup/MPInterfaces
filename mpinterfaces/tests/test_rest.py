@@ -20,7 +20,7 @@ __date__ = "March 3, 2017"
 TEST_FILES_DIR = os.path.join(os.path.dirname(__file__), "..", "test_files")
 MWR = MWRester()
 
-
+"""
 class RestTest(unittest.TestCase):
 
     def test_get_data_for_mw_43(self):
@@ -47,3 +47,4 @@ class RestTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+"""

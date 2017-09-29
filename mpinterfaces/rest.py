@@ -87,7 +87,7 @@ class MWRester(object):
     def _make_request(self, sub_url, payload=None, method="GET",
                       mp_decode=True):
         response = None
-        url = self.preamble + sub_url
+        url = self.preamble + sub_url + "/" + self.api_key
         try:
             if method == "POST":
                 response = self.session.post(url, data=payload, verify=True)

@@ -134,6 +134,13 @@ class MWRester(object):
         return self._make_request(sub_url)
 
 
+    def get_entry_by_material_id(self, material_id):
+        """
+        """
+        data = self.get_data(material_id)
+        return data
+
+
     def get_structure_by_material_id(self, material_id, final=True):
         """
         Get a Structure corresponding to a material_id.
@@ -165,6 +172,17 @@ class MWRester(object):
         structures = [Structure.from_str(data[i][prop], fmt="json") for i in
                       range(len(data))]
         return structures
+
+
+    def get_all_material_ids(self):
+        """
+        Return a list of all active material ID's.
+
+        Returns:
+         material ID's (list).
+        """
+        data = self.get_data(query="all", prop="ids")
+        return data
 
 
     def get_maximum_material_id(self):

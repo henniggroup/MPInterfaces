@@ -24,7 +24,9 @@ import subprocess as sp
 import logging
 from collections import OrderedDict, Counter
 import yaml
-
+from argparse import ArgumentParser
+from glob import glob
+import shutil as shu
 import numpy as np
 
 from monty.json import MontyEncoder, MontyDecoder
@@ -42,14 +44,14 @@ from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from custodian.custodian import Custodian
+from custodian.vasp.handlers import VaspErrorHandler
 
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
-from ase.lattice.surface import surface
+from ase.build import surface
 
 from mpinterfaces.default_logger import get_default_logger
-from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM, QUEUE_TEMPLATE, VASP_PSP,\
- PACKAGE_PATH
+from mpinterfaces import *
 
 __author__ = "Kiran Mathew, Joshua J. Gabriel, Michael Ashton"
 __copyright__ = "Copyright 2017, Henniggroup"
@@ -195,7 +197,7 @@ def get_magmom_afm(poscar, database=None):
 
 
 def get_run_cmmnd(nnodes=1, ntasks=16, walltime='10:00:00', job_bin=None,
-                  job_name=None, mem=None):
+                  job_name=None, mem=None, partition='hpg1-compute'):
     """
     returns the fireworks CommonAdapter based on the queue
     system specified by mpint_config.yaml and the submit
@@ -205,13 +207,18 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='10:00:00', job_bin=None,
     """
     d = {}
     job_cmd = None
-    qtemp_file = open(QUEUE_TEMPLATE+'qtemplate.yaml')
+    qtemp_file = open(QUEUE_TEMPLATE+os.sep+'qtemplate.yaml')
     qtemp = yaml.load(qtemp_file)
     qtemp_file.close()
-    qtemp.update({'nodes': nnodes, 'ntasks':ntasks, 'walltime': walltime, \
+    qtemp.update({'nnodes': nnodes, 'ntasks':ntasks, 'walltime': walltime, \
                   'rocket_launch': job_bin, 'job_name':job_name,'mem':mem})
     # SLURM queue
     if QUEUE_SYSTEM == 'slurm':
+        qtemp['ntasks_per_node'] = int(qtemp['ntasks']/qtemp['nnodes'])
+        if qtemp['partition'] == 'hpg1-compute':
+            qtemp['ntasks_per_socket'] = int(qtemp['ntasks_per_node']/4)
+        elif qtemp['partition'] == 'hpg2-compute':
+           qtemp['ntasks_per_socket'] = int(qtemp['ntasks_per_node']/2)
         if job_bin is None:
             job_bin = VASP_STD_BIN
         else:

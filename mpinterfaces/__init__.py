@@ -9,7 +9,7 @@ import sys
 import operator
 import warnings
 
-from pymatgen.matproj.rest import MPRester
+from pymatgen.ext.matproj import MPRester
 
 from monty.serialization import loadfn
 

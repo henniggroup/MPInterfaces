@@ -261,6 +261,8 @@ def get_job_state(job):
             logger.info('Job {} not in the que'.format(job.job_id))
             state = "00"
         ofname = "FW_job.out"
+        err_file=glob(job.job_dir+os.sep+'*.error')[-1]
+        out_file = err_file.split('.')[0] + '.out'
 
     # slurm
     elif QUEUE_SYSTEM == 'slurm':
@@ -273,10 +275,13 @@ def get_job_state(job):
                 'This could mean either the batchsystem crashed(highly unlikely) or the job completed a long time ago')
             state = "00"
         ofname = "vasp_job-" + str(job.job_id) + ".out"
+        err_file=glob(job.job_dir+os.sep+'*.error')[-1]
+        out_file = err_file.split('.')[0] + '.out'
 
     # no batch system
     else:
         state = 'XX'
+        ofname = 'MPInt_Job.out'
     return state, ofname
 
 

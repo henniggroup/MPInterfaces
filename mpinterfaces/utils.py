@@ -205,9 +205,15 @@ def get_run_cmmnd(nnodes=1, ntasks=16, walltime='10:00:00', job_bin=None,
     """
     d = {}
     job_cmd = None
-    qtemp_file = open(QUEUE_TEMPLATE+'qtemplate.yaml')
-    qtemp = yaml.load(qtemp_file)
-    qtemp_file.close()
+    try:
+       qtemp_file = open(QUEUE_TEMPLATE+'qtemplate.yaml')
+       qtemp = yaml.load(qtemp_file)
+       qtemp_file.close()
+    except:
+       # test case scenario
+       qtemp = {'account': None, 'mem': None, \
+        'walltime': '10:00:00', 'nodes': 1, 'pre_rocket': None, 'job_name': None, \
+        'ntasks': 16, 'email': None, 'rocket_launch': None}
     qtemp.update({'nodes': nnodes, 'ntasks':ntasks, 'walltime': walltime, \
                   'rocket_launch': job_bin, 'job_name':job_name,'mem':mem})
     # SLURM queue

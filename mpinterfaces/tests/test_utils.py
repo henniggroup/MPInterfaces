@@ -124,14 +124,14 @@ class UtilsTest(unittest.TestCase):
         test_file.close()
         control_file.close()
 
-#    def test_get_run_cmmnd(self):
-#        os.chdir(os.path.join(ROOT, '../../../../'))
-#        QUEUE_SYSTEM='slurm'
-#        trial_output = get_run_cmmnd()
-#        correct_output = (defaultdict(None, {'account': None, 'mem': None, \
-#        'walltime': '10:00:00', 'nodes': 1, 'pre_rocket': None, 'job_name': None, \
-#        'ntasks': 16, 'email': None, 'rocket_launch': None}),None)
-#        self.assertEqual(trial_output, correct_output)
+    def test_get_run_cmmnd(self):
+        os.chdir(os.path.join(ROOT, '../../../../'))
+        QUEUE_SYSTEM='slurm'
+        trial_output = get_run_cmmnd()
+        correct_output = (defaultdict(None, {'account': None, 'mem': None, \
+        'walltime': '10:00:00', 'nodes': 1, 'pre_rocket': None, 'job_name': None, \
+        'ntasks': 16, 'email': None, 'rocket_launch': None}),None)
+        self.assertEqual(trial_output, correct_output)
 
 
 

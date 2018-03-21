@@ -107,20 +107,22 @@ class UtilsTest(unittest.TestCase):
         for i in range(len(control_points)):
             self.assertEqual(test_points[i], control_points[i])
 
-#    def test_remove_z_kpoints(self):
-#        os.chdir(os.path.join(ROOT, 'BiTeCl'))
-#        structure = Structure.from_file('POSCAR')
-#        kpath = HighSymmKpath(structure)
-#        Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
-#        remove_z_kpoints()
-#        test_file = open('KPOINTS')
-#        test_lines = test_file.readlines()
-#        control_file = open('../BiTeCl_control/KPOINTS')
-#        control_lines = control_file.readlines()
-#        self.assertEqual(test_lines, control_lines)
-#        os.system('rm KPOINTS')
-#        test_file.close()
-#        control_file.close()
+    def test_remove_z_kpoints(self):
+        os.chdir(os.path.join(ROOT, 'BiTeCl'))
+        structure = Structure.from_file('POSCAR')
+        kpath = HighSymmKpath(structure)
+        Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
+        remove_z_kpoints()
+        test_file = open('KPOINTS')
+        test_lines = test_file.readlines()
+        print (test_lines)
+        control_file = open('../BiTeCl_control/KPOINTS')
+        control_lines = control_file.readlines()
+        print (control_lines)
+        self.assertEqual(test_lines, control_lines)
+        os.system('rm KPOINTS')
+        test_file.close()
+        control_file.close()
 
 #    def test_get_run_cmmnd(self):
 #        os.chdir(os.path.join(ROOT, '../../../../'))

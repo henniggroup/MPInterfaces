@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 from pymatgen.core.structure import Structure
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.phasediagram.analyzer import PDAnalyzer
-from pymatgen.phasediagram.maker import PhaseDiagram
+#from pymatgen.analysis.phase_diagram import PDAnalyzer
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 
 from mpinterfaces.utils import is_converged
 from mpinterfaces.mat2d import MPR
@@ -43,7 +43,8 @@ def get_competing_phases():
     my_entry = ComputedEntry(composition, energy)
     entries.append(my_entry)
 
-    pda = PDAnalyzer(PhaseDiagram(entries))
+    #pda = PDAnalyzer(PhaseDiagram(entries))
+    pda = PhaseDiagram(entries)
     decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
     competing_phases = [(entry.composition.reduced_formula, entry.entry_id)
                         for entry in decomp[0]]
@@ -103,7 +104,8 @@ def get_hull_distance(competing_phase_directory='../competing_phases'):
 
     entries.append(my_entry)  # 2D material
 
-    pda = PDAnalyzer(PhaseDiagram(entries))
+    #pda = PDAnalyzer(PhaseDiagram(entries))
+    pda = PhaseDiagram(entries)
     decomp = pda.get_decomp_and_e_above_hull(my_entry, allow_negative=True)
 
     return decomp[1]

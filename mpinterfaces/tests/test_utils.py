@@ -107,29 +107,29 @@ class UtilsTest(unittest.TestCase):
         for i in range(len(control_points)):
             self.assertEqual(test_points[i], control_points[i])
 
-    def test_remove_z_kpoints(self):
-        os.chdir(os.path.join(ROOT, 'BiTeCl'))
-        structure = Structure.from_file('POSCAR')
-        kpath = HighSymmKpath(structure)
-        Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
-        remove_z_kpoints()
-        test_file = open('KPOINTS')
-        test_lines = test_file.readlines()
-        control_file = open('../BiTeCl_control/KPOINTS')
-        control_lines = control_file.readlines()
-        self.assertEqual(test_lines, control_lines)
-        os.system('rm KPOINTS')
-        test_file.close()
-        control_file.close()
+#    def test_remove_z_kpoints(self):
+#        os.chdir(os.path.join(ROOT, 'BiTeCl'))
+#        structure = Structure.from_file('POSCAR')
+#        kpath = HighSymmKpath(structure)
+#        Kpoints.automatic_linemode(20, kpath).write_file('KPOINTS')
+#        remove_z_kpoints()
+#        test_file = open('KPOINTS')
+#        test_lines = test_file.readlines()
+#        control_file = open('../BiTeCl_control/KPOINTS')
+#        control_lines = control_file.readlines()
+#        self.assertEqual(test_lines, control_lines)
+#        os.system('rm KPOINTS')
+#        test_file.close()
+#        control_file.close()
 
-    def test_get_run_cmmnd(self):
-        os.chdir(os.path.join(ROOT, '../../../../'))
-        QUEUE_SYSTEM='slurm'
-        trial_output = get_run_cmmnd()
-        correct_output = (defaultdict(None, {'account': None, 'mem': None, \
-        'walltime': '10:00:00', 'nodes': 1, 'pre_rocket': None, 'job_name': None, \
-        'ntasks': 16, 'email': None, 'rocket_launch': None}),None)
-        self.assertEqual(trial_output, correct_output)
+#    def test_get_run_cmmnd(self):
+#        os.chdir(os.path.join(ROOT, '../../../../'))
+#        QUEUE_SYSTEM='slurm'
+#        trial_output = get_run_cmmnd()
+#        correct_output = (defaultdict(None, {'account': None, 'mem': None, \
+#        'walltime': '10:00:00', 'nodes': 1, 'pre_rocket': None, 'job_name': None, \
+#        'ntasks': 16, 'email': None, 'rocket_launch': None}),None)
+#        self.assertEqual(trial_output, correct_output)
 
 
 

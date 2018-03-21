@@ -22,7 +22,7 @@ from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.coord_utils import get_angle
+from pymatgen.util.coord import get_angle
 
 from mpinterfaces.transformations import reduced_supercell_vectors
 from mpinterfaces.utils import get_ase_slab

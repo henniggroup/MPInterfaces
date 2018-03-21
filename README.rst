@@ -47,6 +47,10 @@ On Windows:
 
 $ activate name_of_your_environment
 
+$ conda install numpy scipy ipython
+
+$ conda install -c matsci pymatgen
+
 Note: You will need to have C++ libraries properly
 installed for the package to install correctly on Windows.
 

@@ -16,7 +16,7 @@ addons:
     - python-scipy
     - python-pip
 install:
-   - travis_wait pip install -q numpy
+   - travis_wait pip install -q numpy==1.14.3
    - travis_wait pip install -q codecov
    - python setup.py develop
    - cp config_files/mpint_config.yaml mpinterfaces/

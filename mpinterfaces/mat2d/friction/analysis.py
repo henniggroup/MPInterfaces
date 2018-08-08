@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.core.structure import Structure
 from pymatgen import Element
-from pymatgen.analysis.defects.point_defects import ValenceIonicRadiusEvaluator as VE
+from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator as VE
 
 
 __author__ = "Michael Ashton"

@@ -201,3 +201,9 @@ Joshua T. Paul
 Seve G. Monahan
 
 Richard G. Hennig
+
+Cite the Code
+=============
+
+.. image:: https://zenodo.org/badge/37893482.svg
+   :target: https://doi.org/10.5281/zenodo.2554262

@@ -206,9 +206,11 @@ How to cite
 ===========
 
 DOI for the MPInterfaces Github repository:
+
 .. image:: https://zenodo.org/badge/37893482.svg
    :target: https://doi.org/10.5281/zenodo.2554262
-   
+
+
 BibTex entry for the Github repository and the publication::
 
    @misc{MPInterface,

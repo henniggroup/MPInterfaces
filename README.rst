@@ -202,8 +202,35 @@ Seve G. Monahan
 
 Richard G. Hennig
 
-Cite the Code
-=============
+How to cite
+===========
 
+DOI for the MPInterfaces Github repository:
 .. image:: https://zenodo.org/badge/37893482.svg
    :target: https://doi.org/10.5281/zenodo.2554262
+   
+BibTex entry for the Github repository and the publication::
+
+   @misc{MPInterface,
+     title        = {Genetic algorithm for structure and phase prediction},
+     author       = {K. Mathew and J. J. Gabriel and M. Ashton and A. K. Singh and
+                     J. T. Paul and S. G. Monahan and R. G. Hennig},
+     year         = 2018,
+     publisher    = {GitHub},
+     journal      = {GitHub repository},
+     howpublished = {\url{https://github.com/henniggroup/MPInterfaces}},
+     url          = {https://github.com/henniggroup/MPInterfaces},
+     doi          = {10.5281/zenodo.2554262}
+   }
+   
+   @article{Mathew2016,
+     title        = {MPInterfaces: A Materials Project based Python tool for
+                     high-throughput computational screening of interfacial systems},
+     author       = {K. Mathew and A. K. Singh and J. J. Gabriel and K. Choudhary and
+                     S. B. Sinnott and A. V. Davydov and F. Tavazza and R. G. Hennig",
+     year         = 2016,
+     journal      = {Comp. Mater. Sci.},
+     volume       = 122,
+     pages        = {183 - 190},
+     doi          = {10.1016/j.commatsci.2016.05.020}
+   }

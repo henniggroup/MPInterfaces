@@ -214,7 +214,8 @@ DOI for the MPInterfaces Github repository:
 BibTex entry for the Github repository and the publication::
 
    @misc{MPInterface,
-     title        = {Genetic algorithm for structure and phase prediction},
+     title        = {MPInterfaces - Python package for high throughput
+                     analysis of materials interfaces},
      author       = {K. Mathew and J. J. Gabriel and M. Ashton and A. K. Singh and
                      J. T. Paul and S. G. Monahan and R. G. Hennig},
      year         = 2018,

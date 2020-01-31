@@ -731,11 +731,9 @@ def add_vacuum(structure, vacuum):
         Structure object with vacuum added.
     """
     structure = align_axis(structure)
-    coords = [s.coords for s in structure.sites]
-    species = [s.specie for s in structure.sites]
-    lattice = structure.lattice.matrix
+    lattice = np.array(structure.lattice.matrix)
     lattice[2][2] += vacuum
-    structure = Structure(lattice, species, coords, coords_are_cartesian=True)
+    structure.lattice = Lattice(lattice)
     return center_slab(structure)
 
 

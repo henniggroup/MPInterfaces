@@ -714,7 +714,7 @@ def center_slab(structure):
         Centered Structure object.
     """
 
-    center = np.average([s._fcoords[2] for s in structure.sites])
+    center = np.average([s.frac_coords[2] for s in structure.sites])
     translation = (0, 0, 0.5 - center)
     structure.translate_sites(range(len(structure.sites)), translation)
     return structure

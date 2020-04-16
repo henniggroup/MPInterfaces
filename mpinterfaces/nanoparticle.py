@@ -19,7 +19,7 @@ import numpy as np
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.coord_utils import in_coord_list
+from pymatgen.util.coord import in_coord_list
 
 from mpinterfaces import get_struct_from_mp
 

@@ -45,7 +45,8 @@ from custodian.custodian import Custodian
 
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
-from ase.lattice.surface import surface
+from ase.build import surface
+#from ase.lattice.surface import surface
 
 from mpinterfaces.default_logger import get_default_logger
 from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM, QUEUE_TEMPLATE, VASP_PSP,\

@@ -265,7 +265,7 @@ def plot_local_potential(axis=2, ylim=(-20, 0), fmt='pdf'):
         vbm = bs.get_vbm()['energy'] - vacuum_level
 
     potentials = [potential - vacuum_level for potential in abs_potentials]
-    axis_length = structure.lattice._lengths[axis]
+    axis_length = structure.lattice.lengths[axis]
     positions = np.arange(0, axis_length, axis_length / len(potentials))
 
     ax.plot(positions, potentials, linewidth=2, color='k')

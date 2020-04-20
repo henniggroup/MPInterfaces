@@ -734,8 +734,11 @@ def add_vacuum(structure, vacuum):
     structure = align_axis(structure)
     lattice = np.array(structure.lattice.matrix)
     lattice[2][2] += vacuum
-    structure.lattice = Lattice(lattice)
-    return center_slab(structure)
+    #structure.lattice = Lattice(lattice)
+    #return center_slab(structure)
+    vac_added_structure = Structure(lattice, structure.species,\
+                     structure.cart_coords, coords_are_cartesian=True)
+    return center_slab(vac_added_structure)
 
 
 def ensure_vacuum(structure, vacuum):

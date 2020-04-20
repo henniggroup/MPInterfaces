@@ -45,7 +45,8 @@ from custodian.custodian import Custodian
 
 from fireworks.user_objects.queue_adapters.common_adapter import CommonAdapter
 
-from ase.lattice.surface import surface
+from ase.build import surface
+#from ase.lattice.surface import surface
 
 from mpinterfaces.default_logger import get_default_logger
 from mpinterfaces import VASP_STD_BIN, QUEUE_SYSTEM, QUEUE_TEMPLATE, VASP_PSP,\
@@ -733,8 +734,11 @@ def add_vacuum(structure, vacuum):
     structure = align_axis(structure)
     lattice = np.array(structure.lattice.matrix)
     lattice[2][2] += vacuum
-    structure.lattice = Lattice(lattice)
-    return center_slab(structure)
+    #structure.lattice = Lattice(lattice)
+    #return center_slab(structure)
+    vac_added_structure = Structure(lattice, structure.species,\
+                     structure.cart_coords, coords_are_cartesian=True)
+    return center_slab(vac_added_structure)
 
 
 def ensure_vacuum(structure, vacuum):

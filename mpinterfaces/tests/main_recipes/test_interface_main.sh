@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # If there exists a configuration file already, store it.
-cp ../../config_mine.yaml config_mine_saved.yaml
+#cp ../../config_mine.yaml config_mine_saved.yaml
 
-cp ../../../config.yaml ../../config_mine.yaml
+#cp ../../../config.yaml ../../config_mine.yaml
 
 python ../../interface.py > Interface_py_output.txt
 
@@ -18,9 +18,9 @@ File_differs_from_test(){
 }
 
 File_differs_from_test "Interface_py_output.txt"
-File_differs_from_test "POSCAR_diacetate_boxed.vasp"
-File_differs_from_test "POSCAR_interface.vasp"
-File_differs_from_test "POSCAR_slab.vasp"
-File_differs_from_test "lead_acetate.xyz"
+#File_differs_from_test "POSCAR_diacetate_boxed.vasp"
+#File_differs_from_test "POSCAR_interface.vasp"
+#File_differs_from_test "POSCAR_slab.vasp"
+#File_differs_from_test "lead_acetate.xyz"
 
-mv config_mine_saved.yaml  ../../config_mine.yaml
+#mv config_mine_saved.yaml  ../../config_mine.yaml

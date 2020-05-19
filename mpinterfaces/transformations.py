@@ -18,13 +18,15 @@ import numpy as np
 
 from pymatgen import Structure, Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.transformations.standard_transformations import \
+    RotationTransformation
 
 __author__ = "Kiran Mathew, Arunima Singh, V. S. Chaitanya Kolluru"
 __copyright__ = "Copyright 2018, Henniggroup"
 __maintainer__ = "V. S. Chaitanya Kolluru"
 __email__ = "chaitanya.ismu@gmail.com"
 __status__ = "Production"
-__date__ = "May 18, 2018"
+__date__ = "May 19, 2020"
 
 
 def get_trans_matrices(n):
@@ -122,7 +124,7 @@ def get_r_list(area1, area2, max_area, tol=0.02):
     r_list = []
     rmax1 = int(max_area / area1)
     rmax2 = int(max_area / area2)
-    print('rmax1, rmax2: {0}, {1}\n'.format(rmax1, rmax2))
+    #print('rmax1, rmax2: {0}, {1}\n'.format(rmax1, rmax2))
     for r1 in range(1, rmax1 + 1):
         for r2 in range(1, rmax2 + 1):
             if abs(float(r1) * area1 - float(r2) * area2) / max_area <= tol:
@@ -460,9 +462,66 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area=200,
                 substrate.lattice.matrix[1, :],
                 mat2d.lattice.matrix[2, :]
             ]))
-    mat2d.modify_lattice(lmap)
+    mat2d.lattice = lmap
 
     return substrate, mat2d
+
+def rotate_to_principal_directions(cell):
+    """
+    Author: Benjamin Revard
+
+    Rotates the cell into the principal directions. That is, lattice vector
+    a is parallel to the Cartesian x-axis, lattice vector b lies in the
+    Cartesian x-y plane and the z-component of lattice vector c is
+    positive.
+    Note: this method doesn't change the fractional coordinates of the
+    sites. However, the Cartesian coordinates may be changed.
+    """
+
+    # rotate about the z-axis to align a vertically with the x-axis
+    rotation = RotationTransformation(
+        [0, 0, 1], 180 - (180/np.pi)*np.arctan2(
+                cell.lattice.matrix[0][1],
+                cell.lattice.matrix[0][0]))
+    new_structure = rotation.apply_transformation(cell)
+    cell.lattice = new_structure.lattice
+
+    # rotate about the y-axis to make a parallel to the x-axis
+    rotation = RotationTransformation(
+            [0, 1, 0], (180/np.pi)*np.arctan2(
+                cell.lattice.matrix[0][2],
+                cell.lattice.matrix[0][0]))
+    new_structure = rotation.apply_transformation(cell)
+    cell.lattice = new_structure.lattice
+    # rotate about the x-axis to make b lie in the x-y plane
+    rotation = RotationTransformation(
+            [1, 0, 0], 180 - (180/np.pi)*np.arctan2(
+                cell.lattice.matrix[1][2],
+                cell.lattice.matrix[1][1]))
+    new_structure = rotation.apply_transformation(cell)
+    cell.lattice = new_structure.lattice
+
+    # make sure they are all pointing in positive directions
+    if cell.lattice.matrix[0][0] < 0:
+        # rotate about y-axis to make a positive
+        rotation = RotationTransformation([0, 1, 0], 180)
+        new_structure = rotation.apply_transformation(cell)
+        cell.lattice = new_structure.lattice
+    if cell.lattice.matrix[1][1] < 0:
+        # rotate about x-axis to make b positive
+        rotation = RotationTransformation([1, 0, 0], 180)
+        new_structure = rotation.apply_transformation(cell)
+        cell.lattice = new_structure.lattice
+    if cell.lattice.matrix[2][2] < 0:
+        # mirror c across the x-y plane to make it positive
+        # a and b
+        a = cell.lattice.matrix[0]
+        b = cell.lattice.matrix[1]
+        # the components of c
+        cx = cell.lattice.matrix[2][0]
+        cy = cell.lattice.matrix[2][1]
+        cz = -1*cell.lattice.matrix[2][2]
+        cell.lattice = Lattice([a, b, [cx, cy, cz]])
 
 def run_lat_match(substrate, twod_layer, match_constraints):
 
@@ -506,8 +565,8 @@ def run_lat_match(substrate, twod_layer, match_constraints):
                             max_angle_diff=max_angle_diff,
                             r1r2_tol=r1r2_tol,
                             best_match=best_match)
-        sub.rotate_to_principal_directions()
-        mat2d.rotate_to_principal_directions()
+        rotate_to_principal_directions(sub)
+        rotate_to_principal_directions(mat2d)
         # sorts atoms wrt electronegativity
         # use this order in POTCAR
         sub.sort()

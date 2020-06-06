@@ -4,6 +4,7 @@ import copy
 import numpy as np
 import math
 import itertools
+import operator
 
 
 from collections import Counter
@@ -366,12 +367,13 @@ def getAtomImages(struct,ref_site,supercell=2,prec=1E-4):
 
     returns
     --------
-        float representing the magnitude of the input vector
+        list of indexes in "struct" which are periodic images of 
+        ref_site
     
     
     """
     
-    ref_latt=struct.lattice.as_dict()['matrix']/2
+    ref_latt=np.array(struct.lattice.as_dict()['matrix'])/supercell
     lattice_shifts = list(itertools.product([1,0,-1],repeat=3))
     # Get coordinates of periodic images of the reference atom
     ref_coords = [np.array(ref_site+np.dot(ref_latt.T,x)) for 
@@ -774,21 +776,16 @@ def getNewLattice(entry,dim,prec=1E-4,seed_index=0,supercell=2,c_mag=50):
     ref_spec = structure.sites[0].specie
     ref_site = np.array(structure.sites[0].coords)
     refLat  = np.array(structure.lattice.as_dict()['matrix'])
-    refCoords = [np.array(ref_site+np.dot(refLat.T,x)) for x in 
-                 list(itertools.product([1,0],repeat=3))]
 
 
     # Get structure object containing a single atomic network
     structure.make_supercell(supercell)
     cluster_sites = [structure.sites[n] for n in batch[4]]
+    new_struct = structure.from_sites(cluster_sites)
 
     # Get the list of reference atoms which are in the
     # isolated atomic network
-    in_network = []
-    for atom in refCoords:
-        if np.any([abs(np.linalg.norm(atom-x.coords))<prec for x in 
-                   cluster_sites if x.specie==ref_spec]):
-            in_network.append(atom)
+    in_network = [new_struct.sites[x].coords for x in getAtomImages(new_struct,ref_site)]
 
     # Ensure all fractional coordiantes are <1
 
@@ -931,32 +928,41 @@ def genLattice(structure,in_network,dimension,prec=1E-4,
 
     # Generate vectors in plane/line, relative to
     # the first atom in the network of atoms
-    min_index=0
-    min_vec = in_network[min_index]
-    for i in range(len(in_network)):
-        if i!= min_index:
-            if np.linalg.norm(in_network[i])<np.linalg.norm(min_vec):
-                min_index=i
-                min_vec = in_network[i]
-    vectors = [in_network[x]-in_network[min_index] for x in 
-               range(len(in_network)) if x!=min_index]
+    vec_list = {}
+    for i in range(len(in_network)-1):
+        vec_list[i]=[]
+        for j in range(i,len(in_network)):
+            if i!=j:
+                vec_list[i].append(in_network[j]-in_network[i])
+    print(vec_list)
+    vect_and_magnitude = []
+    if dimension==2:
+        for i in vec_list:
+            for sett in [[[x,y],magni(np.cross(x,y))] for [x,y] in list(itertools.combinations(vec_list[i],dimension))]:
+                vect_and_magnitude.append(sett)
+    elif dimension==1:
+        for i in vec_list:
+            for sett in [[x,magni(x)] for x in list(itertools.combinations(vec_list[i],dimension))]:
+                vect_and_magnitude.append(sett)
+        
+    vectors = [np.array(pair) for [pair,magnitude] in sorted(vect_and_magnitude,key=operator.itemgetter(1))]
     coords = [x.coords for x in structure.sites]
     return_structure=False
     
     # Attempt all mixtures of vectors as
     # potential lattice vectors
-    for lat_vectors in list(itertools.combinations(vectors,dimension)):
+    for lat_vectors in vectors:
         # Create lattice matrix to fit atomic coordinates against
         
         # In 2D
         if dimension==2:
-            scaleC=c_mag/magni(lat_vectors[0])/magni(lat_vectors[1])
-            latt_attempt = np.array([lat_vectors[0],lat_vectors[1],\
-                np.cross(lat_vectors[0],lat_vectors[1])*scaleC])
+                scaleC=c_mag/magni(lat_vectors[0])/magni(lat_vectors[1])
+                latt_attempt = np.array([lat_vectors[0],lat_vectors[1],\
+                    np.cross(lat_vectors[0],lat_vectors[1])*scaleC])
                 
         # In 1D
         elif dimension==1:
-            unitV = lat_vectors[0]/np.linalg.norm(lat_vectors)
+            unitV = lat_vectors[0]/np.linalg.norm(lat_vectors[0])
             if unitV[0]==0:
                 perp1 = [1,0,0]
             elif unitV[1]==0:
@@ -972,14 +978,9 @@ def genLattice(structure,in_network,dimension,prec=1E-4,
         # Fit atomic sites to new lattice
         temp_fracs = np.linalg.solve(latt_attempt.T,np.array(coords).T)
 
-
-        shift_vec = getTranslation(temp_fracs)
-
-        new_fracs = np.array([list(np.array(x)-shift_vec) for x in temp_fracs.T])
-        
         # Make list of all fractional positions, ignoring
         # which axis
-        new_fracs = list([list(x) for x in new_fracs.T])
+        new_fracs = list([list(x) for x in temp_fracs.T])
         temp_cat = new_fracs[0]+new_fracs[1]+new_fracs[2]
         
         # Ensure cartesian coordinate of all 
@@ -998,7 +999,7 @@ def genLattice(structure,in_network,dimension,prec=1E-4,
 
 
 def alignMono(entry,prec=1E-4,seed_index=0,supercell=2,
-              c_mag=50,dist_from_plane=10):
+              c_mag=50,dist_from_plane=0):
     
     """
     Align a 2D material such that the 'c' vector is perpendicular to the

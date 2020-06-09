@@ -124,7 +124,7 @@ def get_r_list(area1, area2, max_area, tol=0.02):
     r_list = []
     rmax1 = int(max_area / area1)
     rmax2 = int(max_area / area2)
-    #print('rmax1, rmax2: {0}, {1}\n'.format(rmax1, rmax2))
+    print('rmax1, rmax2: {0}, {1}\n'.format(rmax1, rmax2))
     for r1 in range(1, rmax1 + 1):
         for r2 in range(1, rmax2 + 1):
             if abs(float(r1) * area1 - float(r2) * area2) / max_area <= tol:

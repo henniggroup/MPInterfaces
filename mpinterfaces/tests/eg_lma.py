@@ -19,9 +19,9 @@ import numpy as np
 
 #### Inputs for lattice matching #####
 # substrate file path
-sub_file = 'POSCAR_sub'
+sub_file = '../test_files/POSCAR_substrate'
 # twod file path
-twod_file = 'POSCAR_twod'
+twod_file = '../test_files/POSCAR_2D'
 sub = Structure.from_file(sub_file)
 twod = Structure.from_file(twod_file)
 
@@ -34,9 +34,10 @@ match_constraints = {'max_area':90, 'max_mismatch':0.06, 'max_angle_diff':2,
 # Lowest area (default) or minimum uv mismatched lattice match
 # is returned based on 'best_match' option in match_constraints
 # best_match should be either 'area' or 'mismatch'
-iface, n_sub, z_ub = lma.run_lat_match(sub, twod, match_constraints)
+iface, n_sub, z_ub = transformations.run_lat_match(sub, twod, match_constraints)
 
 if iface is None:
     print ('Current twod lattice matches with substrate. No changes needed!')
 else:
-    iface.to(filename='POSCAR_iface', fmt='poscar')
+    strct = Structure(iface.lattice, iface.species, iface.frac_coords)
+    strct.to(filename='../test_files/POSCAR_iface', fmt='poscar')

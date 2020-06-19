@@ -219,7 +219,7 @@ BibTex entry for the Github repository and the publication::
      title        = {MPInterfaces - Python package for high throughput
                      analysis of materials interfaces},
      author       = {K. Mathew and J. J. Gabriel and M. Ashton and A. K. Singh and
-                     J. T. Paul and S. G. Monahan and R. G. Hennig},
+                     J. T. Paul and V. S. Chaitanya Kolluru and S. G. Monahan and R. G. Hennig},
      year         = 2018,
      publisher    = {GitHub},
      journal      = {GitHub repository},

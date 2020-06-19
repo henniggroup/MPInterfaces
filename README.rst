@@ -198,7 +198,7 @@ Arunima Singh
 
 Joshua T. Paul
 
-V. S. Chaitanya Kolluru
+Venkata Surya Chaitanya Kolluru
 
 Seve G. Monahan
 

@@ -346,46 +346,6 @@ def getSpecDict(structure):
     return(ref_spec)
 
 
-def getAtomImages(struct,ref_site,supercell=2,prec=1E-4):
-    
-    """
-    
-    Helper funciton for getting the periodic 
-    images of an atom in the supercell
-    
-    inputs
-    --------
-        struct (Structure): pymatgen Structure object
-        
-        ref_sites (list, 3x1):  the cartesian coordinates of the reference
-                                species
-        
-        supercell (int):  The size of the supercell to generate
-
-        prec (float):   The precision to compare magnitude of vectors
-                        representing the bonds in the system 
-
-    returns
-    --------
-        list of indexes in "struct" which are periodic images of 
-        ref_site
-    
-    
-    """
-    
-    ref_latt=np.array(struct.lattice.as_dict()['matrix'])/supercell
-    lattice_shifts = list(itertools.product([1,0,-1],repeat=3))
-    # Get coordinates of periodic images of the reference atom
-    ref_coords = [np.array(ref_site+np.dot(ref_latt.T,x)) for 
-                  x in lattice_shifts]
-    # Get index of periodic indexes of the reference atom
-    periodic_sites=[atom_ind for atom_ind in range(struct.num_sites) if \
-                    np.any([np.linalg.norm(struct.sites[atom_ind].coords-\
-                    ref_site)<=prec for ref_site in ref_coords])]
-    return(periodic_sites)
-
-
-
 def magni(vector):
     """
     Helper funciton for getting the magnitude of a vector
@@ -714,6 +674,49 @@ def cleaveSurfBond(entry,max_bonds=1,supercell=2,group_structs=True,prec=1E-4):
         print('Material is does not have a 3D motiif')
         print('Try increasing radii tolerance if appropriate')
         return([])
+    
+    
+    
+def getAtomImages(struct,ref_site,supercell=2,prec=1E-4):
+    
+    """
+    
+    Helper funciton for getting the periodic 
+    images of an atom in the supercell
+    
+    inputs
+    --------
+        struct (Structure): pymatgen Structure object
+        
+        ref_sites (list, 3x1):  the cartesian coordinates of the reference
+                                species
+        
+        supercell (int):  The size of the supercell to generate
+
+        prec (float):   The precision to compare magnitude of vectors
+                        representing the bonds in the system 
+
+    returns
+    --------
+        list of indexes in "struct" which are periodic images of 
+        ref_site
+    
+    
+    """
+    
+    ref_latt=np.array(struct.lattice.as_dict()['matrix'])/supercell
+    lattice_shifts = list(itertools.product([1,0,-1],repeat=3))
+    # Get coordinates of periodic images of the reference atom
+    ref_coords = [np.array(ref_site+np.dot(ref_latt.T,x)) for 
+                  x in lattice_shifts]
+    # Get index of periodic indexes of the reference atom
+    periodic_sites=[atom_ind for atom_ind in range(struct.num_sites) if \
+                    np.any([np.linalg.norm(struct.sites[atom_ind].coords-\
+                    ref_site)<=prec for ref_site in ref_coords])]
+    return(periodic_sites)
+
+
+
 
 
 def getNewLattice(entry,dim,prec=1E-4,seed_index=0,supercell=2,c_mag=50):
@@ -765,7 +768,7 @@ def getNewLattice(entry,dim,prec=1E-4,seed_index=0,supercell=2,c_mag=50):
                               vector=-1*structure.sites[0].frac_coords+
                               [.02,.02,.02],frac_coords=True)
  
-    ogStructure = copy.deepcopy(structure)
+    og_structure = copy.deepcopy(structure)
     
     # Replace structure used for TSA with centered structure
     entry[0]=structure
@@ -773,9 +776,7 @@ def getNewLattice(entry,dim,prec=1E-4,seed_index=0,supercell=2,c_mag=50):
                              supercell=supercell,returnSS=True)
 
     # Get position of reference atom, and periodic images
-    ref_spec = structure.sites[0].specie
     ref_site = np.array(structure.sites[0].coords)
-    refLat  = np.array(structure.lattice.as_dict()['matrix'])
 
 
     # Get structure object containing a single atomic network
@@ -789,17 +790,17 @@ def getNewLattice(entry,dim,prec=1E-4,seed_index=0,supercell=2,c_mag=50):
 
     # Ensure all fractional coordiantes are <1
 
-    for i in range(ogStructure.num_sites):
-        if np.any([abs(x)>=1 for x in ogStructure.sites[i].frac_coords]):
-            tVector = [x-x%1 for x in ogStructure.sites[i].frac_coords]
+    for i in range(og_structure.num_sites):
+        if np.any([abs(x)>=1 for x in og_structure.sites[i].frac_coords]):
+            tVector = [x-x%1 for x in og_structure.sites[i].frac_coords]
     #        print(ogStructure.sites[i].frac_coords)
     #        print(tVector)
-            ogStructure.translate_sites(indices=i,vector=-1*tVector)
+            og_structure.translate_sites(indices=i,vector=-1*tVector)
 
 
 
     # Get the new lattice matrix
-    latt_attempt = genLattice(ogStructure,in_network,dim)
+    latt_attempt = genLattice(og_structure,in_network,dim)
     
     # If a valid lattice matrix isn't found, it is likely due to an issue
     # with original lattice vectors not being orthogonal. 
@@ -808,12 +809,12 @@ def getNewLattice(entry,dim,prec=1E-4,seed_index=0,supercell=2,c_mag=50):
     o_shift_count=float(o_shift)
     while latt_attempt==[] and o_shift_count<1:
         print(o_shift_count)
-        ogStructure.translate_sites(indices=range(ogStructure.num_sites),
+        og_structure.translate_sites(indices=range(og_structure.num_sites),
                                     vector=[o_shift,o_shift,o_shift],
                                     frac_coords=True)
-        ogStructure.to('POSCAR','POS_'+str(round(o_shift_count,2)))
+        og_structure.to('POSCAR','POS_'+str(round(o_shift_count,2)))
         o_shift_count+=.05
-        latt_attempt = genLattice(ogStructure,in_network,dim)
+        latt_attempt = genLattice(og_structure,in_network,dim)
     return(latt_attempt)
 
 

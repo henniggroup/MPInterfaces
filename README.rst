@@ -28,13 +28,13 @@ Installation
 ==============
 
 Prepping - Setting up Virtual Environments with Miniconda
--------------------------------
+===========================================================
 
 We recommend setting up virtual environment
 using Miniconda which can be installed according to their instructions from https://conda.io/miniconda.html
 
 Note for SuperComputer Clusters with Linux OS:
----------------------------------------------
+==============================================
 
 HiperGator2 and other linux based supercomputing clusters
 have shared modules one of which are the C++ modules under gcc.
@@ -65,7 +65,7 @@ $ activate name_of_your_environment
 $ conda install numpy scipy matplotlib ipython
 
 Installing Pymatgen
---------------------
+====================
 
 $ conda install -c matsci pymatgen
 
@@ -75,7 +75,7 @@ installed for the package to install correctly on Windows.
 Note: If this does not work, see http://pymatgen.org/#getting-pymatgen
 
 Installing MPInterfaces from GitHub
------------------------------------
+=====================================
 
 If you would like to get the latest updates, or develop and contribute we recommend getting the bleeding edge
 copy from the github repository.
@@ -112,7 +112,7 @@ data science tutorials. We have one notebook FeOH_Example.ipynb for Pourbaix dia
 
 
 Installing MPInterfaces from PyPI
-----------------------------------------
+==================================
 
 Once you have a nicely prepped virtual environment with miniconda
 and you do not seek to do extensive code development/contributions,

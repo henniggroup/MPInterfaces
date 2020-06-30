@@ -5,9 +5,12 @@ from setuptools import setup, find_packages
 
 MPINT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+with open('README.rst','r') as fh:
+    long_description = fh.read()
+
 setup(
     name="MPInterfaces",
-    version="2020.4.21",
+    version="2020.6.19",
     install_requires=["FireWorks>=1.4.0",
                       "custodian>=1.0.1", "pymatgen-db>=0.5.1",
                       "ase>=3.11.0", "six", "pyhull>=1.5.3",
@@ -18,10 +21,10 @@ setup(
                     },
     author="Kiran Mathew, Joshua J. Gabriel, Michael Ashton, "
            "Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, "
-           "Richard G. Hennig",
-    author_email="joshgabriel92@gmail.com, kmathew@lbl.gov, ashtonmv@gmail.com",
-    maintainer="Joshua J. Gabriel, Michael Ashton",
-    maintainer_email="joshgabriel92@ufl.edu, ashtonmv@gmail.com",
+           "Richard G. Hennig, Venkata Surya Chaitanya Kolluru",
+    author_email="joshgabriel92@gmail.com, kmathew@lbl.gov, ashtonmv@gmail.com,kvs.chaitanya@ufl.edu,joshuapaul@ufl.edu",
+    maintainer="Venkata Surya Chaitanya Kolluru, Joshua T. Paul",
+    maintainer_email="kvs.chaitanya@ufl.edu,joshuapaul@ufl.edu",
     description=(
         "High throughput analysis of interfaces using VASP and Materials Project tools"),
     license="MIT",

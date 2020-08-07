@@ -62,7 +62,7 @@ class MWRester(object):
                                  "band_gap", "density", "icsd_id", "cif")
 
     def __init__(self, api_key=None,
-                 endpoint="https://2dmaterialsweb.org/rest"):
+                 endpoint="https://materialsweb.org/rest"):
         if api_key is not None:
             self.api_key = api_key
         else:

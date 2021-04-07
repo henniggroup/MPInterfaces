@@ -41,3 +41,11 @@ if iface is None:
 else:
     strct = Structure(iface.lattice, iface.species, iface.frac_coords)
     strct.to(filename='../test_files/POSCAR_iface', fmt='poscar')
+
+
+#########################################
+### To write all matches to a folder in POSCAR format ###
+#########################################
+
+all_interfaces = transformations.get_all_matches(sub, twod, match_constraints,
+                                                    write_all=True)

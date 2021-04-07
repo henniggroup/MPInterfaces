@@ -16,10 +16,12 @@ import sys
 from math import sqrt
 import numpy as np
 
-from pymatgen import Structure, Lattice
+from pymatgen.core.structure import Structure, Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.standard_transformations import \
     RotationTransformation
+
+import os
 
 __author__ = "Kiran Mathew, Arunima Singh, V. S. Chaitanya Kolluru"
 __copyright__ = "Copyright 2018, Henniggroup"
@@ -193,12 +195,15 @@ def remove_duplicates(uv_list, tm_list):
 
 def get_matching_lattices(iface1, iface2, max_area=100,
                           max_mismatch=0.01, max_angle_diff=1,
-                          r1r2_tol=0.02, opt=False, best_match='area'):
+                          r1r2_tol=0.02, opt=False, best_match='area',
+                          return_all_matches=None):
 ## This function gives: "return uv_opt[0], uv_opt[1]"
 
     """
     computes a list of matching reduced lattice vectors that satify
     the max_area, max_mismatch and max_anglele_diff criteria
+
+    If return_all_matches is set to True, it overwrites best_match option.
     """
     if iface1 is None and iface2 is None:
         # test : the numbers from the paper
@@ -275,6 +280,10 @@ def get_matching_lattices(iface1, iface2, max_area=100,
             uv_all = sorted(found, key=lambda x: x[2])
         elif best_match == 'mismatch': # sort based on average of uv mismatches
             uv_all = sorted(found, key=lambda x: (abs(x[3]) + abs(x[4])) / 2)
+
+        if return_all_matches:
+            return uv_all
+
         uv_opt = uv_all[0]                # min. area match
         print('Best match:\nuv1:\n{0}\nuv2:\n{1}\narea:\n{2}\n'.format(
             uv_opt[0], uv_opt[1], uv_opt[2]))
@@ -396,25 +405,33 @@ def get_interface(substrate, mat2d, nlayers_2d=2, nlayers_substrate=2,
 
 def get_aligned_lattices(slab_sub, slab_2d, max_area=200,
                          max_mismatch=0.05,
-                         max_angle_diff=1, r1r2_tol=0.2, best_match='area'):
+                         max_angle_diff=1, r1r2_tol=0.2, best_match='area',
+                         uv_matched=None):
     """
     given the 2 slab structures and the alignment paramters, return
     slab structures with lattices that are aligned with respect to each
     other
     """
-
-    # get the matching substrate and 2D material lattices
-    uv_substrate, uv_mat2d = get_matching_lattices(
+    if not uv_matched:
+        # get the matching substrate and 2D material lattices
+        uv_substrate, uv_mat2d = get_matching_lattices(
                                                 slab_sub, slab_2d,
                                                 max_area=max_area,
                                                 max_mismatch=max_mismatch,
                                                 max_angle_diff=max_angle_diff,
                                                 r1r2_tol=r1r2_tol,
                                                 best_match=best_match)
-    if not uv_substrate and not uv_mat2d:
-        print("no matching u and v, trying adjusting the parameters")
-        return None, None
-        #sys.exit()
+        if not uv_substrate and not uv_mat2d:
+            print("no matching u and v, trying adjusting the parameters")
+            return None, None
+
+    else:
+        try:
+            uv_substrate, uv_mat2d = uv_matched
+        except:
+            print ('uv_matched should be a list or tuple '
+                        'of (uv_substrate, uv_mat2d)')
+            return None, None
 
     substrate = Structure.from_sites(slab_sub)
     mat2d = Structure.from_sites(slab_2d)
@@ -465,6 +482,46 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area=200,
     mat2d.lattice = lmap
 
     return substrate, mat2d
+
+def get_all_aligned_lattices(slab_sub, slab_2d, max_area=200,
+                             max_mismatch=0.05, max_angle_diff=1,
+                             r1r2_tol=0.2, best_match='area'):
+    """
+    Get uv_all
+    call get_aligned_lattices on each uv_all
+    return list of all_aligned_lattices
+    """
+    uv_all = get_matching_lattices(slab_sub, slab_2d,
+                                    max_area=max_area,
+                                    max_mismatch=max_mismatch,
+                                    max_angle_diff=max_angle_diff,
+                                    r1r2_tol=r1r2_tol,
+                                    best_match=best_match,
+                                    return_all_matches=True)
+
+    print ('{} preliminary matched lattices found. '
+                'Aligning matched lattices..'.format(len(uv_all)))
+
+    all_aligned_lattices = []
+    for i in range(len(uv_all)):
+        uv = uv_all[0]
+        uv_matched = uv[0], uv[1]
+        try:
+            sub_lattice, mat2d_lattice = get_aligned_lattices(
+                                                 slab_sub, slab_2d,
+                                                 max_area=max_area,
+                                                 max_mismatch=max_mismatch,
+                                                 max_angle_diff=max_angle_diff,
+                                                 r1r2_tol=r1r2_tol,
+                                                 best_match=best_match,
+                                                 uv_matched=uv_matched)
+        except:
+            continue
+        all_aligned_lattices.append((sub_lattice, mat2d_lattice))
+    print ('{} lattice matches can be created'.format(
+                                                len(all_aligned_lattices)))
+
+    return all_aligned_lattices
 
 def rotate_to_principal_directions(cell):
     """
@@ -599,3 +656,71 @@ def run_lat_match(substrate, twod_layer, match_constraints):
         return  hetero_interface, n_aligned_sub, sd_index
     else:
         return None, None, None
+
+def get_all_matches(substrate, twod_layer, match_constraints, write_all=False):
+    """
+    Returns all matches as a list of pymatgen structure objects
+    Writes all of them as POSCAR files in a directory 'all_interface_poscars'
+    """
+    # variables from the keys
+    max_area = match_constraints['max_area']
+    max_mismatch = match_constraints['max_mismatch']
+    max_angle_diff = match_constraints['max_angle_diff']
+    r1r2_tol = match_constraints['r1r2_tol']
+    separation = match_constraints['separation']
+    nlayers_substrate = match_constraints['nlayers_substrate']
+    nlayers_2d = match_constraints['nlayers_2d']
+    sd_layers = match_constraints['sd_layers']
+    best_match = match_constraints['best_match']
+
+    twod_prim = twod_layer.get_primitive_structure()
+    substrate_prim = substrate.get_primitive_structure()
+    n_prim_sub = substrate_prim.num_sites
+
+    all_aligned_lattices = get_all_aligned_lattices(
+                                                substrate_prim, twod_prim,
+                                                max_area=max_area,
+                                                max_mismatch=max_mismatch,
+                                                max_angle_diff=max_angle_diff,
+                                                r1r2_tol=r1r2_tol,
+                                                best_match=best_match)
+
+    all_matched_interfaces = []
+    for i in range(len(all_aligned_lattices)):
+        sub, mat2d = all_aligned_lattices[0]
+
+        rotate_to_principal_directions(sub)
+        rotate_to_principal_directions(mat2d)
+        # sorts atoms wrt electronegativity
+        # use this order in POTCAR
+        sub.sort()
+        mat2d.sort()
+        n_aligned_sub = sub.num_sites
+        scell_size = n_aligned_sub / n_prim_sub
+
+        if sub and mat2d:
+            try:
+                hetero_interface = get_interface(sub, mat2d,
+                                         nlayers_2d, nlayers_substrate,
+                                         separation)
+            except:
+                continue
+
+        if hetero_interface:
+            all_matched_interfaces.append(hetero_interface)
+        else:
+            continue
+
+    if write_all:
+        current_path = os.getcwd()
+        poscar_path = current_path + '/all_interface_poscars/'
+        print ('Writing all interface structures to {}'.format(poscar_path))
+        if not os.path.exists(poscar_path):
+            os.mkdir(poscar_path)
+        for i, iface in enumerate(all_matched_interfaces):
+            strct = Structure(iface.lattice, iface.species, iface.frac_coords)
+            name = poscar_path + 'POSCAR_{}'.format(i)
+            strct.to(filename=name, fmt='poscar')
+
+    return all_matched_interfaces
+

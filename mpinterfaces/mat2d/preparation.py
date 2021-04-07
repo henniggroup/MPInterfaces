@@ -4,13 +4,13 @@ import copy
 import numpy as np
 import math
 import itertools
-import operator
 
 
 from collections import Counter
 from sympy import Point3D, Plane,Line3D
 
 
+from operator import itemgetter
 from pymatgen import Structure, Element, Composition
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.sites import PeriodicSite
@@ -18,11 +18,11 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import _pt_data
 
 __author__ = "Joshua Paul"
-__copyright__ = "Copyright 2020, Henniggroup"
+__copyright__ = "Copyright 2021, Henniggroup"
 __maintainer__ = "Joshua Paul"
 __email__ = "joshua.thomas.paul@gmail.com"
 __status__ = "Production"
-__date__ = "June 6, 2020"
+__date__ = "March 2, 2021"
 
 
 ELEMENT_RADII = {i: Element(i).atomic_radius for i in _pt_data}
@@ -55,7 +55,7 @@ def getDistMat(structure, tol):
     """
     
     if tol>1:
-        print('WARNING: Tolerance input is greater than 100%')
+        print('WARNING: Increase in radius is greater than 100%')
         
     # Find interatomic distances)
     s = structure
@@ -173,7 +173,7 @@ def getDim(scale,supercell):
             motiif = 'Network size increased'
         return(motiif)
 
-def getStructureType(entry, seed_index=0, supercell = 2,returnSS=False):
+def getStructureType(entry, seed_index=0, supercell = 2,return_SS=False):
     
     """
     This is a topology-scaling algorithm used to describe the
@@ -224,7 +224,7 @@ def getStructureType(entry, seed_index=0, supercell = 2,returnSS=False):
 
     s = copy.deepcopy(structure)
     heterogeneous = False
-    heterogeneousSS = False
+    heterogeneous_SS = False
 
     # Distance matrix (rowA, columnB) shows distance between
     # atoms A and B, taking PBCs into account.
@@ -244,7 +244,7 @@ def getStructureType(entry, seed_index=0, supercell = 2,returnSS=False):
     old_cluster_size = len(cluster)
     # Increase structure to determine dimensionality
 
-
+    s = copy.deepcopy(structure)
     s.make_supercell(supercell)
     seed_index*=supercell**3
 
@@ -264,19 +264,18 @@ def getStructureType(entry, seed_index=0, supercell = 2,returnSS=False):
             # i.e. the cluster does not have the same composition
             # as the overall crystal; therefore there are other
             # clusters of varying composition.
-            heterogeneousSS = True
+            heterogeneous_SS = True
         motiif = getDim(scale,supercell)
-    if heterogeneous or heterogeneousSS:
+    if heterogeneous or heterogeneous_SS:
         motiif += "_heter"
 
-    if returnSS:
+    if return_SS:
         return [motiif,mp_id,tol,compo.reduced_formula,list(cluster)]
     else:
         return [motiif,mp_id,tol,compo.reduced_formula,list(og_cluster)]
 
 
-
-def checkHeter(structure,batch,supercell=2):
+def checkHeter(structure,batch,supercell=2,try_all=False,return_SS=False):
     """
     A function to search for heterostructures. If the "getStructureType"
     does not report the network as a heterostructure, the input network
@@ -290,7 +289,14 @@ def checkHeter(structure,batch,supercell=2):
         structure (Structure): pymatgen Structure object of the original 
                                crystal
         batch (list)         : the output of "getStructureType"
-
+        supercell (int)      : how large of a supercell to use when
+                               searching for networks
+        try_all (Boolean)    : whether to search across all atoms,
+                               regardless of dimensionality of input
+                               structure
+        return_SS (Boolean)  : whether to return the atomic network from the
+                               supercell instead of primitive cell
+                           
     returns
     --------
         batches (list) : list of "getStructureType" outputs for each 
@@ -300,23 +306,30 @@ def checkHeter(structure,batch,supercell=2):
     """
     s = copy.deepcopy(structure)
     # Check if structure is heterostructure
-    if 'heter' in batch[0]:
+    if 'heter' in batch[0] or try_all:
         i=0
-        found = list(batch[4])
-        all_structs=[s.from_sites([s.sites[n] for n in batch[4]])]
-        batches = [batch]
+        
+        found=[]
+        all_structs=[]
+        batches=[]
         # Loop through all sites
         for i in range(s.num_sites):
+            
             # Skip sites that have already been accounted for
             if i not in found: 
+
                 s = copy.deepcopy(structure)
                 nBatch = getStructureType([s,batch[2],batch[1]],
-                                          seed_index=i,supercell=supercell)
-                if nBatch[4][0] not in found:
+                                          seed_index=i,supercell=supercell,
+                                          return_SS=return_SS)
+
+                if np.any(x not in found for x in nBatch[4]):
                     found.extend(nBatch[4])
-                    all_structs.append(structure.from_sites([s.sites[n] for 
+                    s = copy.deepcopy(structure)
+                    s.make_supercell(supercell)
+                    all_structs.append(Structure.from_sites([s.sites[n] for 
                                                              n in nBatch[4]]))
-                batches.append(nBatch)
+                    batches.append(nBatch)
         return(batches,all_structs)
     else:
         return([batch],[s.from_sites([s.sites[n] for n in batch[4]])])
@@ -344,46 +357,6 @@ def getSpecDict(structure):
 
 
     return(ref_spec)
-
-
-def getAtomImages(struct,ref_site,supercell=2,prec=1E-4):
-    
-    """
-    
-    Helper funciton for getting the periodic 
-    images of an atom in the supercell
-    
-    inputs
-    --------
-        struct (Structure): pymatgen Structure object
-        
-        ref_sites (list, 3x1):  the cartesian coordinates of the reference
-                                species
-        
-        supercell (int):  The size of the supercell to generate
-
-        prec (float):   The precision to compare magnitude of vectors
-                        representing the bonds in the system 
-
-    returns
-    --------
-        list of indexes in "struct" which are periodic images of 
-        ref_site
-    
-    
-    """
-    
-    ref_latt=np.array(struct.lattice.as_dict()['matrix'])/supercell
-    lattice_shifts = list(itertools.product([1,0,-1],repeat=3))
-    # Get coordinates of periodic images of the reference atom
-    ref_coords = [np.array(ref_site+np.dot(ref_latt.T,x)) for 
-                  x in lattice_shifts]
-    # Get index of periodic indexes of the reference atom
-    periodic_sites=[atom_ind for atom_ind in range(struct.num_sites) if \
-                    np.any([np.linalg.norm(struct.sites[atom_ind].coords-\
-                    ref_site)<=prec for ref_site in ref_coords])]
-    return(periodic_sites)
-
 
 
 def magni(vector):
@@ -446,6 +419,8 @@ def cleaveSurfAtom(entry,max_bonds=1,supercell=2,group_structs=True):
     
     struct = copy.deepcopy(entry[0])
     results = getStructureType(entry,supercell=supercell,returnSS=True)
+    
+    # If the crystal is 3D
     if results[0]=='conventional':
         struct = copy.deepcopy(entry[0])
         og_binary_matrix = getDistMat(struct,entry[1]-1)
@@ -453,12 +428,16 @@ def cleaveSurfAtom(entry,max_bonds=1,supercell=2,group_structs=True):
         struct.make_supercell(supercell)
         binary_matrix= getDistMat(struct,entry[1]-1)
         bonds = []
+        
+        # Get list of bonded atoms
         for i in range(len(og_binary_matrix)):
             for pair in [(i,j) for j in range(i+1,len(og_binary_matrix)) 
                          if og_binary_matrix[i][j]==1]:
                 bonds.append(pair)
         allCombos = []
         combNum = 0
+        
+        # Get list of all combinations of bonds
         for i in range(max_bonds+1):
             for com in list(itertools.combinations(bonds,i)):
                 allCombos.append(com)
@@ -467,6 +446,8 @@ def cleaveSurfAtom(entry,max_bonds=1,supercell=2,group_structs=True):
         combos = allCombos
         jjj=0
         all_structs = []
+        
+        # For each bond combination
         for combo in combos:
             broken=0
             jjj+=1
@@ -475,6 +456,7 @@ def cleaveSurfAtom(entry,max_bonds=1,supercell=2,group_structs=True):
                 i,j = pair
                 i=i*supercell**3
                 j=j*supercell**3
+                # Break bonds in the loop
                 for shift in range(supercell**3):
                     for shift2 in range(supercell**3):
                         modified_matrix[i+shift][j+shift2]=0
@@ -486,6 +468,7 @@ def cleaveSurfAtom(entry,max_bonds=1,supercell=2,group_structs=True):
             old_cluster_size=len(buildNetwork(binary_matrix,seed_index))/supercell**3
             cluster = buildNetwork(modified_matrix,seed_index)
             hetero=False
+            # If the new set of atoms is not empty
             if cluster!=set():
                 scale = len(cluster)/old_cluster_size
                 compo = Composition.from_dict(Counter([struct[l].specie.name 
@@ -497,6 +480,7 @@ def cleaveSurfAtom(entry,max_bonds=1,supercell=2,group_structs=True):
                     hetero = True
                 motiif = getDim(scale,supercell)
 
+            # If formula of new network matches the original cell
             if not hetero:
                 if motiif=='layered':
                     cluster_sites = [struct.sites[n] for n in cluster]
@@ -714,107 +698,76 @@ def cleaveSurfBond(entry,max_bonds=1,supercell=2,group_structs=True,prec=1E-4):
         print('Material is does not have a 3D motiif')
         print('Try increasing radii tolerance if appropriate')
         return([])
-
-
-def getNewLattice(entry,dim,prec=1E-4,seed_index=0,supercell=2,c_mag=50):
+    
+    
+    
+def getAtomImages(struct,ref_site,supercell=2,prec=1E-4):
     
     """
-    Helper function for "cleaveSurfBond" for getting the list of 
-    bonds which are parallel and of identical magnitude
+    
+    Helper function for getting the periodic 
+    images of an atom in the supercell
     
     inputs
     --------
-       entry (list): A set of components necessary for the TSA.
-                      Makes it easier to parallelize with this as
-                      the input
-                      --structure (Structure): pymatgen Structure object
-                      --tol (float): The scaling for the atomic bonds
-                      --mp_id (str): The label for the entry, commonly
-                                     the MaterialsProject ID
+        struct (Structure): pymatgen Structure object
         
-        dim (int):    Number of periodic directions in structure
+        ref_sites (list, 3x1):  the cartesian coordinates of the reference
+                                species
         
-        prec (float):       The precision to compare magnitude of vectors
-                            representing the bonds in the system     
-                        
-        seed_index (int):   The site to use as the starting point for the
-                            TSA. Typically does not impact the results, but
-                            will if the structure is a bipartide or has
-                            mixed dimensionality    
-                            
-        supercell (int):    The supercell size to generate for 
-                            periodic networks
-                            
-        c_mag (float):      The magnitude to make the non-periodic vectors
+        supercell (int):  The size of the supercell to generate
+
+        prec (float):   The precision to compare magnitude of vectors
+                        representing the bonds in the system 
+
+    returns
+    --------
+        list of indexes in "struct" which are periodic images of 
+        ref_site
+    
+    
+    """
+    
+    ref_latt=np.array(struct.lattice.as_dict()['matrix'])/supercell
+    lattice_shifts = list(itertools.product([1,0,-1],repeat=3))
+    # Get coordinates of periodic images of the reference atom
+    ref_coords = [np.array(ref_site+np.dot(ref_latt.T,x)) for 
+                  x in lattice_shifts]
+    # Get index of periodic indexes of the reference atom
+    periodic_sites=[atom_ind for atom_ind in range(struct.num_sites) if \
+                    np.any([np.linalg.norm(struct.sites[atom_ind].coords-\
+                    ref_site)<=prec for ref_site in ref_coords])]
+    return(periodic_sites)
+
+
+
+def getUniqueCount(specs):
+    '''
+    
+    Helper function for counting the number of instances
+    of a species
+    
+    inputs
+    ---------
+        specs (list): List of pymatgen element objects
         
         
     returns
-    --------
-        latt_attempt (list, 3X3): New lattice for "structure"
-        
-    """   
+    ---------
+        a dictionary with keys being pymatgen element objects
+        and the output being the number of instances of that element
     
+    '''
     
-    
-    # Get network of atoms within the supercell
+    d = {}
+    for entry in specs:
+        if entry not in d:
+            d[entry]=1
+        else:
+            d[entry]+=1
+            
+    return(d)
 
-    # Reset structure object, as "getStructureType" turned it into a supercell
-    structure = entry[0]
-    # Shift atoms so that the refernce atom is at the center of the cell
-    structure.translate_sites(indices=range(structure.num_sites),
-                              vector=-1*structure.sites[0].frac_coords+
-                              [.02,.02,.02],frac_coords=True)
- 
-    ogStructure = copy.deepcopy(structure)
-    
-    # Replace structure used for TSA with centered structure
-    entry[0]=structure
-    batch = getStructureType(entry,seed_index=seed_index,
-                             supercell=supercell,returnSS=True)
-
-    # Get position of reference atom, and periodic images
-    ref_spec = structure.sites[0].specie
-    ref_site = np.array(structure.sites[0].coords)
-    refLat  = np.array(structure.lattice.as_dict()['matrix'])
-
-
-    # Get structure object containing a single atomic network
-    structure.make_supercell(supercell)
-    cluster_sites = [structure.sites[n] for n in batch[4]]
-    new_struct = structure.from_sites(cluster_sites)
-
-    # Get the list of reference atoms which are in the
-    # isolated atomic network
-    in_network = [new_struct.sites[x].coords for x in getAtomImages(new_struct,ref_site)]
-
-    # Ensure all fractional coordiantes are <1
-
-    for i in range(ogStructure.num_sites):
-        if np.any([abs(x)>=1 for x in ogStructure.sites[i].frac_coords]):
-            tVector = [x-x%1 for x in ogStructure.sites[i].frac_coords]
-    #        print(ogStructure.sites[i].frac_coords)
-    #        print(tVector)
-            ogStructure.translate_sites(indices=i,vector=-1*tVector)
-
-
-
-    # Get the new lattice matrix
-    latt_attempt = genLattice(ogStructure,in_network,dim)
-    
-    # If a valid lattice matrix isn't found, it is likely due to an issue
-    # with original lattice vectors not being orthogonal. 
-    # Shift atomic positions a bit until this problem doesn't occur
-    o_shift=0.05
-    o_shift_count=float(o_shift)
-    while latt_attempt==[] and o_shift_count<1:
-        print(o_shift_count)
-        ogStructure.translate_sites(indices=range(ogStructure.num_sites),
-                                    vector=[o_shift,o_shift,o_shift],
-                                    frac_coords=True)
-        ogStructure.to('POSCAR','POS_'+str(round(o_shift_count,2)))
-        o_shift_count+=.05
-        latt_attempt = genLattice(ogStructure,in_network,dim)
-    return(latt_attempt)
 
 
 def calcCrossMag(v1,v2):
@@ -889,8 +842,368 @@ def getTranslation(fracs):
     return(shift_vector)
     
 
-def genLattice(structure,in_network,dimension,prec=1E-4,
-               seed_index=0,supercell=2,c_mag=50):
+    
+def reduceCoords(structure):
+    
+    '''
+    helper function for reducing fractional coordinates
+    
+    
+    '''
+    
+    # Ensure all fractional coordiantes are <1
+    sites = structure.sites
+    for i in range(structure.num_sites):
+        if np.any([round(abs(x),4)>=1 for x in sites[i].frac_coords]):
+            tVector = np.array([x-round(x,4)%1 for x in sites[i].frac_coords])
+
+
+            structure.translate_sites(indices=i,vector=-1*tVector,
+                                        frac_coords=True)
+
+
+    return(structure)
+    
+
+def getVectorsRough(structure, supercell, prec,dimension,seed_index=0):
+    '''
+    
+    Helper function to get the in-plane lattice vectors 
+    in a more complete, but significantly less efficient way.
+    Typically not needed, except in extreme cases.
+    
+        inputs
+    --------
+        structure (Structure): pymatgen Structure object
+                     
+                            
+        supercell (int):    The size supercell to use for building the 
+                            bonded atomic network.
+                            
+        prec (float): precision of fit, in cartesian space (Angstrom)
+                            
+        dimension (int): number of periodic dimensions in system
+
+        seed_index (int): starting atom for indexing                                   
+
+    returns
+    --------
+        in_network (list): entries of candidate lattice vectors
+    
+    '''  
+
+
+    # Get position of reference atom, and periodic images
+    ref_spec = structure.sites[seed_index].specie
+    ref_site = np.array(structure.sites[seed_index].coords)
+    ref_lat  = np.array(structure.lattice.as_dict()['matrix'])/supercell
+
+    ref_coords = [np.array(x.coords)-ref_site for x in structure.sites 
+                  if x.specie ==ref_spec
+                  and not magni(np.array(x.coords)-ref_site)<=prec]
+
+
+    # Get the list of vectors between 
+    # isolated atomic network
+    
+    min_area = min([magni(np.cross(x[0],x[1])) for x in 
+                    list(itertools.product(ref_lat,repeat=2))
+                    if magni(np.cross(x[0],x[1]))>0])
+    max_area = (2**.5)*max([magni(np.cross(x[0],x[1])) for x in 
+                    list(itertools.product(ref_lat,repeat=2))])
+
+    fin_vec_list = []
+    
+    # Create a list of lists. Each sublist contains vectors which are all
+    # parallel to each other. Each sublist is not parallel to anhy other
+    # sublist
+    for vec in ref_coords:
+        # Check if any seen vectors are parallel
+        if not np.any([(abs(np.pi-getAngle(vec,x[0][0]))<prec or 
+                        abs(getAngle(vec,x[0][0]))<prec) for 
+                        x in fin_vec_list]):
+            fin_vec_list.append([[vec,magni(vec)]])
+        else:
+            i=0
+            for vec_set in fin_vec_list:
+                if abs(np.pi-getAngle(vec,vec_set[0][0]))<prec or \
+                   abs(getAngle(vec,vec_set[0][0]))<prec:
+                    fin_vec_list[i].append([vec,magni(vec)])
+                    break
+                i+=1
+                
+                
+    # Get possible lattice vectors. If three vectors lie in a plane, then
+    # they are grouped together as possible lattice vectors
+                
+    valid_vecs = []
+    for i in range(len(ref_coords)):
+        done=False
+        for j in range(i,len(ref_coords)):
+            if getAngle(ref_coords[i],ref_coords[j])>1E-2 and \
+             abs(np.pi-getAngle(ref_coords[i],ref_coords[j]))>1E-2:
+                cross = np.cross(ref_coords[i],ref_coords[j])
+                for k in range(j,len(ref_coords)):
+  
+                        angs = [getAngle(ref_coords[k],cross)]
+ 
+                        if np.all([np.pi/2-x for x in angs]):
+                            done=True
+                            break
+
+            if done:
+                valid_vecs.append([ref_coords[x] for x in [i,j,k]])
+                
+                break
+ 
+    in_network=[]
+    
+    # Screen any set of vecots which exceed area criteria and reorganize
+    # the data
+    for v_set in valid_vecs:
+        for pair in list(itertools.product(v_set,repeat=2)):
+            cross_mag=magni(np.cross(pair[0],pair[1]))
+            if cross_mag>= min_area and cross_mag<=max_area:
+                in_network.append([pair[0],pair[1],
+                                   getAngle(pair[0],pair[1])-np.pi/2,
+                                   cross_mag])
+
+
+    
+    
+
+    in_network = sorted(in_network, key=itemgetter(3))
+    return(in_network) 
+  
+
+
+
+def getVectors(structure, supercell, prec,dim,seed_index=0):
+    
+
+    '''
+    
+    Helper function to get the in-plane lattice vectors.
+    
+        inputs
+    --------
+        structure (Structure): pymatgen Structure object
+                     
+                            
+        supercell (int):    The size supercell to use for building the 
+                            bonded atomic network.
+                            
+        prec (float): precision of fit, in cartesian space (Angstrom)
+                            
+        dimension (int): number of periodic dimensions in system
+
+        seed_index (int): starting atom for indexing                                   
+
+    returns
+    --------
+        in_network (list): entries of candidate lattice vectors
+    
+    '''  
+
+
+    # Get position of reference atom, and periodic images
+    ref_spec = structure.sites[seed_index].specie
+    ref_site = np.array(structure.sites[seed_index].coords)
+    ref_lat  = np.array(structure.lattice.as_dict()['matrix'])/supercell
+
+    ref_coords = [[np.array(ref_site+np.dot(ref_lat.T,x)),x] for x in 
+                 list(itertools.product([1,-1,0],repeat=3))]
+    cluster_sites = [i for i in structure.sites]
+
+
+    # Get the list of reference atoms which are in the
+    # isolated atomic network
+    
+    in_network = []
+    in_network_indexes=[]
+    i=0
+    test_vecs = []
+
+    for atom in ref_coords:
+        if np.any([magni(atom[0]-x.coords)<prec for x in 
+                   cluster_sites if x.specie==ref_spec]):
+            in_network.append(atom[0])
+            in_network_indexes.append(i)
+            test_vecs.append(atom[1])
+        i+=1
+        
+    if dim==2:
+        all_angs = []
+    
+        if len(test_vecs)>=2:
+            tv = np.cross(test_vecs[0],test_vecs[1])
+            for t in [x for x in test_vecs if magni(x)!=0]:
+                temp_ang = getAngle(tv,t)
+                if temp_ang not in all_angs:
+                    all_angs.append(temp_ang)
+    
+        fresh_angs=[]
+    
+        if len(all_angs)>1:
+            fresh_angs= []
+            for ang in all_angs:
+                if not np.any([(ang-x)<prec for x in fresh_angs]):
+                    fresh_angs.append(ang)
+        elif len(all_angs)>0:
+            fresh_angs=[all_angs[0]]
+    
+        if len(fresh_angs)==1:
+            new = [[np.dot(ref_lat.T,x[0]),np.dot(ref_lat.T,x[1]),
+                   abs(getAngle(x[0],x[1])-np.pi/2),
+                   magni(np.cross(np.dot(ref_lat.T,x[0]),
+                                  np.dot(ref_lat.T,x[1])))] 
+                   for x in list(itertools.combinations(
+                           [v for v in test_vecs if magni(v)>0],dim))]
+            return(new)
+        else:
+            return([])
+    else:
+        return([[np.dot(ref_lat.T,v),np.dot(ref_lat.T,v),np.pi/4,
+                 magni(v),np.dot(ref_lat.T,v)] for v in test_vecs 
+                if magni(v)>0])
+    return(in_network)
+
+def getNewLattice(entry,dim,prec=1E-4,seed_index=0,supercell=4,c_mag=60,
+                  attempt_rough=True):
+    
+    """
+    Helper function for "cleaveSurfBond" for getting the list of 
+    bonds which are parallel and of identical magnitude
+    
+    inputs
+    --------
+       entry (list): A set of components necessary for the TSA.
+                      Makes it easier to parallelize with this as
+                      the input
+                      --structure (Structure): pymatgen Structure object
+                      --tol (float): The scaling for the atomic bonds
+                      --mp_id (str): The label for the entry, commonly
+                                     the MaterialsProject ID
+        
+        dim (int):    Number of periodic directions in structure
+        
+        prec (float):       The precision to compare magnitude of vectors
+                            representing the bonds in the system     
+                        
+        seed_index (int):   The site to use as the starting point for the
+                            TSA. Typically does not impact the results, but
+                            will if the structure is a bipartide or has
+                            mixed dimensionality    
+                            
+        supercell (int):    The supercell size to generate for 
+                            periodic networks
+                            
+        c_mag (float):      The magnitude to make the non-periodic vectors
+        
+        attempt_rough (bool): If no in-plane lattice vectors are found which
+                              allow a single unit cell representation for 
+                              the monolayer, search for any combination of 
+                              lattice vectors which fit the crystal structure.
+                              Typically only necessary for cleaved structures 
+                              where the surface cleaved needs more than one
+                              unit cell of the precursor to be formed 
+                              (EX: in-plane vectors needed are [0,1,0] and 
+                               [2,.5,1], dotted with the overall lattice 
+                               vectors)
+
+        
+    returns
+    --------
+        latt_attempt (list, 3X3): New lattice for "structure"
+        
+    """   
+    
+    
+    
+    # Get network of atoms within the supercell
+
+    # Reset structure object, as "getStructureType" turned it into a supercell
+    
+
+    structure = entry[0]
+    
+    # Shift atoms so that the refernce atom is at the center of the cell
+    structure.translate_sites(indices=range(structure.num_sites),
+                            vector=-1*structure.sites[seed_index].frac_coords+
+                            [0.99,0.99,0.99],frac_coords=True)
+                             
+    structure = reduceCoords(structure)
+    ogStructure = copy.deepcopy(structure)
+    
+    # Replace structure used for TSA with centered structure
+    entry[0]=structure
+    batch = getStructureType(entry,seed_index=seed_index,
+                             supercell=supercell,return_SS=True)
+
+    structure.make_supercell(supercell)
+    cluster_sites = [structure.sites[n] for n in batch[4]]
+    
+    
+    
+
+    # Get structure object containing a single atomic network
+    
+    
+    ogStructure = Structure.from_sites(cluster_sites)
+    ogStructure = reduceCoords(ogStructure)
+    in_network = getVectors(ogStructure,supercell,prec,2)
+    fit_fracs=[]
+
+    # Get the new lattice matrix
+    latt_attempt,fit_fracs= genLattice(ogStructure,
+                                       in_network,dim,supercell,c_mag=c_mag)
+    
+    
+    # If a valid lattice matrix isn't found, it is likely due to an issue
+    # with original lattice vectors not being orthogonal. 
+    # Shift atomic positions a bit until this problem doesn't occur
+    o_shift=0.05
+    o_shift_count=float(o_shift)
+    
+    # While no matching set of lattice vectors is found,
+    # slightly shift atomic positions in an 
+    # attempt to capture an accurate fit. 
+    while len(latt_attempt)==0 and o_shift_count<1:
+
+        ogStructure.translate_sites(indices=range(ogStructure.num_sites),
+                                    vector=[o_shift,o_shift,o_shift],
+                                    frac_coords=True)
+
+        o_shift_count+=o_shift
+        in_network = getVectors(ogStructure,supercell,prec,dim)
+
+        latt_attempt,fit_fracs = genLattice(ogStructure,
+                                    in_network,dim,supercell,c_mag=c_mag)
+
+
+    # If no match was found and attempt_rough is True, attempt again with
+    # a more complete list of possible lattice vectors
+    if len(latt_attempt)==0 and attempt_rough:
+        o_shift=0.05
+        o_shift_count=float(o_shift)
+        while len(latt_attempt)==0 and o_shift_count<1:
+            ogStructure.translate_sites(indices=range(ogStructure.num_sites),
+                                        vector=[o_shift,o_shift,o_shift],
+                                        frac_coords=True)
+            
+            
+            o_shift_count+=o_shift
+            in_network = getVectorsRough(ogStructure,supercell,prec,dim)
+            latt_attempt,fit_fracs = genLattice(ogStructure,
+                                        in_network,dim,supercell,c_mag=c_mag)
+
+    
+    return(latt_attempt,fit_fracs)
+
+
+
+def genLattice(structure,in_network,dim,supercell,prec=1E-4,
+               seed_index=0,c_mag=60,y_dist=-1):
     
     """
     Generate a new lattice for the low-dimensional material. Creates a lattice
@@ -904,7 +1217,11 @@ def genLattice(structure,in_network,dimension,prec=1E-4,
         in_network (list):  List of atoms which are periodic images of 
                             each other
         
-        dimension (int):    Number of periodic directions in structure
+       
+        
+       
+        
+       dimension (int):    Number of periodic directions in structure
         
         prec (float):       The precision to compare magnitude of vectors
                             representing the bonds in the system     
@@ -928,41 +1245,38 @@ def genLattice(structure,in_network,dimension,prec=1E-4,
 
     # Generate vectors in plane/line, relative to
     # the first atom in the network of atoms
-    vec_list = {}
-    for i in range(len(in_network)-1):
-        vec_list[i]=[]
-        for j in range(i,len(in_network)):
-            if i!=j:
-                vec_list[i].append(in_network[j]-in_network[i])
-    print(vec_list)
-    vect_and_magnitude = []
-    if dimension==2:
-        for i in vec_list:
-            for sett in [[[x,y],magni(np.cross(x,y))] for [x,y] in list(itertools.combinations(vec_list[i],dimension))]:
-                vect_and_magnitude.append(sett)
-    elif dimension==1:
-        for i in vec_list:
-            for sett in [[x,magni(x)] for x in list(itertools.combinations(vec_list[i],dimension))]:
-                vect_and_magnitude.append(sett)
-        
-    vectors = [np.array(pair) for [pair,magnitude] in sorted(vect_and_magnitude,key=operator.itemgetter(1))]
-    coords = [x.coords for x in structure.sites]
-    return_structure=False
     
-    # Attempt all mixtures of vectors as
-    # potential lattice vectors
-    for lat_vectors in vectors:
+    if y_dist==-1:
+        y_dist=c_mag/3
+    
+    new = [x for x in in_network if abs(x[2])<np.pi/2]
+    return_structure=False
+    mat = np.array(structure.lattice.as_dict()['matrix'])
+    coords = np.array([np.dot(mat.T,x.frac_coords%1) for x in structure.sites])
+    specs = structure.species
+    ref_ele_d = getUniqueCount(specs)
+    for i in ref_ele_d:
+        ref_ele_d[i]/=(supercell**dim)
+    coords = coords-coords[seed_index]
+    
+
+
+
+
+    for lat_vectors in sorted(new,key=itemgetter(3)):
+
         # Create lattice matrix to fit atomic coordinates against
-        
         # In 2D
-        if dimension==2:
-                scaleC=c_mag/magni(lat_vectors[0])/magni(lat_vectors[1])
-                latt_attempt = np.array([lat_vectors[0],lat_vectors[1],\
-                    np.cross(lat_vectors[0],lat_vectors[1])*scaleC])
+        if dim==2:
+            new_c = np.cross(lat_vectors[0],lat_vectors[1])
+            scale_c = c_mag/magni(new_c)
+
+            latt_attempt = np.array([lat_vectors[0],lat_vectors[1],\
+                                     new_c*scale_c])
                 
         # In 1D
-        elif dimension==1:
-            unitV = lat_vectors[0]/np.linalg.norm(lat_vectors[0])
+        elif dim==1:
+            unitV = lat_vectors[0]/magni(lat_vectors[0])
             if unitV[0]==0:
                 perp1 = [1,0,0]
             elif unitV[1]==0:
@@ -975,35 +1289,131 @@ def genLattice(structure,in_network,dimension,prec=1E-4,
             perp2 = np.cross(unitV,perp1)
             perp2 = perp2/np.linalg.norm(perp2)*c_mag
             latt_attempt   = np.array([lat_vectors[0],perp1,perp2])
+            
         # Fit atomic sites to new lattice
         temp_fracs = np.linalg.solve(latt_attempt.T,np.array(coords).T)
+         
+         
 
         # Make list of all fractional positions, ignoring
         # which axis
         new_fracs = list([list(x) for x in temp_fracs.T])
-        temp_cat = new_fracs[0]+new_fracs[1]+new_fracs[2]
-        
-        # Ensure cartesian coordinate of all 
-        # atoms can be described using no more 
-        # one of each unit vector
-        if not np.any([abs(round(x,2))>1 for x in temp_cat]):
-            return_structure=True
-            break
+
+        if len([x for x in np.array(new_fracs).T if 
+                np.all([(y>=0 and y<1) for y in np.around(x[:dim],3)]) and
+                np.all([(y>=-y_dist/c_mag and y<y_dist/c_mag) for 
+                    y in np.around(x[dim:],3)])])==len(new_fracs[0])/supercell**dim:
+       
+                fit_fracs=[]
+                new_fracs_t = np.around(new_fracs.T,6)
+                for i in range(len(new_fracs[0])):
+                    if np.all([(y>=0 and y<1) for y in np.around(new_fracs_t[i][:dim],3)]) \
+                                  and np.all([(y>=-y_dist/c_mag and y<y_dist/c_mag) 
+                                              for y in np.around(new_fracs_t[i][dim:],3)]):
+                                      fit_fracs.append([new_fracs_t[i],specs[i]])
+                fit_fracs = np.array(fit_fracs).T
+                new_ele_d = getUniqueCount(fit_fracs[1])
+                unequal=False
+                for k in new_ele_d:
+                    if new_ele_d[k]!=ref_ele_d[k]:
+                        unequal=True
+
+                        break
+                if not unequal:
+
+                    return_structure=True
+                    break
+
+
 
     # If match found
     if return_structure:
-        return(latt_attempt)
+        return(np.array(latt_attempt),fit_fracs)
     # If no match found
     else:
-        return([])
+        return([],[])
+
 
 
 def alignMono(entry,prec=1E-4,seed_index=0,supercell=2,
-              c_mag=50,dist_from_plane=0):
+              c_mag=50,dist_from_plane=3):
     
     """
     Align a 2D material such that the 'c' vector is perpendicular to the
-    in-plane lattice vectors
+    in-plane lattice vectors. Draws lattice vectors between known atoms.
+    
+    inputs
+    --------
+       entry (list): A set of components necessary for the TSA.
+                      Makes it easier to parallelize with this as
+                      the input
+                      --structure (Structure): pymatgen Structure object
+                      --tol (float): The scaling for the atomic bonds
+                      --mp_id (str): The label for the entry, commonly
+                                     the MaterialsProject ID
+
+        
+        prec (float):       The precision to compare magnitude of vectors
+                            representing the bonds in the system     
+                        
+        seed_index (int):   The site to use as the starting point for the
+                            TSA. Typically does not impact the results, but
+                            will if the structure is a bipartide or has
+                            mixed dimensionality    
+                            
+        supercell (int):    The supercell size to generate for 
+                            periodic networks
+                            
+        c_mag (float):      The magnitude to make the non-periodic vectors
+        
+        dist_from_plane (float): Maximum distance an atom can be from the
+                                 plane parallel to the monolayer. Is relevant 
+                                 when the atoms in the monolayer are spread 
+                                 across periodic boundary conditions in the 
+                                 unit cell
+                                 
+        
+        
+    returns
+    --------
+        list1 (list): -species associated with each site
+                     -fractional coordinates in new lattice
+                     -new lattice (a,b,c)
+    
+        list2 (list): -species associated with each site
+                     -fractional coordinates in new lattice
+                     -new lattice (a,b,c)
+        
+    """
+
+
+
+
+    new_latt,fit_fracs_both= getNewLattice(entry,dim=2,prec=prec,
+                                           seed_index=seed_index,
+                                           supercell=supercell,c_mag=c_mag)
+
+    fit_fracs = np.array([np.array(x)+[0,0,.5] for x in fit_fracs_both[0]])
+    final_sites = np.dot(new_latt.T,fit_fracs.T).T
+    # Create new lattice matricies
+    lat1 = np.array([new_latt[0],new_latt[1],new_latt[2]])
+    lat2 = np.array([new_latt[1],new_latt[0],new_latt[2]])
+
+    # Generate atomic fractions
+    new_fracs1 = np.linalg.solve(lat1.T,np.array(final_sites).T).T
+    new_fracs2 = np.linalg.solve(lat2.T,np.array(final_sites).T).T
+    species = fit_fracs_both[1]
+    return([species,new_fracs1,lat1],[species,new_fracs2,lat2])
+
+
+
+def alignMonoPlane(entry,prec=1E-4,seed_index=0,supercell=2,
+              c_mag=50,dist_from_plane=3):
+    
+    """
+    Align a 2D material such that the 'c' vector is perpendicular to the
+    in-plane lattice vectors. Outdated in accuracy and applicability by
+    the "alignMono" function.
     
     inputs
     --------
@@ -1053,36 +1463,41 @@ def alignMono(entry,prec=1E-4,seed_index=0,supercell=2,
     s = copy.deepcopy(entry[0])
 
 
-    new_latt = getNewLattice(entry,dim=2,prec=prec,seed_index=seed_index,
+    new_latt,fit_fracs= getNewLattice(entry,dim=2,prec=prec,seed_index=seed_index,
                           supercell=supercell,c_mag=c_mag)
 
 
+    
+
     # Identify plane to translate atoms towards
+
     plane = Plane(Point3D(s.sites[seed_index].coords),
                   normal_vector=new_latt[2])
     
     # Create list of translationss
     trans = list(itertools.product([1,-1,0],repeat=3))
 
-    lat = s.lattice.as_dict()['matrix']
+    lat = np.array(s.lattice.as_dict()['matrix'])
     final_sites = []
     i=0
-    
+   
     # Ensure that the atoms are nearby each other
-    for site in s.sites:
-        point = Point3D(site.coords)
-        if plane.distance(point)<dist_from_plane:
-            final_sites.append(site.coords)
-        else:
+    for site in [x.coords for x in s.sites]:
+        point = Point3D(site)
+        if 1==1:
+
             news = []
             
             # translate atomic sites to see which position is closest to plane
             for t in trans:
-                point = Point3D(site.coords+np.dot(np.transpose(lat),t))
+                point = Point3D(site+np.dot(np.transpose(lat),t))
                 news.append([float(plane.distance(point)),t])
             news.sort(key = lambda x:x[0])
-            final_sites.append(site.coords+
-                               np.dot(np.transpose(lat),news[0][1]))
+            for new in news:
+                if not np.any([magni((site+np.dot(np.transpose(lat),new[1]))-x)<=prec for x in final_sites]):
+                    final_sites.append(site+
+                                       np.dot(np.transpose(lat),new[1]))
+                    break
         i+=1
         
     # Create new lattice matricies
@@ -1092,8 +1507,12 @@ def alignMono(entry,prec=1E-4,seed_index=0,supercell=2,
     # Generate atomic fractions
     new_fracs1 = np.linalg.solve(lat1.T,np.array(final_sites).T).T
     new_fracs2 = np.linalg.solve(lat2.T,np.array(final_sites).T).T
-    species = s.species
+
+    species=fit_fracs[1]
+
     return([species,new_fracs1,lat1],[species,new_fracs2,lat2])
+
+
 
 def alignChain(entry,prec=1E-4,seed_index=0,supercell=2,
                c_mag=50,dist_from_line=0):
@@ -1145,19 +1564,19 @@ def alignChain(entry,prec=1E-4,seed_index=0,supercell=2,
     new_struct = copy.deepcopy(entry[0])
 
     new_latt = getNewLattice(entry,1,prec,seed_index,supercell,c_mag)
-    print(new_latt)
+
     v1,v2,perp=new_latt
     new_latt=np.array(new_latt)
     line1 = Line3D(new_latt[0],[0,0,0])
     line = line1.parallel_line(new_struct.sites[0].coords)
     trans = list(itertools.product([1,-1,0],repeat=3))
-    print('WORKING1')
+
     lat = np.array(new_struct.lattice.as_dict()['matrix'])
     final_sites = []
     i=0
     i=-1
     for site in [x.coords for x in new_struct.sites]:
-        print(i,new_struct.num_sites)
+
         i+=1
         point = Point3D(site)
         if line.distance(point)<dist_from_line:
@@ -1171,7 +1590,7 @@ def alignChain(entry,prec=1E-4,seed_index=0,supercell=2,
             final_sites.append(site+np.dot(lat.T,news[0][1]))
 
 
-    #new_latt = np.array([,perp2])
+
     new_fracs = np.linalg.solve(new_latt.T,np.array(final_sites).T).T
     species = new_struct.species
     return([species,new_fracs,new_latt])
@@ -1222,30 +1641,42 @@ def makeNewPos(specs,frac_coords,new_latt,dim):
                                 orthogonal to the periodic directions
     
     """
-
-    
     a,b,c = magni(new_latt[0]),magni(new_latt[1]),magni(new_latt[2])
     if dim==2:
-        ang = getAngle(new_latt[0],new_latt[1])/2
-        new_latt = [[np.cos(ang)*a,-np.sin(ang)*a,0],
-                    [np.cos(ang)*b,np.sin(ang)*b,0],[0,0,c]]
+        ang = abs(getAngle(new_latt[0],new_latt[1]))
+        if a>b:
+            frac_coords = [[x[1],x[0],x[2]] for x in frac_coords]
+
+            a,b=b,a
+        if abs((ang-np.pi/2)/ang)<1E-4:
+            new_latt = [[a,0,0],
+                        [0,b,0],
+                        [0,0,c]]
+        else:
+            new_latt=[[a*np.cos(ang/2),a*np.sin(ang/2),0],
+                      [b*np.cos(ang/2),-1*b*np.sin(ang/2),0],
+                      [0,0,c]]
     elif dim==1:    
         new_latt = [[a,0,0],[0,b,0],[0,0,c]]
     i=0
+    
     new_sites = []
     for site in frac_coords:
+        new_coords = np.dot(np.array(new_latt).T,np.array(site).T).T
         p = PeriodicSite(species=Element(specs[i]),
                          lattice = Lattice(new_latt),
-                         coords=np.dot(site,new_latt),
+                         coords=new_coords,
                          coords_are_cartesian=True)
         new_sites.append(p)
         i+=1
 
     new_struct = Structure.from_sites(new_sites)
+
     return(new_struct)
 
 
-def reduceScale(structure,scale,dim):
+
+def reduceScale(structure,scale,dim,prec=1E-2):
     
     """
     Attempt to reduce the structure from a supercell
@@ -1254,7 +1685,10 @@ def reduceScale(structure,scale,dim):
     --------
         structure (Structure):  Pymatgen structure object to reduce
         
-        scale (float): How much to scale the periodic lattice vectors by
+        scale (int or list (3x1)): How much to scale the periodic lattice vectors by.
+                               If int, scales all periodic lattice vectors by
+                               that int. If list, scales lattice vectors by the
+                               entries of the list (x,y,z)
         
         dim (int):  The number of periodic directions in "structure"
         
@@ -1274,17 +1708,28 @@ def reduceScale(structure,scale,dim):
     cart = [x.coords for x in structure.sites]
 
     lat = np.array(structure.lattice.as_dict()['matrix'])
-    lat[0]*=scale
-    if dim==2 or dim==3:
-        lat[1]*=scale
-    if dim==3:
-        lat[2]*=scale
-    fracs = np.array(np.linalg.solve(lat.T,np.array(cart).T).T)
+    if type(scale)==type(1) or type(scale)==type(1.0):
+        lat[0]*=scale
+        if dim>=2:
+            lat[1]*=scale
+        if dim==3:
+            lat[2]*=scale
+    else:
+        lat[0]*=scale[0]
+        lat[1]*=scale[1]
+        lat[2]*=scale[2]        
+
+    fracs = np.around(abs(np.array(np.linalg.solve(lat.T,np.array(cart).T).T)),4)
+
     specs   = []
     u_cart   = []
     i=0
+    n_fracs = []
     for frac in fracs:
-        if frac[0]<1 and frac[1]<1 and frac[2]<1:
+        if not np.any([magni(np.around(frac,4)%1-np.around(x,4)%1)<prec for x in n_fracs]):
+                n_fracs.append(frac%1)
+        #if frac[0]<1 and frac[1]<1 and frac[2]<1:
+            
                 specs.append(structure.species[i])
                 u_cart.append(cart[i])
         i+=1
@@ -1292,12 +1737,11 @@ def reduceScale(structure,scale,dim):
     new_sites = []
     i=0
     for site in u_cart:
-        p = PeriodicSite(atoms_n_occu=Element(specs[i]),
-                         lattice = Lattice(lat),coords=site,
-                         coords_are_cartesian=True)
+        p = PeriodicSite(lattice = Lattice(lat),coords=site,
+                         coords_are_cartesian=True,
+                         species=specs[i])
         new_sites.append(p)
         i+=1
-
 
     new_struct = Structure.from_sites(new_sites)
 

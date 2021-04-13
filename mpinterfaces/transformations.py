@@ -12,7 +12,7 @@ Journal of Applied Physics 55, 378 (1984); doi: 10.1063/1.333084
 """
 
 from six.moves import range
-import sys
+import sys, copy
 from math import sqrt
 import numpy as np
 
@@ -28,7 +28,7 @@ __copyright__ = "Copyright 2018, Henniggroup"
 __maintainer__ = "V. S. Chaitanya Kolluru"
 __email__ = "chaitanya.ismu@gmail.com"
 __status__ = "Production"
-__date__ = "May 19, 2020"
+__date__ = "April 13, 2021"
 
 
 def get_trans_matrices(n):
@@ -403,7 +403,7 @@ def get_interface(substrate, mat2d, nlayers_2d=2, nlayers_substrate=2,
     return interface
 
 
-def get_aligned_lattices(slab_sub, slab_2d, max_area=200,
+def get_aligned_lattices(sub, twod, max_area=200,
                          max_mismatch=0.05,
                          max_angle_diff=1, r1r2_tol=0.2, best_match='area',
                          uv_matched=None):
@@ -415,7 +415,7 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area=200,
     if not uv_matched:
         # get the matching substrate and 2D material lattices
         uv_substrate, uv_mat2d = get_matching_lattices(
-                                                slab_sub, slab_2d,
+                                                sub, twod,
                                                 max_area=max_area,
                                                 max_mismatch=max_mismatch,
                                                 max_angle_diff=max_angle_diff,
@@ -433,8 +433,8 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area=200,
                         'of (uv_substrate, uv_mat2d)')
             return None, None
 
-    substrate = Structure.from_sites(slab_sub)
-    mat2d = Structure.from_sites(slab_2d)
+    substrate = copy.deepcopy(sub)
+    mat2d = copy.deepcopy(twod)
 
     # map the intial slabs to the newly found matching lattices
     substrate_latt = Lattice(np.array(
@@ -459,17 +459,27 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area=200,
                 mat2d.lattice.matrix[1, :],
                 mat2d_fake_c
             ]))
-
-    # Supercell matrix for primitive lattices -> match lattices
-    _, __, scell_1 = substrate.lattice.find_mapping(substrate_latt,
-                                                      ltol=0.05,
-                                                      atol=max_angle_diff)
-    _, __, scell_2 = mat2d_latt_fake.find_mapping(mat2d_latt,
-                                                    ltol=0.05,
-                                                    atol=max_angle_diff)
-    scell_1[2] = np.array([0, 0, 1])
+    
+    # try to get a non-singular matrix within 10 attempts
+    for res in substrate.lattice.find_all_mappings(substrate_latt, ltol=0.05, 
+                                                 atol=max_angle_diff):
+        scell_1 = res[2]
+        scell_1[2] = np.array([0, 0, 1])
+        if np.linalg.det(scell_1) < 1e-5:
+            continue
+        else:
+            break
+    # try to get a non-singular matrix within 10 attempts
+    for res in mat2d_latt_fake.find_all_mappings(mat2d_latt, ltol=0.05, 
+                                                 atol=max_angle_diff):
+        scell_2 = res[2]
+        scell_2[2] = np.array([0, 0, 1])
+        if np.linalg.det(scell_2) < 1e-5:
+            continue
+        else:
+            break
+    
     substrate.make_supercell(scell_1)
-    scell_2[2] = np.array([0, 0, 1])
     mat2d.make_supercell(scell_2)
 
     # modify the substrate lattice
@@ -483,7 +493,7 @@ def get_aligned_lattices(slab_sub, slab_2d, max_area=200,
 
     return substrate, mat2d
 
-def get_all_aligned_lattices(slab_sub, slab_2d, max_area=200,
+def get_all_aligned_lattices(sub, twod, max_area=200,
                              max_mismatch=0.05, max_angle_diff=1,
                              r1r2_tol=0.2, best_match='area'):
     """
@@ -491,7 +501,7 @@ def get_all_aligned_lattices(slab_sub, slab_2d, max_area=200,
     call get_aligned_lattices on each uv_all
     return list of all_aligned_lattices
     """
-    uv_all = get_matching_lattices(slab_sub, slab_2d,
+    uv_all = get_matching_lattices(sub, twod,
                                     max_area=max_area,
                                     max_mismatch=max_mismatch,
                                     max_angle_diff=max_angle_diff,
@@ -503,12 +513,13 @@ def get_all_aligned_lattices(slab_sub, slab_2d, max_area=200,
                 'Aligning matched lattices..'.format(len(uv_all)))
 
     all_aligned_lattices = []
+    lat_match_props = {}
     for i in range(len(uv_all)):
-        uv = uv_all[0]
+        uv = uv_all[i]
         uv_matched = uv[0], uv[1]
         try:
             sub_lattice, mat2d_lattice = get_aligned_lattices(
-                                                 slab_sub, slab_2d,
+                                                 sub, twod,
                                                  max_area=max_area,
                                                  max_mismatch=max_mismatch,
                                                  max_angle_diff=max_angle_diff,
@@ -517,11 +528,12 @@ def get_all_aligned_lattices(slab_sub, slab_2d, max_area=200,
                                                  uv_matched=uv_matched)
         except:
             continue
+        lat_match_props[i] = uv[2:]
         all_aligned_lattices.append((sub_lattice, mat2d_lattice))
     print ('{} lattice matches can be created'.format(
                                                 len(all_aligned_lattices)))
 
-    return all_aligned_lattices
+    return all_aligned_lattices, lat_match_props
 
 def rotate_to_principal_directions(cell):
     """
@@ -610,7 +622,6 @@ def run_lat_match(substrate, twod_layer, match_constraints):
 
     twod_prim = twod_layer.get_primitive_structure()
     substrate_prim = substrate.get_primitive_structure()
-    n_prim_sub = substrate_prim.num_sites
 
     try:
         #get aligned lattices
@@ -629,13 +640,12 @@ def run_lat_match(substrate, twod_layer, match_constraints):
         sub.sort()
         mat2d.sort()
         n_aligned_sub = sub.num_sites
-        scell_size = n_aligned_sub / n_prim_sub
     except:
         print ('Lattice match failed due to singular matrix generation for supercell')
         return None, None, None
 
     #merge substrate and mat2d in all possible ways
-    hetero_interfaces = None
+    hetero_interface = None
     if sub and mat2d:
         try:
             hetero_interface = get_interface(sub, mat2d,
@@ -657,7 +667,7 @@ def run_lat_match(substrate, twod_layer, match_constraints):
     else:
         return None, None, None
 
-def get_all_matches(substrate, twod_layer, match_constraints, write_all=False):
+def get_all_matches(sub, twod, match_constraints, write_all=False):
     """
     Returns all matches as a list of pymatgen structure objects
     Writes all of them as POSCAR files in a directory 'all_interface_poscars'
@@ -670,37 +680,37 @@ def get_all_matches(substrate, twod_layer, match_constraints, write_all=False):
     separation = match_constraints['separation']
     nlayers_substrate = match_constraints['nlayers_substrate']
     nlayers_2d = match_constraints['nlayers_2d']
-    sd_layers = match_constraints['sd_layers']
     best_match = match_constraints['best_match']
 
-    twod_prim = twod_layer.get_primitive_structure()
-    substrate_prim = substrate.get_primitive_structure()
-    n_prim_sub = substrate_prim.num_sites
+    twod_prim = twod.get_primitive_structure()
+    substrate_prim = sub.get_primitive_structure()
 
-    all_aligned_lattices = get_all_aligned_lattices(
+    all_aligned_lattices, lat_match_props = get_all_aligned_lattices(
                                                 substrate_prim, twod_prim,
                                                 max_area=max_area,
                                                 max_mismatch=max_mismatch,
                                                 max_angle_diff=max_angle_diff,
                                                 r1r2_tol=r1r2_tol,
                                                 best_match=best_match)
+    
+    for i, each_set in enumerate(all_aligned_lattices):
+        print ('The abc of lattice {} is {}'.format(i, 
+                                        each_set[0].lattice.abc))
 
     all_matched_interfaces = []
     for i in range(len(all_aligned_lattices)):
-        sub, mat2d = all_aligned_lattices[0]
+        subs, mat2d = all_aligned_lattices[i]
 
-        rotate_to_principal_directions(sub)
+        rotate_to_principal_directions(subs)
         rotate_to_principal_directions(mat2d)
         # sorts atoms wrt electronegativity
         # use this order in POTCAR
-        sub.sort()
+        subs.sort()
         mat2d.sort()
-        n_aligned_sub = sub.num_sites
-        scell_size = n_aligned_sub / n_prim_sub
 
-        if sub and mat2d:
+        if subs and mat2d:
             try:
-                hetero_interface = get_interface(sub, mat2d,
+                hetero_interface = get_interface(subs, mat2d,
                                          nlayers_2d, nlayers_substrate,
                                          separation)
             except:
@@ -721,6 +731,19 @@ def get_all_matches(substrate, twod_layer, match_constraints, write_all=False):
             strct = Structure(iface.lattice, iface.species, iface.frac_coords)
             name = poscar_path + 'POSCAR_{}'.format(i)
             strct.to(filename=name, fmt='poscar')
+            
+        props_file = poscar_path + 'match_props.txt'
+        with open(props_file, 'w') as f:
+            lines = []
+            keys = list(lat_match_props.keys())
+            keys.sort()
+            for i, k in enumerate(keys):
+                props = lat_match_props[k]
+                line = '{0}\t{1:.2f}\t{2:.2f}\t\t{3:.2f}\t\t{4:.2f}\n'.format(
+                                        i, props[0], props[1]*100, 
+                                        props[2]*100, props[3])
+                lines.append(line)
+            f.write('ID\tArea\t%strain-a\t%strain-b\tangle (deg)\n\n')
+            f.writelines(lines)
 
     return all_matched_interfaces
-

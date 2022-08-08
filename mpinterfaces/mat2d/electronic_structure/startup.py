@@ -7,7 +7,7 @@ import os
 import shutil
 import subprocess
 
-from pymatgen import Structure
+from pymatgen.core import Structure
 from pymatgen.io.vasp.inputs import Kpoints, Incar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 

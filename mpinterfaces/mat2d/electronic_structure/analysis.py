@@ -26,6 +26,13 @@ __email__ = "joshgabriel92@gmail.com"
 __status__ = "Production"
 __date__ = "March 3, 2017"
 
+"""
+Revision history:
+- Date: July 26, 2019
+- Details: fix the calculation of fermi velocity of each band that crosses the Fermi level
+- maintainer: Yue-Wen Fang
+"""
+
 
 def get_band_edges():
     """
@@ -738,7 +745,9 @@ def get_fermi_velocities():
                 dk = np.sqrt((kpoints[i+1].cart_coords[0]
                               - kpoints[i].cart_coords[0])**2
                              + (kpoints[i+1].cart_coords[1]
-                                - kpoints[i].cart_coords[1])**2)
+                                - kpoints[i].cart_coords[1])**2
+                             + (kpoints[i+1].cart_coords[2]
+                                - kpoints[i].cart_coords[2])**2)
                 v_f = abs((band[i+1] - band[i]) / (h_bar * dk))
                 fermi_velocities.append(v_f)
 

@@ -9,45 +9,35 @@ import sys
 import operator
 import warnings
 
-from pymatgen.ext.matproj import MPRester
-
-from monty.serialization import loadfn
-
 __author__ = "Kiran Mathew, Joshua J. Gabriel, Michael Ashton, " \
              "Arunima K. Singh, Joshua T. Paul, Seve G. Monahan, " \
              "Richard G. Hennig"
 __date__ = "March 3 2017"
 __version__ = "1.7.0"
 
-PACKAGE_PATH = os.path.dirname(__file__)
+PACKAGE_PATH = os.path.dirname(os.path.abspath(__file__))
 
-try:
-    MPINT_CONFIG = loadfn(os.path.join(PACKAGE_PATH, 'mpint_config.yaml'))
-except:
-    MPINT_CONFIG = {}
-    warnings.warn('mpint_config.yaml file not configured.')
+from .config_loader import CONFIG
+from pymatgen.ext.matproj import MPRester
 
-# set environ variables for MAPI_KEY and VASP_PSP_DIR
-if MPINT_CONFIG.get('potentials', ''):
-    os.environ['PMG_VASP_PSP_DIR'] = MPINT_CONFIG.get('potentials', '')
-MP_API = MPINT_CONFIG.get('mp_api', '')
-if MP_API:
-    os.environ['MAPI_KEY'] = MP_API
+# First, correctly fetch PMG_MAPI_KEY using .get() to handle cases where it might not be set
+PMG_MAPI_KEY = CONFIG.get('PMG_MAPI_KEY')
 
-MPR = MPRester(MP_API)
-USERNAME = MPINT_CONFIG.get('username', None)
-VASP_STD_BIN = MPINT_CONFIG.get('normal_binary', None)
-VASP_TWOD_BIN = MPINT_CONFIG.get('twod_binary', None)
-VDW_KERNEL = MPINT_CONFIG.get('vdw_kernel', None)
-VASP_PSP = MPINT_CONFIG.get('potentials', None)
-QUEUE_SYSTEM = MPINT_CONFIG.get('queue_system', None)
-QUEUE_TEMPLATE = MPINT_CONFIG.get('queue_template', None)
+MPR = MPRester(PMG_MAPI_KEY)
+
+# Other configurations
+USERNAME = CONFIG.get('username')
+VASP_STD_BIN = CONFIG.get('normal_binary')
+VASP_TWOD_BIN = CONFIG.get('twod_binary')
+VDW_KERNEL = CONFIG.get('vdw_kernel')
+VASP_PSP = CONFIG.get('potentials')
+QUEUE_SYSTEM = CONFIG.get('queue_system')
+QUEUE_TEMPLATE = CONFIG.get('queue_template')
 
 if not QUEUE_SYSTEM:
     QUEUE_SYSTEM = 'slurm'
-
-
-def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
+    
+def get_struct_from_mp(formula, PMG_MAPI_KEY="", all_structs=False):
     """
     fetches the structure corresponding to the given formula
     from the materialsproject database.
@@ -59,12 +49,12 @@ def get_struct_from_mp(formula, MAPI_KEY="", all_structs=False):
     this function returns the one with the lowest energy above the hull
     unless all_structs is set to True
     """
-    if not MAPI_KEY:
-        MAPI_KEY = os.environ.get("MAPI_KEY", "")
-        if not MAPI_KEY:
+    if not PMG_MAPI_KEY:
+        PMG_MAPI_KEY = os.environ.get("PMG_MAPI_KEY", "")
+        if not PMG_MAPI_KEY:
             print('API key not provided')
             print(
-                'get API KEY from materialsproject and set it to the MAPI_KEY environment variable. aborting ... ')
+                'get API KEY from materialsproject and set it to the PMG_MAPI_KEY environment variable. aborting ... ')
             sys.exit()
     with MPR as m:
         data = m.get_data(formula)

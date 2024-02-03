@@ -3,7 +3,7 @@ import unittest
 
 from monty.serialization import loadfn
 
-from mpinterfaces import MP_API
+from mpinterfaces import PMG_MAPI_KEY
 from mpinterfaces.mat2d.pourbaix import *
 from mpinterfaces.mat2d.stability.startup import INCAR_DICT
 
@@ -32,7 +32,7 @@ class StartupTest(unittest.TestCase):
         for elt in control_energies:
             self.assertEqual(test_energies[elt], control_energies[elt])
 
-    @unittest.skipIf(MP_API == None, "API key not set")
+    @unittest.skipIf(PMG_MAPI_KEY == None, "API key not set")
 #    def test_relax_references_for_Mo_and_S(self):
 #        os.chdir(ROOT)
 #        relax_references(['Mo_pv', 'S'], incar_dict=INCAR_DICT, submit=False)

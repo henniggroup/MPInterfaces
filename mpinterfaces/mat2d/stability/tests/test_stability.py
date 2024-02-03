@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from mpinterfaces import MP_API
+from mpinterfaces import PMG_MAPI_KEY
 from mpinterfaces.mat2d.stability import *
 from mpinterfaces.mat2d.stability.analysis import get_competing_phases, \
     get_hull_distance
@@ -30,13 +30,13 @@ class StartupTest(unittest.TestCase):
 
 class AnalysisTest(unittest.TestCase):
 
-    @unittest.skipIf(not MP_API, "API key not set")
+    @unittest.skipIf(not PMG_MAPI_KEY, "API key not set")
     def test_get_hull_distance_for_BiTeCl(self):
         os.chdir(ROOT)
         os.chdir('BiTeCl')
         self.assertEqual(get_hull_distance(), 0.10335952666666692)
 
-    @unittest.skipIf(not MP_API, "API key not set")
+    @unittest.skipIf(not PMG_MAPI_KEY, "API key not set")
     def test_get_competing_phases_for_BiTeCl(self):
         os.chdir(ROOT)
         os.chdir('BiTeCl')

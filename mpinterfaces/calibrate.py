@@ -35,7 +35,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from pymatgen import Lattice
+from pymatgen.core import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io.vasp.inputs import Incar, Poscar

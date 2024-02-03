@@ -99,7 +99,7 @@ Note: on using virtual environments on your own machine, we recommend to use Min
    and update the file so that you at least have the following
    environment variables :
 
-   - MAPI_KEY=the_key_obtained_from_materialsproject
+   - PMG_MAPI_KEY=the_key_obtained_from_materialsproject
 
    - PMG_VASP_PSP_DIR=path_to_vasp_potcar_files
 

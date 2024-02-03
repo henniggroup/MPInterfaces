@@ -1,7 +1,11 @@
 import os
 import unittest
 
-from mpinterfaces import MPINT_CONFIG
+from mpinterfaces import (
+    VASP_PSP, VASP_STD_BIN, VASP_TWOD_BIN,
+    USERNAME, VDW_KERNEL, QUEUE_SYSTEM, 
+    QUEUE_TEMPLATE, MPR
+)
 from mpinterfaces.mat2d.electronic_structure import *
 from mpinterfaces.mat2d.electronic_structure.analysis import get_band_edges, \
     get_fermi_velocities, plot_band_alignments, plot_band_structure, \

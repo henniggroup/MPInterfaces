@@ -21,7 +21,7 @@ def get_grain_boundary_interface(structure=None,
         tilt:      tilt in degrees
     """
 
-    structure = get_struct_from_mp(structure, MAPI_KEY="")
+    structure = get_struct_from_mp(structure, PMG_MAPI_KEY="")
     sa = SpacegroupAnalyzer(structure)
     structure_conventional = sa.get_conventional_standard_structure()
     structure = structure_conventional.copy()

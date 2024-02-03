@@ -183,7 +183,7 @@ if __name__ == '__main__':
     bulk_fireworks = []
     bulk_firetasks = []
     # pull from matproj, use your own key
-    bulk = get_struct_from_mp('PbS', MAPI_KEY="")
+    bulk = get_struct_from_mp('PbS', PMG_MAPI_KEY="")
     #    primitive --> conventional cell
     sa = SpacegroupAnalyzer(bulk)
     structure_conventional = sa.get_conventional_standard_structure()

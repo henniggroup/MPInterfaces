@@ -23,9 +23,9 @@ from mpinterfaces.calibrate import CalibrateSlab
 from mpinterfaces.interface import Interface
 from mpinterfaces.utils import get_run_cmmnd
 
-MAPI_KEY = os.environ.get("MAPI_KEY", "")
+PMG_MAPI_KEY = os.environ.get("PMG_MAPI_KEY", "")
 # get structure from materialsproject, use your own key
-strt = get_struct_from_mp('PbS', MAPI_KEY=MAPI_KEY)
+strt = get_struct_from_mp('PbS', PMG_MAPI_KEY=PMG_MAPI_KEY)
 # convert from fcc primitive to conventional cell
 # the conventional unit cell is used to create the slab
 # this is important becasue the hkl specification for the required slab

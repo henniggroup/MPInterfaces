@@ -13,7 +13,7 @@ database using their API
 
 Note: Before using the script, make sure that you do have a valid 
 api key obtained  from the materialsproject website. 
-Use that to set the MAPI_KEY variable below
+Use that to set the PMG_MAPI_KEY variable below
 """
 
 from pymatgen.core import Molecule, Structure
@@ -23,7 +23,7 @@ from mpinterfaces.interface import Interface, Ligand
 
 if __name__ == '__main__':
     # PbS 100 surface with single hydrazine as ligand
-    # strt=get_struct_from_mp("PbS",MAPI_KEY=MAPI_KEY) 
+    # strt=get_struct_from_mp("PbS",PMG_MAPI_KEY=PMG_MAPI_KEY) 
     # using smiles_to_xyz.py you can obtain molecule xyz
     # using openbabel.  
     # example structure files are provided and set in dev_scripts

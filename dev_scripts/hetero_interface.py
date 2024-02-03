@@ -211,12 +211,12 @@ if __name__ == '__main__':
 
 
     # structure from materials project, use your own key
-    # gaas = get_struct_from_mp('GaAs', MAPI_KEY="")
+    # gaas = get_struct_from_mp('GaAs', PMG_MAPI_KEY="")
     # sa_gaas = SpacegroupAnalyzer(gaas)
     # gaas_cvn = sa_gaas.get_conventional_standard_structure()
     # gaas_cvn.to(fmt='poscar', filename='POSCAR_GaAs.vasp')
 
-    # cdte = get_struct_from_mp('CdTe', MAPI_KEY="")
+    # cdte = get_struct_from_mp('CdTe', PMG_MAPI_KEY="")
     # sa_cdte = SpacegroupAnalyzer(cdte)
     # cdte_cvn = sa_cdte.get_conventional_standard_structure()
     # cdte_cvn.to(fmt='poscar', filename='POSCAR_CdTe.vasp')

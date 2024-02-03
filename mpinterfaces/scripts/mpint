@@ -40,7 +40,7 @@ sh.setFormatter(formatter)
 logger.addHandler(fh)
 logger.addHandler(sh)
 
-MAPI_KEY = os.environ.get("MAPI_KEY", "")
+PMG_MAPI_KEY = os.environ.get("PMG_MAPI_KEY", "")
 
 
 def process_dir(val):
@@ -93,8 +93,8 @@ class mpint(object):
 
     def get_struct(self):
         if self.formula:
-            if MAPI_KEY:
-                strt = get_struct_from_mp(self.formula, MAPI_KEY=MAPI_KEY)
+            if PMG_MAPI_KEY:
+                strt = get_struct_from_mp(self.formula, PMG_MAPI_KEY=PMG_MAPI_KEY)
                 sa = SpacegroupAnalyzer(strt)
                 structure_conventional = sa.get_conventional_standard_structure()
                 strt = structure_conventional.copy()
@@ -105,7 +105,7 @@ class mpint(object):
 
             else:
                 print(
-                    'get API KEY from materialsproject and set it to the MAPI_KEY environment variable')
+                    'get API KEY from materialsproject and set it to the PMG_MAPI_KEY environment variable')
                 sys.exit()
         else:
             strt = None

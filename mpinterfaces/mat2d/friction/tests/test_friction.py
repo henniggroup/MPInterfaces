@@ -1,7 +1,12 @@
 import os
 import unittest
 
-from mpinterfaces import MPINT_CONFIG
+from mpinterfaces import (
+    VASP_PSP, VASP_STD_BIN, VASP_TWOD_BIN,
+    USERNAME, VDW_KERNEL, QUEUE_SYSTEM, 
+    QUEUE_TEMPLATE, MPR
+)
+from mpinterfaces.config_loader import CONFIG
 from mpinterfaces.mat2d.friction import *
 from mpinterfaces.mat2d.friction.analysis import get_basin_and_peak_locations, \
     get_mu_vs_F_N

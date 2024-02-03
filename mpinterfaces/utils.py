@@ -31,7 +31,7 @@ from monty.json import MontyEncoder, MontyDecoder
 from monty.serialization import loadfn, dumpfn
 
 from pymatgen.core.sites import PeriodicSite
-from pymatgen import Structure, Lattice, Element
+from pymatgen.core.structure import Structure, Lattice, Element
 from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.inputs import Poscar
@@ -109,7 +109,7 @@ def slab_from_file(hkl, filename):
                 hkl,
                 Structure.from_sites(slab_input, to_unit_cell=True),
                 shift=0,
-                scale_factor=np.eye(3, dtype=np.int),
+                scale_factor=np.eye(3, dtype=int),
                 site_properties=slab_input.site_properties)
 
 
